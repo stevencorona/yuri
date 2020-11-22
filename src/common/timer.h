@@ -1,28 +1,27 @@
 #pragma once
 
-#define DIFF_TICK(a,b) ((int)((a)-(b)))
+#define DIFF_TICK(a, b) ((int)((a) - (b)))
 #define INVALID_TIMER -1
 
 // timer flags
 #define TIMER_ONCE_AUTODEL 0x01
-#define TIMER_INTERVAL     0x02
-#define TIMER_REMOVE_HEAP  0x10
+#define TIMER_INTERVAL 0x02
+#define TIMER_REMOVE_HEAP 0x10
 
 struct TimerData {
-	unsigned int tick;
-	int (*func)(int,int);
-	int type;
-	unsigned int interval;
-	int heap_pos;
+  unsigned int tick;
+  int (*func)(int, int);
+  int type;
+  unsigned int interval;
+  int heap_pos;
 
-	// general-purpose storage
-	int id; 
-	int data1;
-	int data2;
-	
+  // general-purpose storage
+  int id;
+  int data1;
+  int data2;
 };
 
-int timer_insert(unsigned int, unsigned int,int (*)(int,int),int,int);
+int timer_insert(unsigned int, unsigned int, int (*)(int, int), int, int);
 int timer_remove(int);
 int timer_do();
 int getDay(void);
