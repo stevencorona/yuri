@@ -193,6 +193,7 @@ static void sig_proc(int sn) {
   switch (sn) {
     case SIGINT:
     case SIGTERM:
+      printf("[core] [signal] signal=SIGTERM\n");
       if (term_func) term_func();
       timer_clear();
       for (i = 0; i < fd_max; i++) {
