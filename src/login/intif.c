@@ -133,7 +133,6 @@ int intif_parse_connectconfirm(int fd) {
     tk_crypt(WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
     int len = 0;
-    int newlen = 0;
     char *thing = NULL;
 
     WFIFOHEAD(RFIFOW(fd, 2), 23 + 255);

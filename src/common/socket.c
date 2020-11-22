@@ -73,7 +73,6 @@ struct stThrottle* Throttles = NULL;
 
 static AccessControl* access_allow = NULL;
 static AccessControl* access_deny = NULL;
-static int access_order = ACO_DENY_ALLOW;
 static int access_allownum = 0;
 static int access_denynum = 0;
 static int access_debug = 0;
@@ -336,9 +335,6 @@ void set_defaulttimeout(int (*default_timeout)(int)) {
 //----------------------------
 int recv_to_fifo(int fd) {
   int len;
-  // char r_buffer[(512*1024)];
-  int diff = 0;
-  struct socket_data* p;
 
   if ((fd < 0) || (fd >= FD_SETSIZE)) return -1;
 
@@ -476,10 +472,6 @@ int connect_client(int listen_fd) {
   int fd;
   struct sockaddr_in client_address;
   int len;
-  int result;
-  int yes = 1;  // reuse fix
-
-  // printf("connect_client : %d\n", listen_fd);
 
   len = sizeof(client_address);
 
@@ -541,7 +533,6 @@ int make_listen_port(int port) {
   struct sockaddr_in server_address;
   int fd;
   int result;
-  int yes = 1;  // reuse fix
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -589,7 +580,6 @@ int make_connection(long ip, int port) {
   struct sockaddr_in server_address;
   int fd;
   int result;
-  int yes = 1;  // reuse fix
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -698,10 +688,8 @@ int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen) {
 }
 
 int realloc_fifo(int fd, size_t addition) {
-  // struct socket_data *s = session[fd];
-
   size_t newsize;
-  unsigned int g_Size = 0;
+
   if (!session[fd]) return 0;
   // if(!rfifo_sizen) return 0;
   if (!addition) return 0;
@@ -827,8 +815,7 @@ int do_sendrecv(int next) {
 
 int do_parsepacket(void) {
   int i;
-  struct socket_data* p;
-  // return 0;
+
   for (i = 1; i < fd_max; i++) {
     // p=session[i];
     activeFD = i;

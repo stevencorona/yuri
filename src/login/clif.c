@@ -30,7 +30,6 @@ int isKey(int fd) {
   return 1;
 }
 int encrypt(int fd, char *name, char *EncHash) {
-  char key[16];
   set_packet_indexes(WFIFOP(fd, 0));
   tk_crypt(WFIFOP(fd, 0));
   return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
@@ -63,8 +62,6 @@ bool bannedIPCheck(char *ip) {
 }
 
 int clif_accept(int fd) {
-  int IPCount = 0;
-
   int P = 0;
   bool DDOS = false;
   bool banned = false;
@@ -147,9 +144,6 @@ int clif_message(int fd, char code, char *buff) {
 }
 
 int clif_sendurl(int fd, int type, char *url) {
-  int ulen = strlen(url);
-  int len = 0;
-
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 3) = 0x66;
   WFIFOB(fd, 4) = 0x03;
@@ -167,8 +161,6 @@ int clif_sendurl(int fd, int type, char *url) {
 
 int reg_check(const char *n, int len) {
   char buf[255];
-  int flag = 0;
-  int nFlag = 0;
 
   unsigned int id = 0;
   unsigned int accountid = 0;
@@ -305,7 +297,6 @@ unsigned int metacrc(char *file) {
 
   unsigned int checksum = 0;
   unsigned int size = 0;
-  unsigned int size2 = 0;
   char fileinf[196608];
   fp = fopen(file, "rbe");
   if (!fp) {
@@ -398,7 +389,6 @@ int send_metalist(int fd) {
   int len = 0;
   unsigned int checksum = 0;
   char filebuf[255];
-  int count = 0;
   int x = 0;
 
   WFIFOHEAD(fd, 65535 * 2);
@@ -448,12 +438,9 @@ int clif_debug(unsigned char *stringthing, int len) {
 }
 
 int clif_parse(int fd) {
-  char name[31];
-  char EncHash[0x401];
   unsigned short len = 0;
   unsigned short ver = 0;
   unsigned short deep = 0;
-  int lenn = 10;
   if (session[fd]->eof) {
     session_eof(fd);
     return 0;
