@@ -193,9 +193,7 @@ int intif_parse_connectconfirm(int fd) {
 
 int intif_parse_changepass(int fd) {
   if (!session[RFIFOW(fd, 2)]) {
-    {
-      return 0;
-    }
+    return 0;
   }
 
   if (!RFIFOB(fd, 4)) {
@@ -235,9 +233,7 @@ int intif_parse(int fd) {
   if (RFIFOB(fd, 0) == 0xAA) {
     int len = SWAP16(RFIFOW(fd, 1)) + 3;
     if (len <= RFIFOREST(fd)) {
-      {
-        RFIFOSKIP(fd, len);
-      }
+      RFIFOSKIP(fd, len);
     }
     return 0;
   }
