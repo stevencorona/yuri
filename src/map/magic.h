@@ -33,6 +33,7 @@ int magicdb_dispel(int);
 int magicdb_aether(int);
 int magicdb_mute(int);
 int magicdb_type(int);
+int magicdb_level(unsigned char *);
 
 int magicdb_read();
 int magicdb_term();

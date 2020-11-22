@@ -1,6 +1,4 @@
-
-#ifndef _MAP_H_
-#define _MAP_H_
+#pragma once
 
 #include <stdarg.h>
 #include "script.h"
@@ -517,4 +515,5 @@ int map_loadclanbank(int);
 int map_weather(int,int);
 int map_cronjob(int,int);
 int map_savechars(int,int);
-#endif
+int map_loadregistry(int);
+NPC* map_name2npc(char *);

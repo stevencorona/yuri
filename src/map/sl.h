@@ -21,7 +21,7 @@ void sl_resumeinput(char *,char *,USER *);
 void sl_resumesell(unsigned int,USER *);
 void sl_exec(USER *, char *);
 void sl_async_freeco(USER*);
-int sl_reload();
+int sl_reload(lua_State*);
 int sl_luasize(USER*);
 void sl_fixmem();
 #endif

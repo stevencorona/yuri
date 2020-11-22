@@ -23,6 +23,7 @@ int metamax;
 //int clif_sendguidelist(USER*);
 //int clif_sendguidespecific(USER*);
 //int CheckProximity(point one, point two); //New
+int send_metalist(USER *);
 int clif_sendurl(USER*,int,char*);
 int clif_blockmovement(USER*,int);
 int clif_send_pc_health(USER*,int,int);
@@ -56,6 +57,7 @@ int clif_npc_move(struct block_list*,va_list);
 int clif_mob_move(struct block_list*,va_list);
 int clif_mob_damage(USER*, MOB*);
 int clif_send_mob_health(MOB*,int,int);
+int clif_send_mob_healthscript(MOB*, int, int);
 int clif_mob_kill(MOB*);
 int clif_send_destroy(struct block_list*,va_list);
 int clif_huntertoggle(USER*);

@@ -14,7 +14,7 @@
 
 DBMap *clan_db;
 
-int clandb_add(USER* sd, char* name) {
+int clandb_add(void* sd, char* name) {
 	struct clan_data *db=NULL;
 	unsigned int newid = 0;
 	char* data;
@@ -35,7 +35,7 @@ int clandb_add(USER* sd, char* name) {
 	
 	db=clandb_search(newid);
 	strcpy(db->name,name);
-	sd->status.clan=newid;
+    ((USER*)sd)->status.clan=newid;
 	
 
 

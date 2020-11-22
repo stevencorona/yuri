@@ -134,5 +134,6 @@ int itemdb_protected(unsigned int);
 int itemdb_resist(unsigned int);
 int itemdb_physdeduct(unsigned int);
 int itemdb_time(unsigned int);
+int itemdb_stackamount(unsigned int id);
 
 #endif

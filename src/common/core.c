@@ -66,19 +66,27 @@ int main(int argc,char **argv)
 	while(run){
 	
 		tick = gettick_nocache();
-		
-		//Timer thread
-		next = pthread_create(&thread_dotimer, NULL, timer_do, tick); 
-		pthread_join(thread_dotimer, NULL); 
 
-		//send & receive thread
-		pthread_create(&thread_sendrecv, NULL, do_sendrecv, next); 
-		pthread_join(thread_sendrecv, NULL); 
-		
-		//packet thread
-		pthread_create(&thread_id_packet, NULL, do_parsepacket, NULL); 
-		pthread_join(thread_id_packet, NULL); 		
-	}
+		//Timer thread
+//		next = pthread_create(&thread_dotimer, NULL, timer_do, tick);
+//		pthread_join(thread_dotimer, NULL);
+//
+//		//send & receive thread
+//		pthread_create(&thread_sendrecv, NULL, do_sendrecv, next);
+//		pthread_join(thread_sendrecv, NULL);
+//
+//		//packet thread
+//		pthread_create(&thread_id_packet, NULL, do_parsepacket, NULL);
+//		pthread_join(thread_id_packet, NULL);
+
+		timer_do(tick);
+		do_sendrecv(next);
+		do_parsepacket();
+
+        usleep(10000);
+
+    }
+
 
 	return 0;
 }

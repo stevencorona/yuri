@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <lualib.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
@@ -27,6 +28,11 @@
 #include "crypt.h"
 #include "npc.h"
 #include "class_db.h"
+#include "timer.h"
+#include "clif.h"
+#include <unistd.h>
+#include "command.h"
+
 
 #define sl_redtext(text) "\033[31;1m" text "\033[0m"
 #define sl_err(text) printf(sl_redtext("Lua error:") " %s\n", text)
@@ -768,7 +774,7 @@ int setpass(lua_State *state) {
     return 0;
 }
 
-int getpass(lua_State *state) {
+int get_pass(lua_State *state) {
     sl_checkargs(state, "nn");
     int m = lua_tonumber(state, 1);
     int x = lua_tonumber(state, 2);
@@ -3522,7 +3528,7 @@ void sl_init() {
     lua_register(sl_gstate, "getTile", gettile);
     lua_register(sl_gstate, "setTile", settile);
     lua_register(sl_gstate, "setPass", setpass);
-    lua_register(sl_gstate, "getPass", getpass);
+    lua_register(sl_gstate, "getPass", get_pass);
     lua_register(sl_gstate, "setMap", setmap);
     lua_register(sl_gstate, "getMapAttribute", getMapAttribute);
     lua_register(sl_gstate, "setMapAttribute", setMapAttribute);
@@ -8224,7 +8230,7 @@ int pcl_removeKan(lua_State *state, USER *sd) {
 }
 
 
-pcl_kanBalance(lua_State
+int pcl_kanBalance(lua_State
 *state,
 USER *sd
 )

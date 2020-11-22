@@ -12,3 +12,4 @@ struct recipe_data* recipedb_search(unsigned int);
 void recipedb_read();
 void recipedb_term();
 void recipedb_init();
+struct recipe_data* recipedb_searchname(const char *);

@@ -30,5 +30,6 @@ struct clan_data* clandb_searchname(const char*);
 int clandb_read();
 int clandb_term();
 int clandb_init();
+int clandb_add(void* sd, char* name);
 
 #endif
