@@ -865,53 +865,7 @@ int do_parsepacket(void) {
   activeFD = -1;
   return 0;
 }
-void log_session(int fd, const char* text) {
-  /*FILE* fp=NULL;
-  fp=fopen("function-log.txt","a");
-  if(fp!=NULL)
-  {
-          fprintf(fp,text,fd);
-          fclose(fp);
-  }*/
-}
-void log_start(int fd, char* func) {
-  struct mmo_charstatus* t = NULL;
 
-  if (activeFD != -1) {
-    if (session[activeFD] && session[activeFD]->session_data) {
-      t = (struct mmo_charstatus*)session[activeFD]->session_data;
-    }
-  }
-  FILE* fp = NULL;
-  fp = fopen("function-log.txt", "a");
-  if (fp != NULL) {
-    if (t) {
-      fprintf(fp, "START: %s - User: %s\n", func, t->name);
-    } else {
-      fprintf(fp, "START: %s\n", func);
-    }
-  }
-  fclose(fp);
-}
-void log_stop(int fd, char* func) {
-  struct mmo_charstatus* t = NULL;
-
-  if (activeFD != -1) {
-    if (session[activeFD] && session[activeFD]->session_data) {
-      t = (struct mmo_charstatus*)session[activeFD]->session_data;
-    }
-  }
-  FILE* fp = NULL;
-  fp = fopen("function-log.txt", "a");
-  if (fp != NULL) {
-    if (t) {
-      fprintf(fp, "START: %s - User: %s\n", func, t->name);
-    } else {
-      fprintf(fp, "STOP: %s\n", func);
-    }
-  }
-  fclose(fp);
-}
 // Socket init
 //----------------------------
 void do_socket(void) {
