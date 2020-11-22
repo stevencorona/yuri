@@ -66,11 +66,17 @@ int string_check_allchars(const char *p, int len) {
   memcpy(buf, p, len);
   return Valid(buf, mask1);
 }
+
 int string_check(const char *p, int len) {
   char buf[255];
   memset(buf, 0, 255);
   memcpy(buf, p, len);
   return Valid(buf, mask2);
+}
+
+int add_meta(char *file) {
+  strcpy(meta_file[metamax], file);
+  return metamax++;
 }
 
 int lang_read(const char *cfg_file) {
@@ -238,7 +244,7 @@ int do_init(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
-                               (uint16)sql_port, sql_db)) {
+                               (uint16_t)sql_port, sql_db)) {
     printf("[login] [sql_connect_error] id=%s port=%d\n", sql_id, sql_pw,
            sql_port);
     Sql_ShowDebug(sql_handle);
@@ -281,8 +287,4 @@ int setInvalidCount(unsigned int ip) {
   uidb_put(bf_lockout, ip, c + 1);
 
   return c + 1;
-}
-int add_meta(char *file) {
-  strcpy(meta_file[metamax], file);
-  return metamax++;
 }

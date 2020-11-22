@@ -20,6 +20,7 @@
 #include "../common/timer.h"
 #include "clif.h"
 #include "map.h"
+#include "npc.h"
 #include "pc.h"
 
 int script_config_read_sub(char *cfgName) {

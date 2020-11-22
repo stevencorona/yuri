@@ -3,10 +3,9 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _CBASETYPES_H_
-#include "../common/cbasetypes.h"
-#endif
-#include <stdarg.h>  // va_list
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
 
 // Return codes
 #define SQL_ERROR -1
@@ -63,12 +62,12 @@ struct Sql* Sql_Malloc(void);
 ///
 /// @return SQL_SUCCESS or SQL_ERROR
 int Sql_Connect(Sql* self, const char* user, const char* passwd,
-                const char* host, uint16 port, const char* db);
+                const char* host, uint16_t port, const char* db);
 
 /// Retrieves the timeout of the connection.
 ///
 /// @return SQL_SUCCESS or SQL_ERROR
-int Sql_GetTimeout(Sql* self, uint32* out_timeout);
+int Sql_GetTimeout(Sql* self, uint32_t* out_timeout);
 
 /// Retrieves the name of the columns of a table into out_buf, with the
 /// separator after each name.
@@ -125,17 +124,17 @@ int Sql_QueryStr(Sql* self, const char* query);
 /// query.
 ///
 /// @return Value of the auto-increment column
-uint64 Sql_LastInsertId(Sql* self);
+uint64_t Sql_LastInsertId(Sql* self);
 
 /// Returns the number of columns in each row of the result.
 ///
 /// @return Number of columns
-uint32 Sql_NumColumns(Sql* self);
+uint32_t Sql_NumColumns(Sql* self);
 
 /// Returns the number of rows in the result.
 ///
 /// @return Number of rows
-uint64 Sql_NumRows(Sql* self);
+uint64_t Sql_NumRows(Sql* self);
 
 /// Fetches the next row.
 /// The data of the previous row is no longer valid.
@@ -228,7 +227,7 @@ int SqlStmt_Execute(SqlStmt* self);
 /// statement.
 ///
 /// @return Value of the auto-increment column
-uint64 SqlStmt_LastInsertId(SqlStmt* self);
+uint64_t SqlStmt_LastInsertId(SqlStmt* self);
 
 /// Returns the number of columns in each row of the result.
 ///
@@ -242,13 +241,13 @@ size_t SqlStmt_NumColumns(SqlStmt* self);
 ///
 /// @return SQL_SUCCESS or SQL_ERROR
 int SqlStmt_BindColumn(SqlStmt* self, size_t idx, SqlDataType buffer_type,
-                       void* buffer, size_t buffer_len, uint32* out_length,
-                       int8* out_is_null);
+                       void* buffer, size_t buffer_len, uint32_t* out_length,
+                       int8_t* out_is_null);
 
 /// Returns the number of rows in the result.
 ///
 /// @return Number of rows
-uint64 SqlStmt_NumRows(SqlStmt* self);
+uint64_t SqlStmt_NumRows(SqlStmt* self);
 
 /// Fetches the next row.
 /// All column bindings will be filled with data.

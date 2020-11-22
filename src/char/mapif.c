@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
 
 #include "char.h"
 #include "char_db.h"
@@ -13,7 +14,6 @@
 #include "mmo.h"
 #include "socket.h"
 #include "strlib.h"
-#include "zlib.h"
 
 static const int packet_len_table[] = {72,
                                        -1,

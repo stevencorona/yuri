@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
 
 #include "char_db.h"
 #include "core.h"
@@ -18,7 +19,6 @@
 #include "socket.h"
 #include "timer.h"
 #include "version.h"
-#include "zlib.h"
 
 int char_port = 2005;
 

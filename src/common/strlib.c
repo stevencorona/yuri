@@ -3,12 +3,12 @@
 
 #include "strlib.h"
 
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../common/cbasetypes.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
 
@@ -115,7 +115,7 @@ int remove_control_chars(char* str) {
   int change = 0;
 
   for (i = 0; str[i]; i++) {
-    if (ISCNTRL(str[i])) {
+    if (iscntrl(str[i])) {
       str[i] = '_';
       change = 1;
     }
@@ -133,10 +133,10 @@ char* trim(char* str) {
   if (str == NULL) return str;
 
   // get start position
-  for (start = 0; str[start] && ISSPACE(str[start]); ++start)
+  for (start = 0; str[start] && isspace(str[start]); ++start)
     ;
   // get end position
-  for (end = strlen(str); start < end && str[end - 1] && ISSPACE(str[end - 1]);
+  for (end = strlen(str); start < end && str[end - 1] && isspace(str[end - 1]);
        --end)
     ;
   // trim
@@ -188,11 +188,11 @@ const char* stristr(const char* haystack, const char* needle) {
     return haystack;
   }
   for (; *haystack; ++haystack) {
-    if (TOUPPER(*haystack) == TOUPPER(*needle)) {
+    if (toupper(*haystack) == toupper(*needle)) {
       // matched starting char -- loop through remaining chars
       const char *h, *n;
       for (h = haystack, n = needle; *h && *n; ++h, ++n) {
-        if (TOUPPER(*h) != TOUPPER(*n)) {
+        if (toupper(*h) != toupper(*n)) {
           break;
         }
       }
@@ -449,13 +449,13 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
         }
         if (str[i] == 'x') {  // hex escape
           ++i;                // 'x'
-          if (IS_END() || !ISXDIGIT(str[i])) {
+          if (IS_END() || !isxdigit(str[i])) {
             ShowError("sv_parse: \\x with no following hex digits\n");
             return -1;
           }
           do {
             ++i;  // hex digit
-          } while (!IS_END() && ISXDIGIT(str[i]));
+          } while (!IS_END() && isxdigit(str[i]));
         } else if (str[i] == '0' || str[i] == '1' ||
                    str[i] == '2') {                              // octal escape
           ++i;                                                   // octal digit
@@ -703,7 +703,7 @@ size_t sv_unescape_c(char* out_dest, const char* src, size_t len) {
         unsigned char inrange = 1;
 
         ++i;  // 'x'
-        if (i >= len || !ISXDIGIT(src[i])) {
+        if (i >= len || !isxdigit(src[i])) {
           ShowWarning("sv_unescape_c: \\x with no following hex digits\n");
           continue;
         }
@@ -714,7 +714,7 @@ size_t sv_unescape_c(char* out_dest, const char* src, size_t len) {
           }
           c = (c << 4) | low2hex[(unsigned char)src[i]];  // hex digit
           ++i;
-        } while (i < len && ISXDIGIT(src[i]));
+        } while (i < len && isxdigit(src[i]));
         out_dest[j++] = (char)c;
       } else if (src[i] == '0' || src[i] == '1' || src[i] == '2' ||
                  src[i] == '3') {  // octal escape sequence (255=0377)
@@ -777,7 +777,7 @@ const char* skip_escaped_c(const char* p) {
     switch (*p) {
       case 'x':  // hexadecimal
         ++p;
-        while (ISXDIGIT(*p)) ++p;
+        while (isxdigit(*p)) ++p;
         break;
       case '0':
       case '1':

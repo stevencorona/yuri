@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
 
 #include "../common/db.h"
 #include "../common/mmo.h"
@@ -17,7 +18,6 @@
 #include "socket.h"
 #include "strlib.h"
 #include "timer.h"
-#include "zlib.h"
 
 struct DBMap* auth_db;
 extern unsigned int getTicks(void);

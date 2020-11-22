@@ -27,9 +27,6 @@ enum { LOOK_GET, LOOK_SEND };
 char meta_file[META_MAX][256];
 int metamax;
 
-// int clif_sendguidelist(USER*);
-// int clif_sendguidespecific(USER*);
-// int CheckProximity(point one, point two); //New
 int send_metalist(USER *);
 int clif_sendurl(USER *, int, char *);
 int clif_blockmovement(USER *, int);
@@ -55,6 +52,7 @@ int clif_getLevelTNL(USER *);
 float clif_getXPBarPercent(USER *);
 
 void clif_MobItmUpdate();
+int clif_Hacker(char *, const char *);
 
 int clif_show_ghost(USER *, USER *);
 int clif_mob_look_start(USER *);
@@ -177,6 +175,12 @@ int clif_speak(struct block_list *, va_list);
 int clif_parsebuy(USER *);
 int clif_playsound(struct block_list *, int);
 int clif_handle_disconnect(USER *);
+int clif_handitem(USER *);
+int clif_exchange_money(USER *, USER *);
+int clif_exchange_additem(USER *, USER *, int, int);
+int clif_updategroup(USER *, char *);
+int clif_startexchange(USER *, unsigned int);
+int clif_sendhunternote(USER *);
 int clif_mapselect(USER *, char *, int *, int *, char **, unsigned int *, int *,
                    int *, int);
 int clif_deductweapon(USER *, int);
@@ -186,10 +190,54 @@ int clif_checkdura(USER *, int);
 int clif_sendpowerboard(USER *);
 int clif_cancelafk(USER *);
 
-// int clif_refreshfix(USER*);
-// int clif_loadregistry();
-// int clif_saveregistry(struct global_reg*, int, const char*);
-// int clif_setglobalreg(char*,int);
-// int clif_readglobalreg(char*);
+int clif_sendanimation(struct block_list *, va_list);
+int clif_speak(struct block_list *, va_list);
+int clif_object_canmove(int, int, int, int);
+int clif_object_canmove_from(int, int, int, int);
+int clif_exchange_close(USER *);
+int clif_exchange_message(USER *, char *, int, int);
+int clif_parseinput(USER *);
+int clif_parse_exchange(USER *);
+int clif_postitem(USER *);
+int clif_addgroup(USER *);
+int clif_groupstatus(USER *);
+int clif_handgold(USER *);
+int clif_changestatus(USER *, int);
+int clif_parsesell(USER *);
+int clif_showboards(USER *);
+int clif_clickonplayer(USER *, struct block_list *);
+int clif_leavegroup(USER *);
+int clif_unequipit(USER *, int);
+int clif_isingroup(USER *sd, USER *tsd);
+int clif_grouphealth_update(USER *sd);
+int clif_pushback(USER *sd);
+int clif_sendanimations(USER *src, USER *sd);
+int clif_transfer(USER *sd, int serverid, int m, int x, int y);
+int clif_transfer_test(USER *sd, int m, int x, int y);
+int clif_sendupdatestatus_onequip(USER *sd);
+int clif_send_duration(USER *sd, int id, int time, USER *tsd);
+int clif_deductduraequip(USER *sd);
+int clif_checkinvbod(USER *sd);
+int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type);
+int getclifslotfromequiptype(int equipType);
+int clif_selldialog(USER *sd, unsigned int id, char *dialog, int item[],
+                    int count);
+int clif_input(USER *sd, int id, char *dialog, char *item);
+int clif_buydialog(USER *sd, unsigned int id, char *dialog, struct item *item,
+                   int price[], int count);
+int clif_send_pc_healthscript(USER *sd, int damage, int critical);
+int clif_sendminimap(USER *sd);
+int clif_inputseq(USER *sd, int id, char *dialog, char *dialog2, char *dialog3,
+                  char *menu[], int size, int previous, int next);
+int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
+                               int count);
+int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
+                         int invslot);
+int clif_paperpopup(USER *sd, const char *buf, int width, int height);
+char *clif_getaccountemail(unsigned int id);
+
 int encrypt(int);
 int decrypt(int);
+
+int send_meta(USER *);
+int send_metalist(USER *);

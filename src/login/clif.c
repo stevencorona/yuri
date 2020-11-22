@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
@@ -298,6 +299,133 @@ int maintenance_override(const char *n, int len) {
   return flag;
 }
 
+
+unsigned int metacrc(char *file) {
+  FILE *fp = NULL;
+
+  unsigned int checksum = 0;
+  unsigned int size = 0;
+  unsigned int size2 = 0;
+  char fileinf[196608];
+  fp = fopen(file, "rbe");
+  if (!fp) {
+    return 0;
+  }
+  fseek(fp, 0, SEEK_END);
+  size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  fread(fileinf, 1, size, fp);
+  fclose(fp);
+  checksum = crc32(checksum, fileinf, size);
+
+  return checksum;
+}
+
+int send_metafile(int fd, char *file) {
+  int len = 0;
+  unsigned int checksum = 0;
+  unsigned int clen = 0;
+  Bytef *ubuf = NULL;
+  Bytef *cbuf = NULL;
+  unsigned int ulen = 0;
+  char filebuf[255];
+  unsigned int retval = 0;
+  FILE *fp = NULL;
+
+  sprintf(filebuf, "meta/%s", file);
+
+  checksum = metacrc(filebuf);
+
+  fp = fopen(filebuf, "rbe");
+  if (!fp) {
+    return 0;
+  }
+
+  fseek(fp, 0, SEEK_END);
+  ulen = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  // CALLOC(ubuf,0,ulen);
+  ubuf = (char *)calloc(ulen + 1, sizeof(char));
+  clen = compressBound(ulen);
+  cbuf = (char *)calloc(clen + 1, sizeof(char));
+  fread(ubuf, 1, ulen, fp);
+  fclose(fp);
+
+  retval = compress(cbuf, &clen, ubuf, ulen);
+
+  if (retval != 0) {
+    printf("[login] [send_metafile_error] retval=%d\n", retval);
+  }
+
+  WFIFOHEAD(fd, 65535 * 2);
+  WFIFOB(fd, 0) = 0xAA;
+  WFIFOB(fd, 3) = 0x6F;
+  WFIFOB(fd, 5) = 0;  // this is sending file data
+  WFIFOB(fd, 6) = strlen(file);
+  strcpy(WFIFOP(fd, 7), file);
+  len += strlen(file) + 1;
+  WFIFOL(fd, len + 6) = SWAP32(checksum);
+  len += 4;
+  WFIFOW(fd, len + 6) = SWAP16(clen);
+  len += 2;
+  memcpy(WFIFOP(fd, len + 6), cbuf, clen);
+  len += clen;
+  WFIFOB(fd, len + 6) = 0;
+  len += 1;
+
+  WFIFOW(fd, 1) = SWAP16(len + 3);
+  set_packet_indexes(WFIFOP(fd, 0));
+  tk_crypt(WFIFOP(fd, 0));
+  WFIFOSET(fd, len + 6 + 3);
+
+  free(cbuf);
+  free(ubuf);
+  return 0;
+}
+
+int send_meta(int fd) {
+  char temp[255];
+
+  memset(temp, 0, 255);
+  memcpy(temp, RFIFOP(fd, 7), RFIFOB(fd, 6));
+
+  send_metafile(fd, temp);
+
+  return 0;
+}
+
+int send_metalist(int fd) {
+  int len = 0;
+  unsigned int checksum = 0;
+  char filebuf[255];
+  int count = 0;
+  int x = 0;
+
+  WFIFOHEAD(fd, 65535 * 2);
+  WFIFOB(fd, 0) = 0xAA;
+  WFIFOB(fd, 3) = 0x6F;
+  WFIFOB(fd, 5) = 1;
+  WFIFOW(fd, 6) = SWAP16(metamax);
+  len += 2;
+  for (x = 0; x < metamax; x++) {
+    WFIFOB(fd, (len + 6)) = strlen(meta_file[x]);
+    memcpy(WFIFOP(fd, len + 7), meta_file[x], strlen(meta_file[x]));
+    len += strlen(meta_file[x]) + 1;
+    sprintf(filebuf, "meta/%s", meta_file[x]);
+    checksum = metacrc(filebuf);
+    WFIFOL(fd, len + 6) = SWAP32(checksum);
+    len += 4;
+  }
+
+  WFIFOW(fd, 1) = SWAP16(len + 4);
+  set_packet_indexes(WFIFOP(fd, 0));
+  tk_crypt(WFIFOP(fd, 0));
+  WFIFOSET(fd, len + 7 + 3);
+
+  return 0;
+}
+
+
 int clif_debug(unsigned char *stringthing, int len) {
   int i = 0;
 
@@ -402,7 +530,7 @@ int clif_parse(int fd) {
         // set_packet_indexes(WFIFOP(fd, 0));
         WFIFOSET(fd, 20);
       } else {
-        printf("[login] [patching] ver=%s\n", ver);
+        printf("[login] [patching] ver=%d\n", ver);
         WFIFOB(fd, 0) = 0xAA;
         WFIFOW(fd, 1) = SWAP16(0x29);
         WFIFOB(fd, 3) = 0;
@@ -643,130 +771,5 @@ int clif_parse(int fd) {
   }
 
   RFIFOSKIP(fd, len);
-  return 0;
-}
-
-unsigned int metacrc(char *file) {
-  FILE *fp = NULL;
-
-  unsigned int checksum = 0;
-  unsigned int size = 0;
-  unsigned int size2 = 0;
-  char fileinf[196608];
-  fp = fopen(file, "rbe");
-  if (!fp) {
-    return 0;
-  }
-  fseek(fp, 0, SEEK_END);
-  size = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-  fread(fileinf, 1, size, fp);
-  fclose(fp);
-  checksum = crc32(checksum, fileinf, size);
-
-  return checksum;
-}
-
-int send_metafile(int fd, char *file) {
-  int len = 0;
-  unsigned int checksum = 0;
-  unsigned int clen = 0;
-  Bytef *ubuf = NULL;
-  Bytef *cbuf = NULL;
-  unsigned int ulen = 0;
-  char filebuf[255];
-  unsigned int retval = 0;
-  FILE *fp = NULL;
-
-  sprintf(filebuf, "meta/%s", file);
-
-  checksum = metacrc(filebuf);
-
-  fp = fopen(filebuf, "rbe");
-  if (!fp) {
-    return 0;
-  }
-
-  fseek(fp, 0, SEEK_END);
-  ulen = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-  // CALLOC(ubuf,0,ulen);
-  ubuf = (char *)calloc(ulen + 1, sizeof(char));
-  clen = compressBound(ulen);
-  cbuf = (char *)calloc(clen + 1, sizeof(char));
-  fread(ubuf, 1, ulen, fp);
-  fclose(fp);
-
-  retval = compress(cbuf, &clen, ubuf, ulen);
-
-  if (retval != 0) {
-    printf("[login] [send_metafile_error] retval=%d\n", retval);
-  }
-
-  WFIFOHEAD(fd, 65535 * 2);
-  WFIFOB(fd, 0) = 0xAA;
-  WFIFOB(fd, 3) = 0x6F;
-  WFIFOB(fd, 5) = 0;  // this is sending file data
-  WFIFOB(fd, 6) = strlen(file);
-  strcpy(WFIFOP(fd, 7), file);
-  len += strlen(file) + 1;
-  WFIFOL(fd, len + 6) = SWAP32(checksum);
-  len += 4;
-  WFIFOW(fd, len + 6) = SWAP16(clen);
-  len += 2;
-  memcpy(WFIFOP(fd, len + 6), cbuf, clen);
-  len += clen;
-  WFIFOB(fd, len + 6) = 0;
-  len += 1;
-
-  WFIFOW(fd, 1) = SWAP16(len + 3);
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
-  WFIFOSET(fd, len + 6 + 3);
-
-  free(cbuf);
-  free(ubuf);
-  return 0;
-}
-
-int send_meta(int fd) {
-  char temp[255];
-
-  memset(temp, 0, 255);
-  memcpy(temp, RFIFOP(fd, 7), RFIFOB(fd, 6));
-
-  send_metafile(fd, temp);
-
-  return 0;
-}
-
-int send_metalist(int fd) {
-  int len = 0;
-  unsigned int checksum = 0;
-  char filebuf[255];
-  int count = 0;
-  int x = 0;
-
-  WFIFOHEAD(fd, 65535 * 2);
-  WFIFOB(fd, 0) = 0xAA;
-  WFIFOB(fd, 3) = 0x6F;
-  WFIFOB(fd, 5) = 1;
-  WFIFOW(fd, 6) = SWAP16(metamax);
-  len += 2;
-  for (x = 0; x < metamax; x++) {
-    WFIFOB(fd, (len + 6)) = strlen(meta_file[x]);
-    memcpy(WFIFOP(fd, len + 7), meta_file[x], strlen(meta_file[x]));
-    len += strlen(meta_file[x]) + 1;
-    sprintf(filebuf, "meta/%s", meta_file[x]);
-    checksum = metacrc(filebuf);
-    WFIFOL(fd, len + 6) = SWAP32(checksum);
-    len += 4;
-  }
-
-  WFIFOW(fd, 1) = SWAP16(len + 4);
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
-  WFIFOSET(fd, len + 7 + 3);
-
   return 0;
 }

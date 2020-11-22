@@ -9,6 +9,7 @@
 
 #include "board_db.h"
 #include "class_db.h"
+#include "creation.h"
 #include "clif.h"
 #include "itemdb.h"
 #include "magic.h"

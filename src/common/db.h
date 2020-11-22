@@ -42,8 +42,7 @@
 \*****************************************************************************/
 
 #include <stdarg.h>
-
-#include "../common/cbasetypes.h"
+#include <stdbool.h>
 
 /*****************************************************************************\
  *  (1) Section with public typedefs, enums, unions, structures and defines. *

@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,7 +79,7 @@ int main(int argc, char **argv) {
     do_sendrecv(next);
     do_parsepacket();
 
-    usleep(10000);
+    nanosleep((struct timespec[]){{0, 10000}},NULL);
   }
 
   return 0;

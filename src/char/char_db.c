@@ -1,9 +1,11 @@
-
 #include "char_db.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <zlib.h>
 
 #include "char.h"
 #include "db_mysql.h"
@@ -14,7 +16,6 @@
 #include "strlib.h"
 #include "timer.h"
 #include "version.h"
-#include "zlib.h"
 
 void char_db_init() {
   sql_handle = Sql_Malloc();
@@ -23,7 +24,7 @@ void char_db_init() {
     exit(EXIT_FAILURE);
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
-                               (uint16)sql_port, sql_db)) {
+                               (uint16_t)sql_port, sql_db)) {
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
     exit(EXIT_FAILURE);
@@ -107,7 +108,7 @@ int ismastpass(char* pass3, char* mastmd5, int expire) {
     return 0;
   }
   //	printf("Entering master password check - mastmd5: %s - expire: %s-
-  //pass3: %s\n",mastmd5,expire,pass3);
+  // pass3: %s\n",mastmd5,expire,pass3);
 }
 
 /// Attempt to find an existing ID that is available.

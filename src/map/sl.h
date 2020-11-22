@@ -10,10 +10,13 @@ void sl_init();
 void sl_runfunc(char *, struct block_list *);
 int sl_doscript_blargs(char *, char *, int, ...);
 int sl_doscript_stackargs(char *, char *, int);
+int sl_doscript_strings(char *root, char *method, int nargs, ...);
 int sl_updatepeople(struct block_list *, va_list);
 #define sl_doscript_simple(root, method, bl) \
   sl_doscript_blargs(root, method, 1, bl)
 void sl_resumemenu(unsigned int, USER *);
+void sl_resumemenuseq(unsigned int selection, int choice, USER *sd);
+void sl_resumeinputseq(unsigned int choice, char *input, USER *sd);
 void sl_resumedialog(unsigned int, USER *);
 // void sl_resumebuy(unsigned int,USER *);
 void sl_resumebuy(char *, USER *);

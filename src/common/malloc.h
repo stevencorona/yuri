@@ -2,6 +2,7 @@
 
 #define __func__ __FUNCTION__
 #include <stddef.h>
+#include <stdio.h>
 
 #define ALC_MARK __FILE__, __LINE__, __func__
 

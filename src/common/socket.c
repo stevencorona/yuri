@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,9 +14,9 @@
 #include <sys/time.h>
 #include <sys/timeb.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
-#include "cbasetypes.h"
 #include "crypt.h"
 #include "malloc.h"
 #include "mmo.h"
@@ -52,15 +53,15 @@ extern unsigned long Last_Eof;
 
 typedef struct _connect_history {
   struct _connect_history* next;
-  uint32 ip;
-  uint32 tick;
+  uint32_t ip;
+  uint32_t tick;
   int count;
   unsigned ddos : 1;
 } ConnectHistory;
 
 typedef struct _access_control {
-  uint32 ip;
-  uint32 mask;
+  uint32_t ip;
+  uint32_t mask;
 } AccessControl;
 
 enum _aco { ACO_DENY_ALLOW, ACO_ALLOW_DENY, ACO_MUTUAL_FAILURE };
@@ -86,15 +87,14 @@ static int ddos_autoreset = 10 * 60 * 1000;
 /// The array's index for any ip is ip&0xFFFF
 static ConnectHistory* connect_history[0x10000];
 
-static int connect_check_(uint32 ip);
+static int connect_check_(uint32_t ip);
 
 /// Verifies if the IP can connect. (with debug info)
 /// @see connect_check_()
-static int connect_check(uint32 ip) {
+static int connect_check(uint32_t ip) {
   int result = connect_check_(ip);
   if (access_debug) {
-    ShowInfo("connect_check: Connection from %u.%u.%u.%u %s\n", CONVIP2(ip),
-             result ? "allowed." : "denied!");
+    printf("[socket] [connect_check] ip=%u.%u.%u.%u %s\n", CONVIP2(ip));
   }
   return result;
 }
@@ -102,7 +102,7 @@ static int connect_check(uint32 ip) {
 /// Verifies if the IP can connect.
 ///  0      : Connection Rejected
 ///  1 or 2 : Connection Accepted
-static int connect_check_(uint32 ip) {
+static int connect_check_(uint32_t ip) {
   ConnectHistory* hist = connect_history[ip & 0xFFFF];
   int i;
   int is_allowip = 0;
@@ -227,8 +227,8 @@ static int connect_check_clear(int d, int data) {
 /// Parses the ip address and mask and puts it into acc.
 /// Returns 1 is successful, 0 otherwise.
 int access_ipmask(const char* str, AccessControl* acc) {
-  uint32 ip;
-  uint32 mask;
+  uint32_t ip;
+  uint32_t mask;
   unsigned int a[4];
   unsigned int m[4];
   int n;
@@ -250,9 +250,9 @@ int access_ipmask(const char* str, AccessControl* acc) {
         (n == 5 && m[0] > 32)) {     // invalid bit mask
       return 0;
     }
-    ip = (uint32)(a[0] | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
+    ip = (uint32_t)(a[0] | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
     if (n == 8) {  // standard mask
-      mask = (uint32)(a[0] | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
+      mask = (uint32_t)(a[0] | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
     } else if (n == 5) {  // bit mask
       mask = 0;
       while (m[0]) {

@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include <sys/timeb.h>
 #include <sys/types.h>
+#include <time.h>
 
 #include "../common/malloc.h"
 #include "../common/mmo.h"
@@ -18,6 +19,7 @@
 #include "class_db.h"
 #include "clif.h"
 #include "db_mysql.h"
+#include "intif.h"
 #include "itemdb.h"
 #include "magic.h"
 #include "map.h"

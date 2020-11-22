@@ -3,13 +3,13 @@
 
 #include "showmsg.h"
 
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>  // atexit
 #include <string.h>
 #include <time.h>
 
-#include "../common/cbasetypes.h"
 #include "../common/strlib.h"  // StringBuf
 
 #ifdef WIN32
@@ -255,7 +255,7 @@ int VFPRINTF(HANDLE handle, const char *fmt, va_list argptr) {
       // skip escape and bracket
       q = q + 2;
       for (;;) {
-        if (ISDIGIT(*q)) {  // add number to number array, only accept 2digits,
+        if (isdigit(*q)) {  // add number to number array, only accept 2digits,
                             // shift out the rest
           // so // \033[123456789m will become \033[89m
           numbers[numpoint] = (numbers[numpoint] << 4) | (*q - '0');
@@ -552,7 +552,7 @@ int VFPRINTF(FILE *file, const char *fmt, va_list argptr) {
       // skip escape and bracket
       q = q + 2;
       while (1) {
-        if (ISDIGIT(*q)) {
+        if (isdigit(*q)) {
           ++q;
           // and next character
           continue;
