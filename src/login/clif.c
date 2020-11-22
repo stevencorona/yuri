@@ -6,7 +6,6 @@
 #include <string.h>
 #include <zlib.h>
 
-#include "core.h"
 #include "crypt.h"
 #include "db_mysql.h"
 #include "intif.h"
@@ -17,26 +16,11 @@
 
 extern int Check_Throttle(struct sockaddr_in S);
 extern void Add_Throttle(struct sockaddr_in S);
+
 const unsigned char svkey1packets[] = {2, 10, 68, 94, 96, 98, 102, 111};
 
-int isKey(int fd) {
-  int x = 0;
-  for (x = 0; x < (sizeof(svkey1packets) / sizeof(svkey1packets[0])); x++) {
-    if (fd == svkey1packets[x]) {
-      return 0;
-    }
-  }
-  return 1;
-}
-int encrypt(int fd, char* name, char* EncHash) {
-  char key[16];
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
-  return (int)SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
-}
-
-bool bannedIPCheck(char* ip) {
-  SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+bool bannedIPCheck(char *ip) {
+  SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
   if (stmt == NULL) {
     SqlStmt_ShowDebug(stmt);
@@ -62,20 +46,18 @@ bool bannedIPCheck(char* ip) {
 }
 
 int clif_accept(int fd) {
-  int IPCount = 0;
-
   int P = 0;
   bool DDOS = false;
   bool banned = false;
-
   char ip[30];
+
   strcpy(ip, inet_ntoa(session[fd]->client_addr.sin_addr));
 
   banned = bannedIPCheck(ip);
 
   printf("[LOGIN] Client connected from: %s\n", ip);
 
-  FILE* packetlog = fopen("packetlog.txt", "a+e");
+  FILE *packetlog = fopen("packetlog.txt", "a+e");
   if (packetlog == NULL) {
     printf("Please run with sudo- cant open packet log\n");
   } else {
@@ -143,8 +125,8 @@ int clif_accept(int fd) {
   return 0;
 }
 
-int clif_message(int fd, char code, char* buff) {
-  int packet_len = strlen(buff) + 6;
+int clif_message(int fd, char code, char *buff) {
+  size_t packet_len = strlen(buff) + 6;
   WFIFOHEAD(fd, packet_len + 3);
   WFIFOB(fd, 0) = 0xAA;
   WFIFOW(fd, 1) = SWAP16(packet_len);
@@ -161,18 +143,17 @@ int clif_message(int fd, char code, char* buff) {
   return 0;
 }
 
-int clif_sendurl(int fd, int type, char* url) {
-  int ulen = strlen(url);
-  int len = 0;
+int clif_sendurl(int fd, int type, char *url) {
+  size_t url_len = strlen(url);
 
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 3) = 0x66;
   WFIFOB(fd, 4) = 0x03;
   WFIFOB(fd, 5) = type;  // type. 0 = ingame browser, 1= popup open browser then
-                         // close client, 2 = popup
-  WFIFOW(fd, 6) = SWAP16(strlen(url));
-  memcpy(WFIFOP(fd, 8), url, strlen(url));
-  WFIFOW(fd, 1) = SWAP16(strlen(url) + 8);
+  // close client, 2 = popup
+  WFIFOW(fd, 6) = SWAP16(url_len);
+  memcpy(WFIFOP(fd, 8), url, url_len);
+  WFIFOW(fd, 1) = SWAP16(url_len + 8);
   set_packet_indexes(WFIFOP(fd, 0));
   tk_crypt(WFIFOP(fd, 0));
   WFIFOSET(fd, strlen(url) + 8);
@@ -180,15 +161,13 @@ int clif_sendurl(int fd, int type, char* url) {
   return 0;
 }
 
-int reg_check(const char* n, int len) {
+int reg_check(const char *n, int len) {
   char buf[255];
-  int flag = 0;
-  int nFlag = 0;
 
   unsigned int id = 0;
   unsigned int accountid = 0;
 
-  SqlStmt* stmt = NULL;
+  SqlStmt *stmt = NULL;
 
   memset(buf, 0, 255);
   memcpy(buf, n, len);
@@ -249,7 +228,7 @@ int maintenance_mode() {
   int flag = 0;
   int nFlag = 0;
 
-  SqlStmt* stmt = NULL;
+  SqlStmt *stmt = NULL;
 
   stmt = SqlStmt_Malloc(sql_handle);
   if (stmt == NULL) {
@@ -276,12 +255,12 @@ int maintenance_mode() {
   return flag;
 }
 
-int maintenance_override(const char* n, int len) {
+int maintenance_override(const char *n, int len) {
   char buf[255];
   int flag = 0;
   int nFlag = 0;
 
-  SqlStmt* stmt = NULL;
+  SqlStmt *stmt = NULL;
 
   memset(buf, 0, 255);
   memcpy(buf, n, len);
@@ -314,7 +293,7 @@ int maintenance_override(const char* n, int len) {
   return flag;
 }
 
-int clif_debug(unsigned char* stringthing, int len) {
+int clif_debug(unsigned char *stringthing, int len) {
   int i = 0;
 
   for (i = 0; i < len; i++) {
@@ -336,12 +315,9 @@ int clif_debug(unsigned char* stringthing, int len) {
 }
 
 int clif_parse(int fd) {
-  char name[31];
-  char EncHash[0x401];
   unsigned short len = 0;
   unsigned short ver = 0;
-  unsigned short deep = 0;
-  int lenn = 10;
+
   if (session[fd]->eof) {
     session_eof(fd);
     return 0;
@@ -351,7 +327,7 @@ int clif_parse(int fd) {
     CALLOC(session[fd]->session_data, struct login_session_data, 1);
   }
 
-  struct login_session_data* sd = session[fd]->session_data;
+  struct login_session_data *sd = session[fd]->session_data;
 
   if (RFIFOB(fd, 0) != 0xAA) {
     int head_err = 0;
@@ -390,7 +366,7 @@ int clif_parse(int fd) {
 
   // printf("%s\n", OutStr);
 
-  FILE* packetlog = fopen("packetlog.txt", "a+e");
+  FILE *packetlog = fopen("packetlog.txt", "a+e");
   if (packetlog == NULL) {
     printf("Please run with sudo- cant open packet log\n");
   } else {
@@ -411,7 +387,6 @@ int clif_parse(int fd) {
 
       tk_crypt(RFIFOP(fd, 0));  // reverse the encryption
       ver = SWAP16(RFIFOW(fd, 4));
-      deep = SWAP16(RFIFOW(fd, 7));
       // printf("got this far\n");
       if (ver == nex_version) {
         WFIFOB(fd, 0) = 0xAA;
@@ -663,7 +638,8 @@ int clif_parse(int fd) {
           break;
         case 1:  // Requqest the list to use
           send_metalist(fd);
-
+          break;
+        default:
           break;
       }
       break;
@@ -683,12 +659,11 @@ int clif_parse(int fd) {
   return 0;
 }
 
-unsigned int metacrc(char* file) {
-  FILE* fp = NULL;
+unsigned int metacrc(char *file) {
+  FILE *fp = NULL;
 
   unsigned int checksum = 0;
   unsigned int size = 0;
-  unsigned int size2 = 0;
   char fileinf[196608];
   fp = fopen(file, "rbe");
   if (!fp) {
@@ -704,16 +679,16 @@ unsigned int metacrc(char* file) {
   return checksum;
 }
 
-int send_metafile(int fd, char* file) {
+int send_metafile(int fd, char *file) {
   int len = 0;
   unsigned int checksum = 0;
   unsigned int clen = 0;
-  Bytef* ubuf = NULL;
-  Bytef* cbuf = NULL;
+  Bytef *ubuf = NULL;
+  Bytef *cbuf = NULL;
   unsigned int ulen = 0;
   char filebuf[255];
   unsigned int retval = 0;
-  FILE* fp = NULL;
+  FILE *fp = NULL;
 
   sprintf(filebuf, "meta/%s", file);
 
@@ -728,9 +703,9 @@ int send_metafile(int fd, char* file) {
   ulen = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   // CALLOC(ubuf,0,ulen);
-  ubuf = (char*)calloc(ulen + 1, sizeof(char));
+  ubuf = (char *)calloc(ulen + 1, sizeof(char));
   clen = compressBound(ulen);
-  cbuf = (char*)calloc(clen + 1, sizeof(char));
+  cbuf = (char *)calloc(clen + 1, sizeof(char));
   fread(ubuf, 1, ulen, fp);
   fclose(fp);
 
@@ -778,10 +753,9 @@ int send_meta(int fd) {
 }
 
 int send_metalist(int fd) {
-  int len = 0;
+  size_t len = 0;
   unsigned int checksum = 0;
   char filebuf[255];
-  int count = 0;
   int x = 0;
 
   WFIFOHEAD(fd, 65535 * 2);

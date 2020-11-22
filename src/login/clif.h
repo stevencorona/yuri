@@ -12,3 +12,6 @@ int clif_sendurl(int, int, char *);
 
 int clif_accept(int);
 int clif_parse(int);
+
+int send_meta(int fd);
+int send_metalist(int fd);
