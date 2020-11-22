@@ -28,15 +28,15 @@ int isKey(int fd) {
   }
   return 1;
 }
-int encrypt(int fd, char* name, char* EncHash) {
+int encrypt(int fd, char *name, char *EncHash) {
   char key[16];
   set_packet_indexes(WFIFOP(fd, 0));
   tk_crypt(WFIFOP(fd, 0));
-  return (int)SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
+  return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
 }
 
-bool bannedIPCheck(char* ip) {
-  SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+bool bannedIPCheck(char *ip) {
+  SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
   if (stmt == NULL) {
     SqlStmt_ShowDebug(stmt);
@@ -73,25 +73,12 @@ int clif_accept(int fd) {
 
   banned = bannedIPCheck(ip);
 
-  printf("[LOGIN] Client connected from: %s\n", ip);
-
-  FILE* packetlog = fopen("packetlog.txt", "a+e");
-  if (packetlog == NULL) {
-    printf("Please run with sudo- cant open packet log\n");
-  } else {
-    fprintf(packetlog, "Ip address connected: %s\n", ip);
-    fclose(packetlog);
-  }
+  printf("[login] [accept] ip=%s\n", ip);
 
   if (DDOS) {
     Add_Throttle(session[fd]->client_addr);
-    Log_Add(
-        "DDoS",
-        "<%02d:%02d> Login DDoS detected from %u.%u.%u.%u - ip throttled.\n",
-        getHour(), getMinute(),
-        CONVIP2(session[fd]->client_addr.sin_addr.s_addr));
-    printf("(DDOS)- Closing all connections from %u.%u.%u.%u\n",
-           CONVIP(session[fd]->client_addr.sin_addr.s_addr));
+    printf("[login] [ddos_throttle] ip=%u.%u.%u.%u\n",
+           CONVIP2(session[fd]->client_addr.sin_addr.s_addr));
 
     for (P = 0; P <= fd_max; P++) {
       if (session[P] == NULL) {
@@ -111,10 +98,7 @@ int clif_accept(int fd) {
     session_eof(fd);
   } else if (banned) {
     // Add_Throttle( session[fd]->client_addr);
-    Log_Add("BANNED",
-            "<%02d:%02d> Banned IP detected from %s - ip throttled.\n",
-            getHour(), getMinute(), ip);
-    printf("(BANNED)- Closing all connections from %s\n", ip);
+    printf("[login] [banned] ip=%s\n", ip);
 
     for (P = 0; P <= fd_max; P++) {
       if (session[P] == NULL) {
@@ -143,7 +127,7 @@ int clif_accept(int fd) {
   return 0;
 }
 
-int clif_message(int fd, char code, char* buff) {
+int clif_message(int fd, char code, char *buff) {
   int packet_len = strlen(buff) + 6;
   WFIFOHEAD(fd, packet_len + 3);
   WFIFOB(fd, 0) = 0xAA;
@@ -161,7 +145,7 @@ int clif_message(int fd, char code, char* buff) {
   return 0;
 }
 
-int clif_sendurl(int fd, int type, char* url) {
+int clif_sendurl(int fd, int type, char *url) {
   int ulen = strlen(url);
   int len = 0;
 
@@ -180,7 +164,7 @@ int clif_sendurl(int fd, int type, char* url) {
   return 0;
 }
 
-int reg_check(const char* n, int len) {
+int reg_check(const char *n, int len) {
   char buf[255];
   int flag = 0;
   int nFlag = 0;
@@ -188,7 +172,7 @@ int reg_check(const char* n, int len) {
   unsigned int id = 0;
   unsigned int accountid = 0;
 
-  SqlStmt* stmt = NULL;
+  SqlStmt *stmt = NULL;
 
   memset(buf, 0, 255);
   memcpy(buf, n, len);
@@ -249,7 +233,7 @@ int maintenance_mode() {
   int flag = 0;
   int nFlag = 0;
 
-  SqlStmt* stmt = NULL;
+  SqlStmt *stmt = NULL;
 
   stmt = SqlStmt_Malloc(sql_handle);
   if (stmt == NULL) {
@@ -276,12 +260,12 @@ int maintenance_mode() {
   return flag;
 }
 
-int maintenance_override(const char* n, int len) {
+int maintenance_override(const char *n, int len) {
   char buf[255];
   int flag = 0;
   int nFlag = 0;
 
-  SqlStmt* stmt = NULL;
+  SqlStmt *stmt = NULL;
 
   memset(buf, 0, 255);
   memcpy(buf, n, len);
@@ -314,7 +298,7 @@ int maintenance_override(const char* n, int len) {
   return flag;
 }
 
-int clif_debug(unsigned char* stringthing, int len) {
+int clif_debug(unsigned char *stringthing, int len) {
   int i = 0;
 
   for (i = 0; i < len; i++) {
@@ -351,7 +335,7 @@ int clif_parse(int fd) {
     CALLOC(session[fd]->session_data, struct login_session_data, 1);
   }
 
-  struct login_session_data* sd = session[fd]->session_data;
+  struct login_session_data *sd = session[fd]->session_data;
 
   if (RFIFOB(fd, 0) != 0xAA) {
     int head_err = 0;
@@ -372,7 +356,7 @@ int clif_parse(int fd) {
   int L = 0;
 
   char OutStr[1024] = "";
-  sprintf(OutStr, "Packet (IP%u.%u.%u.%u L%i): ",
+  sprintf(OutStr, "ip=%u.%u.%u.%u length=%i packet=",
           CONVIP(session[fd]->client_addr.sin_addr.s_addr), len);
 
   char ip[30];
@@ -384,19 +368,7 @@ int clif_parse(int fd) {
     strcat(OutStr, HexStr);
   }
 
-  // ofstream LogFile("PacketLog.txt", ios::binary|ios::out|ios::app);
-  // LogFile << OutStr << endl;
-  // LogFile.close();
-
-  // printf("%s\n", OutStr);
-
-  FILE* packetlog = fopen("packetlog.txt", "a+e");
-  if (packetlog == NULL) {
-    printf("Please run with sudo- cant open packet log\n");
-  } else {
-    fprintf(packetlog, "%s\n", OutStr);
-    fclose(packetlog);
-  }
+  printf("[login] [packet_in] %s\n", OutStr);
 
   if (RFIFOREST(fd) < len) {
     {
@@ -430,7 +402,7 @@ int clif_parse(int fd) {
         // set_packet_indexes(WFIFOP(fd, 0));
         WFIFOSET(fd, 20);
       } else {
-        printf("patching\n");
+        printf("[login] [patching] ver=%s\n", ver);
         WFIFOB(fd, 0) = 0xAA;
         WFIFOW(fd, 1) = SWAP16(0x29);
         WFIFOB(fd, 3) = 0;
@@ -443,13 +415,11 @@ int clif_parse(int fd) {
         WFIFOSET(fd, 44 + 3);
         // session[fd]->eof=1;
       }
-      // printf("Client connected!\n");
       break;
     case 0x02:
 
       memset(sd->name, 0, 16);
       memset(sd->pass, 0, 16);
-      // printf("Reading Login info.\n");
 
       if ((RFIFOB(fd, 5) > 12) || (RFIFOB(fd, 5) < 3) ||
           string_check_allchars(RFIFOP(fd, 6), RFIFOB(fd, 5))) {
@@ -512,14 +482,7 @@ int clif_parse(int fd) {
           char name[16];
           strncpy(name, RFIFOP(fd, 6), RFIFOB(fd, 5));
 
-          Log_Add("regreject",
-                  "<%02d:%02d> Character %s attempted to login from IP %s - "
-                  "unregistered character/login rejected.\n",
-                  getHour(), getMinute(), name, ip);
-          printf(
-              "Character %s attempted to login from IP %s - unregistered "
-              "character/login rejected.\n",
-              name, ip);
+          printf("[login] [require_reg] name=%s ip=%s\n", name, ip);
 
           clif_message(fd, 0x03,
                        "You must attach your character to an account to "
@@ -673,7 +636,7 @@ int clif_parse(int fd) {
       intif_auth(fd);
       break;
     default:
-      printf("[LOGIN] Unknown Packet ID: %02X Packet from %s:\n", RFIFOB(fd, 3),
+      printf("[login] [packet_unknown] id=%02X ip=%s:\n", RFIFOB(fd, 3),
              inet_ntoa(session[fd]->client_addr.sin_addr));
       clif_debug(RFIFOP(fd, 0), SWAP16(RFIFOW(fd, 1)));
       break;
@@ -683,8 +646,8 @@ int clif_parse(int fd) {
   return 0;
 }
 
-unsigned int metacrc(char* file) {
-  FILE* fp = NULL;
+unsigned int metacrc(char *file) {
+  FILE *fp = NULL;
 
   unsigned int checksum = 0;
   unsigned int size = 0;
@@ -704,16 +667,16 @@ unsigned int metacrc(char* file) {
   return checksum;
 }
 
-int send_metafile(int fd, char* file) {
+int send_metafile(int fd, char *file) {
   int len = 0;
   unsigned int checksum = 0;
   unsigned int clen = 0;
-  Bytef* ubuf = NULL;
-  Bytef* cbuf = NULL;
+  Bytef *ubuf = NULL;
+  Bytef *cbuf = NULL;
   unsigned int ulen = 0;
   char filebuf[255];
   unsigned int retval = 0;
-  FILE* fp = NULL;
+  FILE *fp = NULL;
 
   sprintf(filebuf, "meta/%s", file);
 
@@ -728,16 +691,16 @@ int send_metafile(int fd, char* file) {
   ulen = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   // CALLOC(ubuf,0,ulen);
-  ubuf = (char*)calloc(ulen + 1, sizeof(char));
+  ubuf = (char *)calloc(ulen + 1, sizeof(char));
   clen = compressBound(ulen);
-  cbuf = (char*)calloc(clen + 1, sizeof(char));
+  cbuf = (char *)calloc(clen + 1, sizeof(char));
   fread(ubuf, 1, ulen, fp);
   fclose(fp);
 
   retval = compress(cbuf, &clen, ubuf, ulen);
 
   if (retval != 0) {
-    printf("Errored %d\n", retval);
+    printf("[login] [send_metafile_error] retval=%d\n", retval);
   }
 
   WFIFOHEAD(fd, 65535 * 2);

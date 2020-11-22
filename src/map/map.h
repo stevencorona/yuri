@@ -439,7 +439,6 @@ struct npc_chardata *map_id2cnpc(unsigned int);
 void map_clritem();
 void map_delitem(unsigned int);
 void map_additem(struct block_list *);
-// void Log_Add(const char*, const char*, ...);
 void map_deliddb(struct block_list *);
 void map_addiddb(struct block_list *);
 int isPlayerActive(USER *sd);

@@ -146,10 +146,7 @@ static int connect_check_(uint32 ip) {
         hist->tick = gettick();
         if (hist->count++ >= ddos_count) {  // DDoS attack detected
           hist->ddos = 1;
-          Log_Add("DDoS", "<%02d:%02d> DDoS attack detected from %u.%u.%u.%u\n",
-                  getHour(), getMinute(), CONVIP2(ip));
-          // ShowWarning("connect_check: DDoS Attack detected from
-          // %u.%u.%u.%u!\n", CONVIP2(ip));
+          printf("[ddos] ip=%u.%u.%u.%u\n", CONVIP2(ip));
           return (connect_ok == 2 ? 1 : 0);
         }
         return connect_ok;
@@ -177,8 +174,7 @@ int add_ip_lockout(unsigned int n) {
     if (ip == hist->ip) {
       hist->ddos = 1;
       hist->tick = gettick();
-      Log_Add("LockOut", "IP locked out for wrong password %u.%u.%u.%u\n",
-              CONVIP2(ip));
+      printf("[lockout] ip=%u.%u.%u.%u\n", CONVIP2(ip));
       return 0;
     }
     hist = hist->next;
@@ -191,8 +187,7 @@ int add_ip_lockout(unsigned int n) {
   hist->ddos = 1;
   hist->next = connect_history[ip & 0xFFFF];
   connect_history[ip & 0xFFFF] = hist;
-  Log_Add("LockOut", "IP locked out for wrong password %u.%u.%u.%u\n",
-          CONVIP2(ip));
+  printf("[lockout] ip=%u.%u.%u.%u\n", CONVIP2(ip));
   return 0;
 }
 /// Timer function.

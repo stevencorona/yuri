@@ -63,37 +63,6 @@ int getSecond(void) {
   return d->tm_sec;
 }
 
-void Log_Add(const char* name, const char* buf, ...) {
-  FILE* fp;
-  StringBuf file;
-  StringBuf b;
-  va_list args;
-  time_t t;
-  struct tm* d;
-
-  t = time(NULL);
-  d = localtime(&t);
-
-  StringBuf_Init(&file);
-  StringBuf_Printf(&file, "logs/%s-%04d-%02d-%02d.log", name, d->tm_year + 1900,
-                   d->tm_mon + 1, d->tm_mday);
-  // printf(StringBuf_Value(&file));
-  fp = fopen(StringBuf_Value(&file), "a");
-  if (fp == NULL) {
-    StringBuf_Destroy(&file);
-    printf("Error Creating Log - %s\n", name);
-    return;
-  }
-  StringBuf_Destroy(&file);
-  StringBuf_Init(&b);
-  va_start(args, buf);
-  StringBuf_Vprintf(&b, buf, args);
-  va_end(args);
-  fprintf(fp, StringBuf_Value(&b));
-  fprintf(fp, "\n");
-  StringBuf_Destroy(&b);
-  fclose(fp);
-}
 /// platform-abstracted tick retrieval
 
 static unsigned int tick(void) {

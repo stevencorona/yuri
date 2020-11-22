@@ -57,8 +57,7 @@ int intif_auth(int fd) {
   WFIFOB(char_fd, 2) = 0x00;
   WFIFOSET(char_fd, 3);
 
-  add_log("Connection from Char Server accepted.\n");
-  printf("Connection from Char Server accepted.\n");
+  printf("[login] [char_server_connect] Connection from Char Server accepted.\n");
   return 0;
 }
 int intif_parse_2001(int fd) {
@@ -96,21 +95,18 @@ int intif_parse_connectconfirm(int fd) {
     return 0;
   }
 
-  struct login_session_data* sd = session[RFIFOW(fd, 2)]->session_data;
+  struct login_session_data *sd = session[RFIFOW(fd, 2)]->session_data;
 
   if (RFIFOB(fd, 4) == 0) {
-    Log_Add("validlogin",
-            "<%02d:%02d> User: %s IP: %u.%u.%u.%u   Password used: %s\n",
-            getHour(), getMinute(), sd->name,
-            CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr),
-            sd->pass);
+    printf("[login] [auth_success] name=%s ip=%u.%u.%u.%u\n", sd->name,
+           CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
 
     unsigned char ipaddress[16] = "";
 
     sprintf(ipaddress, "%u.%u.%u.%u",
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
 
-    SqlStmt* stmt = NULL;
+    SqlStmt *stmt = NULL;
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
       SqlStmt_ShowDebug(stmt);
@@ -140,7 +136,7 @@ int intif_parse_connectconfirm(int fd) {
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
     int len = 0;
     int newlen = 0;
-    char* thing = NULL;
+    char *thing = NULL;
 
     WFIFOHEAD(RFIFOW(fd, 2), 23 + 255);
     WFIFOB(RFIFOW(fd, 2), 0) = '\xAA';
@@ -167,11 +163,8 @@ int intif_parse_connectconfirm(int fd) {
   } else if (RFIFOB(fd, 4) == 0x02) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_WRONGUSER]);
   } else if (RFIFOB(fd, 4) == 0x03) {
-    Log_Add("invalidlogin",
-            "<%02d:%02d> Login:%s IP:%u.%u.%u.%u Password used:%s\n", getHour(),
-            getMinute(), sd->name,
-            CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr),
-            sd->pass);
+    printf("[login] [auth_failure] name=%s ip=%u.%u.%u.%u\n", sd->name,
+           CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
     if (setInvalidCount(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr) >=
         10) {
       add_ip_lockout(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr);
@@ -185,7 +178,7 @@ int intif_parse_connectconfirm(int fd) {
   } else if (RFIFOB(fd, 4) == 0x06) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_DBLLOGIN]);
   } else {
-    printf("Serious error!\n");
+    printf("[login] [internal_error] intif_parse_connectconfirm failure\n");
   }
 
   return 0;
@@ -199,8 +192,8 @@ int intif_parse_changepass(int fd) {
   }
 
   if (!RFIFOB(fd, 4)) {
-    Log_Add("validchange", "<%d:%d> IP: %u.%u.%u.%u\n", getHour(), getMinute(),
-            CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
+    printf("[login] [pass_change_success] ip=%u.%u.%u.%u\n",
+           CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
     clif_message(RFIFOW(fd, 2), 0x00, login_msg[LGN_CHGPASS]);
   } else if (RFIFOB(fd, 4) == 0x01) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);
@@ -208,8 +201,7 @@ int intif_parse_changepass(int fd) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_WRONGUSER]);
 
   } else if (RFIFOB(fd, 4) == 0x03) {
-    Log_Add("invalidchange", "<%02d:%02d> IP:%u.%u.%u.%u\n", getHour(),
-            getMinute(),
+    printf("[login] [pass_change_failure] ip=%u.%u.%u.%u\n",
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
     if (setInvalidCount(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr) >=
         10) {
@@ -225,8 +217,7 @@ int intif_parse(int fd) {
   int packet_len = 0;
 
   if (session[fd]->eof) {
-    add_log("Char Server connection lost.\n");
-    printf("Char Server connection lost.\n");
+    printf("[login] [char_server_disconnect] Char Server connection lost.\n");
     char_fd = 0;
     session_eof(fd);
     return 0;

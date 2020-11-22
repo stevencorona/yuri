@@ -879,9 +879,6 @@ int clif_broadcast_sub(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
   WFIFOSET(sd->fd, encrypt(sd->fd));
 
-  // Log_Add("broadcast","<%02d:%02d> %s to World ->
-  // %s\n",getHour(),getMinute(),sd->status.name,msg);
-
   return 0;
 }
 int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
@@ -908,9 +905,6 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
   strcpy(WFIFOP(sd->fd, 8), msg);
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
   WFIFOSET(sd->fd, encrypt(sd->fd));
-
-  // Log_Add("broadcast","<%02d:%02d> %s to World ->
-  // %s\n",getHour(),getMinute(),sd->status.name,msg);
 
   return 0;
 }
@@ -941,8 +935,6 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
     WFIFOW(sd->fd, 1) = SWAP16(len + 5);
     WFIFOSET(sd->fd, encrypt(sd->fd));
 
-    // Log_Add("GMbroadcast","<%02d:%02d> %s to World ->
-    // %s\n",getHour(),getMinute(),sd->status.name,msg);
   }
   return 0;
 }
@@ -8455,8 +8447,6 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
 
                   break;
   }*/
-  // Log_Add("Say","<%02d:%02d> %s ->
-  // %s\n",getHour(),getMinute(),sd->status.name, msg);
 
   if (type >= 10) {
     namelen += 4;
@@ -8753,8 +8743,7 @@ int clif_parsesay(USER *sd) {
           return 0;
   }
 
-  Log_Add("Say","<%02d:%02d> %s -> %s\n",getHour(),getMinute(),sd->status.name,
-  msg); clif_sendsay(sd, RFIFOP(sd->fd, 7), RFIFOB(sd->fd, 6), tMode);*/
+ clif_sendsay(sd, RFIFOP(sd->fd, 7), RFIFOB(sd->fd, 6), tMode);*/
   return 0;
 }
 int clif_destroyold(USER *sd) {

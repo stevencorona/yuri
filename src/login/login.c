@@ -64,14 +64,12 @@ int string_check_allchars(const char *p, int len) {
   char buf[255];
   memset(buf, 0, 255);
   memcpy(buf, p, len);
-  // printf("Allchars: %s\n",buf);
   return Valid(buf, mask1);
 }
 int string_check(const char *p, int len) {
   char buf[255];
   memset(buf, 0, 255);
   memcpy(buf, p, len);
-  // printf("string_check: %s\n",buf);
   return Valid(buf, mask2);
 }
 
@@ -84,7 +82,8 @@ int lang_read(const char *cfg_file) {
 
   fp = fopen(cfg_file, "re");
   if (fp == NULL) {
-    printf("CFG_ERR: Language file (%s) not found.\n", cfg_file);
+    printf("[login] [lang_read_failure]: Language file (%s) not found.\n",
+           cfg_file);
     return 1;
   }
 
@@ -132,7 +131,7 @@ int lang_read(const char *cfg_file) {
     }
   }
   fclose(fp);
-  printf("Language File (%s) reading finished!\n", cfg_file);
+  printf("[login] [lang_read_sucess] file=%s\n", cfg_file);
   return 0;
 }
 
@@ -145,7 +144,7 @@ int config_read(const char *cfg_file) {
 
   fp = fopen(cfg_file, "re");
   if (fp == NULL) {
-    printf("CFG_ERR: Configuration file (%s) not found.\n", cfg_file);
+    printf("[login] [config_read_failure] file=%s\n", cfg_file);
     return 1;
   }
 
@@ -192,14 +191,11 @@ int config_read(const char *cfg_file) {
     }
   }
   fclose(fp);
-  printf("Configuration File (%s) reading finished!\n", cfg_file);
+  printf("[login] [config_read_success] file=%s\n", cfg_file);
   return 0;
 }
 
-void do_term(void) {
-  printf("ClassicTK Login Server Shutdown.\n");
-  add_log("Shutdown.\n");
-}
+void do_term(void) { printf("[login] [shutdown]\n"); }
 
 void help_screen() {
   printf("HELP LIST\n");
@@ -243,7 +239,8 @@ int do_init(int argc, char **argv) {
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
                                (uint16)sql_port, sql_db)) {
-    printf("id: %s pass: %s Port: %d\n", sql_id, sql_pw, sql_port);
+    printf("[login] [sql_connect_error] id=%s port=%d\n", sql_id, sql_pw,
+           sql_port);
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
     exit(EXIT_FAILURE);
@@ -252,8 +249,7 @@ int do_init(int argc, char **argv) {
   // sql_init();
   lang_read(LANG_FILE);
   set_termfunc(do_term);
-  add_log("");
-  add_log("ClassicTK Login Server Started.\n");
+  printf("[login] [started] Login Server Started\n");
 
   set_defaultaccept(clif_accept);
   set_defaultparse(clif_parse);
@@ -262,9 +258,7 @@ int do_init(int argc, char **argv) {
   // Lockout DB
   bf_lockout = uidb_alloc(DB_OPT_BASE);
 
-  printf("ClassicTK Login Server is \033[1;32mready\033[0m! Listening at %d.\n",
-         login_port);
-  add_log("Server Ready! Listening at %d.\n", login_port);
+  printf("[login] [ready] port=%d\n", login_port);
   return 0;
 }
 

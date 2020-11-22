@@ -30,6 +30,5 @@ int getMinute(void);
 int getSecond(void);
 int timer_clear();
 void timer_init();
-void Log_Add(const char*, const char*, ...);
 unsigned int gettick_nocache();
 unsigned int gettick();
