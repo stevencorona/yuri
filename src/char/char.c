@@ -17,10 +17,7 @@
 #include "db.h"
 #include "char_db.h"
 #include "zlib.h"
-
-#ifdef USE_MYSQL
 #include "db_mysql.h"
-#endif
 
 int char_port = 2005;
 
@@ -209,7 +206,6 @@ int config_read(const char *cfg_file) {
 			} else if(strcmpi(r1, "save_pw") == 0) {
 				strncpy(save_pw, r2, 32);
 				save_pw[31] = '\0';
-#ifdef USE_MYSQL
 			//SQL
 			} else if(strcmpi(r1, "sql_ip") == 0) {
 				strcpy(sql_ip,r2);
@@ -221,7 +217,6 @@ int config_read(const char *cfg_file) {
 				strcpy(sql_pw,r2);
 			} else if(strcmpi(r1, "sql_db") == 0) {
 				strcpy(sql_db,r2);
-#endif
 			//DUMP & LOG
 			} else if(strcmpi(r1, "char_log") == 0) {
 				set_logfile(r2);
