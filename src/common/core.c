@@ -16,8 +16,6 @@
 #include "socket.h"
 #include "timer.h"
 
-#define ISDIGIT(c) (isdigit((unsigned char)(c)))
-
 int (*func_parse_it)(char *) = default_parse_input;
 static void (*term_func)(void) = NULL;
 char dmp_filename[128];
@@ -95,7 +93,7 @@ const char *get_svn_revision(void) {
     int rev;
     // Check the version
     if (fgets(line, sizeof(line), fp)) {
-      if (!ISDIGIT(line[0])) {
+      if (!isdigit(line[0])) {
         // XML File format
         while (fgets(line, sizeof(line), fp))
           if (strstr(line, "revision=")) break;
