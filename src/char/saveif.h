@@ -1,4 +1,4 @@
 #pragma once
 
-int check_connect_save(int,int);
+int check_connect_save(int, int);
 int saveif_parse(int);

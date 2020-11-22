@@ -5,15 +5,15 @@
 #include "mmo.h"
 
 extern struct char_login_data {
-	char name[16];
-	int map_server;
+  char name[16];
+  int map_server;
 };
 
 struct map_fifo_data {
-	int fd;
-	unsigned int ip, port;
-	unsigned short map[MAX_MAP_PER_SERVER];
-	unsigned int map_n;
+  int fd;
+  unsigned int ip, port;
+  unsigned short map[MAX_MAP_PER_SERVER];
+  unsigned int map_n;
 };
 
 extern struct mmo_charstatus *char_dat;
@@ -42,14 +42,14 @@ extern char sql_ip[];
 extern char sql_db[];
 extern int sql_port;
 
-extern struct Sql* sql_handle;
+extern struct Sql *sql_handle;
 
-//int logindata_del(unsigned int);
-int logindata_change(unsigned int,int);
+// int logindata_del(unsigned int);
+int logindata_change(unsigned int, int);
 int logindata_search(unsigned int);
 
 int mapfifo_from_mapid(int);
 
-int config_read(const char*);
+int config_read(const char *);
 
 void do_term(void);

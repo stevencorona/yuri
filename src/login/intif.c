@@ -1,4 +1,6 @@
 
+#include "intif.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +9,6 @@
 #include "core.h"
 #include "crypt.h"
 #include "db_mysql.h"
-#include "intif.h"
 #include "login.h"
 #include "mmo.h"
 #include "socket.h"
@@ -32,8 +33,7 @@ int intif_auth(int fd) {
   }
   cmd = RFIFOB(fd, 3);
   packet_len = 69;
-  if (RFIFOREST(fd) < packet_len)
-    return 0;
+  if (RFIFOREST(fd) < packet_len) return 0;
 
   if ((strcmp(RFIFOP(fd, 5), login_id)) && (strcmp(RFIFOP(fd, 37), login_pw))) {
     WFIFOHEAD(fd, 3);
@@ -58,8 +58,7 @@ int intif_auth(int fd) {
   return 0;
 }
 int intif_parse_2001(int fd) {
-  if (!session[RFIFOW(fd, 2)])
-    return 0;
+  if (!session[RFIFOW(fd, 2)]) return 0;
 
   if (RFIFOB(fd, 4) == 0x01)
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_USEREXIST]);
@@ -71,8 +70,7 @@ int intif_parse_2001(int fd) {
   return 0;
 }
 int intif_parse_2002(int fd) {
-  if (!session[RFIFOW(fd, 2)])
-    return 0;
+  if (!session[RFIFOW(fd, 2)]) return 0;
 
   if (RFIFOB(fd, 4) == 0x01)
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_USEREXIST]);
@@ -84,11 +82,9 @@ int intif_parse_2002(int fd) {
   return 0;
 }
 int intif_parse_connectconfirm(int fd) {
+  if (!session[RFIFOW(fd, 2)]) return 0;
 
-  if (!session[RFIFOW(fd, 2)])
-    return 0;
-
-  struct login_session_data *sd = session[RFIFOW(fd, 2)]->session_data;
+  struct login_session_data* sd = session[RFIFOW(fd, 2)]->session_data;
 
   if (RFIFOB(fd, 4) == 0) {
     Log_Add("validlogin",
@@ -106,7 +102,7 @@ int intif_parse_connectconfirm(int fd) {
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
     // printf("ip address test: %s\n",ipaddress);
 
-    SqlStmt *stmt;
+    SqlStmt* stmt;
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
       SqlStmt_ShowDebug(stmt);
@@ -137,7 +133,7 @@ int intif_parse_connectconfirm(int fd) {
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
     int len;
     int newlen;
-    char *thing;
+    char* thing;
     // intif_debug(fd,26);
     WFIFOHEAD(RFIFOW(fd, 2), 23 + 255);
     WFIFOB(RFIFOW(fd, 2), 0) = '\xAA';
@@ -188,8 +184,7 @@ int intif_parse_connectconfirm(int fd) {
   return 0;
 }
 int intif_parse_changepass(int fd) {
-  if (!session[RFIFOW(fd, 2)])
-    return 0;
+  if (!session[RFIFOW(fd, 2)]) return 0;
 
   if (!RFIFOB(fd, 4)) {
     Log_Add("validchange", "<%d:%d> IP: %u.%u.%u.%u\n", getHour(), getMinute(),
@@ -224,8 +219,7 @@ int intif_parse(int fd) {
 
   if (RFIFOB(fd, 0) == 0xAA) {
     int len = SWAP16(RFIFOW(fd, 1)) + 3;
-    if (len <= RFIFOREST(fd))
-      RFIFOSKIP(fd, len);
+    if (len <= RFIFOREST(fd)) RFIFOSKIP(fd, len);
     return 0;
   }
 
@@ -241,8 +235,7 @@ int intif_parse(int fd) {
   packet_len = packet_len_table[cmd - 0x2000];
 
   if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6)
-      return 2;
+    if (RFIFOREST(fd) < 6) return 2;
     packet_len = RFIFOL(fd, 2);
   }
   if ((int)RFIFOREST(fd) < packet_len) {
@@ -250,21 +243,21 @@ int intif_parse(int fd) {
   }
   // printf("LOGIN: %d\n",cmd);
   switch (cmd) {
-  case 0x2001:
-    intif_parse_2001(fd);
-    break;
-  case 0x2002:
-    intif_parse_2002(fd);
-    break;
-  case 0x2003:
-    intif_parse_connectconfirm(fd);
-    break;
-  case 0x2004:
-    intif_parse_changepass(fd);
-    break;
+    case 0x2001:
+      intif_parse_2001(fd);
+      break;
+    case 0x2002:
+      intif_parse_2002(fd);
+      break;
+    case 0x2003:
+      intif_parse_connectconfirm(fd);
+      break;
+    case 0x2004:
+      intif_parse_changepass(fd);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
   RFIFOSKIP(fd, packet_len);

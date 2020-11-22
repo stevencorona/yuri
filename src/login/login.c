@@ -1,4 +1,6 @@
 
+#include "login.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +12,6 @@
 #include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "login.h"
 #include "socket.h"
 #include "timer.h"
 #include "version.h"
@@ -40,7 +41,6 @@ const char mask2[] =
 extern void Remove_Throttle(int, int);
 
 int Valid(const char *buf, const char *mask) {
-
   int x = 0;
   int n = 0;
   int found = 0;
