@@ -71,7 +71,7 @@ int itemdb_thrownconfirm(unsigned int id) {
   return db->thrownconfirm;
 }
 
-unsigned int itemdb_id(char *str) {
+unsigned int itemdb_id(const char *str) {
   struct item_data *db = NULL;
   db = itemdb_searchname(str);
   if (db) return db->id;

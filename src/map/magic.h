@@ -20,7 +20,7 @@ struct magic_data* magicdb_searchexist(int);
 struct magic_data* magicdb_searchname(const char*);
 
 char* magicdb_yname(int);
-int magicdb_id(char* str);
+int magicdb_id(const char* str);
 char* magicdb_name(int);
 char* magicdb_script(int);
 char* magicdb_script2(int);
@@ -33,7 +33,7 @@ int magicdb_dispel(int);
 int magicdb_aether(int);
 int magicdb_mute(int);
 int magicdb_type(int);
-int magicdb_level(unsigned char*);
+int magicdb_level(const char*);
 
 int magicdb_read();
 int magicdb_term();

@@ -75,7 +75,7 @@ struct item_data* itemdb_searchexist(unsigned int);
 struct item_data* itemdb_searchname(const char*);
 int itemdb_thrown(unsigned int);
 int itemdb_thrownconfirm(unsigned int);
-unsigned int itemdb_id(char* str);
+unsigned int itemdb_id(const char* str);
 char* itemdb_name(unsigned int);
 char* itemdb_yname(unsigned int);
 int itemdb_attackspeed(signed int);

@@ -50,7 +50,7 @@ struct magic_data *magicdb_searchexist(int id) {
   return db;
 }
 
-int magicdb_id(char *str) {
+int magicdb_id(const char *str) {
   struct magic_data *db = NULL;
   db = magicdb_searchname(str);
   if (db) return db->id;
@@ -128,7 +128,7 @@ int magicdb_ticker(int id) {
   return db->ticker;
 }
 
-int magicdb_level(unsigned char *spell_name) {
+int magicdb_level(const char *spell_name) {
   int id = magicdb_id(spell_name);
 
   if (id != NULL) {
