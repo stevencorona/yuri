@@ -1,3 +1,5 @@
+#pragma once
+
 /*****************************************************************************\
  *  Copyright (c) Athena Dev Teams - Licensed under GNU GPL                  *
  *  For more information, see LICENCE in the main folder                     *
@@ -37,8 +39,6 @@
  * @author Flavio @ Amazon Project                                           *
  * @encoding US-ASCII                                                        *
 \*****************************************************************************/
-#ifndef _ERS_H_
-#define _ERS_H_
 
 #ifndef _CBASETYPES_H_
 #include "../common/cbasetypes.h"
@@ -165,5 +165,3 @@ void ers_report(void);
  */
 void ers_force_destroy_all(void);
 #endif /* DISABLE_ERS / not DISABLE_ERS */
-
-#endif /* _ERS_H_ */

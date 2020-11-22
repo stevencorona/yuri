@@ -1,3 +1,5 @@
+#pragma once
+
 /*****************************************************************************\
  *  Copyright (c) Athena Dev Teams - Licensed under GNU GPL                  *
  *  For more information, see LICENCE in the main folder                     *
@@ -38,8 +40,6 @@
  * @encoding US-ASCII                                                        *
  * @see common#db.c                                                          *
 \*****************************************************************************/
-#ifndef _DB_H_
-#define _DB_H_
 
 #include "../common/cbasetypes.h"
 #include <stdarg.h>
@@ -774,8 +774,8 @@ struct linkdb_node {
 	void               *data;
 };
 
-void  linkdb_insert ( struct linkdb_node** head, void *key, void* data); // d•¡‚ğl—¶‚µ‚È‚¢
-void  linkdb_replace( struct linkdb_node** head, void *key, void* data); // d•¡‚ğl—¶‚·‚é
+void  linkdb_insert ( struct linkdb_node** head, void *key, void* data); // ï¿½dï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
+void  linkdb_replace( struct linkdb_node** head, void *key, void* data); // ï¿½dï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void* linkdb_search ( struct linkdb_node** head, void *key);
 void* linkdb_erase  ( struct linkdb_node** head, void *key);
 void  linkdb_final  ( struct linkdb_node** head );
@@ -1156,7 +1156,3 @@ void  linkdb_final  ( struct linkdb_node** head );
 			VECTOR_LENGTH(__vec) = 0; /* clear length */ \
 		} \
 	}while(0)
-
-
-
-#endif /* _DB_H_ */

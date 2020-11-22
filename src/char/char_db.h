@@ -1,6 +1,4 @@
-
-#ifndef _CHAR_DB_H_
-#define _CHAR_DB_H_
+#pragma once
 
 #include "mmo.h"
 
@@ -17,4 +15,3 @@ void mmo_setonline(unsigned int,int);
 void mmo_setallonline(int);
 int logindata_add(unsigned int,int,char*);
 int logindata_del(unsigned int);
-#endif

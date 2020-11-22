@@ -14,7 +14,6 @@
 #include "strlib.h"
 #include "timer.h"
 
-#ifdef USE_MYSQL
 #include "db_mysql.h"
 
 void char_db_init() {
@@ -1741,7 +1740,3 @@ int logindata_del(unsigned int id) {
 
 	return 0;
 }
-#endif
-
-
-

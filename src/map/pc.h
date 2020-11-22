@@ -1,7 +1,4 @@
-
-#ifndef _PC_H_
-#define _PC_H_
-
+#pragma once
 
 #include <stdarg.h>
 #include "mmo.h"
@@ -91,6 +88,3 @@ int pc_atkspeed(int,int);
 int pc_disptimertick(int,int);
 char *pc_readglobalregstring(USER *, char *);
 int pc_setglobalregstring(USER *, char *, char *);
-
-
-#endif

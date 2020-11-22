@@ -1,8 +1,7 @@
+#pragma once
+
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
-
-#ifndef _STRLIB_H_
-#define _STRLIB_H_
 
 #ifndef _CBASETYPES_H_
 #include "../common/cbasetypes.h"
@@ -124,5 +123,3 @@ char* StringBuf_Value(StringBuf* self);
 void StringBuf_Clear(StringBuf* self);
 void StringBuf_Destroy(StringBuf* self);
 void StringBuf_Free(StringBuf* self);
-
-#endif /* _STRLIB_H_ */

@@ -1,6 +1,4 @@
-
-#ifndef _MOB_H_
-#define _MOB_H_
+#pragma once
 
 #define MOBDB_FILE "db/mob_db.txt"
 //#define MOBSPAWN_FILE "db/spawn_db.txt"
@@ -62,4 +60,3 @@ void onetime_deliddb(unsigned int);
 //int free_onetime(unsigned int);
 struct block_list* onetime_avail(unsigned int);
 int free_session_add(int);
-#endif

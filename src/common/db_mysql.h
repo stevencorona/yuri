@@ -1,8 +1,8 @@
+#pragma once
+
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _COMMON_SQL_H_
-#define _COMMON_SQL_H_
 
 #ifndef _CBASETYPES_H_
 #include "../common/cbasetypes.h"
@@ -337,7 +337,3 @@ void SqlStmt_ShowDebug_(SqlStmt* self, const char* debug_file, const unsigned lo
 
 /// Frees a SqlStmt returned by SqlStmt_Malloc.
 void SqlStmt_Free(SqlStmt* self);
-
-
-
-#endif /* _COMMON_SQL_H_ */

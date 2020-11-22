@@ -1,5 +1,4 @@
-#ifndef _CREATION_H
-#define _CREATION_H
+#pragma once
 
 #define CREATEDB_FILE "db/createdb.txt"
 
@@ -15,5 +14,3 @@ struct creation_data {
 //int createdb_start(USER*);
 
 extern struct DBMap *create_db;
-
-#endif

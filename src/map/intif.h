@@ -1,6 +1,5 @@
+#pragma once
 
-#ifndef _LOGIF_H_
-#define _LOGIF_H_
 struct auth_node {
 	unsigned int id;
 	unsigned int ip;
@@ -24,4 +23,3 @@ int intif_init();
 int intif_timer(int,int);
 int intif_wisp(char*,char*,unsigned char*,int);
 int intif_savequit(USER*);
-#endif

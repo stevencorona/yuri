@@ -1791,10 +1791,6 @@ fread(&flag, 1, 1, fi);
 
 }
 int do_init(int argc, char **argv) {
-	#ifdef LOGGING_ENABLED
-		LOG_START(log_fd);
-	#endif
-
 	int i;
 	char *CONF_FILE = "conf/map.conf";
 	char *LANG_FILE = "conf/lang.conf";
@@ -1814,7 +1810,6 @@ int do_init(int argc, char **argv) {
 		else if (strcmp(argv[i],"--lang") == 0)
 			LANG_FILE = argv[i+1];
 		//else if(strcmp(argv[i],"--log") == 0)
-			//LOGGING_ENABLED=1;
 	}
 
 	config_read(CONF_FILE);
@@ -1899,9 +1894,6 @@ int do_init(int argc, char **argv) {
 	printf("ClassicTK Map Server is \033[1;32mready\033[0m! Listening at %d.\n", map_port);
 
 	add_log("Server Ready! Listening at %d.\n", map_port);
-	#ifdef LOGGING_ENABLED
-		LOG_STOP(log_fd);
-	#endif
 	return 0;
 }
 

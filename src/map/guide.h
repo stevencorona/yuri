@@ -1,5 +1,4 @@
-#ifndef _GUIDE_H_
-#define _GUIDE_H_
+#pragma once
 
 #define GUIDEDB_FILE "db/guide_db.txt"
 
@@ -19,6 +18,3 @@ char* guidedb_yname(int);
 int guidedb_id(char *str);
 char* guidedb_name(int);
 int guidedb_init(void);
-
-#endif
-

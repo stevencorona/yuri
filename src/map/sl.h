@@ -1,5 +1,5 @@
-#ifndef _SL_H_
-#define _SL_H_
+#pragma once
+
 #include <lua.h>
 #include "map.h"
 #include "class_db.h"
@@ -24,4 +24,3 @@ void sl_async_freeco(USER*);
 int sl_reload(lua_State*);
 int sl_luasize(USER*);
 void sl_fixmem();
-#endif

@@ -1,8 +1,4 @@
-
-#ifndef _CLIF_H_
-#define _CLIF_H_
-
-
+#pragma once
 
 #include <stdarg.h>
 #include "mmo.h"
@@ -186,4 +182,3 @@ int clif_cancelafk(USER*);
 //int clif_readglobalreg(char*);
 int encrypt(int);
 int decrypt(int);
-#endif
