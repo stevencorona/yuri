@@ -39,7 +39,7 @@ int intif_auth(int fd) {
   }
 
   if ((strcmp(RFIFOP(fd, 5), login_id) != 0) &&
-      (strcmp(RFIFOP(fd, 37), login_pw))) {
+      (strcmp(RFIFOP(fd, 37), login_pw) != 0)) {
     WFIFOHEAD(fd, 3);
     WFIFOW(fd, 0) = 0x1000;
     WFIFOB(fd, 2) = 0x01;
