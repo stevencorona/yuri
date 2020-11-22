@@ -256,7 +256,10 @@ int char_db_isnameused(const char* name) {
   if (SqlStmt_NumRows(stmt) == 1) return 1;  // name exists
   if (SqlStmt_NumRows(stmt) == 0) return 0;  // name is free
 
+  // Leak? Unreachable
   SqlStmt_Free(stmt);
+
+  return 0;
 }
 
 /// Retrieve ID from Character Name
@@ -1974,7 +1977,6 @@ int mmo_char_todb(struct mmo_charstatus* p) {
   char escape4[16];
 
   char escape6[80];
-  int i;
   // char status save
 
   printf("Saving %s\n", p->name);
