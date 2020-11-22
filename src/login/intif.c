@@ -2,28 +2,19 @@
 #include "intif.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "clif.h"
-#include "core.h"
 #include "crypt.h"
 #include "db_mysql.h"
 #include "login.h"
+#include "malloc.h"
 #include "mmo.h"
 #include "socket.h"
 #include "timer.h"
 
 static int packet_len_table[] = {69, 5, 5, 27, 5, 0};
 
-int intif_debug(int fd, int len) {
-  int x = 0;
-  for (x = 0; x < len; x++) {
-    printf("%u ", RFIFOB(fd, x));
-  }
-  printf("\n");
-  return 0;
-}
 int intif_auth(int fd) {
   int cmd = 0;
   int packet_len = 0;
@@ -138,8 +129,8 @@ int intif_parse_connectconfirm(int fd) {
     set_packet_indexes(WFIFOP(RFIFOW(fd, 2), 0));
     tk_crypt(WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
-    int len = 0;
-    int newlen = 0;
+
+    size_t len = 0;
     char* thing = NULL;
 
     WFIFOHEAD(RFIFOW(fd, 2), 23 + 255);

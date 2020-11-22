@@ -1,20 +1,17 @@
 
 #include "login.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zlib.h>
 
 #include "clif.h"
 #include "core.h"
-#include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
+#include "malloc.h"
 #include "socket.h"
 #include "timer.h"
-#include "version.h"
 
 int login_port = 2010;
 
@@ -174,8 +171,6 @@ int config_read(const char *cfg_file) {
         add_meta(r2);
       } else if (strcmpi(r1, "version") == 0) {
         nex_version = atoi(r2);
-      } else if (strcmpi(r1, "deep") == 0) {
-        nex_deep = atoi(r2);
       } else if (strcmpi(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
       } else if (strcmpi(r1, "sql_port") == 0) {
@@ -266,11 +261,6 @@ int do_init(int argc, char **argv) {
          login_port);
   add_log("Server Ready! Listening at %d.\n", login_port);
   return 0;
-}
-
-int getInvalidCount(unsigned int ip) {
-  int c = uidb_get(bf_lockout, ip);
-  return c;
 }
 
 int login_clear_lockout(int i, int d) {

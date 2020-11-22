@@ -30,11 +30,11 @@ extern struct Sql *sql_handle;
 char meta_file[META_MAX][256];
 int metamax;
 int nex_version;
-int nex_deep;
 extern int dump_save;
-int getInvalidCount(unsigned int);
+
 int setInvalidCount(unsigned int);
 
+int add_meta(char *file);
 int lang_read(const char *);
 int config_read(const char *);
 int string_check(const char *, int);
