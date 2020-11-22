@@ -1,13 +1,14 @@
 #include "clif.h"
 
+#include <arpa/inet.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <zlib.h>
 
-#include "../common/db.h"
 #include "../common/db_mysql.h"
 #include "../common/rndm.h"
 #include "../common/showmsg.h"
@@ -15,23 +16,20 @@
 #include "clan_db.h"
 #include "class_db.h"
 #include "command.h"
-#include "core.h"
+#include "creation.h"
 #include "crypt.h"
 #include "intif.h"
 #include "itemdb.h"
 #include "magic.h"
 #include "malloc.h"
 #include "map.h"
-#include "md5calc.h"
 #include "mmo.h"
 #include "mob.h"
-#include "npc.h"
 #include "pc.h"
-#include "script.h"
 #include "sl.h"
 #include "socket.h"
 #include "timer.h"
-#include "zlib.h"
+
 /// testcxv
 unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
 unsigned int log_ip;
@@ -8997,7 +8995,7 @@ float clif_getXPBarPercent(USER *sd) {
   return percentage;
 }
 
-clif_sendupdatestatus_onequip(USER *sd) {
+int clif_sendupdatestatus_onequip(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
   int len = 0;
   nullpo_ret(0, sd);
@@ -11688,7 +11686,7 @@ int clif_handle_powerboards(USER *sd) {
   return 0;
 }
 
-clif_sendminimap(USER *sd) {
+int clif_sendminimap(USER *sd) {
   if (!sd) return 0;
 
   WFIFOHEAD(sd->fd, 0);
@@ -15198,6 +15196,130 @@ int clif_handitem(USER *sd) {
   return 0;
 }
 
+int clif_exchange_cleanup(USER *sd) {
+  sd->exchange.exchange_done = 0;
+  sd->exchange.gold = 0;
+  sd->exchange.item_count = 0;
+  return 0;
+}
+
+int clif_exchange_finalize(USER *sd, USER *tsd) {
+  int i;
+  int id;
+  int amount;
+  struct item *it;
+  struct item *it2;
+  CALLOC(it, struct item, 1);
+  CALLOC(it2, struct item, 1);
+  char escape[255];
+
+  sl_doscript_blargs("characterLog", "exchangeLogWrite", 2, &sd->bl,
+                     &tsd->bl);  // this is the global write that will be used
+                                 // to record exchanges in one big daily file
+
+  for (i = 0; i < sd->exchange.item_count; i++) {
+    memcpy(it, &sd->exchange.item[i], sizeof(sd->exchange.item[i]));
+    Sql_EscapeString(sql_handle, escape, it->real_name);
+
+    /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs`
+    (`ExgChaId`, `ExgMapId`, `ExgX`, `ExgY`, `ExgItmId`, `ExgAmount`,
+    `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
+    '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id,
+    sd->bl.m, sd->bl.x, sd->bl.y, it->id, it->amount, tsd->status.id, tsd->bl.m,
+    tsd->bl.x, tsd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
+    }*/
+    // it->id=id;
+    // it->dura=sd->exchange.dura[i];
+    // it->amount=sd->exchange.item_amount[i];
+    // strcpy(it->real_name,sd->exchange.real_name[i]);
+    // it->owner_id=sd->exchange.item_owner[i];
+    pc_additem(tsd, it);
+  }
+
+  tsd->status.money += sd->exchange.gold;
+  sd->status.money -= sd->exchange.gold;
+  sd->exchange.gold = 0;
+
+  for (i = 0; i < tsd->exchange.item_count; i++) {
+    memcpy(it2, &tsd->exchange.item[i], sizeof(sd->exchange.item[i]));
+    Sql_EscapeString(sql_handle, escape, it2->real_name);
+
+    /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs`
+    (`ExgChaId`, `ExgMapId`, `ExgX`, `ExgY`, `ExgItmId`, `ExgAmount`,
+    `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
+    '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", tsd->status.id,
+    tsd->bl.m, tsd->bl.x, tsd->bl.y, it2->id, it2->amount, sd->status.id,
+    sd->bl.m, sd->bl.x, sd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
+    }*/
+    // it2->id=id;
+    // it2->dura=tsd->exchange.dura[i];
+    // it2->amount=tsd->exchange.item_amount[i];
+    // strcpy(it2->real_name,tsd->exchange.real_name[i]);
+    // it2->owner_id=tsd->exchange.item_owner[i];
+    pc_additem(sd, it2);
+  }
+
+  FREE(it);
+  FREE(it2);
+
+  sd->status.money += tsd->exchange.gold;
+  tsd->status.money -= tsd->exchange.gold;
+  tsd->exchange.gold = 0;
+
+  clif_sendstatus(sd, SFLAG_XPMONEY);
+  clif_sendstatus(tsd, SFLAG_XPMONEY);
+  return 0;
+}
+
+
+int clif_exchange_message(USER *sd, char *message, int type, int extra) {
+  int len = 0;
+  if (extra > 1) extra = 0;
+  nullpo_ret(0, sd);
+  len = strlen(message) + 5;
+
+  if (!session[sd->fd]) {
+    session[sd->fd]->eof = 8;
+    return 0;
+  }
+
+  WFIFOHEAD(sd->fd, strlen(message) + 8);
+  WFIFOB(sd->fd, 0) = 0xAA;
+  WFIFOB(sd->fd, 3) = 0x42;
+  WFIFOB(sd->fd, 4) = 0x03;
+  WFIFOB(sd->fd, 5) = type;
+  WFIFOB(sd->fd, 6) = extra;
+  WFIFOB(sd->fd, 7) = strlen(message);
+  strcpy(WFIFOP(sd->fd, 8), message);
+  // len+=strlen(message)+2;
+  WFIFOW(sd->fd, 1) = SWAP16(len + 3);
+  WFIFOSET(sd->fd, encrypt(sd->fd));
+  return 0;
+}
+
+int clif_exchange_sendok(USER *sd, USER *tsd) {
+  if (tsd->exchange.exchange_done == 1) {
+    clif_exchange_finalize(sd, tsd);
+
+    clif_exchange_message(
+        sd, "You exchanged, and gave away ownership of the items.", 5, 0);
+    clif_exchange_message(
+        tsd, "You exchanged, and gave away ownership of the items.", 5, 0);
+
+    clif_exchange_cleanup(sd);
+    clif_exchange_cleanup(tsd);
+
+  } else {
+    sd->exchange.exchange_done = 1;
+    clif_exchange_message(
+        tsd, "You exchanged, and gave away ownership of the items.", 5, 1);
+    clif_exchange_message(
+        sd, "You exchanged, and gave away ownership of the items.", 5, 1);
+  }
+
+  return 0;
+}
+
 // adjust for item struct
 int clif_parse_exchange(USER *sd) {
   int type = RFIFOB(sd->fd, 5);
@@ -15670,122 +15792,6 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   return 0;
 }
 
-int clif_exchange_sendok(USER *sd, USER *tsd) {
-  if (tsd->exchange.exchange_done == 1) {
-    clif_exchange_finalize(sd, tsd);
-
-    clif_exchange_message(
-        sd, "You exchanged, and gave away ownership of the items.", 5, 0);
-    clif_exchange_message(
-        tsd, "You exchanged, and gave away ownership of the items.", 5, 0);
-
-    clif_exchange_cleanup(sd);
-    clif_exchange_cleanup(tsd);
-
-  } else {
-    sd->exchange.exchange_done = 1;
-    clif_exchange_message(
-        tsd, "You exchanged, and gave away ownership of the items.", 5, 1);
-    clif_exchange_message(
-        sd, "You exchanged, and gave away ownership of the items.", 5, 1);
-  }
-
-  return 0;
-}
-
-int clif_exchange_finalize(USER *sd, USER *tsd) {
-  int i;
-  int id;
-  int amount;
-  struct item *it;
-  struct item *it2;
-  CALLOC(it, struct item, 1);
-  CALLOC(it2, struct item, 1);
-  char escape[255];
-
-  sl_doscript_blargs("characterLog", "exchangeLogWrite", 2, &sd->bl,
-                     &tsd->bl);  // this is the global write that will be used
-                                 // to record exchanges in one big daily file
-
-  for (i = 0; i < sd->exchange.item_count; i++) {
-    memcpy(it, &sd->exchange.item[i], sizeof(sd->exchange.item[i]));
-    Sql_EscapeString(sql_handle, escape, it->real_name);
-
-    /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs`
-    (`ExgChaId`, `ExgMapId`, `ExgX`, `ExgY`, `ExgItmId`, `ExgAmount`,
-    `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
-    '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id,
-    sd->bl.m, sd->bl.x, sd->bl.y, it->id, it->amount, tsd->status.id, tsd->bl.m,
-    tsd->bl.x, tsd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
-    }*/
-    // it->id=id;
-    // it->dura=sd->exchange.dura[i];
-    // it->amount=sd->exchange.item_amount[i];
-    // strcpy(it->real_name,sd->exchange.real_name[i]);
-    // it->owner_id=sd->exchange.item_owner[i];
-    pc_additem(tsd, it);
-  }
-
-  tsd->status.money += sd->exchange.gold;
-  sd->status.money -= sd->exchange.gold;
-  sd->exchange.gold = 0;
-
-  for (i = 0; i < tsd->exchange.item_count; i++) {
-    memcpy(it2, &tsd->exchange.item[i], sizeof(sd->exchange.item[i]));
-    Sql_EscapeString(sql_handle, escape, it2->real_name);
-
-    /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs`
-    (`ExgChaId`, `ExgMapId`, `ExgX`, `ExgY`, `ExgItmId`, `ExgAmount`,
-    `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
-    '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", tsd->status.id,
-    tsd->bl.m, tsd->bl.x, tsd->bl.y, it2->id, it2->amount, sd->status.id,
-    sd->bl.m, sd->bl.x, sd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
-    }*/
-    // it2->id=id;
-    // it2->dura=tsd->exchange.dura[i];
-    // it2->amount=tsd->exchange.item_amount[i];
-    // strcpy(it2->real_name,tsd->exchange.real_name[i]);
-    // it2->owner_id=tsd->exchange.item_owner[i];
-    pc_additem(sd, it2);
-  }
-
-  FREE(it);
-  FREE(it2);
-
-  sd->status.money += tsd->exchange.gold;
-  tsd->status.money -= tsd->exchange.gold;
-  tsd->exchange.gold = 0;
-
-  clif_sendstatus(sd, SFLAG_XPMONEY);
-  clif_sendstatus(tsd, SFLAG_XPMONEY);
-  return 0;
-}
-
-int clif_exchange_message(USER *sd, char *message, int type, int extra) {
-  int len = 0;
-  if (extra > 1) extra = 0;
-  nullpo_ret(0, sd);
-  len = strlen(message) + 5;
-
-  if (!session[sd->fd]) {
-    session[sd->fd]->eof = 8;
-    return 0;
-  }
-
-  WFIFOHEAD(sd->fd, strlen(message) + 8);
-  WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 0x42;
-  WFIFOB(sd->fd, 4) = 0x03;
-  WFIFOB(sd->fd, 5) = type;
-  WFIFOB(sd->fd, 6) = extra;
-  WFIFOB(sd->fd, 7) = strlen(message);
-  strcpy(WFIFOP(sd->fd, 8), message);
-  // len+=strlen(message)+2;
-  WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
-  return 0;
-}
-
 int clif_exchange_close(USER *sd) {
   int i;
   int id = 0;
@@ -15806,13 +15812,6 @@ int clif_exchange_close(USER *sd) {
   }
   FREE(it);
   clif_exchange_cleanup(sd);
-  return 0;
-}
-
-int clif_exchange_cleanup(USER *sd) {
-  sd->exchange.exchange_done = 0;
-  sd->exchange.gold = 0;
-  sd->exchange.item_count = 0;
   return 0;
 }
 
@@ -16207,7 +16206,7 @@ int clif_sendhunternote(USER *sd) {
   return 0;
 }
 
-clif_pushback(USER *sd) {
+int clif_pushback(USER *sd) {
   switch (sd->status.side) {
     case 0:
       pc_warp(sd, sd->bl.m, sd->bl.x, sd->bl.y + 2);

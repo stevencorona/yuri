@@ -1,11 +1,12 @@
 
 #include "../common/malloc.h"
 
+#include <ctype.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "../common/showmsg.h"
 
@@ -57,16 +58,7 @@ void add_log(char *fmt, ...) {
 
   va_end(ap);
 }
-void *_realloc(void *ptr, size_t size, char *file, int line, char *func) {
-  void *newp = realloc(ptr, size);
-  if (!newp) {
-    free(ptr);
-    printf("Error Reallocing at %s in %s at line %d\n", func, file, line);
-    return 0;
-  }
 
-  return newp;
-}
 // Injection Fix
 char *s_inject(char *s) {
   char *p;

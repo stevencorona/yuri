@@ -3,10 +3,19 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _CBASETYPES_H_
-#include "../common/cbasetypes.h"
-#endif
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+#define ARRAYLENGTH(A) (sizeof(A) / sizeof((A)[0]))
+
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
 
 char* jstrescape(char* pt);
 char* jstrescapecpy(char* pt, const char* spt);

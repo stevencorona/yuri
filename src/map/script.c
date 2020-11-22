@@ -4,23 +4,16 @@
 //#define DEBUG_RUN
 //#define DEBUG_SIZE
 
-#include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
 
-#include <time.h>
 
-#include "../common/db.h"
 #include "../common/malloc.h"
-#include "../common/socket.h"
-#include "../common/timer.h"
-#include "clif.h"
 #include "map.h"
-#include "pc.h"
+#include "npc.h"
 
 int script_config_read_sub(char *cfgName) {
   int i;

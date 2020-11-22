@@ -67,13 +67,14 @@
 \*****************************************************************************/
 #include "db.h"
 
+#include <ctype.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../common/ers.h"
 #include "../common/malloc.h"
-#include "../common/mmo.h"
 #include "../common/showmsg.h"
 
 /*****************************************************************************\
@@ -193,7 +194,7 @@ typedef struct DBMap_impl {
   DBNode cache;
   DBType type;
   DBOptions options;
-  uint32 item_count;
+  uint32_t item_count;
   unsigned short maxlen;
   unsigned global_lock : 1;
 } DBMap_impl;
@@ -226,76 +227,76 @@ typedef struct DBIterator_impl {
  */
 static struct db_stats {
   // Node alloc/free
-  uint32 db_node_alloc;
-  uint32 db_node_free;
+  uint32_t db_node_alloc;
+  uint32_t db_node_free;
   // Database creating/destruction counters
-  uint32 db_int_alloc;
-  uint32 db_uint_alloc;
-  uint32 db_string_alloc;
-  uint32 db_istring_alloc;
-  uint32 db_int_destroy;
-  uint32 db_uint_destroy;
-  uint32 db_string_destroy;
-  uint32 db_istring_destroy;
+  uint32_t db_int_alloc;
+  uint32_t db_uint_alloc;
+  uint32_t db_string_alloc;
+  uint32_t db_istring_alloc;
+  uint32_t db_int_destroy;
+  uint32_t db_uint_destroy;
+  uint32_t db_string_destroy;
+  uint32_t db_istring_destroy;
   // Function usage counters
-  uint32 db_rotate_left;
-  uint32 db_rotate_right;
-  uint32 db_rebalance;
-  uint32 db_rebalance_erase;
-  uint32 db_is_key_null;
-  uint32 db_dup_key;
-  uint32 db_dup_key_free;
-  uint32 db_free_add;
-  uint32 db_free_remove;
-  uint32 db_free_lock;
-  uint32 db_free_unlock;
-  uint32 db_int_cmp;
-  uint32 db_uint_cmp;
-  uint32 db_string_cmp;
-  uint32 db_istring_cmp;
-  uint32 db_int_hash;
-  uint32 db_uint_hash;
-  uint32 db_string_hash;
-  uint32 db_istring_hash;
-  uint32 db_release_nothing;
-  uint32 db_release_key;
-  uint32 db_release_data;
-  uint32 db_release_both;
-  uint32 dbit_first;
-  uint32 dbit_last;
-  uint32 dbit_next;
-  uint32 dbit_prev;
-  uint32 dbit_exists;
-  uint32 dbit_remove;
-  uint32 dbit_destroy;
-  uint32 db_iterator;
-  uint32 db_get;
-  uint32 db_getall;
-  uint32 db_vgetall;
-  uint32 db_ensure;
-  uint32 db_vensure;
-  uint32 db_put;
-  uint32 db_remove;
-  uint32 db_foreach;
-  uint32 db_vforeach;
-  uint32 db_clear;
-  uint32 db_vclear;
-  uint32 db_destroy;
-  uint32 db_vdestroy;
-  uint32 db_size;
-  uint32 db_type;
-  uint32 db_options;
-  uint32 db_fix_options;
-  uint32 db_default_cmp;
-  uint32 db_default_hash;
-  uint32 db_default_release;
-  uint32 db_custom_release;
-  uint32 db_alloc;
-  uint32 db_i2key;
-  uint32 db_ui2key;
-  uint32 db_str2key;
-  uint32 db_init;
-  uint32 db_final;
+  uint32_t db_rotate_left;
+  uint32_t db_rotate_right;
+  uint32_t db_rebalance;
+  uint32_t db_rebalance_erase;
+  uint32_t db_is_key_null;
+  uint32_t db_dup_key;
+  uint32_t db_dup_key_free;
+  uint32_t db_free_add;
+  uint32_t db_free_remove;
+  uint32_t db_free_lock;
+  uint32_t db_free_unlock;
+  uint32_t db_int_cmp;
+  uint32_t db_uint_cmp;
+  uint32_t db_string_cmp;
+  uint32_t db_istring_cmp;
+  uint32_t db_int_hash;
+  uint32_t db_uint_hash;
+  uint32_t db_string_hash;
+  uint32_t db_istring_hash;
+  uint32_t db_release_nothing;
+  uint32_t db_release_key;
+  uint32_t db_release_data;
+  uint32_t db_release_both;
+  uint32_t dbit_first;
+  uint32_t dbit_last;
+  uint32_t dbit_next;
+  uint32_t dbit_prev;
+  uint32_t dbit_exists;
+  uint32_t dbit_remove;
+  uint32_t dbit_destroy;
+  uint32_t db_iterator;
+  uint32_t db_get;
+  uint32_t db_getall;
+  uint32_t db_vgetall;
+  uint32_t db_ensure;
+  uint32_t db_vensure;
+  uint32_t db_put;
+  uint32_t db_remove;
+  uint32_t db_foreach;
+  uint32_t db_vforeach;
+  uint32_t db_clear;
+  uint32_t db_vclear;
+  uint32_t db_destroy;
+  uint32_t db_vdestroy;
+  uint32_t db_size;
+  uint32_t db_type;
+  uint32_t db_options;
+  uint32_t db_fix_options;
+  uint32_t db_default_cmp;
+  uint32_t db_default_hash;
+  uint32_t db_default_release;
+  uint32_t db_custom_release;
+  uint32_t db_alloc;
+  uint32_t db_i2key;
+  uint32_t db_ui2key;
+  uint32_t db_str2key;
+  uint32_t db_init;
+  uint32_t db_final;
 } stats = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -974,7 +975,7 @@ static unsigned int db_istring_hash(DBKey key, unsigned short maxlen) {
   if (maxlen == 0) maxlen = UINT16_MAX;
 
   for (i = 0; *k; i++) {
-    hash = (hash * 33 + ((unsigned char)TOLOWER(*k))) ^ (hash >> 24);
+    hash = (hash * 33 + ((unsigned char)tolower(*k))) ^ (hash >> 24);
     k++;
     if (i == maxlen) break;
   }
@@ -2522,7 +2523,7 @@ void* linkdb_search(struct linkdb_node** head, void* key) {
   while (node) {
     if (node->key == key) {
       if (node->prev && n > 5) {
-        // ˆ—Œø—¦‰ü‘P‚Ìˆ×‚Éhead‚ÉˆÚ“®‚³‚¹‚é
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Pï¿½Ìˆ×‚ï¿½headï¿½ÉˆÚ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (node->prev) node->prev->next = node->next;
         if (node->next) node->next->prev = node->prev;
         node->next = *head;
@@ -2566,7 +2567,7 @@ void linkdb_replace(struct linkdb_node** head, void* key, void* data) {
   while (node) {
     if (node->key == key) {
       if (node->prev && n > 5) {
-        // ˆ—Œø—¦‰ü‘P‚Ìˆ×‚Éhead‚ÉˆÚ“®‚³‚¹‚é
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Pï¿½Ìˆ×‚ï¿½headï¿½ÉˆÚ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (node->prev) node->prev->next = node->next;
         if (node->next) node->next->prev = node->prev;
         node->next = *head;
@@ -2580,7 +2581,7 @@ void linkdb_replace(struct linkdb_node** head, void* key, void* data) {
     node = node->next;
     n++;
   }
-  // Œ©‚Â‚©‚ç‚È‚¢‚Ì‚Å‘}“ü
+  // ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½ï¿½Ì‚Å‘}ï¿½ï¿½
   linkdb_insert(head, key, data);
 }
 

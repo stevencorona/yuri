@@ -5,8 +5,6 @@
 #include "map.h"
 #include "mmo.h"
 
-// unsigned long getTicks();
-
 static int Longest_Charsave;
 static int Longest_Charload;
 static int Allsave_Bench;
@@ -91,3 +89,4 @@ int pc_atkspeed(int, int);
 int pc_disptimertick(int, int);
 char *pc_readglobalregstring(USER *, char *);
 int pc_setglobalregstring(USER *, char *, char *);
+int pc_reload_aether(USER *);

@@ -1,5 +1,8 @@
-
 #include "crypt.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "md5calc.h"
 

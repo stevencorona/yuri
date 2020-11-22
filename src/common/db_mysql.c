@@ -3,7 +3,6 @@
 
 #include "db_mysql.h"
 
-#include "../common/cbasetypes.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
@@ -13,8 +12,7 @@
 #include <winsock2.h>
 #endif
 #include <mysql.h>
-#include <stdlib.h>  // strtoul
-#include <string.h>  // strlen/strnlen/memcpy/memset
+#include <string.h>
 
 /// Sql handle
 struct Sql {
@@ -27,9 +25,9 @@ struct Sql {
 };
 
 // Column length receiver.
-// Takes care of the possible size missmatch between uint32 and unsigned long.
+// Takes care of the possible size missmatch between uint32_t and unsigned long.
 struct s_column_length {
-  uint32* out_length;
+  uint32_t* out_length;
   unsigned long length;
 };
 typedef struct s_column_length s_column_length;
@@ -69,7 +67,7 @@ static int Sql_P_Keepalive(Sql* self);
 
 /// Establishes a connection.
 int Sql_Connect(Sql* self, const char* user, const char* passwd,
-                const char* host, uint16 port, const char* db) {
+                const char* host, uint16_t port, const char* db) {
   if (self == NULL) return SQL_ERROR;
 
   StringBuf_Clear(&self->buf);
@@ -90,14 +88,14 @@ int Sql_Connect(Sql* self, const char* user, const char* passwd,
 }
 
 /// Retrieves the timeout of the connection.
-int Sql_GetTimeout(Sql* self, uint32* out_timeout) {
+int Sql_GetTimeout(Sql* self, uint32_t* out_timeout) {
   if (self && out_timeout &&
       SQL_SUCCESS == Sql_Query(self, "SHOW VARIABLES LIKE 'wait_timeout'")) {
     char* data;
     size_t len;
     if (SQL_SUCCESS == Sql_NextRow(self) &&
         SQL_SUCCESS == Sql_GetData(self, 1, &data, &len)) {
-      *out_timeout = (uint32)strtoul(data, NULL, 10);
+      *out_timeout = (uint32_t)strtoul(data, NULL, 10);
       Sql_FreeResult(self);
       return SQL_SUCCESS;
     }
@@ -163,7 +161,7 @@ static int Sql_P_KeepaliveTimer(int data, int none) {
 /// @return the keepalive timer id, or INVALID_TIMER
 /// @private
 static int Sql_P_Keepalive(Sql* self) {
-  uint32 timeout, ping_interval;
+  uint32_t timeout, ping_interval;
 
   // set a default value first
   timeout = 28800;  // 8 hours
@@ -254,22 +252,22 @@ int Sql_QueryStr(Sql* self, const char* query) {
 
 /// Returns the number of the AUTO_INCREMENT column of the last INSERT/UPDATE
 /// query.
-uint64 Sql_LastInsertId(Sql* self) {
+uint64_t Sql_LastInsertId(Sql* self) {
   if (self)
-    return (uint64)mysql_insert_id(&self->handle);
+    return (uint64_t)mysql_insert_id(&self->handle);
   else
     return 0;
 }
 
 /// Returns the number of columns in each row of the result.
-uint32 Sql_NumColumns(Sql* self) {
-  if (self && self->result) return (uint32)mysql_num_fields(self->result);
+uint32_t Sql_NumColumns(Sql* self) {
+  if (self && self->result) return (uint32_t)mysql_num_fields(self->result);
   return 0;
 }
 
 /// Returns the number of rows in the result.
-uint64 Sql_NumRows(Sql* self) {
-  if (self && self->result) return (uint64)mysql_num_rows(self->result);
+uint64_t Sql_NumRows(Sql* self) {
+  if (self && self->result) return (uint64_t)mysql_num_rows(self->result);
   return 0;
 }
 
@@ -362,7 +360,7 @@ static enum enum_field_types Sql_P_SizeToMysqlIntType(int sz) {
 /// @private
 static int Sql_P_BindSqlDataType(MYSQL_BIND* bind, enum SqlDataType buffer_type,
                                  void* buffer, size_t buffer_len,
-                                 unsigned long* out_length, int8* out_is_null) {
+                                 unsigned long* out_length, int8_t* out_is_null) {
   memset(bind, 0, sizeof(MYSQL_BIND));
   switch (buffer_type) {
     case SQLDT_NULL:
@@ -651,9 +649,9 @@ int SqlStmt_Execute(SqlStmt* self) {
 
 /// Returns the number of the AUTO_INCREMENT column of the last INSERT/UPDATE
 /// statement.
-uint64 SqlStmt_LastInsertId(SqlStmt* self) {
+uint64_t SqlStmt_LastInsertId(SqlStmt* self) {
   if (self)
-    return (uint64)mysql_stmt_insert_id(self->stmt);
+    return (uint64_t)mysql_stmt_insert_id(self->stmt);
   else
     return 0;
 }
@@ -668,8 +666,8 @@ size_t SqlStmt_NumColumns(SqlStmt* self) {
 
 /// Binds the result of a column to a buffer.
 int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type,
-                       void* buffer, size_t buffer_len, uint32* out_length,
-                       int8* out_is_null) {
+                       void* buffer, size_t buffer_len, uint32_t* out_length,
+                       int8_t* out_is_null) {
   if (self == NULL) return SQL_ERROR;
 
   if (buffer_type == SQLDT_STRING || buffer_type == SQLDT_ENUM) {
@@ -708,9 +706,9 @@ int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type,
 }
 
 /// Returns the number of rows in the result.
-uint64 SqlStmt_NumRows(SqlStmt* self) {
+uint64_t SqlStmt_NumRows(SqlStmt* self) {
   if (self)
-    return (uint64)mysql_stmt_num_rows(self->stmt);
+    return (uint64_t)mysql_stmt_num_rows(self->stmt);
   else
     return 0;
 }
@@ -784,7 +782,7 @@ int SqlStmt_NextRow(SqlStmt* self) {
     }
 #endif
     if (self->column_lengths[i].out_length)
-      *self->column_lengths[i].out_length = (uint32)length;
+      *self->column_lengths[i].out_length = (uint32_t)length;
     if (column->buffer_type ==
         MYSQL_TYPE_STRING) {  // clear unused part of the string/enum buffer
                               // (and nul-terminate)

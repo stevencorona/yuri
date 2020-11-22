@@ -3,11 +3,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <time.h>
 
 #include "malloc.h"
-#include "strlib.h"
 
 #define TIMER_MIN_INTERVAL 50
 #define TIMER_MAX_INTERVAL 1000

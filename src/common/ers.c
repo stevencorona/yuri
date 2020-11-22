@@ -42,9 +42,8 @@
 
 #include <stdlib.h>
 
-#include "../common/cbasetypes.h"
-#include "../common/malloc.h"  // CALLOC, REALLOC, aMalloc, aFree
-#include "../common/showmsg.h"  // ShowMessage, ShowError, ShowFatalError, CL_BOLD, CL_NORMAL
+#include "../common/malloc.h"
+#include "../common/showmsg.h"
 
 #ifndef DISABLE_ERS
 /*****************************************************************************\
@@ -112,27 +111,27 @@ typedef struct ers_impl {
   /**
    * Array with blocks of entries.
    */
-  uint8 **blocks;
+  uint8_t **blocks;
 
   /**
    * Number of unused entries in the last block.
    */
-  uint32 free;
+  uint32_t free;
 
   /**
    * Number of blocks in the array.
    */
-  uint32 num;
+  uint32_t num;
 
   /**
    * Current maximum capacity of the array.
    */
-  uint32 max;
+  uint32_t max;
 
   /**
    * Destroy lock.
    */
-  uint32 destroy;
+  uint32_t destroy;
 
   /**
    * Size of the entries of the manager.
@@ -157,7 +156,7 @@ static ERS_impl ers_root[ERS_ROOT_SIZE];
  * @see #ERS_ROOT_SIZE
  * @see #ers_root
  */
-static uint32 ers_num = 0;
+static uint32_t ers_num = 0;
 
 /*****************************************************************************\
  *  (2) Object functions.                                                 *
@@ -202,9 +201,9 @@ static void *ers_obj_alloc_entry(ERS self) {
       }
       obj->max =
           (obj->max * 4) + 3;  // left shift bits '11' - overflow won't happen
-      REALLOC(obj->blocks, uint8 *, obj->max);
+      REALLOC(obj->blocks, uint8_t *, obj->max);
     }
-    CALLOC(obj->blocks[obj->num], uint8, obj->size * ERS_BLOCK_ENTRIES);
+    CALLOC(obj->blocks[obj->num], uint8_t, obj->size * ERS_BLOCK_ENTRIES);
     obj->free = ERS_BLOCK_ENTRIES - 1;
     ret = &obj->blocks[obj->num][obj->free * obj->size];
     obj->num++;
@@ -269,8 +268,8 @@ static size_t ers_obj_entry_size(ERS self) {
 static void ers_obj_destroy(ERS self) {
   ERS_impl obj = (ERS_impl)self;
   ERLinkedList reuse, old;
-  uint32 i;
-  uint32 count;
+  uint32_t i;
+  uint32_t count;
 
   if (obj == NULL) {
     ShowError("ers::destroy: NULL object, aborting instance destruction.\n");
@@ -352,9 +351,9 @@ static void ers_obj_destroy(ERS self) {
  * @see #ers_root
  * @see #ers_num
  */
-ERS ers_new(uint32 size) {
+ERS ers_new(uint32_t size) {
   ERS_impl obj;
-  uint32 i;
+  uint32_t i;
 
   if (size == 0) {
     ShowError("ers_new: invalid size %u, aborting instance creation.\n", size);
@@ -412,11 +411,11 @@ ERS ers_new(uint32 size) {
  * @see #ers_num
  */
 void ers_report(void) {
-  uint32 i;
-  uint32 j;
-  uint32 used;
-  uint32 reusable;
-  uint32 extra;
+  uint32_t i;
+  uint32_t j;
+  uint32_t used;
+  uint32_t reusable;
+  uint32_t extra;
   ERLinkedList reuse;
   ERS_impl obj;
 
@@ -485,8 +484,8 @@ void ers_report(void) {
  * @see #ers_num
  */
 void ers_force_destroy_all(void) {
-  uint32 i;
-  uint32 j;
+  uint32_t i;
+  uint32_t j;
   ERS_impl obj;
 
   for (i = 0; i < ers_num; i++) {

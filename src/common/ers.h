@@ -40,10 +40,6 @@
  * @encoding US-ASCII                                                        *
 \*****************************************************************************/
 
-#ifndef _CBASETYPES_H_
-#include "../common/cbasetypes.h"
-#endif
-
 /*****************************************************************************\
  *  (1) All public parts of the Entry Reusage System.                        *
  *  DISABLE_ERS           - Define to disable this system.                   *
@@ -53,6 +49,9 @@
  *  ers_report            - Print a report about the current state.          *
  *  ers_force_destroy_all - Force the destruction of all the managers.       *
 \*****************************************************************************/
+
+#include <stddef.h>
+#include <stdint.h>
 
 /**
  * Define this to disable the Entry Reusage System.
@@ -143,7 +142,7 @@ typedef struct eri {
  * @param The requested size of the entry in bytes
  * @return Interface of the object
  */
-ERS ers_new(uint32 size);
+ERS ers_new(uint32_t size);
 
 /**
  * Print a report about the current state of the Entry Reusage System.

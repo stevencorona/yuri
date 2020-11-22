@@ -1,12 +1,10 @@
 
-#include <assert.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/timeb.h>
 #include <time.h>
 #ifdef _WIN32
@@ -23,6 +21,7 @@
 #include "clan_db.h"
 #include "class_db.h"
 #include "clif.h"
+#include "creation.h"
 #include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
@@ -37,8 +36,10 @@
 #include "npc.h"
 #include "recipedb.h"
 #include "script.h"
+#include "showmsg.h"
 #include "sl.h"
 #include "strlib.h"
+
 #ifndef _MAP_SERVER_
 #define _MAP_SERVER_
 #endif
@@ -1619,6 +1620,38 @@ unsigned int return_ip_n(char* addr) {
   return a.s_addr;
 }
 
+int get_actual_ip(char* addr) {
+  struct hostent* he;
+  struct in_addr a;
+
+  he = gethostbyname(addr);
+  if (he) {
+    while (*he->h_addr_list) {
+      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
+      strncpy(map_ip_s, inet_ntoa(a), 16);
+      printf("Map IP: %s\n", inet_ntoa(a));
+    }
+  }
+
+  return 0;
+}
+
+int get_actual_ip2(char* addr) {
+  struct hostent* he;
+  struct in_addr a;
+
+  he = gethostbyname(addr);
+  if (he) {
+    while (*he->h_addr_list) {
+      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
+      strncpy(log_ip_s, inet_ntoa(a), 16);
+      printf("Login IP: %s\n", inet_ntoa(a));
+    }
+  }
+
+  return 0;
+}
+
 int config_read(const char* cfg_file) {
   char line[1024], r1[1024], r2[1024];
   int line_num = 0;
@@ -1914,7 +1947,7 @@ int do_init(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
-                               (uint16)sql_port, sql_db)) {
+                               (uint16_t)sql_port, sql_db)) {
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
     exit(EXIT_FAILURE);
@@ -2338,6 +2371,24 @@ int nmail_poemscript(USER* sd, char* topic, char* message) {
   return 0;
 }
 
+int nmail_sendmailcopy(USER* sd, char* to_user, char* topic, char* message) {
+  if (strlen(to_user) > 16 || strlen(topic) > 52 || strlen(message) > 4000)
+    return 0;
+
+  WFIFOHEAD(char_fd, 4124);  // 4000 + 52 + 52 + 16 + 2 +2
+  WFIFOW(char_fd, 0) = 0x300F;
+  WFIFOW(char_fd, 2) = sd->fd;
+  memcpy(WFIFOP(char_fd, 4), sd->status.name, 16);
+  memcpy(WFIFOP(char_fd, 20), to_user, 16);
+  memcpy(WFIFOP(char_fd, 72), topic, 52);
+  memcpy(WFIFOP(char_fd, 124), message, 4000);
+
+  WFIFOSET(char_fd, 4124);
+
+  return 0;
+}
+
+
 int nmail_write(USER* sd) {
   USER* tsd = NULL;
   char to_user[52];
@@ -2450,55 +2501,6 @@ int nmail_sendmail(USER* sd, char* to_user, char* topic, char* message) {
   memcpy(WFIFOP(char_fd, 124), message, 4000);
 
   WFIFOSET(char_fd, 4124);
-
-  return 0;
-}
-
-int nmail_sendmailcopy(USER* sd, char* to_user, char* topic, char* message) {
-  if (strlen(to_user) > 16 || strlen(topic) > 52 || strlen(message) > 4000)
-    return 0;
-
-  WFIFOHEAD(char_fd, 4124);  // 4000 + 52 + 52 + 16 + 2 +2
-  WFIFOW(char_fd, 0) = 0x300F;
-  WFIFOW(char_fd, 2) = sd->fd;
-  memcpy(WFIFOP(char_fd, 4), sd->status.name, 16);
-  memcpy(WFIFOP(char_fd, 20), to_user, 16);
-  memcpy(WFIFOP(char_fd, 72), topic, 52);
-  memcpy(WFIFOP(char_fd, 124), message, 4000);
-
-  WFIFOSET(char_fd, 4124);
-
-  return 0;
-}
-
-int get_actual_ip(char* addr) {
-  struct hostent* he;
-  struct in_addr a;
-
-  he = gethostbyname(addr);
-  if (he) {
-    while (*he->h_addr_list) {
-      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
-      strncpy(map_ip_s, inet_ntoa(a), 16);
-      printf("Map IP: %s\n", inet_ntoa(a));
-    }
-  }
-
-  return 0;
-}
-
-int get_actual_ip2(char* addr) {
-  struct hostent* he;
-  struct in_addr a;
-
-  he = gethostbyname(addr);
-  if (he) {
-    while (*he->h_addr_list) {
-      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
-      strncpy(log_ip_s, inet_ntoa(a), 16);
-      printf("Login IP: %s\n", inet_ntoa(a));
-    }
-  }
 
   return 0;
 }

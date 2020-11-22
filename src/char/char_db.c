@@ -1,20 +1,17 @@
-
 #include "char_db.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "char.h"
 #include "db_mysql.h"
 #include "malloc.h"
 #include "md5calc.h"
 #include "mmo.h"
-#include "rndm.h"
 #include "strlib.h"
-#include "timer.h"
-#include "version.h"
-#include "zlib.h"
 
 void char_db_init() {
   sql_handle = Sql_Malloc();
@@ -23,7 +20,7 @@ void char_db_init() {
     exit(EXIT_FAILURE);
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
-                               (uint16)sql_port, sql_db)) {
+                               (uint16_t)sql_port, sql_db)) {
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
     exit(EXIT_FAILURE);
@@ -107,7 +104,7 @@ int ismastpass(char* pass3, char* mastmd5, int expire) {
     return 0;
   }
   //	printf("Entering master password check - mastmd5: %s - expire: %s-
-  //pass3: %s\n",mastmd5,expire,pass3);
+  // pass3: %s\n",mastmd5,expire,pass3);
 }
 
 /// Attempt to find an existing ID that is available.
@@ -256,7 +253,10 @@ int char_db_isnameused(const char* name) {
   if (SqlStmt_NumRows(stmt) == 1) return 1;  // name exists
   if (SqlStmt_NumRows(stmt) == 0) return 0;  // name is free
 
+  // Leak? Unreachable
   SqlStmt_Free(stmt);
+
+  return 0;
 }
 
 /// Retrieve ID from Character Name
@@ -1974,7 +1974,6 @@ int mmo_char_todb(struct mmo_charstatus* p) {
   char escape4[16];
 
   char escape6[80];
-  int i;
   // char status save
 
   printf("Saving %s\n", p->name);

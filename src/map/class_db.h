@@ -43,3 +43,5 @@ int classdb_icon(int);
 int classdb_read();
 int classdb_term();
 int classdb_init();
+
+int leveldb_read(const char *leveldb_file);

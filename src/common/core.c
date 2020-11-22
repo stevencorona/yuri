@@ -3,19 +3,14 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <signal.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
 
 #include "db.h"
 #include "socket.h"
 #include "timer.h"
-#include "version.h"
-#define ISDIGIT(c) (isdigit((unsigned char)(c)))
 
 int (*func_parse_it)(char *) = default_parse_input;
 static void (*term_func)(void) = NULL;
@@ -52,7 +47,6 @@ int main(int argc, char **argv) {
   signal(SIGTERM, sig_proc);
   signal(SIGINT, sig_proc);
   db_init();
-  display_title();
   timer_init();
 
   do_init(argc, argv);
@@ -78,7 +72,7 @@ int main(int argc, char **argv) {
     do_sendrecv(next);
     do_parsepacket();
 
-    usleep(10000);
+    nanosleep((struct timespec[]){{0, 10000}},NULL);
   }
 
   return 0;
@@ -95,7 +89,7 @@ const char *get_svn_revision(void) {
     int rev;
     // Check the version
     if (fgets(line, sizeof(line), fp)) {
-      if (!ISDIGIT(line[0])) {
+      if (!isdigit(line[0])) {
         // XML File format
         while (fgets(line, sizeof(line), fp))
           if (strstr(line, "revision=")) break;
@@ -210,39 +204,8 @@ static void sig_proc(int sn) {
   }
 }
 
-// Display Titlename
-//----------------------------
-static void display_title(void) {
-  printf("\033[2J");  // clear screen and go up/left (0, 0 position in text)
-
-  printf("ClassicTK - Revision %s\n", get_svn_revision());
-#if CLASSICTK_RELEASE_FLAG
-  // printf("**ClassicTK Develop version!\n");
-#endif
-}
-/*void *timer_thread(void *nothing) {
-        int run=1;
-
-        while(run) {
-                pthread_mutex_lock(&mutexl);
-                timer_do(gettick_nocache());
-                pthread_mutex_unlock(&mutexl);
-        }
-}
-void *socket_thread(void *nothing) {
-        int run=1;
-        while(run) {
-                pthread_mutex_lock(&mutexl);
-                do_sendrecv(1000);
-                do_parsepacket();
-                pthread_mutex_unlock(&mutexl);
-        }
-}*/
-
 int set_default_input(int (*func)(char *)) {
   func_parse_it = func;
   return 0;
 }
 int default_parse_input(char *val) { return 0; }
-
-//

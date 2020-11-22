@@ -55,6 +55,9 @@ int mob_warp(MOB*, int, int, int);
 int mob_setglobalreg(MOB*, char*, int);
 int mob_readglobalreg(MOB*, char*);
 
+int mob_respawn_getstats(MOB *mob);
+int mob_respawn_nousers(MOB *mob);
+
 void onetime_addiddb(struct block_list*);
 void onetime_deliddb(unsigned int);
 // int free_onetime(unsigned int);

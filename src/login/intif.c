@@ -6,13 +6,11 @@
 #include <string.h>
 
 #include "clif.h"
-#include "core.h"
 #include "crypt.h"
 #include "db_mysql.h"
 #include "login.h"
 #include "mmo.h"
 #include "socket.h"
-#include "timer.h"
 
 static int packet_len_table[] = {69, 5, 5, 27, 5, 0};
 
