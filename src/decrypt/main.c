@@ -128,7 +128,7 @@ packet_inc = *buff;
 buff++;
 
 //buff now points to the first data byte
-if(packet_len>65535) return 0;
+if(packet_len>65535) return;
 
 for (i=0; i < packet_len; i++)
 {
@@ -366,7 +366,7 @@ void crypt2(char *buff, char* key) {
 	buff++;
 
 	//buff now points to the first data byte
-	if(packet_len>65535) return 0;
+	if(packet_len>65535) return;
 
 	for (i=0; i < packet_len; i++)
 	{

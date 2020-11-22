@@ -82,7 +82,7 @@ void recipedb_read()
 	if (stmt == NULL)
 	{
 		SqlStmt_ShowDebug(stmt);
-		return 0;
+		return;
 	}
 	
 	memset(&recipe, 0, sizeof(recipe));
@@ -119,7 +119,7 @@ void recipedb_read()
 	{
 		SqlStmt_ShowDebug(stmt);
 		SqlStmt_Free(stmt);
-		return 0;
+		return;
 	}
 		
 	rec = SqlStmt_NumRows(stmt);
