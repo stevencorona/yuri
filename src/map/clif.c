@@ -6589,7 +6589,7 @@ int getevents() {
   return events;
 }
 
-int getevent_name(int pos, int fd, sd) {
+int getevent_name(int pos, int fd, USER* sd) {
   char name[40];
   char buf[40];
   int i = 0;

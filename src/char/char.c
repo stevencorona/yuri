@@ -291,8 +291,7 @@ int do_init(int argc, char **argv) {
   char_fd = make_listen_port(char_port);
 
   timer_insert(1000, 1000 * 10, check_connect_login, login_ip, login_port);
-  // timer_insert(1000,1000,check_connect_save, save_ip, save_port);
-  // timer_insert(5000,5000,keep_login_alive,0,0);
+  
   CALLOC(char_dat, struct mmo_charstatus, 1);
 
   printf("ClassicTK Char Server is \033[1;32mready\033[0m! Listening at %d.\n",

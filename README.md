@@ -15,7 +15,7 @@ Provide a clean fork/drop-in replacement of the Mithia server that is 100% compa
 - [ ] Include sql migrations
 - [ ] Fix SQL autoincrement / numbering issues
 - [ ] Compile with -O3 without segfaulting
-- [ ] Switch to CMake
+- [ ] Compile without stack smashing off
 - [ ] Smoke Tests
 - [ ] Automated CI
 - [ ] Address header file spaghetti
