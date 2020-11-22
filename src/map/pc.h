@@ -5,15 +5,6 @@
 #include "map.h"
 #include "mmo.h"
 
-static int Longest_Charsave;
-static int Longest_Charload;
-static int Allsave_Bench;
-static int Longest_SendRecv;
-static int Longest_ParsePacket;
-static int Longest_Timers;
-static int Longest_LUA;
-static int Longest_PCTimer;
-// void crash_log(char*, ...);
 int pc_requestmp(USER *);
 int pc_sendpong(int, int);
 int pc_item_timer(int, int);
@@ -66,8 +57,6 @@ int pc_uncast(USER *);
 int pc_checkformail(USER *);
 int pc_handle_item(int, int);
 int pc_handle_item_sub(struct block_list *, va_list);
-// int map_readglobalreg(int,char*);
-// int map_setglobalreg(int,char*,int);
 int pc_loaditemrealname(USER *);
 int pc_loadequiprealname(USER *);
 int pc_addtocurrent(struct block_list *, va_list);
