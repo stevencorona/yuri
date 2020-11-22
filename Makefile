@@ -9,7 +9,7 @@ export BINDIR = ./bin
 
 PKG_CONFIG ?= pkg-config
 
-CFLAGS ?= -pipe -Werror=implicit-function-declaration
+CFLAGS ?= -pipe -Wall -Werror=implicit-function-declaration
 CFLAGS += -std=gnu17
 CFLAGS += -g3 -DDEBUG
 CFLAGS += -fno-stack-protector
