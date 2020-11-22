@@ -1,15 +1,12 @@
 #include "metan.h"
 
-#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zlib.h>
 
 #include "class_db.h"
 #include "db_mysql.h"
-#include "guide.h"
-#include "../map/itemdb.h"
+#include "itemdb.h"
 #include "malloc.h"
 
 char scheme[32];

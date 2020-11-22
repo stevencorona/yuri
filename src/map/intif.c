@@ -6,9 +6,7 @@
 #include <zlib.h>
 
 #include "../common/db.h"
-#include "../common/mmo.h"
 #include "clif.h"
-#include "core.h"
 #include "crypt.h"
 #include "db_mysql.h"
 #include "malloc.h"

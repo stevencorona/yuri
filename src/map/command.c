@@ -2,7 +2,6 @@
 #include "command.h"
 
 #include <ctype.h>
-#include <lauxlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,14 +18,11 @@
 #include "npc.h"
 #include "pc.h"
 #include "sl.h"
-// for debug command
 #include "crypt.h"
 #include "db_mysql.h"
 #include "malloc.h"
-#include "rndm.h"
 #include "socket.h"
 #include "timer.h"
-//#include "../metan/metan.h"
 
 int spellgfx;
 int musicfx;

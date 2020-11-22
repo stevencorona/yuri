@@ -12,10 +12,7 @@
 #include <winsock2.h>
 #endif
 #include <mysql.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>  // strtoul
-#include <string.h>  // strlen/strnlen/memcpy/memset
+#include <string.h>
 
 /// Sql handle
 struct Sql {

@@ -8,7 +8,6 @@
 
 #include "char.h"
 #include "char_db.h"
-#include "core.h"
 #include "db_mysql.h"
 #include "malloc.h"
 #include "mmo.h"

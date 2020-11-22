@@ -1,7 +1,5 @@
 #pragma once
 
-#define USE_DB_MYSQL
-
 #include "mmo.h"
 
 extern struct char_login_data {

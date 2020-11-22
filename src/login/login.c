@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <zlib.h>
 
 #include "clif.h"
@@ -12,6 +13,7 @@
 #include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
+#include "malloc.h"
 #include "socket.h"
 #include "timer.h"
 

@@ -5,16 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <zlib.h>
 
 #include "char.h"
 #include "db_mysql.h"
 #include "malloc.h"
 #include "md5calc.h"
 #include "mmo.h"
-#include "rndm.h"
 #include "strlib.h"
-#include "timer.h"
 
 void char_db_init() {
   sql_handle = Sql_Malloc();

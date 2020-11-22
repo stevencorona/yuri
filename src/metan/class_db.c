@@ -1,11 +1,9 @@
-
 #include "class_db.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "core.h"
 #include "db.h"
 #include "db_mysql.h"
 #include "malloc.h"

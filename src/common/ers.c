@@ -42,8 +42,8 @@
 
 #include <stdlib.h>
 
-#include "../common/malloc.h"  // CALLOC, REALLOC, aMalloc, aFree
-#include "../common/showmsg.h"  // ShowMessage, ShowError, ShowFatalError, CL_BOLD, CL_NORMAL
+#include "../common/malloc.h"
+#include "../common/showmsg.h"
 
 #ifndef DISABLE_ERS
 /*****************************************************************************\

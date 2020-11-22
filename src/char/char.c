@@ -10,12 +10,10 @@
 #include "char_db.h"
 #include "core.h"
 #include "db.h"
-#include "db_mysql.h"
 #include "logif.h"
 #include "malloc.h"
 #include "mapif.h"
 #include "mmo.h"
-#include "saveif.h"
 #include "socket.h"
 #include "timer.h"
 

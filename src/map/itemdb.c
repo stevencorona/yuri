@@ -5,12 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core.h"
 #include "db.h"
 #include "db_mysql.h"
 #include "malloc.h"
 #include "map.h"
-#include "script.h"
 
 DBMap *item_db;
 // DBMap* custom_db;

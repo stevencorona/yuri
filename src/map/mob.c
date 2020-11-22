@@ -1,7 +1,5 @@
-
 #include "mob.h"
 
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +10,6 @@
 #include "db_mysql.h"
 #include "malloc.h"
 #include "map.h"
-#include "npc.h"
-#include "pc.h"
 #include "rndm.h"
 #include "sl.h"
 #include "strlib.h"

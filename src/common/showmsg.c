@@ -6,11 +6,10 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>  // atexit
 #include <string.h>
 #include <time.h>
 
-#include "../common/strlib.h"  // StringBuf
+#include "../common/strlib.h"
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN

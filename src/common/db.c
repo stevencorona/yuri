@@ -68,7 +68,6 @@
 #include "db.h"
 
 #include <ctype.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -76,7 +75,6 @@
 
 #include "../common/ers.h"
 #include "../common/malloc.h"
-#include "../common/mmo.h"
 #include "../common/showmsg.h"
 
 /*****************************************************************************\

@@ -5,8 +5,6 @@
 #include "map.h"
 #include "mmo.h"
 
-// unsigned long getTicks();
-
 static int Longest_Charsave;
 static int Longest_Charload;
 static int Allsave_Bench;

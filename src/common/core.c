@@ -3,14 +3,10 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <signal.h>
-#include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
 
 #include "db.h"
 #include "socket.h"

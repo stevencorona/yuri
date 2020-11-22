@@ -8,7 +8,6 @@
 #include <time.h>
 
 #include "malloc.h"
-#include "strlib.h"
 
 #define TIMER_MIN_INTERVAL 50
 #define TIMER_MAX_INTERVAL 1000
