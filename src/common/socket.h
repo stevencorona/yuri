@@ -60,8 +60,6 @@
 #define WBUFB(p, pos) (*(unsigned char *)WBUFP((p), (pos)))
 #define WBUFW(p, pos) (*(unsigned short *)WBUFP((p), (pos)))
 #define WBUFL(p, pos) (*(unsigned int *)WBUFP((p), (pos)))
-#define LOG_START(fd) log_start(fd, __FUNCTION__)
-#define LOG_STOP(fd) log_stop(fd, __FUNCTION__)
 
 #ifdef __INTERIX
 #define FD_SETSIZE 4096

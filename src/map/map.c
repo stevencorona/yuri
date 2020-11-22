@@ -378,7 +378,6 @@ int isPlayerActive(USER* sd) {
         "Abnormal, Player exists but session does not(%s).  Attempting to "
         "recreate.\n",
         sd->status.name);
-    // log_session(sd->fd,"Abnormal client FD(%d)\n");
     // create_session(sd->fd); //Recreate socket data.
     // session[sd->fd]->session_data=sd;
     // session[sd->fd]->eof=1;
