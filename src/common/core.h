@@ -9,7 +9,6 @@ void add_dmp(int, int);
 void set_logfile(char*);
 void set_termfunc(void (*termfunc)(void));
 static void sig_proc(int);
-static void display_title(void);
 int set_default_input(int (*func)(char*));
 int default_parse_input(char*);
 int do_init(int, char**);

@@ -15,7 +15,7 @@
 #include "db.h"
 #include "socket.h"
 #include "timer.h"
-#include "version.h"
+
 #define ISDIGIT(c) (isdigit((unsigned char)(c)))
 
 int (*func_parse_it)(char *) = default_parse_input;
@@ -53,7 +53,6 @@ int main(int argc, char **argv) {
   signal(SIGTERM, sig_proc);
   signal(SIGINT, sig_proc);
   db_init();
-  display_title();
   timer_init();
 
   do_init(argc, argv);
@@ -211,39 +210,8 @@ static void sig_proc(int sn) {
   }
 }
 
-// Display Titlename
-//----------------------------
-static void display_title(void) {
-  printf("\033[2J");  // clear screen and go up/left (0, 0 position in text)
-
-  printf("ClassicTK - Revision %s\n", get_svn_revision());
-#if CLASSICTK_RELEASE_FLAG
-  // printf("**ClassicTK Develop version!\n");
-#endif
-}
-/*void *timer_thread(void *nothing) {
-        int run=1;
-
-        while(run) {
-                pthread_mutex_lock(&mutexl);
-                timer_do(gettick_nocache());
-                pthread_mutex_unlock(&mutexl);
-        }
-}
-void *socket_thread(void *nothing) {
-        int run=1;
-        while(run) {
-                pthread_mutex_lock(&mutexl);
-                do_sendrecv(1000);
-                do_parsepacket();
-                pthread_mutex_unlock(&mutexl);
-        }
-}*/
-
 int set_default_input(int (*func)(char *)) {
   func_parse_it = func;
   return 0;
 }
 int default_parse_input(char *val) { return 0; }
-
-//

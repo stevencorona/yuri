@@ -18,7 +18,6 @@
 #include "saveif.h"
 #include "socket.h"
 #include "timer.h"
-#include "version.h"
 
 int char_port = 2005;
 

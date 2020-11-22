@@ -15,7 +15,6 @@
 #include "rndm.h"
 #include "strlib.h"
 #include "timer.h"
-#include "version.h"
 
 void char_db_init() {
   sql_handle = Sql_Malloc();

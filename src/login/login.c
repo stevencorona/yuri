@@ -14,7 +14,6 @@
 #include "db_mysql.h"
 #include "socket.h"
 #include "timer.h"
-#include "version.h"
 
 int login_port = 2010;
 
