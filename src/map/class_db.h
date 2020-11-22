@@ -1,6 +1,4 @@
-
-#ifndef _CLASSDB_H_
-#define _CLASSDB_H_
+#pragma once
 
 #define CLASSDB_FILE "db/class_db.txt"
 #define LEVELDB_FILE "db/level_db.txt"
@@ -47,5 +45,3 @@ int classdb_icon(int);
 int classdb_read();
 int classdb_term();
 int classdb_init();
-
-#endif

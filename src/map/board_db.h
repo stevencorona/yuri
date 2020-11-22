@@ -1,6 +1,4 @@
-
-#ifndef _BOARDDB_H_
-#define _BOARDDB_H_
+#pragma once
 
 #define BOARDDB_FILE "db/board_db.txt"
 
@@ -34,5 +32,3 @@ int bn_read();
 int boarddb_read();
 int boarddb_term();
 int boarddb_init();
-
-#endif

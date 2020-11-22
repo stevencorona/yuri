@@ -1,5 +1,4 @@
-#ifndef _MD5CALC_H_
-#define _MD5CALC_H_
+#pragma once
 
 #ifndef PROTO
 #if defined (USE_PROTOTYPES) ? USE_PROTOTYPES : defined (__STDC__)
@@ -25,4 +24,3 @@ void cvs_MD5Final PROTO ((unsigned char digest[16],
 void cvs_MD5Transform PROTO ((cvs_uint32 buf[4], const unsigned char in[64]));
 void MD5_String(const char * string, char * output);
 void MD5_Binary(const char * string, unsigned char * output);
-#endif /* _MD5CALC_H_ */

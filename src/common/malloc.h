@@ -1,6 +1,5 @@
+#pragma once
 
-#ifndef _MALLOC_H_
-#define _MALLOC_H_
 #define __func__ __FUNCTION__
 #include <stddef.h>
 
@@ -40,4 +39,3 @@ char* s_inject(char*);
 #define nullpo_chk(target) if (!(target)) \
 	printf("SYS_ERR: nullpo failure at %s:%d(%s).\n", __FILE__, __LINE__, __func__), exit(1)
 
-#endif

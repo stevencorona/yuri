@@ -1,6 +1,4 @@
-
-#ifndef _NPC_H_
-#define _NPC_H_
+#pragma once
 
 #include "map.h"
 
@@ -23,5 +21,3 @@ int npc_move(NPC*);
 int npc_warp(NPC*,int,int,int);
 int npc_readglobalreg(NPC*,char*);
 int npc_setglobalreg(NPC*,char*,int);
-
-#endif

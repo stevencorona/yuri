@@ -1,6 +1,4 @@
-
-#ifndef _ITEM_H_
-#define _ITEM_H_
+#pragma once
 
 #define ITEMDB_FILE "db/item_db.txt"
 
@@ -118,5 +116,3 @@ int itemdb_class(unsigned int);
 int itemdb_protection(unsigned int);
 int itemdb_protected(unsigned int);
 int itemdb_time(unsigned int);
-
-#endif

@@ -1,6 +1,4 @@
-
-#ifndef _CHAR_H_
-#define _CHAR_H_
+#pragma once
 
 #define USE_DB_MYSQL
 
@@ -55,5 +53,3 @@ int mapfifo_from_mapid(int);
 int config_read(const char*);
 
 void do_term(void);
-
-#endif

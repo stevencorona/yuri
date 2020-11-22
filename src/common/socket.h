@@ -1,6 +1,4 @@
-
-#ifndef	_SOCKET_H_
-#define _SOCKET_H_
+#pragma once
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -97,5 +95,3 @@ void set_defaultparse(int (*)(int));
 void set_defaultaccept(int (*)(int));
 void set_defaulttimeout(int (*)(int));
 void set_defaultshutdown(int(*)(int));
-
-#endif	// _SOCKET_H_

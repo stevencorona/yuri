@@ -1,5 +1,3 @@
-#ifndef _METAN_H_
-extern Sql* sql_handle;
-#endif
+#pragma once
 
-//int main();//int,char**);
+extern Sql* sql_handle;

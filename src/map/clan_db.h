@@ -1,5 +1,4 @@
-#ifndef _CLANDB_H_
-#define _CLANDB_H_
+#pragma once
 
 #define CLANDB_FILE "db/clan_db.txt"
 
@@ -31,5 +30,3 @@ int clandb_read();
 int clandb_term();
 int clandb_init();
 int clandb_add(void* sd, char* name);
-
-#endif

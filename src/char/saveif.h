@@ -1,8 +1,4 @@
-
-#ifndef _SAVEIF_H_
-#define _SAVEIF_H_
+#pragma once
 
 int check_connect_save(int,int);
 int saveif_parse(int);
-
-#endif

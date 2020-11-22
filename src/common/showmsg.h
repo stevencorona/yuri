@@ -1,8 +1,7 @@
+#pragma once
+
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
-
-#ifndef _SHOWMSG_H_
-#define _SHOWMSG_H_
 
 // for help with the console colors look here:
 // http://www.edoceo.com/liberum/?doc=printf-with-color
@@ -91,5 +90,3 @@ extern int ShowWarning(const char *, ...);
 extern int ShowDebug(const char *, ...);
 extern int ShowError(const char *, ...);
 extern int ShowFatalError(const char *, ...);
-
-#endif /* _SHOWMSG_H_ */

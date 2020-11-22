@@ -1,6 +1,4 @@
-// $Id: script.h,v 1.3 2004/07/31 14:20:41 Yor Exp $
-#ifndef _SCRIPT_H_
-#define _SCRIPT_H_
+#pragma once
 
 struct script_data {
 	int type;
@@ -38,6 +36,3 @@ int script_term();
 int script_config_read_sub(char*);
 
 extern char mapreg_txt[];
-
-#endif
-

@@ -1,6 +1,4 @@
-
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#pragma once
 
 #define DIFF_TICK(a,b) ((int)((a)-(b)))
 #define INVALID_TIMER -1
@@ -36,5 +34,3 @@ void timer_init();
 void Log_Add(const char*, const char*, ...);
 unsigned int gettick_nocache();
 unsigned int gettick();
-
-#endif

@@ -1,6 +1,4 @@
-
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#pragma once
 
 #define CLASSICTK_MAJOR_VERSION	0
 #define CLASSICTK_MINOR_VERSION	1
@@ -10,6 +8,4 @@
 
 #if !defined( strcmpi )
 #define strcmpi strcasecmp
-#endif
-
 #endif
