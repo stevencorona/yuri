@@ -223,21 +223,13 @@ int do_init(int argc, char **argv) {
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
         strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
-      {
-        { help_screen(); }
-      }
+      help_screen();
     } else if (strcmp(argv[i], "--conf") == 0) {
-      {
-        { CONF_FILE = argv[i + 1]; }
-      }
+      CONF_FILE = argv[i + 1];
     } else if (strcmp(argv[i], "--inter") == 0) {
-      {
-        { INTER_FILE = argv[i + 1]; }
-      }
+      INTER_FILE = argv[i + 1];
     } else if (strcmp(argv[i], "--lang") == 0) {
-      {
-        { LANG_FILE = argv[i + 1]; }
-      }
+      LANG_FILE = argv[i + 1];
     }
   }
 

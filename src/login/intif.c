@@ -17,7 +17,7 @@
 static int packet_len_table[] = {69, 5, 5, 27, 5, 0};
 
 int intif_debug(int fd, int len) {
-  int x;
+  int x = 0;
   for (x = 0; x < len; x++) {
     printf("%u ", RFIFOB(fd, x));
   }
@@ -25,7 +25,8 @@ int intif_debug(int fd, int len) {
   return 0;
 }
 int intif_auth(int fd) {
-  int cmd, packet_len;
+  int cmd = 0;
+  int packet_len = 0;
 
   if (char_fd > 0) {
     session_eof(fd);
@@ -33,9 +34,12 @@ int intif_auth(int fd) {
   }
   cmd = RFIFOB(fd, 3);
   packet_len = 69;
-  if (RFIFOREST(fd) < packet_len) return 0;
+  if (RFIFOREST(fd) < packet_len) {
+    return 0;
+  }
 
-  if ((strcmp(RFIFOP(fd, 5), login_id)) && (strcmp(RFIFOP(fd, 37), login_pw))) {
+  if ((strcmp(RFIFOP(fd, 5), login_id) != 0) &&
+      (strcmp(RFIFOP(fd, 37), login_pw))) {
     WFIFOHEAD(fd, 3);
     WFIFOW(fd, 0) = 0x1000;
     WFIFOB(fd, 2) = 0x01;
@@ -58,31 +62,39 @@ int intif_auth(int fd) {
   return 0;
 }
 int intif_parse_2001(int fd) {
-  if (!session[RFIFOW(fd, 2)]) return 0;
+  if (!session[RFIFOW(fd, 2)]) {
+    return 0;
+  }
 
-  if (RFIFOB(fd, 4) == 0x01)
+  if (RFIFOB(fd, 4) == 0x01) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_USEREXIST]);
-  else if (RFIFOB(fd, 4))
+  } else if (RFIFOB(fd, 4)) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);
-  else
+  } else {
     clif_message(RFIFOW(fd, 2), 0x00, "\x00");
+  }
 
   return 0;
 }
 int intif_parse_2002(int fd) {
-  if (!session[RFIFOW(fd, 2)]) return 0;
+  if (!session[RFIFOW(fd, 2)]) {
+    return 0;
+  }
 
-  if (RFIFOB(fd, 4) == 0x01)
+  if (RFIFOB(fd, 4) == 0x01) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_USEREXIST]);
-  else if (RFIFOB(fd, 4))
+  } else if (RFIFOB(fd, 4)) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);
-  else
+  } else {
     clif_message(RFIFOW(fd, 2), 0x00, login_msg[LGN_NEWCHAR]);
+  }
 
   return 0;
 }
 int intif_parse_connectconfirm(int fd) {
-  if (!session[RFIFOW(fd, 2)]) return 0;
+  if (!session[RFIFOW(fd, 2)]) {
+    return 0;
+  }
 
   struct login_session_data* sd = session[RFIFOW(fd, 2)]->session_data;
 
@@ -92,17 +104,13 @@ int intif_parse_connectconfirm(int fd) {
             getHour(), getMinute(), sd->name,
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr),
             sd->pass);
-    // printf("	Connection confirmed. Sending LOGIN OK.\n");
 
-    ////////// UPDATE IP ADDRESS IN DATABASE SO WE MAY TRACK USERS WHILE THEY
-    /// ARE PLAYING.... ADDED 06-29-2017 ////////////////////////
     unsigned char ipaddress[16] = "";
 
     sprintf(ipaddress, "%u.%u.%u.%u",
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
-    // printf("ip address test: %s\n",ipaddress);
 
-    SqlStmt* stmt;
+    SqlStmt* stmt = NULL;
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
       SqlStmt_ShowDebug(stmt);
@@ -117,7 +125,6 @@ int intif_parse_connectconfirm(int fd) {
       Sql_ShowDebug(sql_handle);
       return 0;
     }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     WFIFOHEAD(RFIFOW(fd, 2), 8);
     WFIFOB(RFIFOW(fd, 2), 0) = '\xAA';
@@ -131,16 +138,16 @@ int intif_parse_connectconfirm(int fd) {
     set_packet_indexes(WFIFOP(RFIFOW(fd, 2), 0));
     tk_crypt(WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
-    int len;
-    int newlen;
-    char* thing;
-    // intif_debug(fd,26);
+    int len = 0;
+    int newlen = 0;
+    char* thing = NULL;
+
     WFIFOHEAD(RFIFOW(fd, 2), 23 + 255);
     WFIFOB(RFIFOW(fd, 2), 0) = '\xAA';
     WFIFOB(RFIFOW(fd, 2), 3) = '\x03';
     WFIFOL(RFIFOW(fd, 2), 4) = SWAP32(RFIFOL(fd, 21));
     WFIFOW(RFIFOW(fd, 2), 8) = SWAP16(RFIFOW(fd, 25));
-    // printf("Connecting to Number %u\n",RFIFOL(fd,20));
+
     len = strlen(RFIFOP(fd, 5)) + 16;
     thing = RFIFOP(fd, 5);
     WFIFOB(RFIFOW(fd, 2), 10) = len;
@@ -152,15 +159,14 @@ int intif_parse_connectconfirm(int fd) {
     strcpy(WFIFOP(RFIFOW(fd, 2), 23), thing);
     WFIFOL(RFIFOW(fd, 2), 23 + strlen(thing)) = SWAP32(RFIFOW(fd, 2));
 
-    // memcpy(WFIFOP(fd, 11), RFIFOP(fd, 4), len+1);
     WFIFOW(RFIFOW(fd, 2), 1) = SWAP16(len + 8);
     set_packet_indexes(WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 11 + len + 3);
-  } else if (RFIFOB(fd, 4) == 0x01)
+  } else if (RFIFOB(fd, 4) == 0x01) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);
-  else if (RFIFOB(fd, 4) == 0x02)
+  } else if (RFIFOB(fd, 4) == 0x02) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_WRONGUSER]);
-  else if (RFIFOB(fd, 4) == 0x03) {
+  } else if (RFIFOB(fd, 4) == 0x03) {
     Log_Add("invalidlogin",
             "<%02d:%02d> Login:%s IP:%u.%u.%u.%u Password used:%s\n", getHour(),
             getMinute(), sd->name,
@@ -172,29 +178,36 @@ int intif_parse_connectconfirm(int fd) {
       session[RFIFOW(fd, 2)]->eof = 1;
     }
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_WRONGPASS]);
-  } else if (RFIFOB(fd, 4) == 0x04)
+  } else if (RFIFOB(fd, 4) == 0x04) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_BANNED]);
-  else if (RFIFOB(fd, 4) == 0x05)
+  } else if (RFIFOB(fd, 4) == 0x05) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRSERVER]);
-  else if (RFIFOB(fd, 4) == 0x06)
+  } else if (RFIFOB(fd, 4) == 0x06) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_DBLLOGIN]);
-  else
+  } else {
     printf("Serious error!\n");
+  }
 
   return 0;
 }
+
 int intif_parse_changepass(int fd) {
-  if (!session[RFIFOW(fd, 2)]) return 0;
+  if (!session[RFIFOW(fd, 2)]) {
+    {
+      return 0;
+    }
+  }
 
   if (!RFIFOB(fd, 4)) {
     Log_Add("validchange", "<%d:%d> IP: %u.%u.%u.%u\n", getHour(), getMinute(),
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
     clif_message(RFIFOW(fd, 2), 0x00, login_msg[LGN_CHGPASS]);
-  } else if (RFIFOB(fd, 4) == 0x01)
+  } else if (RFIFOB(fd, 4) == 0x01) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);
-  else if (RFIFOB(fd, 4) == 0x02)
+  } else if (RFIFOB(fd, 4) == 0x02) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_WRONGUSER]);
-  else if (RFIFOB(fd, 4) == 0x03) {
+
+  } else if (RFIFOB(fd, 4) == 0x03) {
     Log_Add("invalidchange", "<%02d:%02d> IP:%u.%u.%u.%u\n", getHour(),
             getMinute(),
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
@@ -208,7 +221,9 @@ int intif_parse_changepass(int fd) {
   return 0;
 }
 int intif_parse(int fd) {
-  int cmd, packet_len;
+  int cmd = 0;
+  int packet_len = 0;
+
   if (session[fd]->eof) {
     add_log("Char Server connection lost.\n");
     printf("Char Server connection lost.\n");
@@ -219,7 +234,11 @@ int intif_parse(int fd) {
 
   if (RFIFOB(fd, 0) == 0xAA) {
     int len = SWAP16(RFIFOW(fd, 1)) + 3;
-    if (len <= RFIFOREST(fd)) RFIFOSKIP(fd, len);
+    if (len <= RFIFOREST(fd)) {
+      {
+        RFIFOSKIP(fd, len);
+      }
+    }
     return 0;
   }
 
@@ -235,7 +254,9 @@ int intif_parse(int fd) {
   packet_len = packet_len_table[cmd - 0x2000];
 
   if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) return 2;
+    if (RFIFOREST(fd) < 6) {
+      return 2;
+    }
     packet_len = RFIFOL(fd, 2);
   }
   if ((int)RFIFOREST(fd) < packet_len) {
