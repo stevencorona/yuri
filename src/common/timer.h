@@ -23,7 +23,7 @@ struct TimerData {
 
 int timer_insert(unsigned int, unsigned int, int (*)(int, int), int, int);
 int timer_remove(int);
-int timer_do();
+int timer_do(unsigned int tick);
 int getDay(void);
 int getHour(void);
 int getMinute(void);

@@ -11,6 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "db.h"
 #include "socket.h"
 #include "timer.h"
 #include "version.h"
