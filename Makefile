@@ -5,7 +5,7 @@
 CC = clang -pipe -g -Wimplicit-int -w
 MAKE = make -s
 
-CFLAGS = -DDEBUG -g3 -fno-stack-protector -ffast-math -Wall -Wno-sign-compare -DFD_SETSIZE=1024 -DNO_MEMMGR -DLOGGING_ENABLED -I../common -I/usr/include/mysql -I/usr/include/lua5.1 -I/usr/local/zlib/include
+CFLAGS = -DDEBUG -g3 -fno-stack-protector -ffast-math -Wall -Wno-sign-compare -DFD_SETSIZE=1024 -DLOGGING_ENABLED -I../common -I/usr/include/mysql -I/usr/include/lua5.1 -I/usr/local/zlib/include
 CLIBS = -L../lib -L/usr/local/lib -L/usr/lib  -L/usr/local/mysql/lib -lcrypt -lmysqlclient -lm -lz -ldl -llua5.1  -pthread
 
 COMMON_OBJ = ../common/core.o ../common/socket.o ../common/timer.o ../common/crypt.o ../common/db.o ../common/malloc.o  ../common/db_mysql.o ../common/md5calc.o ../common/ers.o ../common/strlib.o ../common/showmsg.o ../common/rndm.o
