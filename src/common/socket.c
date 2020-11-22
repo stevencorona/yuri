@@ -94,7 +94,7 @@ static int connect_check_(uint32_t ip);
 static int connect_check(uint32_t ip) {
   int result = connect_check_(ip);
   if (access_debug) {
-    printf("[socket] [connect_check] ip=%u.%u.%u.%u %s\n", CONVIP2(ip));
+    printf("[socket] [connect_check] ip=%u.%u.%u.%u\n", CONVIP2(ip));
   }
   return result;
 }
