@@ -209,8 +209,6 @@ int config_read(const char *cfg_file) {
       } else if (strcasecmp(r1, "sql_db") == 0) {
         strcpy(sql_db, r2);
         // DUMP & LOG
-      } else if (strcasecmp(r1, "char_log") == 0) {
-        set_logfile(r2);
       } else if (strcasecmp(r1, "start_point") == 1) {
         sscanf(r2, "%d,%d,%d", &m, &x, &y);
       }
@@ -253,7 +251,6 @@ int do_init(int argc, char **argv) {
   char *INTER_FILE = "conf/inter.conf";
 
   srand(gettick());
-  set_logfile("log/char.log");
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||

@@ -14,7 +14,6 @@
 
 int (*func_parse_it)(char *) = default_parse_input;
 static void (*term_func)(void) = NULL;
-char log_filename[128];
 char date_format[32] = "%Y-%m-%d %H:%M:%S";
 static char h_svn_version[10] = "";
 struct timeval start;
@@ -163,13 +162,6 @@ void add_dmp(int fd, int len) {
   }
   fclose(dmpfp);
   */
-}
-
-// Set Log File
-//----------------------------
-void set_logfile(char *logfilename) {
-  memset(log_filename, 0, 128);
-  strcpy(log_filename, logfilename);
 }
 
 // Set terminate function

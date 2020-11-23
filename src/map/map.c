@@ -1690,8 +1690,6 @@ int config_read(const char* cfg_file) {
       } else if (strcasecmp(r1, "save_time") == 0) {
         save_time = atoi(r2) * 1000;
         // LOG & DUMP
-      } else if (strcasecmp(r1, "map_log") == 0) {
-        set_logfile(r2);
       } else if (strcasecmp(r1, "meta") == 0) {
         add_meta(r2);
         // MAP & NPC SCRIPT
@@ -1898,7 +1896,6 @@ int do_init(int argc, char** argv) {
   char* INTER_FILE = "conf/inter.conf";
   char* CHAR_FILE = "conf/char.conf";
   srand(gettick());
-  set_logfile("log/map.log");
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
