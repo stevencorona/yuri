@@ -111,7 +111,9 @@ int logindata_term() {
 int logindata_search(unsigned int id) {
   struct char_login_data *dat;
   dat = (struct char_login_data *)uidb_get(login_data, id);
-  if (!dat) return -1;
+  if (!dat) {
+    return -1;
+  }
 
   return dat;
 }
@@ -133,7 +135,9 @@ int logindata_search(unsigned int id) {
 int logindata_change(unsigned int id, int map_server) {
   struct char_login_data *dat;
   dat = (struct char_login_data *)uidb_get(login_data, id);
-  if (!dat) return -1;
+  if (!dat) {
+    return -1;
+  }
 
   dat->map_server = map_server;
   return 0;
@@ -158,7 +162,9 @@ int config_read(const char *cfg_file) {
 
   while (fgets(line, sizeof(line), fp)) {
     line_num++;
-    if (line[0] == '/' && line[1] == '/') continue;
+    if (line[0] == '/' && line[1] == '/') {
+      continue;
+    }
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
       // CHAR
@@ -265,12 +271,13 @@ int do_init(int argc, char **argv) {
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
-        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0)
+        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
       help_screen();
-    else if (strcmp(argv[i], "--conf") == 0)
+    } else if (strcmp(argv[i], "--conf") == 0) {
       CONF_FILE = argv[i + 1];
-    else if (strcmp(argv[i], "--inter") == 0)
+    } else if (strcmp(argv[i], "--inter") == 0) {
       INTER_FILE = argv[i + 1];
+    }
   }
 
   config_read(CONF_FILE);

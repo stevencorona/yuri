@@ -96,7 +96,9 @@ int mapif_parse_auth(int fd) {
   packet_len = packet_len_table[cmd - 0x3000];
 
   if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) return 2;
+    if (RFIFOREST(fd) < 6) {
+      return 2;
+    }
     packet_len = RFIFOL(fd, 2);
   }
   if ((int)RFIFOREST(fd) < packet_len) {
@@ -118,10 +120,14 @@ int mapif_parse_auth(int fd) {
     int i;
 
     for (i = 0; i < map_fifo_max; i++) {
-      if (!map_fifo[i].fd) break;
+      if (!map_fifo[i].fd) {
+        break;
+      }
     }
 
-    if (i >= map_fifo_max) map_fifo_max++;
+    if (i >= map_fifo_max) {
+      map_fifo_max++;
+    }
 
     map_fifo_n++;
     map_fifo[i].fd = fd;
@@ -244,7 +250,9 @@ int mapif_parse_savechar(int fd) {
 
   retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
-  if (!retval) mmo_char_todb((struct mmo_charstatus*)cbuf);
+  if (!retval) {
+    mmo_char_todb((struct mmo_charstatus*)cbuf);
+  }
 
   FREE(cbuf);
   return 0;
@@ -270,7 +278,9 @@ int mapif_parse_savecharlog(int fd) {
 
   c = (struct mmo_charstatus*)cbuf;
 
-  if (!retval) mmo_char_todb((struct mmo_charstatus*)cbuf);
+  if (!retval) {
+    mmo_char_todb((struct mmo_charstatus*)cbuf);
+  }
   if (c) logindata_del(c->id);
 
   FREE(cbuf);
@@ -633,7 +643,9 @@ int mapif_parse_readpost(int fd) {
 
   Sql_GetData(sql_handle, 0, &data, 0);
 
-  if (!data) return 0;
+  if (!data) {
+    return 0;
+  }
 
   max = atoi(data);
 
@@ -756,7 +768,9 @@ int mapif_parse_boardpost(int fd) {
 
   } else if (SQL_SUCCESS == result) {
     Sql_GetData(sql_handle, 0, &data, 0);
-    if (data) newPostID = atoi(data) + 1;
+    if (data) {
+      newPostID = atoi(data) + 1;
+    }
     Sql_FreeResult(sql_handle);
   }
 
@@ -979,7 +993,9 @@ int mapif_parse(int fd) {
   int id, i;
   int cmd = 0, packet_len;
   for (id = 0; id < map_fifo_max; id++) {
-    if (map_fifo[id].fd == fd) break;
+    if (map_fifo[id].fd == fd) {
+      break;
+    }
   }
 
   if (session[fd]->eof) {
@@ -989,10 +1005,11 @@ int mapif_parse(int fd) {
     map_fifo_n--;
     if (id == (map_fifo_max - 1)) {
       for (i = map_fifo_max - 1; i >= 0; i--) {
-        if (!map_fifo[id].fd)
+        if (!map_fifo[id].fd) {
           map_fifo_max--;
-        else
+        } else {
           break;
+        }
       }
     }
     // printf("Map FIFO Server Connected: %d, FIFO Cache: %d\n", map_fifo_n,
@@ -1014,7 +1031,9 @@ int mapif_parse(int fd) {
   packet_len = packet_len_table[cmd - 0x3000];
 
   if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) return 2;
+    if (RFIFOREST(fd) < 6) {
+      return 2;
+    }
     packet_len = RFIFOL(fd, 2);
   }
   if ((int)RFIFOREST(fd) < packet_len) {

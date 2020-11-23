@@ -139,7 +139,9 @@ void crypt(char *buff) {
   buff++;
 
   // buff now points to the first data byte
-  if (packet_len > 65535) return;
+  if (packet_len > 65535) {
+    return;
+  }
 
   for (i = 0; i < packet_len; i++) {
     *(buff + i) ^= key1[i % 9];
@@ -164,7 +166,9 @@ char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   unsigned char checksum[16];
   int i;
 
-  if (buflen < 33) return NULL;
+  if (buflen < 33) {
+    return NULL;
+  }
 
   cvs_MD5Init(&context);
   cvs_MD5Update(&context, name, strlen(name));
@@ -191,9 +195,13 @@ char *populate_table(const char *name, char *table, int tablelen) {
   char hash[64];
   int i;
 
-  if (tablelen < 0x401) return NULL;
+  if (tablelen < 0x401) {
+    return NULL;
+  }
 
-  if (!generate_hashvalues(name, &hash[0], sizeof(hash))) return NULL;
+  if (!generate_hashvalues(name, &hash[0], sizeof(hash))) {
+    return NULL;
+  }
 
   table[0] = 0;
   sprintf(&table[0], "%s", &hash[0]);
@@ -317,10 +325,10 @@ int debug(unsigned char *stringthing, int len) {
   printf("\nField:     Character:        Decimal:         Hex Value:\n");
 
   for (i = 0; i < len; i++) {
-    if (stringthing[i] >= 33 && stringthing[i] < 126)
+    if (stringthing[i] >= 33 && stringthing[i] < 126) {
       printf("    %i             %c                 %d                %02X\n",
              i, stringthing[i], stringthing[i], stringthing[i]);
-    else {
+    } else {
       printf("    %i                               %d              %02X\n", i,
              stringthing[i], stringthing[i]);
     }
@@ -345,7 +353,9 @@ void crypt2(char *buff, char *key) {
   buff++;
 
   // buff now points to the first data byte
-  if (packet_len > 65535) return;
+  if (packet_len > 65535) {
+    return;
+  }
 
   for (i = 0; i < packet_len; i++) {
     *(buff + i) ^= key[i % 9];

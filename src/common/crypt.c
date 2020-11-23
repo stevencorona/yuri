@@ -53,7 +53,9 @@ char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   unsigned char checksum[16];
   int i;
 
-  if (buflen < 33) return 0;
+  if (buflen < 33) {
+    return 0;
+  }
 
   cvs_MD5Init(&context);
   cvs_MD5Update(&context, name, strlen(name));
@@ -71,9 +73,13 @@ char *populate_table(const char *name, char *table, int tablelen) {
   char hash[64];
   int i;
 
-  if (tablelen < 0x401) return 0;
+  if (tablelen < 0x401) {
+    return 0;
+  }
 
-  if (!generate_hashvalues(name, &hash[0], sizeof(hash))) return 0;
+  if (!generate_hashvalues(name, &hash[0], sizeof(hash))) {
+    return 0;
+  }
 
   table[0] = 0;
   sprintf(&table[0], "%s", &hash[0]);
@@ -176,7 +182,9 @@ void tk_crypt(char *buff) {
   buff++;
 
   // buff now points to the first data byte
-  if (packet_len > 65535) return;
+  if (packet_len > 65535) {
+    return;
+  }
 
   for (i = 0; i < packet_len; i++) {
     *(buff + i) ^= enckey[i % 9];
@@ -208,7 +216,9 @@ void crypt2(char *buff, char *key) {
   buff++;
 
   // buff now points to the first data byte
-  if (packet_len > 65535) return;
+  if (packet_len > 65535) {
+    return;
+  }
 
   for (int i = 0; i < packet_len;
        i++)  // variable was declared in beginning of function but was

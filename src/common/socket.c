@@ -124,12 +124,13 @@ static int connect_check_(uint32_t ip) {
   //  0 : Reject
   //  1 : Accept
   //  2 : Unconditional Accept (accepts even if flagged as DDoS)
-  if (is_denyip)
+  if (is_denyip) {
     connect_ok = 0;  // Reject
-  else if (is_allowip)
+  } else if (is_allowip) {
     connect_ok = 2;  // Unconditional Accept
-  else
+  } else {
     connect_ok = 1;  // Accept
+  }
 
   // Inspect connection history
   while (hist) {
@@ -309,7 +310,9 @@ void setsocketopts(int fd) {
 void set_nonblocking(int fd, unsigned long yes) {
   // FIONBIO Use with a nonzero argp parameter to enable the nonblocking mode of
   // socket s. The argp parameter is zero if nonblocking is to be disabled.
-  if (ioctl(fd, FIONBIO, &yes) != 0) printf("nonblocking failed.");
+  if (ioctl(fd, FIONBIO, &yes) != 0) {
+    printf("nonblocking failed.");
+  }
   // printf("set_nonblocking: Failed to set socket %d to non-blocking mode (code
   // %d) - Please report this!!!\n", fd, sErrno);
 }
@@ -335,12 +338,18 @@ void set_defaulttimeout(int (*default_timeout)(int)) {
 int recv_to_fifo(int fd) {
   int len;
 
-  if ((fd < 0) || (fd >= FD_SETSIZE)) return -1;
+  if ((fd < 0) || (fd >= FD_SETSIZE)) {
+    return -1;
+  }
 
-  if ((NULL == session[fd])) return -1;
+  if ((NULL == session[fd])) {
+    return -1;
+  }
 
   // printf("recv_to_fifo : %d %d\n", fd, session[fd]->eof);
-  if (session[fd]->eof) return -1;
+  if (session[fd]->eof) {
+    return -1;
+  }
 
   len = recv(fd, (char*)session[fd]->rdata + session[fd]->rdata_size,
              (int)RFIFOSPACE(fd), 0);
@@ -397,7 +406,9 @@ RFIFOREST(fd);
         return 0;
 }*/
 int WFIFOHEADER(int fd, int packetID, int packetSize) {
-  if (!session[fd]) return 0;
+  if (!session[fd]) {
+    return 0;
+  }
   WFIFOB(fd, 0) = 0xAA;
   WFIFOW(fd, 1) = SWAP16(packetSize);
   WFIFOB(fd, 3) = packetID;
@@ -409,14 +420,22 @@ int send_from_fifo(int fd) {
   int len;
   // struct socket_data *p;
 
-  if ((fd < 0) || (fd >= FD_SETSIZE)) return -1;
+  if ((fd < 0) || (fd >= FD_SETSIZE)) {
+    return -1;
+  }
 
-  if ((NULL == session[fd])) return -1;
+  if ((NULL == session[fd])) {
+    return -1;
+  }
 
   // printf("recv_to_fifo : %d %d\n", fd, session[fd]->eof);
-  if (session[fd]->eof) return -1;
+  if (session[fd]->eof) {
+    return -1;
+  }
 
-  if (!session[fd]->wdata_size) return 0;  // Nothing to send
+  if (!session[fd]->wdata_size) {
+    return 0;  // Nothing to send
+  }
 
   if (!session[fd]->wdata) {
     session[fd]->eof = 5;
@@ -440,9 +459,10 @@ int send_from_fifo(int fd) {
   if (len > 0) {
     // some data could not be transferred?
     // shift unsent data to the beginning of the queue
-    if ((size_t)len < session[fd]->wdata_size)
+    if ((size_t)len < session[fd]->wdata_size) {
       memmove(session[fd]->wdata, session[fd]->wdata + len,
               session[fd]->wdata_size - len);
+    }
 
     session[fd]->wdata_size -= len;
   }
@@ -492,7 +512,9 @@ int connect_client(int listen_fd) {
     close(fd);
     return -1;
   }
-  if (fd_max <= fd) fd_max = fd + 1;
+  if (fd_max <= fd) {
+    fd_max = fd + 1;
+  }
 
   if (session[fd]) {
     printf("Socket fail: Already in use\n");
@@ -535,7 +557,9 @@ int make_listen_port(int port) {
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (fd_max <= fd) fd_max = fd + 1;
+  if (fd_max <= fd) {
+    fd_max = fd + 1;
+  }
 
   /*result = fcntl(fd,F_SETFL,O_NONBLOCK);
 //	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,NULL,0);
@@ -582,7 +606,9 @@ int make_connection(long ip, int port) {
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (fd_max <= fd) fd_max = fd + 1;
+  if (fd_max <= fd) {
+    fd_max = fd + 1;
+  }
   /*
   //	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,NULL,0);
           setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(char *)&yes,sizeof yes); //
@@ -639,13 +665,16 @@ void create_session(int fd) {
   session[fd]->rdata_tick = last_tick;
 }
 void flush_fifo(int fd) {
-  if (session[fd] != NULL && session[fd]->func_send != NULL)
+  if (session[fd] != NULL && session[fd]->func_send != NULL) {
     session[fd]->func_send(fd);
+  }
 }
 int session_eof(int fd) {
   unsigned long Measurement = getTicks();
 
-  if (fd < 0 || fd >= FD_SETSIZE) return -1;
+  if (fd < 0 || fd >= FD_SETSIZE) {
+    return -1;
+  }
 
   flush_fifo(fd);
   FD_CLR(fd, &readfds);
@@ -667,11 +696,15 @@ int session_eof(int fd) {
   }
 
   unsigned long Difference = getTicks() - Measurement;
-  if (Difference > Last_Eof) Last_Eof = Difference;
+  if (Difference > Last_Eof) {
+    Last_Eof = Difference;
+  }
   return 0;
 }
 int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen) {
-  if (!session[fd]) return 0;
+  if (!session[fd]) {
+    return 0;
+  }
 
   if (session[fd]->max_rdata != rfifo_sizen &&
       session[fd]->rdata_size < rfifo_sizen) {
@@ -690,30 +723,42 @@ int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen) {
 int realloc_fifo(int fd, size_t addition) {
   size_t newsize;
 
-  if (!session[fd]) return 0;
+  if (!session[fd]) {
+    return 0;
+  }
   // if(!rfifo_sizen) return 0;
-  if (!addition) return 0;
+  if (!addition) {
+    return 0;
+  }
   // if(!s->rdata) return 0;
-  if (!session[fd]->wdata) return 0;
-  if (session[fd]->eof) return 0;
+  if (!session[fd]->wdata) {
+    return 0;
+  }
+  if (session[fd]->eof) {
+    return 0;
+  }
   // g_Size=session[fd]->wdata_size+wfifo_sizen;
   if (session[fd]->wdata_size + addition > session[fd]->max_wdata) {
     // REALLOC(s->wdata, unsigned char, wfifo_sizen);
     newsize = wfifo_size;
-    while (session[fd]->wdata_size + addition > newsize) newsize += wfifo_size;
+    while (session[fd]->wdata_size + addition > newsize) {
+      newsize += wfifo_size;
+    }
     // setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(char*)&s->max_wdata,(int)sizeof(s->max_wdata));
 
   } else if (session[fd]->max_wdata >= FIFOSIZE_SERVER) {
-    if ((session[fd]->wdata_size + addition) * 4 < session[fd]->max_wdata)
+    if ((session[fd]->wdata_size + addition) * 4 < session[fd]->max_wdata) {
       newsize = session[fd]->max_wdata / 2;
-    else
+    } else {
       return 0;
+    }
   } else if (session[fd]->max_wdata >= 2 * wfifo_size &&
              (session[fd]->wdata_size + addition) * 4 <
                  session[fd]->max_wdata) {
     newsize = session[fd]->max_wdata / 2;
-  } else  // no change
+  } else {  // no change
     return 0;
+  }
 
   REALLOC(session[fd]->wdata, unsigned char, newsize);
   /*if(!session[fd]->wdata) {
@@ -727,11 +772,13 @@ int realloc_fifo(int fd, size_t addition) {
 
 int WFIFOSET(int fd, int len) {
   // struct socket_data *s = session[fd];
-  if (!session[fd]) return 0;
+  if (!session[fd]) {
+    return 0;
+  }
 
-  if (session[fd]->wdata_size + len < session[fd]->max_wdata)
+  if (session[fd]->wdata_size + len < session[fd]->max_wdata) {
     session[fd]->wdata_size = session[fd]->wdata_size + len;
-  else
+  } else
       // printf("socket #%d %d bytes wdata lost due low free space.\n", fd,
       // len);
 
@@ -766,8 +813,12 @@ int do_sendrecv(int next) {
       continue;
     }
 
-    if (!session[i]) continue;
-    if (session[i]->wdata_size) FD_SET(i, &wfd);
+    if (!session[i]) {
+      continue;
+    }
+    if (session[i]->wdata_size) {
+      FD_SET(i, &wfd);
+    }
   }
 
   timeout.tv_sec = next / 1000;
@@ -777,26 +828,38 @@ int do_sendrecv(int next) {
 
   last_tick = time(NULL);
 
-  if (ret <= 0) return 0;
+  if (ret <= 0) {
+    return 0;
+  }
 
   for (i = 1; i < fd_max; i++) {
     activeFD = i;
     // p=session[i];
-    if (!session[i]) continue;
+    if (!session[i]) {
+      continue;
+    }
     if (session[i]->wdata_size) {
       // printf("write:%d\n",i);
-      if (session[i]->func_send) session[i]->func_send(i);
+      if (session[i]->func_send) {
+        session[i]->func_send(i);
+      }
     }
     if (FD_ISSET(i, &rfd)) {
       // printf("read:%d\n",i);
-      if (session[i]->func_recv) session[i]->func_recv(i);
+      if (session[i]->func_recv) {
+        session[i]->func_recv(i);
+      }
     }
     if (session[i]->eof) {  // Force disconnects!
-      if (session[i]->func_parse) session[i]->func_parse(i);
+      if (session[i]->func_parse) {
+        session[i]->func_parse(i);
+      }
     }
 
     if (server_shutdown && (!FD_ISSET(i, &wfd)) && session[i]) {
-      if (session[i]->func_shutdown) session[i]->func_shutdown(i);
+      if (session[i]->func_shutdown) {
+        session[i]->func_shutdown(i);
+      }
     }
 
     /*if (session[i]->rdata_size == 0 && session[i]->eof == 0)
@@ -819,7 +882,9 @@ int do_parsepacket(void) {
   for (i = 1; i < fd_max; i++) {
     // p=session[i];
     activeFD = i;
-    if (!session[i]) continue;
+    if (!session[i]) {
+      continue;
+    }
     // if (session[i]->rdata_size == 0 && session[i]->eof == 0)
     //	continue;
 
@@ -836,7 +901,9 @@ int do_parsepacket(void) {
       // continue;
     }
 
-    if (!session[i]) continue;
+    if (!session[i]) {
+      continue;
+    }
 
     if (session[i]->rdata_size == rfifo_size &&
         session[i]->max_rdata == rfifo_size) {

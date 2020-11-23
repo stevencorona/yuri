@@ -130,19 +130,23 @@ char* trim(char* str) {
   size_t start;
   size_t end;
 
-  if (str == NULL) return str;
+  if (str == NULL) {
+    return str;
+  }
 
   // get start position
-  for (start = 0; str[start] && isspace(str[start]); ++start)
+  for (start = 0; str[start] && isspace(str[start]); ++start) {
     ;
+  }
   // get end position
   for (end = strlen(str); start < end && str[end - 1] && isspace(str[end - 1]);
-       --end)
+       --end) {
     ;
+  }
   // trim
-  if (start == end)
+  if (start == end) {
     *str = '\0';  // empty string
-  else {          // move string with nul terminator
+  } else {        // move string with nul terminator
     str[end] = '\0';
     memmove(str, str + start, end - start + 1);
   }
@@ -157,10 +161,14 @@ char* normalize_name(char* str, const char* delims) {
   char* out = str;
   int put_space = 0;
 
-  if (str == NULL || delims == NULL) return str;
+  if (str == NULL || delims == NULL) {
+    return str;
+  }
 
   // trim start of string
-  while (*in && strchr(delims, *in)) ++in;
+  while (*in && strchr(delims, *in)) {
+    ++in;
+  }
   while (*in) {
     if (put_space) {  // replace trim characters with a single space
       *out = ' ';
@@ -173,7 +181,9 @@ char* normalize_name(char* str, const char* delims) {
       ++in;
     }
     // skip trim characters
-    while (*in && strchr(delims, *in)) ++in;
+    while (*in && strchr(delims, *in)) {
+      ++in;
+    }
     put_space = 1;
   }
   *out = '\0';
@@ -239,23 +249,34 @@ int e_mail_check(char* email) {
   size_t len = strlen(email);
 
   // athena limits
-  if (len < 3 || len > 39) return 0;
+  if (len < 3 || len > 39) {
+    return 0;
+  }
 
   // part of RFC limits (official reference of e-mail description)
-  if (strchr(email, '@') == NULL || email[len - 1] == '@') return 0;
+  if (strchr(email, '@') == NULL || email[len - 1] == '@') {
+    return 0;
+  }
 
-  if (email[len - 1] == '.') return 0;
+  if (email[len - 1] == '.') {
+    return 0;
+  }
 
   last_arobas = strrchr(email, '@');
 
-  if (strstr(last_arobas, "@.") != NULL || strstr(last_arobas, "..") != NULL)
+  if (strstr(last_arobas, "@.") != NULL || strstr(last_arobas, "..") != NULL) {
     return 0;
+  }
 
-  for (ch = 1; ch < 32; ch++)
-    if (strchr(last_arobas, ch) != NULL) return 0;
+  for (ch = 1; ch < 32; ch++) {
+    if (strchr(last_arobas, ch) != NULL) {
+      return 0;
+    }
+  }
 
-  if (strchr(last_arobas, ' ') != NULL || strchr(last_arobas, ';') != NULL)
+  if (strchr(last_arobas, ' ') != NULL || strchr(last_arobas, ';') != NULL) {
     return 0;
+  }
 
   // all correct
   return 1;
@@ -268,11 +289,13 @@ int e_mail_check(char* email) {
 int config_switch(const char* str) {
   if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 ||
       strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 ||
-      strcmpi(str, "si") == 0)
+      strcmpi(str, "si") == 0) {
     return 1;
+  }
   if (strcmpi(str, "off") == 0 || strcmpi(str, "no") == 0 ||
-      strcmpi(str, "non") == 0 || strcmpi(str, "nein") == 0)
+      strcmpi(str, "non") == 0 || strcmpi(str, "nein") == 0) {
     return 0;
+  }
 
   return (int)strtol(str, NULL, 0);
 }
@@ -281,7 +304,9 @@ int config_switch(const char* str) {
 char* safestrncpy(char* dst, const char* src, size_t n) {
   char* ret;
   ret = strncpy(dst, src, n);
-  if (ret != NULL) ret[n - 1] = '\0';
+  if (ret != NULL) {
+    ret[n - 1] = '\0';
+  }
   return ret;
 }
 
@@ -319,13 +344,17 @@ int strline(const char* str, size_t pos) {
   const char* target;
   int line;
 
-  if (str == NULL || pos == 0) return 1;
+  if (str == NULL || pos == 0) {
+    return 1;
+  }
 
   target = str + pos;
   for (line = 1;; ++line) {
     str = strchr(str, '\n');
-    if (str == NULL || target <= str) break;  // found target line
-    ++str;                                    // skip newline
+    if (str == NULL || target <= str) {
+      break;  // found target line
+    }
+    ++str;  // skip newline
   }
   return line;
 }
@@ -385,8 +414,12 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
   } state;
 
   // check pos/npos
-  if (out_pos == NULL) npos = 0;
-  for (i = 0; i < npos; ++i) out_pos[i] = -1;
+  if (out_pos == NULL) {
+    npos = 0;
+  }
+  for (i = 0; i < npos; ++i) {
+    out_pos[i] = -1;
+  }
 
   // check opt
   if (delim == '\n' && (opt & (SV_TERMINATE_CRLF | SV_TERMINATE_LF))) {
@@ -403,7 +436,9 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
   }
 
   // check str
-  if (str == NULL) return 0;  // nothing to parse
+  if (str == NULL) {
+    return 0;  // nothing to parse
+  }
 
 #define IS_END() (i >= len)
 #define IS_DELIM() (str[i] == delim)
@@ -422,9 +457,13 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
   i = startoff;
   count = 0;
   state = START_OF_FIELD;
-  if (npos > 0) out_pos[0] = startoff;  // start
+  if (npos > 0) {
+    out_pos[0] = startoff;  // start
+  }
   while (state != END) {
-    if (npos > 1) out_pos[1] = i;  // end
+    if (npos > 1) {
+      out_pos[1] = i;  // end
+    }
     switch (state) {
       case START_OF_FIELD:  // record start of field and start parsing it
         SET_FIELD_START();
@@ -432,12 +471,13 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
         break;
 
       case PARSING_FIELD:  // skip field character
-        if (IS_END() || IS_DELIM() || IS_TERMINATOR())
+        if (IS_END() || IS_DELIM() || IS_TERMINATOR()) {
           state = END_OF_FIELD;
-        else if (IS_C_ESCAPE())
+        } else if (IS_C_ESCAPE()) {
           state = PARSING_C_ESCAPE;
-        else
+        } else {
           ++i;  // normal character
+        }
         break;
 
       case PARSING_C_ESCAPE:  // skip escape sequence (validates it too)
@@ -457,10 +497,14 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
             ++i;  // hex digit
           } while (!IS_END() && isxdigit(str[i]));
         } else if (str[i] == '0' || str[i] == '1' ||
-                   str[i] == '2') {                              // octal escape
-          ++i;                                                   // octal digit
-          if (!IS_END() && str[i] >= '0' && str[i] <= '7') ++i;  // octal digit
-          if (!IS_END() && str[i] >= '0' && str[i] <= '7') ++i;  // octal digit
+                   str[i] == '2') {  // octal escape
+          ++i;                       // octal digit
+          if (!IS_END() && str[i] >= '0' && str[i] <= '7') {
+            ++i;  // octal digit
+          }
+          if (!IS_END() && str[i] >= '0' && str[i] <= '7') {
+            ++i;  // octal digit
+          }
         } else if (strchr(SV_ESCAPE_C_SUPPORTED,
                           str[i])) {  // supported escape character
           ++i;
@@ -474,15 +518,16 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
 
       case END_OF_FIELD:  // record end of field and continue
         SET_FIELD_END();
-        if (IS_END())
+        if (IS_END()) {
           state = END;
-        else if (IS_DELIM()) {
+        } else if (IS_DELIM()) {
           ++i;  // delim
           state = START_OF_FIELD;
-        } else if (IS_TERMINATOR())
+        } else if (IS_TERMINATOR()) {
           state = TERMINATE;
-        else
+        } else {
           state = START_OF_FIELD;
+        }
         break;
 
       case TERMINATE:
@@ -536,21 +581,28 @@ int sv_split(char* str, int len, int startoff, char delim, char** out_fields,
   char* end;
   int ret = sv_parse(str, len, startoff, delim, pos, ARRAYLENGTH(pos), opt);
 
-  if (ret == -1 || out_fields == NULL || nfields <= 0)
+  if (ret == -1 || out_fields == NULL || nfields <= 0) {
     return ret;  // nothing to do
+  }
 
   // next line
   end = str + pos[1];
   if (end[0] == '\0') {
     *out_fields = end;
   } else if ((opt & SV_TERMINATE_LF) && end[0] == '\n') {
-    if (!(opt & SV_KEEP_TERMINATOR)) end[0] = '\0';
+    if (!(opt & SV_KEEP_TERMINATOR)) {
+      end[0] = '\0';
+    }
     *out_fields = end + 1;
   } else if ((opt & SV_TERMINATE_CRLF) && end[0] == '\r' && end[1] == '\n') {
-    if (!(opt & SV_KEEP_TERMINATOR)) end[0] = end[1] = '\0';
+    if (!(opt & SV_KEEP_TERMINATOR)) {
+      end[0] = end[1] = '\0';
+    }
     *out_fields = end + 2;
   } else if ((opt & SV_TERMINATE_LF) && end[0] == '\r') {
-    if (!(opt & SV_KEEP_TERMINATOR)) end[0] = '\0';
+    if (!(opt & SV_KEEP_TERMINATOR)) {
+      end[0] = '\0';
+    }
     *out_fields = end + 1;
   } else {
     ShowError("sv_split: unknown line delimiter 0x02%x.\n",
@@ -579,7 +631,9 @@ int sv_split(char* str, int len, int startoff, char delim, char** out_fields,
     }
   }
   // remaining fields
-  for (i = 0; i < nfields; ++i) out_fields[i] = end;
+  for (i = 0; i < nfields; ++i) {
+    out_fields[i] = end;
+  }
   return ret;
 }
 
@@ -597,12 +651,16 @@ size_t sv_escape_c(char* out_dest, const char* src, size_t len,
   size_t i;
   size_t j;
 
-  if (out_dest == NULL) return 0;  // nothing to do
-  if (src == NULL) {               // nothing to escape
+  if (out_dest == NULL) {
+    return 0;  // nothing to do
+  }
+  if (src == NULL) {  // nothing to escape
     *out_dest = 0;
     return 0;
   }
-  if (escapes == NULL) escapes = "";
+  if (escapes == NULL) {
+    escapes = "";
+  }
 
   for (i = 0, j = 0; i < len; ++i) {
     switch (src[i]) {
@@ -654,8 +712,9 @@ size_t sv_escape_c(char* out_dest, const char* src, size_t len,
               out_dest[j++] = '0' + ((char)(((unsigned char)src[i] & 0007)));
               break;
           }
-        } else
+        } else {
           out_dest[j++] = src[i];
+        }
         break;
     }
   }
@@ -696,9 +755,9 @@ size_t sv_unescape_c(char* out_dest, const char* src, size_t len) {
   for (i = 0, j = 0; i < len;) {
     if (src[i] == '\\') {
       ++i;  // '\\'
-      if (i >= len)
+      if (i >= len) {
         ShowWarning("sv_unescape_c: empty escape sequence\n");
-      else if (src[i] == 'x') {  // hex escape sequence
+      } else if (src[i] == 'x') {  // hex escape sequence
         unsigned char c = 0;
         unsigned char inrange = 1;
 
@@ -730,8 +789,9 @@ size_t sv_unescape_c(char* out_dest, const char* src, size_t len) {
         }
         out_dest[j++] = (char)c;
       } else {  // other escape sequence
-        if (strchr(SV_ESCAPE_C_SUPPORTED, src[i]) == NULL)
+        if (strchr(SV_ESCAPE_C_SUPPORTED, src[i]) == NULL) {
           ShowWarning("sv_unescape_c: unknown escape sequence \\%c\n", src[i]);
+        }
         switch (src[i]) {
           case 'a':
             out_dest[j++] = '\a';
@@ -763,8 +823,9 @@ size_t sv_unescape_c(char* out_dest, const char* src, size_t len) {
         }
         ++i;  // escaped character
       }
-    } else
+    } else {
       out_dest[j++] = src[i++];  // normal character
+    }
   }
   out_dest[j] = 0;
   return j;
@@ -777,18 +838,26 @@ const char* skip_escaped_c(const char* p) {
     switch (*p) {
       case 'x':  // hexadecimal
         ++p;
-        while (isxdigit(*p)) ++p;
+        while (isxdigit(*p)) {
+          ++p;
+        }
         break;
       case '0':
       case '1':
       case '2':
       case '3':  // octal
         ++p;
-        if (*p >= '0' && *p <= '7') ++p;
-        if (*p >= '0' && *p <= '7') ++p;
+        if (*p >= '0' && *p <= '7') {
+          ++p;
+        }
+        if (*p >= '0' && *p <= '7') {
+          ++p;
+        }
         break;
       default:
-        if (*p && strchr(SV_ESCAPE_C_SUPPORTED, *p)) ++p;
+        if (*p && strchr(SV_ESCAPE_C_SUPPORTED, *p)) {
+          ++p;
+        }
     }
   }
   return p;
@@ -837,10 +906,14 @@ bool sv_readdb(const char* directory, const char* filename, char delim,
   // process rows one by one
   while (fgets(line, sizeof(line), fp)) {
     lines++;
-    if (line[0] == '/' && line[1] == '/') continue;
+    if (line[0] == '/' && line[1] == '/') {
+      continue;
+    }
     // TODO: strip trailing // comment
     // TODO: strip trailing whitespace
-    if (line[0] == '\0' || line[0] == '\n' || line[0] == '\r') continue;
+    if (line[0] == '\0' || line[0] == '\n' || line[0] == '\r') {
+      continue;
+    }
 
     columns =
         sv_split(line, strlen(line), 0, delim, fields, ARRAYLENGTH(fields),

@@ -133,9 +133,9 @@ static void push_timer_heap(int tid) {
   // check available space
   if (timer_heap_num >= timer_heap_max) {
     timer_heap_max += 256;
-    if (timer_heap)
+    if (timer_heap) {
       REALLOC(timer_heap, int, timer_heap_max);
-    else
+    } else
       CALLOC(timer_heap, int, timer_heap_max);
     memset(timer_heap + (timer_heap_max - 256), 0, sizeof(int) * 256);
   }
@@ -143,10 +143,10 @@ static void push_timer_heap(int tid) {
   // do a sorting from higher to lower
   if (timer_heap_num == 0 ||
       DIFF_TICK(timer_data[tid].tick,
-                timer_data[timer_heap[timer_heap_num - 1]].tick) < 0)
+                timer_data[timer_heap[timer_heap_num - 1]].tick) < 0) {
     timer_heap[timer_heap_num] =
         tid;  // if lower actual item is higher than new
-  else {
+  } else {
     // searching position
     HEAP_SEARCH(timer_data[tid].tick, 0, timer_heap_num - 1, pos);
     // move elements
@@ -172,25 +172,30 @@ static int acquire_timer(void) {
     do {
       tid = free_timer_list[--free_timer_list_pos];
     } while (tid >= timer_data_num && free_timer_list_pos > 0);
-  } else
+  } else {
     tid = timer_data_num;
+  }
 
   // check available space
-  if (tid >= timer_data_num)
+  if (tid >= timer_data_num) {
     for (tid = timer_data_num; tid < timer_data_max && timer_data[tid].type;
-         tid++)
+         tid++) {
       ;
+    }
+  }
   if (tid >= timer_data_num && tid >= timer_data_max) {  // expand timer array
     timer_data_max += 256;
-    if (timer_data)
+    if (timer_data) {
       REALLOC(timer_data, struct TimerData, timer_data_max);
-    else
+    } else
       CALLOC(timer_data, struct TimerData, timer_data_max);
     memset(timer_data + (timer_data_max - 256), 0,
            sizeof(struct TimerData) * 256);
   }
 
-  if (tid >= timer_data_num) timer_data_num = tid + 1;
+  if (tid >= timer_data_num) {
+    timer_data_num = tid + 1;
+  }
 
   return tid;
 }
@@ -250,7 +255,9 @@ int timer_do(unsigned int tick) {
         timer_heap[timer_heap_num - 1];  // last element in heap (smallest tick)
     toDel = 0;
     diff = DIFF_TICK(timer_data[tid].tick, tick);
-    if (diff > 0) break;  // no more expired timers to process
+    if (diff > 0) {
+      break;  // no more expired timers to process
+    }
 
     --timer_heap_num;  // suppress the actual element from the table
 
@@ -259,19 +266,22 @@ int timer_do(unsigned int tick) {
     // if(tid=3915) printf("CONNECT CHAR!\n");
     if (timer_data[tid].func) {
       // printf("%u\n",(int)timer_data[tid].func);
-      if (diff <= -1000)
+      if (diff <= -1000) {
         // 1�b�ȏ�̑啝�Ȓx�����������Ă���̂ŁA
         // timer�����^�C�~���O�����ݒl�Ƃ��鎖��
         // �Ăяo�����^�C�~���O(������tick)���΂ŏ������Ă�
         // timer�֐��̎��񏈗��^�C�~���O��x�点��
         toDel =
             timer_data[tid].func(timer_data[tid].data1, timer_data[tid].data2);
-      else
+      } else {
         toDel =
             timer_data[tid].func(timer_data[tid].data1, timer_data[tid].data2);
+      }
     }
     // printf("Diff: %d\n",diff);
-    if (toDel) timer_remove(tid);
+    if (toDel) {
+      timer_remove(tid);
+    }
 
     // in the case the function didn't change anything...
     if (timer_data[tid].type & TIMER_REMOVE_HEAP) {
@@ -289,10 +299,11 @@ int timer_do(unsigned int tick) {
           free_timer_list[free_timer_list_pos++] = tid;
           break;
         case TIMER_INTERVAL:
-          if (DIFF_TICK(timer_data[tid].tick, tick) < -1000)
+          if (DIFF_TICK(timer_data[tid].tick, tick) < -1000) {
             timer_data[tid].tick = tick + timer_data[tid].interval;
-          else
+          } else {
             timer_data[tid].tick += timer_data[tid].interval;
+          }
           timer_data[tid].type &= ~TIMER_REMOVE_HEAP;
           push_timer_heap(tid);
           break;
@@ -306,7 +317,13 @@ int timer_do(unsigned int tick) {
 void timer_init() {}
 
 int timer_clear() {
-  if (timer_data) FREE(timer_data);
-  if (timer_heap) FREE(timer_heap);
-  if (free_timer_list) FREE(free_timer_list);
+  if (timer_data) {
+    FREE(timer_data);
+  }
+  if (timer_heap) {
+    FREE(timer_heap);
+  }
+  if (free_timer_list) {
+    FREE(free_timer_list);
+  }
 }

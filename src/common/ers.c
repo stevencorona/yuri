@@ -277,14 +277,17 @@ static void ers_obj_destroy(ERS self) {
   }
 
   obj->destroy--;
-  if (obj->destroy) return;  // Not last instance
+  if (obj->destroy) {
+    return;  // Not last instance
+  }
 
   // Remove manager from root array
   for (i = 0; i < ers_num; i++) {
     if (ers_root[i] == obj) {
       ers_num--;
-      if (i < ers_num)  // put the last manager in the free slot
+      if (i < ers_num) {  // put the last manager in the free slot
         ers_root[i] = ers_root[ers_num];
+      }
       break;
     }
   }
@@ -324,9 +327,10 @@ static void ers_obj_destroy(ERS self) {
   }
   // destroy the entry manager
   if (obj->max) {
-    for (i = 0; i < obj->num; i++)
+    for (i = 0; i < obj->num; i++) {
       aFree(obj->blocks[i]);  // release block of entries
-    aFree(obj->blocks);       // release array of blocks
+    }
+    aFree(obj->blocks);  // release array of blocks
   }
   aFree(obj);  // release manager
 }
@@ -360,10 +364,12 @@ ERS ers_new(uint32_t size) {
     return NULL;
   }
 
-  if (size < sizeof(struct ers_ll))  // Minimum size
+  if (size < sizeof(struct ers_ll)) {  // Minimum size
     size = sizeof(struct ers_ll);
-  if (size % ERS_ALIGNED)  // Align size
+  }
+  if (size % ERS_ALIGNED) {  // Align size
     size += ERS_ALIGNED - size % ERS_ALIGNED;
+  }
 
   for (i = 0; i < ers_num; i++) {
     obj = ers_root[i];
@@ -447,7 +453,9 @@ void ers_report(void) {
       }
       while (used && reuse) {  // count reusable entries
         used--;
-        if (reusable != UINT32_MAX) reusable++;
+        if (reusable != UINT32_MAX) {
+          reusable++;
+        }
         reuse = reuse->next;
       }
     }
@@ -466,8 +474,9 @@ void ers_report(void) {
     ShowMessage("\tentries being used : %u\n", used);
     ShowMessage("\tunused entries     : %u\n", obj->free);
     ShowMessage("\treusable entries   : %u\n", reusable);
-    if (extra)
+    if (extra) {
       ShowMessage("\tWARNING - %u extra reusable entries were found.\n", extra);
+    }
   }
   ShowMessage("End of report\n");
 }
@@ -491,8 +500,10 @@ void ers_force_destroy_all(void) {
   for (i = 0; i < ers_num; i++) {
     obj = ers_root[i];
     if (obj->max) {
-      for (j = 0; j < obj->num; j++) aFree(obj->blocks[j]);  // block of entries
-      aFree(obj->blocks);                                    // array of blocks
+      for (j = 0; j < obj->num; j++) {
+        aFree(obj->blocks[j]);  // block of entries
+      }
+      aFree(obj->blocks);  // array of blocks
     }
     aFree(obj);  // entry manager object
   }

@@ -125,7 +125,9 @@ int logif_parse_setpass(int fd) {
 int logif_parse(int fd) {
   int cmd, packet_len;
 
-  if (fd != login_fd) return 0;
+  if (fd != login_fd) {
+    return 0;
+  }
 
   if (session[fd]->eof) {
     // mmo_setallonline(0);
@@ -140,7 +142,9 @@ int logif_parse(int fd) {
 
   if (RFIFOB(fd, 0) == 0xAA) {
     int len = SWAP16(RFIFOW(fd, 1)) + 3;
-    if (len <= RFIFOREST(fd)) RFIFOSKIP(fd, len);
+    if (len <= RFIFOREST(fd)) {
+      RFIFOSKIP(fd, len);
+    }
     return 0;
   }
 
@@ -156,7 +160,9 @@ int logif_parse(int fd) {
   packet_len = packet_len_table[cmd - 0x1000];
 
   if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) return 2;
+    if (RFIFOREST(fd) < 6) {
+      return 2;
+    }
     packet_len = RFIFOL(fd, 2);
   }
   if ((int)RFIFOREST(fd) < packet_len) {

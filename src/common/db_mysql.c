@@ -68,7 +68,9 @@ static int Sql_P_Keepalive(Sql* self);
 /// Establishes a connection.
 int Sql_Connect(Sql* self, const char* user, const char* passwd,
                 const char* host, uint16_t port, const char* db) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   StringBuf_Clear(&self->buf);
   if (!mysql_real_connect(&self->handle, host, user, passwd, db,
@@ -112,8 +114,9 @@ int Sql_GetColumnNames(Sql* self, const char* table, char* out_buf,
   size_t len;
   size_t off = 0;
 
-  if (self == NULL || SQL_ERROR == Sql_Query(self, "EXPLAIN `%s`", table))
+  if (self == NULL || SQL_ERROR == Sql_Query(self, "EXPLAIN `%s`", table)) {
     return SQL_ERROR;
+  }
 
   out_buf[off] = '\0';
   while (SQL_SUCCESS == Sql_NextRow(self) &&
@@ -169,7 +172,9 @@ static int Sql_P_Keepalive(Sql* self) {
   // request the timeout value from the mysql server
   Sql_GetTimeout(self, &timeout);
 
-  if (timeout < 60) timeout = 60;
+  if (timeout < 60) {
+    timeout = 60;
+  }
 
   // establish keepalive
   ping_interval = timeout - 30;  // 30-second reserve
@@ -180,22 +185,24 @@ static int Sql_P_Keepalive(Sql* self) {
 
 /// Escapes a string.
 size_t Sql_EscapeString(Sql* self, char* out_to, const char* from) {
-  if (self)
+  if (self) {
     return (size_t)mysql_real_escape_string(&self->handle, out_to, from,
                                             (unsigned long)strlen(from));
-  else
+  } else {
     return (size_t)mysql_escape_string(out_to, from,
                                        (unsigned long)strlen(from));
+  }
 }
 
 /// Escapes a string.
 size_t Sql_EscapeStringLen(Sql* self, char* out_to, const char* from,
                            size_t from_len) {
-  if (self)
+  if (self) {
     return (size_t)mysql_real_escape_string(&self->handle, out_to, from,
                                             (unsigned long)from_len);
-  else
+  } else {
     return (size_t)mysql_escape_string(out_to, from, (unsigned long)from_len);
+  }
 }
 
 /// Executes a query.
@@ -212,7 +219,9 @@ int Sql_Query(Sql* self, const char* query, ...) {
 
 /// Executes a query.
 int Sql_QueryV(Sql* self, const char* query, va_list args) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   Sql_FreeResult(self);
   StringBuf_Clear(&self->buf);
@@ -232,7 +241,9 @@ int Sql_QueryV(Sql* self, const char* query, va_list args) {
 
 /// Executes a query.
 int Sql_QueryStr(Sql* self, const char* query) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   Sql_FreeResult(self);
   StringBuf_Clear(&self->buf);
@@ -253,10 +264,11 @@ int Sql_QueryStr(Sql* self, const char* query) {
 /// Returns the number of the AUTO_INCREMENT column of the last INSERT/UPDATE
 /// query.
 uint64_t Sql_LastInsertId(Sql* self) {
-  if (self)
+  if (self) {
     return (uint64_t)mysql_insert_id(&self->handle);
-  else
+  } else {
     return 0;
+  }
 }
 
 /// Returns the number of columns in each row of the result.
@@ -290,10 +302,16 @@ int Sql_GetData(Sql* self, size_t col, char** out_buf, size_t* out_len) {
   if (self && self->row) {
     if (col < Sql_NumColumns(self)) {
       if (out_buf) *out_buf = self->row[col];
-      if (out_len) *out_len = (size_t)self->lengths[col];
+      if (out_len) {
+        *out_len = (size_t)self->lengths[col];
+      }
     } else {  // out of range - ignore
-      if (out_buf) *out_buf = NULL;
-      if (out_len) *out_len = 0;
+      if (out_buf) {
+        *out_buf = NULL;
+      }
+      if (out_len) {
+        *out_len = 0;
+      }
     }
     return SQL_SUCCESS;
   }
@@ -313,13 +331,14 @@ void Sql_FreeResult(Sql* self) {
 /// Shows debug information (last query).
 void Sql_ShowDebug_(Sql* self, const char* debug_file,
                     const unsigned long debug_line) {
-  if (self == NULL)
+  if (self == NULL) {
     ShowDebug("at %s:%lu - self is NULL\n", debug_file, debug_line);
-  else if (StringBuf_Length(&self->buf) > 0)
+  } else if (StringBuf_Length(&self->buf) > 0) {
     ShowDebug("at %s:%lu - %s\n", debug_file, debug_line,
               StringBuf_Value(&self->buf));
-  else
+  } else {
     ShowDebug("at %s:%lu\n", debug_file, debug_line);
+  }
 }
 
 /// Frees a Sql handle returned by Sql_Malloc.
@@ -327,7 +346,9 @@ void Sql_Free(Sql* self) {
   if (self) {
     Sql_FreeResult(self);
     StringBuf_Destroy(&self->buf);
-    if (self->keepalive != INVALID_TIMER) timer_remove(self->keepalive);
+    if (self->keepalive != INVALID_TIMER) {
+      timer_remove(self->keepalive);
+    }
     aFree(self);
   }
 }
@@ -527,7 +548,9 @@ SqlStmt* SqlStmt_Malloc(Sql* sql) {
   SqlStmt* self;
   MYSQL_STMT* stmt;
 
-  if (sql == NULL) return NULL;
+  if (sql == NULL) {
+    return NULL;
+  }
 
   stmt = mysql_stmt_init(&sql->handle);
   if (stmt == NULL) {
@@ -562,7 +585,9 @@ int SqlStmt_Prepare(SqlStmt* self, const char* query, ...) {
 
 /// Prepares the statement.
 int SqlStmt_PrepareV(SqlStmt* self, const char* query, va_list args) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   SqlStmt_FreeResult(self);
   StringBuf_Clear(&self->buf);
@@ -580,7 +605,9 @@ int SqlStmt_PrepareV(SqlStmt* self, const char* query, va_list args) {
 
 /// Prepares the statement.
 int SqlStmt_PrepareStr(SqlStmt* self, const char* query) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   SqlStmt_FreeResult(self);
   StringBuf_Clear(&self->buf);
@@ -597,16 +624,19 @@ int SqlStmt_PrepareStr(SqlStmt* self, const char* query) {
 
 /// Returns the number of parameters in the prepared statement.
 size_t SqlStmt_NumParams(SqlStmt* self) {
-  if (self)
+  if (self) {
     return (size_t)mysql_stmt_param_count(self->stmt);
-  else
+  } else {
     return 0;
+  }
 }
 
 /// Binds a parameter to a buffer.
 int SqlStmt_BindParam(SqlStmt* self, size_t idx, enum SqlDataType buffer_type,
                       void* buffer, size_t buffer_len) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   if (!self->bind_params) {  // initialize the bindings
     size_t i;
@@ -621,16 +651,19 @@ int SqlStmt_BindParam(SqlStmt* self, size_t idx, enum SqlDataType buffer_type,
     for (i = 0; i < count; ++i) self->params[i].buffer_type = MYSQL_TYPE_NULL;
     self->bind_params = true;
   }
-  if (idx < self->max_params)
+  if (idx < self->max_params) {
     return Sql_P_BindSqlDataType(self->params + idx, buffer_type, buffer,
                                  buffer_len, NULL, NULL);
-  else
+  } else {
     return SQL_SUCCESS;  // out of range - ignore
+  }
 }
 
 /// Executes the prepared statement.
 int SqlStmt_Execute(SqlStmt* self) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   SqlStmt_FreeResult(self);
   if ((self->bind_params && mysql_stmt_bind_param(self->stmt, self->params)) ||
@@ -651,25 +684,29 @@ int SqlStmt_Execute(SqlStmt* self) {
 /// Returns the number of the AUTO_INCREMENT column of the last INSERT/UPDATE
 /// statement.
 uint64_t SqlStmt_LastInsertId(SqlStmt* self) {
-  if (self)
+  if (self) {
     return (uint64_t)mysql_stmt_insert_id(self->stmt);
-  else
+  } else {
     return 0;
+  }
 }
 
 /// Returns the number of columns in each row of the result.
 size_t SqlStmt_NumColumns(SqlStmt* self) {
-  if (self)
+  if (self) {
     return (size_t)mysql_stmt_field_count(self->stmt);
-  else
+  } else {
     return 0;
+  }
 }
 
 /// Binds the result of a column to a buffer.
 int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type,
                        void* buffer, size_t buffer_len, uint32_t* out_length,
                        int8_t* out_is_null) {
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   if (buffer_type == SQLDT_STRING || buffer_type == SQLDT_ENUM) {
     if (buffer_len < 1) {
@@ -708,10 +745,11 @@ int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type,
 
 /// Returns the number of rows in the result.
 uint64_t SqlStmt_NumRows(SqlStmt* self) {
-  if (self)
+  if (self) {
     return (uint64_t)mysql_stmt_num_rows(self->stmt);
-  else
+  } else {
     return 0;
+  }
 }
 
 /// Fetches the next row.
@@ -722,7 +760,9 @@ int SqlStmt_NextRow(SqlStmt* self) {
   MYSQL_BIND* column;
   unsigned long length;
 
-  if (self == NULL) return SQL_ERROR;
+  if (self == NULL) {
+    return SQL_ERROR;
+  }
 
   // bind columns
   if (self->bind_columns && mysql_stmt_bind_result(self->stmt, self->columns))
@@ -782,8 +822,9 @@ int SqlStmt_NextRow(SqlStmt* self) {
       // FIXME numeric types and null [FlavioJS]
     }
 #endif
-    if (self->column_lengths[i].out_length)
+    if (self->column_lengths[i].out_length) {
       *self->column_lengths[i].out_length = (uint32_t)length;
+    }
     if (column->buffer_type ==
         MYSQL_TYPE_STRING) {  // clear unused part of the string/enum buffer
                               // (and nul-terminate)
@@ -807,13 +848,15 @@ void SqlStmt_FreeResult(SqlStmt* self) {
 /// Shows debug information (with statement).
 void SqlStmt_ShowDebug_(SqlStmt* self, const char* debug_file,
                         const unsigned long debug_line) {
-  if (self == NULL)
+  if (self == NULL) {
     ShowDebug("at %s:%lu -  self is NULL\n", debug_file, debug_line);
-  if (StringBuf_Length(&self->buf) > 0)
+  }
+  if (StringBuf_Length(&self->buf) > 0) {
     ShowDebug("at %s:%lu - %s\n", debug_file, debug_line,
               StringBuf_Value(&self->buf));
-  else
+  } else {
     ShowDebug("at %s:%lu\n", debug_file, debug_line);
+  }
 }
 
 /// Frees a SqlStmt returned by SqlStmt_Malloc.

@@ -82,7 +82,9 @@ int main(int argc, char **argv) {
 const char *get_svn_revision(void) {
   FILE *fp;
 
-  if (*h_svn_version) return h_svn_version;
+  if (*h_svn_version) {
+    return h_svn_version;
+  }
 
   if ((fp = fopen(".svn/entries", "r")) != NULL) {
     char line[1024];
@@ -91,8 +93,11 @@ const char *get_svn_revision(void) {
     if (fgets(line, sizeof(line), fp)) {
       if (!isdigit(line[0])) {
         // XML File format
-        while (fgets(line, sizeof(line), fp))
-          if (strstr(line, "revision=")) break;
+        while (fgets(line, sizeof(line), fp)) {
+          if (strstr(line, "revision=")) {
+            break;
+          }
+        }
         if (sscanf(line, " %*[^\"]\"%d%*[^\n]", &rev) == 1) {
           snprintf(h_svn_version, sizeof(h_svn_version), "%d", rev);
         }
@@ -109,8 +114,9 @@ const char *get_svn_revision(void) {
     fclose(fp);
   }
 
-  if (!(*h_svn_version))
+  if (!(*h_svn_version)) {
     snprintf(h_svn_version, sizeof(h_svn_version), "Unknown");
+  }
 
   return h_svn_version;
 }
@@ -189,10 +195,14 @@ static void sig_proc(int sn) {
     case SIGINT:
     case SIGTERM:
       printf("[core] [signal] signal=SIGTERM\n");
-      if (term_func) term_func();
+      if (term_func) {
+        term_func();
+      }
       timer_clear();
       for (i = 0; i < fd_max; i++) {
-        if (!session[i]) continue;
+        if (!session[i]) {
+          continue;
+        }
         // close(i);
         session_eof(i);
       }

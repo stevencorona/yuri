@@ -527,7 +527,9 @@ int VFPRINTF(FILE *file, const char *fmt, va_list argptr) {
   char *p, *q;
   NEWBUF(tempbuf);  // temporary buffer
 
-  if (!fmt || !*fmt) return 0;
+  if (!fmt || !*fmt) {
+    return 0;
+  }
 
   if (is_console(file) || stdout_with_ansisequence) {
     vfprintf(file, fmt, argptr);
@@ -598,8 +600,9 @@ int VFPRINTF(FILE *file, const char *fmt, va_list argptr) {
       }  // end while
     }
   }
-  if (*p)  // write the rest of the buffer
+  if (*p) {  // write the rest of the buffer
     fprintf(file, "%s", p);
+  }
   FREEBUF(tempbuf);
   return 0;
 }
@@ -638,15 +641,17 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap) {
       (flag == MSG_WARNING && msg_silent & 8) ||
       (flag == MSG_ERROR && msg_silent & 16) ||
       (flag == MSG_SQL && msg_silent & 16) ||
-      (flag == MSG_DEBUG && msg_silent & 32))
+      (flag == MSG_DEBUG && msg_silent & 32)) {
     return 0;  // Do not print it.
+  }
 
   if (timestamp_format[0] &&
       flag != MSG_NONE) {  // Display time format. [Skotlex]
     time_t t = time(NULL);
     strftime(prefix, 80, timestamp_format, localtime(&t));
-  } else
+  } else {
     prefix[0] = '\0';
+  }
 
   switch (flag) {
     case MSG_NONE:  // direct printf replacement
@@ -691,7 +696,9 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap) {
     va_end(apcopy);
     FFLUSH(STDERR);
   } else {
-    if (flag != MSG_NONE) FPRINTF(STDOUT, "%s ", prefix);
+    if (flag != MSG_NONE) {
+      FPRINTF(STDOUT, "%s ", prefix);
+    }
     va_copy(apcopy, ap);
     VFPRINTF(STDOUT, string, apcopy);
     va_end(apcopy);

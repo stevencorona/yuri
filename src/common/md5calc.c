@@ -104,12 +104,13 @@ static void MD5_Round_Calculate(const unsigned char *block, unsigned int *A2,
   pX = X;
 
   // Copy block(padding_message) i into X
-  for (j = 0, k = 0; j < 64; j += 4, k++)
+  for (j = 0, k = 0; j < 64; j += 4, k++) {
     X[k] = ((unsigned int)block[j])  // 8byte*4 -> 32byte conversion
            | (((unsigned int)block[j + 1])
               << 8)  // A function called Decode as used in the field of RFC
            | (((unsigned int)block[j + 2]) << 16) |
            (((unsigned int)block[j + 3]) << 24);
+}
 
   // Round 1
   Round1(&A, B, C, D, 0, 7, 0);
@@ -226,8 +227,9 @@ static void MD5_String2binary(const char *string, unsigned char *output) {
       string;  // The position of the present character sequence is set.
 
   // 1-2  Repeat calculation until length becomes less than 64 bytes.
-  for (i = string_byte_len; 64 <= i; i -= 64, pstring += 64)
+  for (i = string_byte_len; 64 <= i; i -= 64, pstring += 64) {
     MD5_Round_Calculate(pstring, A, B, C, D);
+}
 
   // 1-3
   copy_len =
@@ -259,9 +261,10 @@ static void MD5_String2binary(const char *string, unsigned char *output) {
   if (UINT_MAX / 8 < string_byte_len) {
     unsigned int high = (string_byte_len - UINT_MAX / 8) * 8;
     memcpy(&padding_message[60], &high, 4);
-  } else
+  } else {
     memset(&padding_message[60], 0,
            4);  // In this case, it is good for a higher rank at 0.
+}
 
   // Step 4.Process Message in 16-Word Blocks (calculation of MD5)
   MD5_Round_Calculate(padding_message, A, B, C, D);
@@ -336,8 +339,9 @@ unsigned len;
   /* Update bitcount */
 
   t = ctx->bits[0];
-  if ((ctx->bits[0] = (t + ((cvs_uint32)len << 3)) & 0xffffffff) < t)
+  if ((ctx->bits[0] = (t + ((cvs_uint32)len << 3)) & 0xffffffff) < t) {
     ctx->bits[1]++; /* Carry from low to high */
+}
   ctx->bits[1] += len >> 29;
 
   t = (t >> 3) & 0x3f; /* Bytes already in shsInfo->data */
@@ -444,7 +448,8 @@ const unsigned char inraw[64];
   cvs_uint32 in[16];
   int i;
 
-  for (i = 0; i < 16; ++i) in[i] = getu32(inraw + 4 * i);
+  for (i = 0; i < 16; ++i) { in[i] = getu32(inraw + 4 * i);
+}
 
   a = buf[0];
   b = buf[1];

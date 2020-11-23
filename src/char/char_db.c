@@ -199,10 +199,14 @@ int char_db_newchar(const char* name, const char* pass, int totem, int sex,
   int newid = 0;
 
   result = char_db_isnameused(name);
-  if (result) return result;
+  if (result) {
+    return result;
+  }
 
   newid = find_new_id();
-  if (!newid) return 2;
+  if (!newid) {
+    return 2;
+  }
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
@@ -460,10 +464,14 @@ int char_db_mapfifofromlogin(const char* name, const char* pass,
 
   unsigned int accountBan = checkAccountBan(nID);
 
-  if (ban || accountBan) return -4;  // you are banned, go away
+  if (ban || accountBan) {
+    return -4;  // you are banned, go away
+  }
 
   result = mapfifo_from_mapid(map);  // set mapfifo
-  if (result == -1) return 0;        // chaos is rising
+  if (result == -1) {
+    return 0;  // chaos is rising
+  }
 
   // printf("nID: %d\n",nID);
   *id = nID;
@@ -1120,7 +1128,9 @@ int membankdata_todb(struct bank_data bank[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1211,7 +1221,9 @@ int meminvdata_todb(struct item items[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1305,7 +1317,9 @@ int memeqpdata_todb(struct item items[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1394,7 +1408,9 @@ int memreg_todb(struct global_reg regs[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1468,7 +1484,9 @@ int memregstring_todb(struct global_regstring regs[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1542,7 +1560,9 @@ int memnpcreg_todb(struct global_reg regs[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1615,7 +1635,9 @@ int memquestreg_todb(struct global_reg regs[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1688,7 +1710,9 @@ int memspells_todb(unsigned short skill[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1759,7 +1783,9 @@ int memaethers_todb(struct skill_info dura_aether[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1837,7 +1863,9 @@ int memkillcount_todb(struct kill_reg killreg[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -1910,7 +1938,9 @@ int memlegend_todb(struct legend legends[], int max, int id) {
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++) {
+    save_id[i] = -1;
+  }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)

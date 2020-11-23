@@ -23,7 +23,9 @@ char *strlwr(char *string) {
   char *s;
 
   if (string) {
-    for (s = string; *s; ++s) *s = tolower(*s);
+    for (s = string; *s; ++s) {
+      *s = tolower(*s);
+    }
   }
   return string;
 }
@@ -43,9 +45,9 @@ void add_log(char *fmt, ...) {
   char date_format[32] = "%Y-%m-%d %H:%M:%S";
 
   if (logfp) {
-    if (fmt[0] == '\0')  // jump a line if no message
+    if (fmt[0] == '\0') {  // jump a line if no message
       fprintf(logfp, "\n");
-    else {
+    } else {
       gettimeofday(&tv, NULL);
       strftime(tmpstr, 24, date_format, localtime(&(tv.tv_sec)));
       sprintf(tmpstr + strlen(tmpstr), ".%03d: %s", (int)tv.tv_usec / 1000,
