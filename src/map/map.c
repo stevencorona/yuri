@@ -1,4 +1,3 @@
-
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -795,8 +794,8 @@ int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
     printf("Map_foreachincell: block count too many!\n");
   // ShowWarning("map_foreachincell: block count too many!\n");
 
-  // map_freeblock_lock();	// ����������̉�����֎~���� - Prohibit
-  // release from memory
+  // map_freeblock_lock();	// ����������̉�����֎~����
+  // - Prohibit release from memory
 
   for (int i = 0; i < blockcount; i++)
     if (bl_list[i]->prev)  // �L?���ǂ����`�F�b�N - Check if there is

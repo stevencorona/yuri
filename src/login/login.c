@@ -1,4 +1,3 @@
-
 #include "login.h"
 
 #include <ctype.h>

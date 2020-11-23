@@ -1,4 +1,3 @@
-
 #include "intif.h"
 
 #include <stdio.h>

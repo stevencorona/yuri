@@ -1,4 +1,3 @@
-
 #include "board_db.h"
 
 #include <stdio.h>

@@ -1,4 +1,3 @@
-
 #include "command.h"
 
 #include <ctype.h>

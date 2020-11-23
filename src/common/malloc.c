@@ -1,4 +1,3 @@
-
 #include "../common/malloc.h"
 
 #include <ctype.h>

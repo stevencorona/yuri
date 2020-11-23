@@ -1,4 +1,3 @@
-
 #include "mapif.h"
 
 #include <stdio.h>

@@ -1,4 +1,3 @@
-
 #include "char.h"
 
 #include <arpa/inet.h>

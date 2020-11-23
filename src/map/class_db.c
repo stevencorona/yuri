@@ -1,4 +1,3 @@
-
 #include "class_db.h"
 
 #include <stdio.h>

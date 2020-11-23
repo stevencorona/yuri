@@ -1,9 +1,3 @@
-
-//#define DEBUG_FUNCIN
-//#define DEBUG_DISP
-//#define DEBUG_RUN
-//#define DEBUG_SIZE
-
 #include <stdio.h>
 #include <string.h>
 #ifndef _WIN32
@@ -21,7 +15,6 @@ int script_config_read_sub(char *cfgName) {
 
   fp = fopen(cfgName, "r");
   if (fp == NULL) {
-    // ShowError("file not found: [%s]\n", cfgName);
     return 1;
   }
   while (fgets(line, sizeof(line) - 1, fp)) {

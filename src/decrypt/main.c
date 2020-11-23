@@ -1,5 +1,3 @@
-
-
 /*
   Nexus encryption scheme update:
 
