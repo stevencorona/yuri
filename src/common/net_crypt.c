@@ -1,5 +1,6 @@
 #include "net_crypt.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -106,37 +107,38 @@ char *generate_key2(unsigned char *packet, char *table, char *keyout,
 
 void tk_crypt_static(char *buff) { tk_crypt_dynamic(buff, enckey); }
 
-void tk_crypt_dynamic(char *buff, char *key) {
-  unsigned int Group = 0;
-  unsigned int GroupCount = 0;
-  unsigned int packet_len = 0;
-  unsigned char packet_inc = 0;
-  unsigned char KeyVal = 0;
+void tk_crypt_dynamic(char *buff, const char *key) {
+  unsigned int group = 0;
+  unsigned int groupCount = 0;
+  unsigned int packetLen = 0;
+  uint8_t packetInc = 0;
+  uint8_t keyVal = 0;
+
   buff++;
-  packet_len = SWAP16(*(unsigned short *)buff) - 5;
+  packetLen = SWAP16(*(unsigned short *)buff) - 5;
   buff += 3;
-  packet_inc = *buff;
+  packetInc = *buff;
   buff++;
 
   // buff now points to the first data byte
-  if (packet_len > 65535) {
+  if (packetLen > 65535) {
     return;
   }
 
-  for (int i = 0; i < packet_len; i++) {
+  for (int i = 0; i < packetLen; i++) {
     *(buff + i) ^= key[i % 9];
 
-    KeyVal = (unsigned char)(Group % 256);
-    if (KeyVal != packet_inc) {
-      *(buff + i) ^= KeyVal;
+    keyVal = (uint8_t)(group % 256);
+    if (keyVal != packetInc) {
+      *(buff + i) ^= keyVal;
     }
 
-    *(buff + i) ^= packet_inc;
+    *(buff + i) ^= packetInc;
 
-    GroupCount++;
-    if (GroupCount == 9) {
-      Group++;
-      GroupCount = 0;
+    groupCount++;
+    if (groupCount == 9) {
+      group++;
+      groupCount = 0;
     }
   }
 }
