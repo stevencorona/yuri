@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "core.h"
+#include "strlib.h"
 
 #define TIMER_MIN_INTERVAL 50
 #define TIMER_MAX_INTERVAL 1000

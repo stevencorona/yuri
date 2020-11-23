@@ -5,9 +5,9 @@
 #include <string.h>
 #include <zlib.h>
 
-#include "../common/db.h"
 #include "clif.h"
 #include "core.h"
+#include "db.h"
 #include "db_mysql.h"
 #include "map.h"
 #include "mmo.h"

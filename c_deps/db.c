@@ -73,9 +73,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../common/core.h"
-#include "../common/ers.h"
-#include "../common/showmsg.h"
+#include "ers.h"
+#include "showmsg.h"
+#include "strlib.h"
 
 /*****************************************************************************\
  *  (1) Private typedefs, enums, structures, defines and global variables of *

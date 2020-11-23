@@ -13,9 +13,6 @@
 #endif
 #include <netdb.h>
 
-#include "../common/core.h"
-#include "../common/session.h"
-#include "../common/timer.h"
 #include "board_db.h"
 #include "clan_db.h"
 #include "class_db.h"
@@ -35,9 +32,11 @@
 #include "npc.h"
 #include "recipedb.h"
 #include "script.h"
+#include "session.h"
 #include "showmsg.h"
 #include "sl.h"
 #include "strlib.h"
+#include "timer.h"
 
 #ifndef _MAP_SERVER_
 #define _MAP_SERVER_

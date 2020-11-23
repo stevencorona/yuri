@@ -2,8 +2,8 @@
 
 #include <stdarg.h>
 
-#include "../common/mmo.h"
 #include "map.h"
+#include "mmo.h"
 
 extern unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
 int val[32];

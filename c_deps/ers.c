@@ -42,8 +42,8 @@
 
 #include <stdlib.h>
 
-#include "../common/core.h"
-#include "../common/showmsg.h"
+#include "showmsg.h"
+#include "strlib.h"
 
 #ifndef DISABLE_ERS
 /*****************************************************************************\
