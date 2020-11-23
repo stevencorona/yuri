@@ -81,7 +81,7 @@ int output_meta(char *filename, int num, unsigned int list[], int max) {
     offset = (num + 1) * 1000;
   }
 
-  fp = fopen(filename, "wb");  // open up the damn file!
+  fp = fopen(filename, "wb");
 
   buf2 = swap16(offset);  // set the size
   fwrite(&buf2, 2, 1, fp);

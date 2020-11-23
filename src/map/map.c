@@ -30,7 +30,6 @@
 #include "net_crypt.h"
 #include "npc.h"
 #include "recipedb.h"
-#include "script.h"
 #include "session.h"
 #include "showmsg.h"
 #include "sl.h"
@@ -1707,8 +1706,6 @@ int config_read(const char* cfg_file) {
         npc_src_add(r2);
       } else if (strcasecmp(r1, "warp") == 0) {
         npc_warp_add(r2);
-      } else if (strcasecmp(r1, "import") == 0) {
-        script_config_read_sub(r2);
       } else if (strcasecmp(r1, "xprate") == 0) {
         xp_rate = atoi(r2);
       } else if (strcasecmp(r1, "droprate") == 0) {
@@ -1941,7 +1938,6 @@ int do_init(int argc, char** argv) {
   map_read();
   map_initblock();
   map_initiddb();
-  // script_init();
   npc_init();
   warp_init();
   itemdb_init();

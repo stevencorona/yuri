@@ -129,41 +129,6 @@ unsigned int getTicks(void) {
   return (ticks);
 }
 
-void crash_log(char *aids, ...) {}
-
-// Add packet to dump
-// Saved from RFIFO
-//----------------------------
-void add_dmp(int fd, int len) {
-  /*
-  FILE *dmpfp;
-  int i;
-  struct timeval tv;
-  char timetmp[128];
-
-  unsigned char *p = (unsigned char *) &session[fd]->client_addr.sin_addr;
-  char ip[16];
-  sprintf(ip, "%u.%u.%u.%u", p[0], p[1], p[2], p[3]);
-
-  dmpfp = fopen("C:\\lastpacket.hex", "w");
-  if (dmpfp) {
-          gettimeofday(&tv, NULL);
-          strftime(timetmp, 24, date_format, localtime(&(tv.tv_sec)));
-          fprintf(dmpfp, "%s IP: %s len %d\n", timetmp, ip, len);
-          fprintf(dmpfp, "[HEX]:");
-          for(i=0;i < len;i++) {
-                  fprintf(dmpfp, "[%02X]", RFIFOB(fd, i));
-          }
-          fprintf(dmpfp, "\n[CHR]:");
-          for(i=0;i < len;i++) {
-                  fprintf(dmpfp, "[ %c]", RFIFOB(fd, i));
-          }
-          fprintf(dmpfp, "\n");
-  }
-  fclose(dmpfp);
-  */
-}
-
 // Set terminate function
 //----------------------------
 void set_termfunc(void (*termfunc)(void)) { term_func = termfunc; }
