@@ -15,7 +15,7 @@ static const int packet_len_table[] = {3, 20, 43, 40, 52, 0, 0};
 
 int check_connect_login(int ip, int port) {
   if (login_fd <= 0 || session[login_fd] == NULL) {
-    printf("Attempt to connect to login-server...\n");
+    printf("[char] [logif] Connecting to login-server\n");
     login_fd = make_connection(ip, port);
     session[login_fd]->func_parse = logif_parse;
     realloc_rfifo(login_fd, FIFOSIZE_SERVER, FIFOSIZE_SERVER);
@@ -34,13 +34,9 @@ int check_connect_login(int ip, int port) {
 }
 int logif_parse_accept(int fd) {
   if (RFIFOB(fd, 2)) {
-    printf(
-        "CFG_ERR: Username or password to connect Login Server is invalid!\n");
-    add_log(
-        "CFG_ERR: Username or password to connect Login Server is invalid!\n");
+    printf("[char] [logif] Cannot connect to Login Server\n");
   } else {
-    printf("Connected to Login Server.\n");
-    add_log("Connected to Login Server.\n");
+    printf("[char] [logif] Connected to Login Server\n");
   }
   return 0;
 }
@@ -131,8 +127,7 @@ int logif_parse(int fd) {
 
   if (session[fd]->eof) {
     // mmo_setallonline(0);
-    printf("Can't connect to Login Server.\n");
-    add_log("Can't connect to Login Server.\n");
+    printf("[char] [logif] Can't connect to Login Server\n");
     login_fd = 0;
 
     session_eof(fd);

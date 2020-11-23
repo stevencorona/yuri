@@ -155,8 +155,7 @@ int config_read(const char *cfg_file) {
 
   fp = fopen(cfg_file, "r");
   if (fp == NULL) {
-    printf("CFG_ERR: Configuration file (%s) not found.\n", cfg_file);
-    add_log("CFG_ERR: Configuration file (%s) not found.\n", cfg_file);
+    printf("[char] [config_read] File (%s) not found.\n", cfg_file);
     exit(1);
   }
 
@@ -241,8 +240,7 @@ void do_term(void) {
   logindata_term();
   char_db_term();
   session_eof(login_fd);
-  printf("ClassicTK Char Server Shutdown.\n");
-  add_log("Shutdown.\n");
+  printf("[char] [shutdown] Char Server Shutdown.\n");
 }
 
 void help_screen() {
@@ -284,8 +282,7 @@ int do_init(int argc, char **argv) {
   config_read(INTER_FILE);
   set_termfunc(do_term);
 
-  add_log("");
-  add_log("ClassicTK Char Server Started.\n");
+  printf("[char] [started] Char Server Started.\n");
 
   char_db_init();
   logindata_init();
@@ -297,9 +294,7 @@ int do_init(int argc, char **argv) {
 
   CALLOC(char_dat, struct mmo_charstatus, 1);
 
-  printf("ClassicTK Char Server is \033[1;32mready\033[0m! Listening at %d.\n",
-         char_port);
-  add_log("Server Ready! Listening at %d.\n", char_port);
+  printf("[char] [ready] port=%d\n", char_port);
 
   zlib_init();
   return 0;

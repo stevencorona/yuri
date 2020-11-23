@@ -24,11 +24,11 @@ LIBS += $(shell ${PKG_CONFIG} --libs zlib)
 LIBS += $(shell ${PKG_CONFIG} --libs lua5.1)
 LIBS += -lm -ldl -lcrypt -pthread
 
-COMMON_OBJ = ../common/core.o ../common/session.o ../common/timer.o ../common/net_crypt.o ../common/db.o ../common/malloc.o  ../common/db_mysql.o ../common/md5calc.o ../common/ers.o ../common/strlib.o ../common/showmsg.o ../common/rndm.o
+COMMON_OBJ = ../common/core.o ../common/session.o ../common/timer.o ../common/net_crypt.o ../common/db.o  ../common/db_mysql.o ../common/md5calc.o ../common/ers.o ../common/strlib.o ../common/showmsg.o ../common/rndm.o
 COMMON_H = ../common/core.h ../common/session.h ../common/timer.h ../common/net_crypt.h ../common/db.h ../common/mmo.h ../common/malloc.h ../common/db_mysql.h ../common/md5calc.h ../common/ers.h ../common/strlib.h ../common/showmsg.h ../common/rndm.h
 
 MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="$(COMMON_OBJ)" COMMON_H="$(COMMON_H)"
-METADEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="../common/db.o ../common/malloc.o ../common/db_mysql.o ../common/timer.o ../common/strlib.o ../common/showmsg.o ../common/ers.o ../common/md5calc.o" COMMON_H="../common/db.h ../common/malloc.h ../common/db_mysql.h ../common/timer.h ../common/md5calc.h"
+METADEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="../common/db.o ../common/db_mysql.o ../common/timer.o ../common/strlib.o ../common/showmsg.o ../common/ers.o ../common/md5calc.o" COMMON_H="../common/db.h ../common/malloc.h ../common/db_mysql.h ../common/timer.h ../common/md5calc.h"
 
 all: title common login char map metan decrypt
 

@@ -21,5 +21,3 @@
 
 #define nullpo_ret(result, target) \
   if (!(target)) return (result)
-
-void add_log(char*, ...);
