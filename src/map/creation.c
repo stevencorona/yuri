@@ -33,7 +33,7 @@ struct creation_data *createdb_searchexist(int id) {
   return db;
 }
 
-int createdb_read(const char *createdb_file) {
+int createdb_read() {
   /*FILE *fp;
   struct creation_data *db;
   int i, itm=0,x,id,count;
@@ -235,6 +235,6 @@ int createdb_term() {
 
 int createdb_init() {
   create_db = uidb_alloc(DB_OPT_BASE);
-  createdb_read(CREATEDB_FILE);
+  createdb_read();
   return 0;
 }

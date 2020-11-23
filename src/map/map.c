@@ -21,7 +21,6 @@
 #include "creation.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "guide.h"
 #include "intif.h"
 #include "itemdb.h"
 #include "magic.h"
@@ -54,7 +53,6 @@ DBMap* class_db;
 DBMap* magic_db;
 DBMap* board_db;
 DBMap* clan_db;
-DBMap* guide_db;
 DBMap* mobsearch_db;
 DBMap* mobid_db = NULL;
 struct map_msg_data map_msg[MSG_MAX];
@@ -1940,7 +1938,6 @@ int do_init(int argc, char** argv) {
 
   // sql_init();
   uptime();
-  guidedb_init();
   map_read();
   map_initblock();
   map_initiddb();

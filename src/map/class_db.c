@@ -114,7 +114,7 @@ unsigned int classdb_level(int path, int lvl) {
   }
 }
 
-int classdb_read(const char *classdb_file) {
+int classdb_read() {
   struct class_data *db;
   int i, cls = 0;
 
@@ -256,7 +256,7 @@ int classdb_term() {
 
 int classdb_init() {
   class_db = uidb_alloc(DB_OPT_BASE);
-  classdb_read(CLASSDB_FILE);
+  classdb_read();
   leveldb_read(LEVELDB_FILE);
   return 0;
 }

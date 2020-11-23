@@ -1,7 +1,5 @@
 #pragma once
 
-#define ITEMDB_FILE "db/item_db.txt"
-
 enum {
   EQ_WEAP,
   EQ_ARMOR,

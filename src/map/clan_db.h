@@ -1,7 +1,5 @@
 #pragma once
 
-#define CLANDB_FILE "db/clan_db.txt"
-
 struct clan_data {
   int id;
   char name[64];

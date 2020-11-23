@@ -11,7 +11,6 @@
 
 char scheme[32];
 int filecount;
-int guide_count;
 char sql_id[32] = "";
 char sql_pw[32] = "";
 char sql_ip[32] = "";
@@ -249,7 +248,7 @@ int main(int argc, char **argv) {
   int ii_count = 0;
   int a, c;
 
-  config_read("conf/char.conf");
+  config_read("conf/inter.conf");
   // sql_init();
   sql_handle = Sql_Malloc();
   if (sql_handle == NULL) {
