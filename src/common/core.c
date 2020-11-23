@@ -50,23 +50,20 @@ int main(int argc, char **argv) {
   timer_init();
 
   do_init(argc, argv);
-  // initscr();
-  // timeout(0);
 
+  /**
+   * Run the main server loop, ticking every 10ms This is currently single
+   * threaded and is not particularly efficient.
+   *
+   * Previously, do_sendrecv was setup to block but I have made it non-blocking
+   * for the time being because the timers get wonky if they don't tick
+   * frequently.
+   *
+   * In the future, timers should probably run in a dedicated thread and move
+   * socket processing to an async event loop.
+   **/
   while (run) {
     tick = gettick_nocache();
-
-    // Timer thread
-    //		next = pthread_create(&thread_dotimer, NULL, timer_do, tick);
-    //		pthread_join(thread_dotimer, NULL);
-    //
-    //		//send & receive thread
-    //		pthread_create(&thread_sendrecv, NULL, do_sendrecv, next);
-    //		pthread_join(thread_sendrecv, NULL);
-    //
-    //		//packet thread
-    //		pthread_create(&thread_id_packet, NULL, do_parsepacket, NULL);
-    //		pthread_join(thread_id_packet, NULL);
 
     timer_do(tick);
     do_sendrecv(next);

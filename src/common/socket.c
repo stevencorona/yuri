@@ -821,8 +821,8 @@ int do_sendrecv(int next) {
     }
   }
 
-  timeout.tv_sec = next / 1000;
-  timeout.tv_usec = next % 1000 * 1000;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 0;
   // memcpy(&rfd,&readfds,sizeof(rfd));
   ret = select(fd_max, &rfd, &wfd, NULL, &timeout);
 
