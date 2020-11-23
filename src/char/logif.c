@@ -6,7 +6,7 @@
 
 #include "char.h"
 #include "char_db.h"
-#include "malloc.h"
+#include "core.h"
 #include "mmo.h"
 #include "net_crypt.h"
 #include "session.h"

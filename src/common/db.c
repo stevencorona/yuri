@@ -73,8 +73,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../common/core.h"
 #include "../common/ers.h"
-#include "../common/malloc.h"
 #include "../common/showmsg.h"
 
 /*****************************************************************************\

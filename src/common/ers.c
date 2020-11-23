@@ -42,7 +42,7 @@
 
 #include <stdlib.h>
 
-#include "../common/malloc.h"
+#include "../common/core.h"
 #include "../common/showmsg.h"
 
 #ifndef DISABLE_ERS

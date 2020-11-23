@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../common/malloc.h"
+#include "../common/core.h"
 #include "../common/showmsg.h"
 
 #define J_MAX_MALLOC_SIZE 65535

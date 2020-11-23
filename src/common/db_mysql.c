@@ -3,7 +3,7 @@
 
 #include "db_mysql.h"
 
-#include "../common/malloc.h"
+#include "../common/core.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/timer.h"

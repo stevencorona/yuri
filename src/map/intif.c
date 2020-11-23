@@ -7,8 +7,8 @@
 
 #include "../common/db.h"
 #include "clif.h"
+#include "core.h"
 #include "db_mysql.h"
-#include "malloc.h"
 #include "map.h"
 #include "mmo.h"
 #include "net_crypt.h"

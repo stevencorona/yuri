@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #endif
 
-#include "../common/malloc.h"
+#include "core.h"
 #include "map.h"
 #include "npc.h"
 

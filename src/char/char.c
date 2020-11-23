@@ -10,7 +10,6 @@
 #include "core.h"
 #include "db.h"
 #include "logif.h"
-#include "malloc.h"
 #include "mapif.h"
 #include "mmo.h"
 #include "session.h"

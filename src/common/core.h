@@ -1,5 +1,23 @@
 #pragma once
 
+#include <stddef.h>
+#include <stdio.h>
+
+#define CALLOC(result, type, number) \
+  (result) = (type*)calloc((number), sizeof(type))
+
+#define REALLOC(result, type, number) \
+  (result) = (type*)realloc((result), sizeof(type) * (number))
+
+#define FREE(result) \
+  do {               \
+    free(result);    \
+    result = NULL;   \
+  } while (0)
+
+#define nullpo_ret(result, target) \
+  if (!(target)) return (result)
+
 int main(int, char**);
 const char* get_svn_revision(void);
 unsigned int getTicks(void);

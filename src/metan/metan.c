@@ -6,8 +6,8 @@
 
 #include "../map/class_db.h"
 #include "../map/itemdb.h"
+#include "core.h"
 #include "db_mysql.h"
-#include "malloc.h"
 
 char scheme[32];
 int filecount;
