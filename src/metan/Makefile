@@ -5,13 +5,13 @@
 
 all: metan
 
-metan: metan.o itemdb.o class_db.o $(COMMON_OBJ)
+metan: metan.o ../map/itemdb.o ../map/class_db.o $(COMMON_OBJ)
 	@echo -e " Linking... $<"
-	@$(CC) -o ../../$(BINDIR)/$@ metan.o itemdb.o class_db.o $(COMMON_OBJ) $(CLIBS)
+	@$(CC) -o ../../$(BINDIR)/$@ metan.o ../map/itemdb.o ../map/class_db.o $(COMMON_OBJ) $(CLIBS)
 
 metan.o: metan.c metan.h $(COMMON_H)
-itemdb.o: itemdb.c itemdb.h $(COMMON_H)
-class_db.o: class_db.c class_db.h $(COMMON_H)
+../map/itemdb.o: ../map/itemdb.c ../map/itemdb.h $(COMMON_H)
+../map/class_db.o: ../map/class_db.c ../map/class_db.h $(COMMON_H)
 clean:
 	@rm -f *.o ../../$(BINDIR)/metan
 

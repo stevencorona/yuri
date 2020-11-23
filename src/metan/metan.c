@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "class_db.h"
+#include "../map/class_db.h"
 #include "db_mysql.h"
-#include "itemdb.h"
+#include "../map/itemdb.h"
 #include "malloc.h"
 
 char scheme[32];
@@ -44,7 +44,9 @@ int config_read(const char *cfg_file) {
 
   while (fgets(line, sizeof(line), fp)) {
     line_num++;
-    if (line[0] == '/' && line[1] == '/') continue;
+    if (line[0] == '/' && line[1] == '/') {
+      continue;
+    }
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
       // CHAR
