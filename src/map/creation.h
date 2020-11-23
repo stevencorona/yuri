@@ -2,8 +2,6 @@
 
 #include "map.h"
 
-#define CREATEDB_FILE "db/createdb.txt"
-
 struct creation_data {
   int id;
   int count;

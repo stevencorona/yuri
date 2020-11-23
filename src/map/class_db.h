@@ -1,6 +1,5 @@
 #pragma once
 
-#define CLASSDB_FILE "db/class_db.txt"
 #define LEVELDB_FILE "db/level_db.txt"
 
 struct class_data {

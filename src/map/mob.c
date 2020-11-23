@@ -450,13 +450,9 @@ struct mobdb_data *mobdb_searchexist(unsigned int id) {
 }
 
 int mobdb_init() {
-  // char *MOBDB2_FILE="db/mob_db.txt";
-  // char *MOBSPAWN_FILE="db/spawn_db.txt";
   mobdb = uidb_alloc(DB_OPT_BASE);
-  // onetimedb=numdb_init();
   mobdb_read();
   mobspawn_read();
-  // mobspawn2_read("db/mob_db2.txt");
   return 0;
 }
 

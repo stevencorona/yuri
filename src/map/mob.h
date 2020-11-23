@@ -2,8 +2,6 @@
 
 #include "map.h"
 
-#define MOBDB_FILE "db/mob_db.txt"
-//#define MOBSPAWN_FILE "db/spawn_db.txt"
 enum { MOB_ALIVE, MOB_DEAD, MOB_PARA, MOB_BLIND, MOB_HIT, MOB_ESCAPE };
 enum { MOB_NORMAL, MOB_AGGRESSIVE, MOB_STATIONARY };
 

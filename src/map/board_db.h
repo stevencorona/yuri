@@ -1,7 +1,5 @@
 #pragma once
 
-#define BOARDDB_FILE "db/board_db.txt"
-
 struct board_data {
   int id, level, gmlevel, path, clan, special, sort;
   char name[64], yname[64], script;

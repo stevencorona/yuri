@@ -533,7 +533,7 @@ int itemdb_term() {
 int itemdb_init() {
   item_db = uidb_alloc(DB_OPT_BASE);
   // custom_db = uidb_alloc(DB_OPT_BASE);
-  itemdb_read(ITEMDB_FILE);
+  itemdb_read();
   // itemdb_readc();
   return 0;
 }
