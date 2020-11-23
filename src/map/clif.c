@@ -286,7 +286,7 @@ int clif_sendprofile(USER *sd) {
   int len = 0;
 
   char url[255];
-  sprintf(url, "https://www.ClassicTK.com/users");
+  sprintf(url, "https://www.website.com/users");
 
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x62;
@@ -305,21 +305,12 @@ int clif_sendprofile(USER *sd) {
 int clif_sendboard(USER *sd) {
   int len = 0;
 
-  // char url1[] = "http://board.nexustk.com";
-  // char url2[] = "http://www.nexustk.com";
-  char url1[] =
-      "https://www.ClassicTK.com/boards";  // this first URL doesnt appear to do
-                                           // shit.. might be like a referral
-  char url2[] = "https://www.ClassicTK.com/boards";  // This is the actual URL
-                                                     // that the browser goes to
+  char url1[] = "https://www.website.com/boards";  // this first URL doesnt
+                                                   // appear to do anything
+  char url2[] = "https://www.website.com/boards";  // This is the actual URL
+                                                   // that the browser goes to
 
-  char url3[] =
-      "}domain=0&fkey=2&data=c3OPyAa3RaHPFuHmpuQmR]"
-      "bl3bVK5KHmyAbkLmI92uHl34FKiAHPyUbmi]"
-      "aYpYbl2OQkpKbsyUQmyNdl3nqPGJwkem1YqEVXhEFY3MIu";  // yea who fucking
-                                                         // knows it was in the
-                                                         // original packet
-                                                         // though
+  char url3[] = "?abc123";
 
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x62;
@@ -4591,7 +4582,7 @@ int clif_sendmapinfo(USER *sd) {
   WFIFOB(sd->fd, 2) = 0x12;
   WFIFOB(sd->fd, 3) = 0x19;
   WFIFOB(sd->fd, 5) = map[sd->bl.m].bgmtype;  // 1  1 = mp3/lsr, 2 = mid
-  // WFIFOB(sd->fd, 6) = 5;//0 // doesnt appear to do shit but who knows
+  // WFIFOB(sd->fd, 6) = 5;//0 // doesnt appear to do anything but who knows
   WFIFOW(sd->fd, 7) = SWAP16(map[sd->bl.m].bgm);
   WFIFOW(sd->fd, 9) = SWAP16(
       map[sd->bl.m].bgm);  // this had the same exact field info as field 7,8..
@@ -5004,7 +4995,7 @@ int clif_parsewalk(USER *sd) {
   if (sd->viewy < 0) sd->viewy = 0;
   if (sd->viewy > 14) sd->viewy = 14;
 
-  // Fast Walk shit, will flag later.
+  // Fast Walk, will flag later.
   if (!(sd->status.settingFlags & FLAG_FASTMOVE)) {
     if (!session[sd->fd]) {
       session[sd->fd]->eof = 8;
@@ -11379,8 +11370,7 @@ int clif_changeprofile(USER *sd) {
          sd->profile_size);
 }
 
-// this is for preventing hackers from fucking up the server
-
+// this is for preventing hackers
 int check_packet_size(int fd, int len) {
   // USER *sd=session[fd]->session_data;
 
@@ -12021,7 +12011,7 @@ printf("\n");*/
     case 0x27:  // PACKET SENT WHEN SOMEONE CLICKS QUEST tab or SHIFT Z key
       clif_cancelafk(sd);
 
-      // clif_sendurl(sd,0,"https://www.ClassicTK.com/questguide/");
+      // clif_sendurl(sd,0,"https://www.website.com/questguide/");
 
       /*if(SWAP16(RFIFOW(sd->fd,5))==0) {
               clif_showguide(sd);
@@ -12290,7 +12280,7 @@ int send_metafile(USER *sd, char *file) {
 
   retval = compress(cbuf, &clen, ubuf, ulen);
 
-  if (retval != 0) printf("Fucked up %d\n", retval);
+  if (retval != 0) printf("Error retval=%d\n", retval);
   WFIFOHEAD(sd->fd, 65535 * 2);
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x6F;
@@ -14178,7 +14168,7 @@ int clif_groupstatus(USER *sd) {
     tsd = map_id2sd(groups[sd->groupid][x]);
     if (!tsd) continue;
 
-    // TNL TEST SHIT
+    // TNL TEST
 
     if (tsd->status.level < 99) {
       tsd->status.maxtnl = classdb_level(tsd->status.class, tsd->status.level);
@@ -14364,7 +14354,7 @@ int clif_grouphealth_update(USER *sd) {
   // clif_groupstatus(sd);
 
   /*
-  // TNL TEST SHIT
+  // TNL TEST IT
   unsigned nextlevelxp, tnl;
   float percentage;
   int intpercentage;

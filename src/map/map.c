@@ -2171,7 +2171,7 @@ int boards_post(USER* sd, int board) {
   return 0;
 }
 
-/* N-Mail shit */
+/* N-Mail */
 
 int nmail_read(USER* sd, int post) {
   // int hasm=sd->flags&;
@@ -2673,7 +2673,7 @@ int map_reset_timer(int v1, int v2) {
       60000) {  // Less than a minute remaining(gonna mass spell everyone)
     if (diff >= 10000) {  // every 10 seconds
 
-      sprintf(msg, "ClassicTK! Reset in %d seconds", reset / 1000);
+      sprintf(msg, "Reset in %d seconds", reset / 1000);
       // clif_broadcast("---------------------------------------------------",-1);
       clif_broadcast(msg, -1);
       // clif_broadcast("---------------------------------------------------",-1);
@@ -2681,7 +2681,7 @@ int map_reset_timer(int v1, int v2) {
     }
   } else if (reset <= 3600000) {  // 60 mins
     if (diff >= 300000) {         // every 5 mins
-      sprintf(msg, "ClassicTK! Reset in %d minutes", reset / 60000);
+      sprintf(msg, "Reset in %d minutes", reset / 60000);
       // clif_broadcast("---------------------------------------------------",-1);
       clif_broadcast(msg, -1);
       // clif_broadcast("---------------------------------------------------",-1);
@@ -2689,7 +2689,7 @@ int map_reset_timer(int v1, int v2) {
     }
   } else if (reset > 3600000) {  // every hour
     if (diff >= 3600000) {       // once every hour
-      sprintf(msg, "ClassicTK! Reset in %d hours", reset / 3600000);
+      sprintf(msg, "Reset in %d hours", reset / 3600000);
       // clif_broadcast("---------------------------------------------------",-1);
       clif_broadcast(msg, -1);
       // clif_broadcast("---------------------------------------------------",-1);
