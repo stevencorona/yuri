@@ -29,7 +29,6 @@ int char_fd;
 int login_fd;
 int save_fd;
 
-int start_money = 0;
 struct point start_pos;
 
 char char_id[32];
@@ -218,9 +217,6 @@ int config_read(const char *cfg_file) {
         set_dmpfile(r2);
       } else if (strcasecmp(r1, "dump_save") == 0) {
         dump_save = atoi(r2);
-        // NEW CHARS
-      } else if (strcasecmp(r1, "start_money") == 1) {
-        start_money = atoi(r2);
       } else if (strcasecmp(r1, "start_point") == 1) {
         sscanf(r2, "%d,%d,%d", &m, &x, &y);
       }

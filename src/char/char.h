@@ -21,7 +21,6 @@ extern struct map_fifo_data map_fifo[];
 extern int map_fifo_max;
 extern int map_fifo_n;
 
-extern int start_money;
 extern struct point start_pos;
 
 extern int login_fd;
