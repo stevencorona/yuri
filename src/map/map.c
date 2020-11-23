@@ -1703,7 +1703,7 @@ int config_read(const char* cfg_file) {
           printf("CFG_ERR: Town Name Parse error!\n");
           printf(" line %d: %s\n", line_num, line);
         }
-      } else if (strcasecmp(r1, "ServerId") == 0) {
+      } else if (strcasecmp(r1, "server_id") == 0) {
         serverid = atoi(r2);
       } else if (strcasecmp(r1, "npc") == 0) {
         npc_src_add(r2);

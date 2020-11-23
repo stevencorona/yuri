@@ -27,7 +27,6 @@ int map_fifo_max = 0;
 struct Sql *sql_handle;
 int char_fd;
 int login_fd;
-int save_fd;
 
 struct point start_pos;
 
@@ -45,11 +44,6 @@ char login_pw[32];
 char login_ip_s[16];
 int login_ip;
 int login_port;
-char save_id[32];
-char save_pw[32];
-char save_ip_s[16];
-int save_ip;
-int save_port;
 
 int zlib_init(void) {
   z_stream strm;
@@ -184,20 +178,6 @@ int config_read(const char *cfg_file) {
       } else if (strcasecmp(r1, "login_pw") == 0) {
         strncpy(login_pw, r2, 32);
         login_pw[31] = '\0';
-        // Save
-      } else if (strcasecmp(r1, "save_ip") == 0) {
-        strncpy(save_ip_s, r2, 16);
-        save_ip_s[15] = '\0';
-        save_ip = inet_addr(save_ip_s);
-      } else if (strcasecmp(r1, "save_port") == 0) {
-        save_port = atoi(r2);
-      } else if (strcasecmp(r1, "save_id") == 0) {
-        strncpy(save_id, r2, 32);
-        save_id[31] = '\0';
-      } else if (strcasecmp(r1, "save_pw") == 0) {
-        strncpy(save_pw, r2, 32);
-        save_pw[31] = '\0';
-        // SQL
       } else if (strcasecmp(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
       } else if (strcasecmp(r1, "sql_port") == 0) {
