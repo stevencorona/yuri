@@ -12,7 +12,7 @@ Provide a clean fork/drop-in replacement of the Mithia server that is 100% compa
 - [ ] Remove dead code
 - [ ] BCrypt Passwords
 - [ ] Flatten source directory
-- [ ] Clean up configs
+- [x] Clean up and document configs
 - [ ] Receive mysql / net config as cli flag and env
 - [ ] Produce a single server binary instead of 3x
 - [ ] All logging to STDOUT
