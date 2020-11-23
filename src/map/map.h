@@ -424,7 +424,6 @@ extern unsigned int map_port;
 extern unsigned int log_ip;
 extern unsigned int log_port;
 extern int save_time;
-extern int dump_save;
 
 extern int serverid;
 extern char servername[16];

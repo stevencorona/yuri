@@ -40,8 +40,6 @@ char sql_db[32] = "";
 char sql_ip[32] = "";
 int sql_port;
 
-int dump_save = 0;
-
 char login_id[32];
 char login_pw[32];
 char login_ip_s[16];
@@ -213,10 +211,6 @@ int config_read(const char *cfg_file) {
         // DUMP & LOG
       } else if (strcasecmp(r1, "char_log") == 0) {
         set_logfile(r2);
-      } else if (strcasecmp(r1, "dump_log") == 0) {
-        set_dmpfile(r2);
-      } else if (strcasecmp(r1, "dump_save") == 0) {
-        dump_save = atoi(r2);
       } else if (strcasecmp(r1, "start_point") == 1) {
         sscanf(r2, "%d,%d,%d", &m, &x, &y);
       }
@@ -260,7 +254,6 @@ int do_init(int argc, char **argv) {
 
   srand(gettick());
   set_logfile("log/char.log");
-  set_dmpfile("log/char_dump.log");
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||

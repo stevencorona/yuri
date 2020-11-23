@@ -99,7 +99,6 @@ char char_ip_s[16];
 int char_ip;
 int char_port;
 int save_time = 60000;
-int dump_save = 0;
 int xp_rate;
 int d_rate;
 int map_max = 0;
@@ -1693,10 +1692,6 @@ int config_read(const char* cfg_file) {
         // LOG & DUMP
       } else if (strcasecmp(r1, "map_log") == 0) {
         set_logfile(r2);
-      } else if (strcasecmp(r1, "dump_log") == 0) {
-        set_dmpfile(r2);
-      } else if (strcasecmp(r1, "dump_save") == 0) {
-        dump_save = atoi(r2);
       } else if (strcasecmp(r1, "meta") == 0) {
         add_meta(r2);
         // MAP & NPC SCRIPT
@@ -1904,7 +1899,6 @@ int do_init(int argc, char** argv) {
   char* CHAR_FILE = "conf/char.conf";
   srand(gettick());
   set_logfile("log/map.log");
-  set_dmpfile("log/map_dump.log");
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||

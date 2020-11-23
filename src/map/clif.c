@@ -12234,8 +12234,6 @@ printf("\n");*/
       printf("[Map] Unknown Packet ID: %02X\nPacket content:\n",
              RFIFOB(sd->fd, 3));
       clif_debug(RFIFOP(sd->fd, 0), SWAP16(RFIFOW(sd->fd, 1)));
-      // if (dump_save)
-      //	add_dmp(fd, len);
       break;
   }
 

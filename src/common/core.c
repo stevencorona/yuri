@@ -14,7 +14,6 @@
 
 int (*func_parse_it)(char *) = default_parse_input;
 static void (*term_func)(void) = NULL;
-char dmp_filename[128];
 char log_filename[128];
 char date_format[32] = "%Y-%m-%d %H:%M:%S";
 static char h_svn_version[10] = "";
@@ -132,13 +131,6 @@ unsigned int getTicks(void) {
 }
 
 void crash_log(char *aids, ...) {}
-
-// Set Dump Packet File
-//----------------------------
-void set_dmpfile(char *dmpfilename) {
-  memset(dmp_filename, 0, 128);
-  strcpy(dmp_filename, dmpfilename);
-}
 
 // Add packet to dump
 // Saved from RFIFO

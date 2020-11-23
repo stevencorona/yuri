@@ -25,7 +25,6 @@ Sql *sql_handle = NULL;
 DBMap *bf_lockout = NULL;
 char login_id[32];
 char login_pw[32];
-int dump_save = 0;
 // Sql ID/PW
 char sql_id[32] = "";
 char sql_pw[32] = "";
@@ -170,10 +169,6 @@ int config_read(const char *cfg_file) {
         login_pw[31] = '\0';
       } else if (strcasecmp(r1, "login_log") == 0) {
         set_logfile(r2);
-      } else if (strcasecmp(r1, "dump_log") == 0) {
-        set_dmpfile(r2);
-      } else if (strcasecmp(r1, "dump_save") == 0) {
-        dump_save = atoi(r2);
       } else if (strcasecmp(r1, "meta") == 0) {
         add_meta(r2);
       } else if (strcasecmp(r1, "version") == 0) {
@@ -219,7 +214,6 @@ int do_init(int argc, char **argv) {
 
   srand(gettick());
   set_logfile("log/login.log");
-  set_dmpfile("log/login_dump.log");
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||

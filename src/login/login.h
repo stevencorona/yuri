@@ -31,7 +31,6 @@ char meta_file[META_MAX][256];
 int metamax;
 int nex_version;
 int nex_deep;
-extern int dump_save;
 int getInvalidCount(unsigned int);
 int setInvalidCount(unsigned int);
 

@@ -22,7 +22,6 @@ int main(int, char**);
 const char* get_svn_revision(void);
 unsigned int getTicks(void);
 void crash_log(char*, ...);
-void set_dmpfile(char*);
 void add_dmp(int, int);
 void set_logfile(char*);
 void set_termfunc(void (*termfunc)(void));
