@@ -154,7 +154,7 @@ int boarddb_sort(int id) {
 
 int boarddb_read() {
   struct board_data *db;
-  int i, cls = 0;
+  int i = 0;
   int x;
   struct board_data b;
   SqlStmt *stmt;

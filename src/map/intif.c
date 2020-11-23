@@ -162,7 +162,6 @@ int intif_save(USER* sd) {
 
 int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
   USER* sd;
-  int n;
   if (fd == map_fd) {
     return 0;
   }
@@ -437,10 +436,9 @@ int intif_parse_authadd(int fd) {
   return 0;
 }
 int intif_parse_charload(int fd) {
-  unsigned int ulen, clen, retval, x;
+  unsigned int ulen, clen, retval;
   char* cbuf = NULL;
 
-  struct mmo_charstatus* a = NULL;
   if (!session[RFIFOW(fd, 6)]) return 0;
 
   ulen = sizeof(struct mmo_charstatus);
@@ -760,7 +758,6 @@ int intif_parse_readpost(int fd) {
   memcpy(&h, RFIFOP(fd, 2), sizeof(h));
 
   int len;
-  StringBuf buf;
 
   USER* sd = NULL;
   if (h.fd > FD_SETSIZE || h.fd >= fd_max || h.fd <= 0) return 0;

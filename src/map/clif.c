@@ -266,9 +266,6 @@ int clif_Hacker(char *name, const char *reason) {
 int clif_sendurl(USER *sd, int type, char *url) {
   if (!sd) return 0;
 
-  int ulen = strlen(url);
-  int len = 0;
-
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x66;
   WFIFOB(sd->fd, 4) = 0x03;
@@ -361,9 +358,7 @@ int CheckProximity(struct point one, struct point two, int radius) {
 }
 
 int clif_accept2(int fd, char *name, int name_len) {
-  int i, a, b, c, d;
   char n[32];
-  int t = 0;
 
   // struct auth_node* db=NULL;
   // printf("Namelen: %d\n",name_len);
@@ -1099,10 +1094,8 @@ int clif_debug(unsigned char *stringthing, int len) {
 }
 
 int clif_sendtowns(USER *sd) {
-  char buf[256];
   int x;
   int len = 0;
-  // x=sprintf(buf,"\xAA\x00\x07\x68\x59\xB5\x07\x3D\x7E\x37\xAA\x00\x29\x59\x5A\x54\x3F\x22\x17\x30\x13\x33\x77\x11\x60\x4A\x51\x55\x59\x13\x32\x73\x1A\x71\x48\x52\x4E\x59\x13\x32\x79\x03\x6E\x5D\x22\x31\x79\x71\x50\x54\x16\x7E\x5C\x26\xAA\x00\x0B\x75\x0B\xE7\x55\x6F\x2C\x66\xB1\xB6\xB1\x25");
 
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
@@ -1518,7 +1511,6 @@ int clif_calc_critical(USER *sd, struct block_list *bl) {
   USER *tsd = NULL;
   int crit = 0;
   int max_hit = 95;
-  int dx, dy;
 
   if (bl->type == BL_PC) {
     tsd = (USER *)bl;
@@ -1861,8 +1853,6 @@ int clif_object_look_specific(USER *sd, unsigned int id) {
   FLOORITEM *item = NULL;
   NPC *nd = NULL;
   struct block_list *b = NULL;
-  // struct npc_data *npc=NULL;
-  int type = 0;
   int len = 0;
   // end setup
   if (!sd) return 0;
@@ -2201,7 +2191,6 @@ int clif_send_mob_health_sub(struct block_list *bl, va_list ap) {
   USER *tsd = NULL;
   MOB *mob = NULL;
 
-  int x;
   int critical;
   int percentage;
   int damage;
@@ -2236,7 +2225,6 @@ int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
   MOB *mob = NULL;
 
-  int x;
   int critical;
   int percentage;
   int damage;
@@ -2641,7 +2629,7 @@ int clif_parsenpcdialog(USER *sd) {
 }
 int clif_send_sub(struct block_list *bl, va_list ap) {
   unsigned char *buf = NULL;
-  int x, len;
+  int len;
   struct block_list *src_bl = NULL;
   int type;
   USER *sd = NULL;
@@ -2908,7 +2896,6 @@ int clif_mystaytus(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
   int len = 0;
   nullpo_ret(0, sd);
-  float percentage = clif_getXPBarPercent(sd);
 
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
@@ -4068,8 +4055,6 @@ int clif_sendchararea(USER *sd) {
 int clif_charspecific(int sender, int id) {
   char buf[64];
   int len;
-  int type;
-  int x;
   USER *sd = NULL;
   USER *src_sd = NULL;
   // type=va_arg(ap, int);
@@ -4776,7 +4761,6 @@ int clif_sendxychange(USER *sd, int dx, int dy) {
 
 int clif_sendstatus(USER *sd, int flags) {
   int f = flags | SFLAG_ALWAYSON;
-  int tnl = clif_getLevelTNL(sd);
   int len = 0;
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
@@ -4896,12 +4880,10 @@ int clif_spawn(USER *sd) {
 }
 
 int clif_parsewalk(USER *sd) {
-  int moveblock;
   int dx, dy, xold, yold, c = 0;
   struct warp_list *x = NULL;
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0, direction = 0;
   unsigned short checksum = 0;
-  int xcheck, ycheck;
   // int speed=0;
   char *buf = NULL;
   int def[2];
@@ -5215,13 +5197,10 @@ int clif_parsewalk(USER *sd) {
 }
 
 int clif_noparsewalk(USER *sd, char speed) {
-  int moveblock;
-  char nothingnew;
   char flag;
   int dx, dy, xold, yold, c = 0;
   struct warp_list *x = NULL;
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0, direction = 0;
-  int xcheck, ycheck;
   unsigned short m = sd->bl.m;
   char *buf = NULL;
   int def[2];
@@ -5467,8 +5446,6 @@ int clif_noparsewalk(USER *sd, char speed) {
 }
 
 int clif_guitextsd(char *msg, USER *sd) {
-  int len = 0;
-
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
     return 0;
@@ -5616,9 +5593,6 @@ int clif_getReward(USER *sd, int fd) {
   int eventid = RFIFOB(fd, 7);
 
   char legend[17];
-  char reward[19];
-  char reward1[19];
-  char reward2[19];
   char eventname[41];
 
   char legendbuf[255];
@@ -5630,7 +5604,7 @@ int clif_getReward(USER *sd, int fd) {
       legendicon1color = 0, legendicon2 = 0, legendicon2color = 0,
       legendicon3 = 0, legendicon3color = 0, legendicon4 = 0,
       legendicon4color = 0, legendicon5 = 0, legendicon5color = 0,
-      reward1amount = 0, reward2amount = 0, rewardamount = 0, reward1item = 0,
+      reward1amount = 0, reward2amount = 0, reward1item = 0,
       reward2item = 0;
   int rewardranks = 0;
   int rank = 0;
@@ -6046,7 +6020,7 @@ int clif_sendRewardInfo(USER *sd, int fd) {
 
   int legendicon, legendiconcolor, legendicon1, legendicon1color, legendicon2,
       legendicon2color, legendicon3, legendicon3color, legendicon4,
-      legendicon4color, legendicon5, legendicon5color, reward1amount,
+      legendicon4color, legendicon5, legendicon5color,
       reward2amount, rewardamount, rewarditm, reward2itm;
 
   int _1stPlaceReward1_ItmId, _1stPlaceReward1_Amount, _1stPlaceReward2_ItmId,
@@ -6414,8 +6388,6 @@ int checkPlayerScore(int eventid, USER *sd) {
 }
 
 void updateRanks(int eventid) {
-  int i = 0;
-
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
   if (stmt == NULL) {
@@ -6791,7 +6763,7 @@ int clif_parseranking(USER *sd, int fd) {
 }
 
 int clif_parsewalkpong(USER *sd) {
-  int HASH = SWAP32(RFIFOL(sd->fd, 5));
+  // int HASH = SWAP32(RFIFOL(sd->fd, 5));
   unsigned long TS = SWAP32(RFIFOL(sd->fd, 9));
 
   if (sd->LastPingTick) sd->msPing = gettick() - sd->LastPingTick;
@@ -6814,7 +6786,6 @@ int clif_parsemap(USER *sd) {
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
   unsigned short checksum;
   int def[2];
-  char buf[32];
   sd->loaded = 1;
 
   x0 = SWAP16(RFIFOW(sd->fd, 5));
@@ -6855,9 +6826,6 @@ int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
   int a = 0;
   int len = 0;
   checksum = 0;
-
-  int side = sd->status.side;
-  int max = 3;
 
   // if(((y1-y0)*(x1-x0)*6)>65535) {
   if ((x1 * y1) > 323) {
@@ -7503,7 +7471,6 @@ int clif_deductduraequip(USER *sd) {
 }
 
 int clif_checkinvbod(USER *sd) {  // handles items in inventory
-  float percentage;
   int id;
   char buf[255];
   char escape[255];
@@ -7611,10 +7578,8 @@ int clif_senddelitem(USER *sd, int num, int type) {
 
 int clif_sendadditem(USER *sd, int num) {
   char buf[128];
-  char buf2[128];
   char *name = NULL;
   char *owner = NULL;
-  int namelen = 0;
   int len = 0;
   int id = 0;
 
@@ -7911,7 +7876,6 @@ int clif_mapmsgnum(USER *sd, int id) {
   return msgnum;
 }
 int clif_sendgroupmessage(USER *sd, unsigned char *msg, int msglen) {
-  char buf[300];
   char buf2[65535];
   int i;
   char message[256];
@@ -7947,7 +7911,6 @@ int clif_sendgroupmessage(USER *sd, unsigned char *msg, int msglen) {
   return 0;
 }
 int clif_sendsubpathmessage(USER *sd, unsigned char *msg, int msglen) {
-  char buf[300];
   char buf2[65535];
   int i;
   char message[256];
@@ -7989,7 +7952,6 @@ int clif_sendsubpathmessage(USER *sd, unsigned char *msg, int msglen) {
 }
 
 int clif_sendclanmessage(USER *sd, unsigned char *msg, int msglen) {
-  char buf[300];
   char buf2[65535];
   int i;
   char message[256];
@@ -8030,7 +7992,6 @@ int clif_sendclanmessage(USER *sd, unsigned char *msg, int msglen) {
 }
 
 int clif_sendnovicemessage(USER *sd, unsigned char *msg, int msglen) {
-  char buf[300];
   char buf2[65535];
   int i;
   char message[256];
@@ -8191,10 +8152,8 @@ int clif_parsewisp(USER *sd) {
   char dst_name[100];
   char strText[255];
   USER *dst_sd = NULL;
-  int dstlen, srclen, msglen, afklen;
-  unsigned char buf[255];
+  int dstlen, srclen, msglen;
   char msg[100];
-  char afk[100];
   char escape[255];
 
   // StringBuf buf;
@@ -8350,6 +8309,7 @@ int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
     }
   }
   sl_doscript_blargs("onSay", NULL, 1, &sd->bl);
+  return 0;
 }
 
 int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
@@ -8552,9 +8512,6 @@ int clif_sendnpcsay(struct block_list *bl, va_list ap) {
   NPC *nd = NULL;
   USER *sd = NULL;
   char *msg = NULL;
-  char temp[256];
-  char *temp2 = NULL;
-  char temp3[256];
 
   if (bl->subtype != SCRIPT) return 0;
 
@@ -8601,9 +8558,6 @@ int clif_sendnpcyell(struct block_list *bl, va_list ap) {
   NPC *nd = NULL;
   USER *sd = NULL;
   char *msg = NULL;
-  char temp[256];
-  char *temp2 = NULL;
-  char temp3[256];
 
   if (bl->subtype != SCRIPT) return 0;
 
@@ -8703,6 +8657,8 @@ int clif_parseignore(USER *sd) {
 
         break;
     }
+
+  return 0;
 }
 
 int clif_parsesay(USER *sd) {
@@ -8909,7 +8865,6 @@ int clif_sendupdatestatus2(USER *sd) {
 
 clif_sendupdatestatus_onkill(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
-  int len = 0;
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
 
@@ -8951,7 +8906,6 @@ clif_sendupdatestatus_onkill(USER *sd) {
 int clif_getLevelTNL(USER *sd) {
   int tnl = 0;
 
-  int currLevelExp, nextLevelExp = 0;
   int path = sd->status.class;
   int level = sd->status.level;
   if (path > 5) path = classdb_path(path);
@@ -8997,7 +8951,6 @@ float clif_getXPBarPercent(USER *sd) {
 
 int clif_sendupdatestatus_onequip(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
-  int len = 0;
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
 
@@ -9061,7 +9014,6 @@ int clif_sendupdatestatus_onequip(USER *sd) {
 
 clif_sendupdatestatus_onunequip(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
-  int len = 0;
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
 
@@ -9344,15 +9296,12 @@ int clif_sendmagic(USER *sd, int pos) {
 
 int clif_parsemagic(USER *sd) {
   struct block_list *bl = NULL;
-  char *answer = NULL;
   int pos;
   int time;
-  int i, x;
-  int newtime;
+  int i;
   char msg[255];
   char escape[255];
   int len;
-  int q_len = 0;
 
   pos = RFIFOB(sd->fd, 5) - 1;
 
@@ -9810,7 +9759,6 @@ int clif_scriptmenu(
   int color = sd->npc_gc;
   int x;
   int len;
-  int i;
   NPC *nd = map_id2npc((unsigned int)id);
   int type = sd->dialogtype;
 
@@ -10370,11 +10318,9 @@ int clif_inputseq(USER *sd, int id, char *dialog, char *dialog2, char *dialog3,
                   char *menu[], int size, int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
-  int x;
   int len = 0;
 
   NPC *nd = map_id2npc((unsigned int)id);
-  int type = sd->dialogtype;
 
   if (nd) {
     nd->lastaction = time(NULL);
@@ -10665,8 +10611,8 @@ int clif_parselookat_scriptsub(USER *sd, struct block_list *bl) {
   return 0;
 }
 int clif_parselookat_2(USER *sd) {
-  int x, dx;
-  int y, dy;
+  int dx;
+  int dy;
 
   dx = sd->bl.x;
   dy = sd->bl.y;
@@ -10706,14 +10652,9 @@ int clif_parselookat(USER *sd) {
 }
 
 int clif_parseattack(USER *sd) {
-  struct block_list *bl = NULL;
-  USER *tsd = NULL;
-
   int id;
   int attackspeed;
   int x;
-  int tick = 0;
-  int exist = -1;
 
   attackspeed = sd->attack_speed;
 
@@ -11114,9 +11055,7 @@ int clif_throwitem_sub(USER *sd, int id, int type, int x, int y) {
 
 int clif_throwitem_script(USER *sd) {
   FLOORITEM *fl = NULL;
-  char escape[255];
   char sndbuf[48];
-  int len = 0;
   int def[1];
   int id = sd->invslot;
   int x = sd->throwx;
@@ -11271,7 +11210,6 @@ int clif_parsethrow(USER *sd) {
   int newy = sd->bl.y;
   int xmod = 0, x1;
   int ymod = 0, y1;
-  int xside = 0, yside = 0;
   int found[1];
   int i;
   found[0] = 0;
@@ -11317,7 +11255,7 @@ int clif_parsethrow(USER *sd) {
     newx = x1;
     newy = y1;
   }
-  clif_throwitem_sub(sd, pos, 0, newx, newy);
+  return clif_throwitem_sub(sd, pos, 0, newx, newy);
 }
 
 int clif_parseviewchange(USER *sd) {
@@ -11480,7 +11418,6 @@ int clif_stoptimers(USER *sd) {
 }
 int clif_handle_disconnect(USER *sd) {
   USER *tsd = NULL;
-  struct block_list *bl = NULL;
   if (sd->exchange.target) {
     tsd = map_id2sd(sd->exchange.target);
     clif_exchange_close(sd);
@@ -11819,9 +11756,6 @@ int clif_print_disconnect(int fd) {
 int clif_parse(int fd) {
   unsigned short len;
   USER *sd = NULL;
-  int time;
-  int pnum;
-  int lasteof;
   unsigned char CurrentSeed;
 
   if (fd < 0 || fd > fd_max) return 0;
@@ -11845,7 +11779,6 @@ int clif_parse(int fd) {
 
   // if(!session[fd]->rdata_size) return 0;
   if (session[fd]->rdata_size > 0 && RFIFOB(fd, 0) != 0xAA) {
-    int head_err = 0;
     session[fd]->eof = 13;
     return 0;
   }
@@ -12317,7 +12250,6 @@ unsigned int metacrc(char *file) {
 
   unsigned int checksum = 0;
   unsigned int size;
-  unsigned int size2;
   char fileinf[196608];
   fp = fopen(file, "rb");
   if (!fp) return 0;
@@ -12402,7 +12334,6 @@ int send_metalist(USER *sd) {
   int len = 0;
   unsigned int checksum;
   char filebuf[255];
-  int count = 0;
   int x;
 
   WFIFOHEAD(sd->fd, 65535 * 2);
@@ -12960,7 +12891,6 @@ int clif_buydialog(USER *sd, unsigned int id, char *dialog, struct item *item,
   int color = sd->npc_gc;
   int x = 0;
   int len;
-  int i;
 
   char name[64];
   char buff[64];
@@ -13231,7 +13161,6 @@ int clif_buydialog(USER *sd, unsigned int id, char *dialog, struct item *item,
 
 int clif_parsebuy(USER *sd) {
   char itemname[255];
-  struct item_data *item = NULL;
 
   memset(itemname, 0, 255);
   memcpy(itemname, RFIFOP(sd->fd, 13), RFIFOB(sd->fd, 12));
@@ -13258,7 +13187,6 @@ int clif_selldialog(USER *sd, unsigned int id, char *dialog, int item[],
   NPC *nd = NULL;
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
-  int x;
   int len;
   int i;
 
@@ -13521,7 +13449,7 @@ int clif_input(USER *sd, int id, char *dialog, char *item) {
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
 
-  int x, i, len;
+  int len;
   NPC *nd = map_id2npc((unsigned int)id);
   int type = sd->dialogtype;
 
@@ -14214,9 +14142,8 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
 }
 
 int clif_groupstatus(USER *sd) {
-  int x, n, w, r, m, p, a, g;
+  int x, n, w, r, m, p, g;
   int len = 0;
-  int y;
   int count;
   char buf[32];
   int rogue[256];
@@ -14600,10 +14527,7 @@ int clif_addgroup(USER *sd) {
 }
 
 int clif_updategroup(USER *sd, char *message) {
-  int x, y;
-
-  int len = 0;
-
+  int x;
   USER *tsd;
 
   for (x = 0; x < sd->group_count; x++) {
@@ -15081,15 +15005,11 @@ int clif_postitem(USER *sd) {
 }
 
 int clif_handitem(USER *sd) {
-  struct mobdb_data *db;
-
   char buff[256];
 
   int slot = RFIFOB(sd->fd, 5) - 1;
   int handgive = RFIFOB(sd->fd, 6);  // hand (h) = 0, give (H) = 1
   int amount = 0;
-
-  int itemid = sd->status.inventory[slot].id;
 
   if (handgive == 0)
     amount = 1;
@@ -15115,9 +15035,7 @@ int clif_handitem(USER *sd) {
   }
 
   struct block_list *bl = NULL;
-  struct item_data *item = NULL;
   char msg[80];
-  char *buf;
   struct npc_data *nd = NULL;
 
   bl = map_firstincell(sd->bl.m, x, y, BL_ALL);
@@ -15205,8 +15123,6 @@ int clif_exchange_cleanup(USER *sd) {
 
 int clif_exchange_finalize(USER *sd, USER *tsd) {
   int i;
-  int id;
-  int amount;
   struct item *it;
   struct item *it2;
   CALLOC(it, struct item, 1);
@@ -15522,7 +15438,6 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   int len = 0;
   char buff[256];
   int i;
-  float percentage;
   char nameof[255];
   if (!sd) return 0;
   if (!tsd) return 0;
@@ -15794,7 +15709,6 @@ int clif_exchange_money(USER *sd, USER *tsd) {
 
 int clif_exchange_close(USER *sd) {
   int i;
-  int id = 0;
   struct item *it;
 
   nullpo_ret(0, sd);
@@ -15828,7 +15742,6 @@ int clif_canmove_sub(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
   USER *tsd = NULL;
   MOB *mob = NULL;
-  int i = 0;
 
   nullpo_ret(0, sd = va_arg(ap, USER *));
 

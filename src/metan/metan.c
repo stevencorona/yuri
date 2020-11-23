@@ -70,12 +70,10 @@ int config_read(const char *cfg_file) {
 int output_meta(char *filename, int num, unsigned int list[], int max) {
   FILE *fp;
   int offset;
-  int offset2;
   int x;
   char buf[64];
   char buf1;
   unsigned short buf2;
-  unsigned int buf3;
 
   if (max < ((num + 1) * 1000)) {
     offset = max - (num * 1000);
@@ -244,16 +242,12 @@ int main(int argc, char **argv) {
   int x = 0;
   unsigned int id;
   unsigned int charicinfo[100000];
-  int customequip[100000];
   unsigned int iteminfo[100000];
   int ci_max = 0;
-  int ce_max = 0;
   int ii_max = 0;
   int ci_count = 0;
-  int ce_count = 0;
   int ii_count = 0;
-  int a, b, c, d;
-  int filecount2;
+  int a, c;
 
   config_read("conf/char.conf");
   // sql_init();

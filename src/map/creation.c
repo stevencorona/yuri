@@ -148,11 +148,9 @@ int create_check_sub(void *key, void *data, va_list ap) {
 int createdb_start(USER *sd) {
   int item_c = RFIFOB(sd->fd, 5);
   int item[10], item_amount[10];
-  int item_s[10];
   int len = 6;
   int x;
   int curitem;
-  struct item *fl;
 
   for (x = 0; x < item_c; x++) {
     curitem = RFIFOB(sd->fd, len) - 1;

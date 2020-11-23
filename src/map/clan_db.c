@@ -114,7 +114,6 @@ int clandb_read() {
   struct clan_data *db;
   struct clan_data *clan;
   int i;
-  int x;
   int count = 0;
 
   if (SQL_ERROR ==

@@ -1186,8 +1186,6 @@ int membankdata_todb(struct bank_data bank[], int max, int id) {
 // Save item data to DB
 int meminvdata_todb(struct item items[], int max, int id) {
   SqlStmt* stmt;
-  struct item item;
-  StringBuf buf;
   int save_id[max];
   int item_id = -1;
   int i;
@@ -1282,8 +1280,6 @@ int meminvdata_todb(struct item items[], int max, int id) {
 // Save item data to DB
 int memeqpdata_todb(struct item items[], int max, int id) {
   SqlStmt* stmt;
-  struct item item;
-  StringBuf buf;
   int save_id[max];
   int item_id = -1;
   int i;

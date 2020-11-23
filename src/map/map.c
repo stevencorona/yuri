@@ -324,7 +324,7 @@ int map_town_add(const char* r1) {
 int map_src_add(const char* r1) {
   int map_id, pvp, spell;
   unsigned int sweeptime;
-  unsigned short map_bgm, map_bgmtype, light, weather;
+  unsigned short map_bgm, light, weather;
   unsigned char cantalk, showghosts, region, indoor, warpout, bind;
   struct map_src_list* new;
   char map_title[1024], map_file[1024];
@@ -364,7 +364,6 @@ int map_src_add(const char* r1) {
 }
 
 USER* map_id2sd(unsigned int id) {
-  int i;
   USER* sd = NULL;
 
   sd = (USER*)uidb_get(id_db, id);
@@ -391,7 +390,6 @@ int isPlayerActive(USER* sd) {
   return 1;
 }
 MOB* map_id2mob(unsigned int id) {
-  int i;
   MOB* mob;
   struct block_list* bl;
 
@@ -407,7 +405,6 @@ MOB* map_id2mob(unsigned int id) {
 }
 
 NPC* map_id2npc(unsigned int id) {
-  int i;
   NPC* npc;
   struct block_list* bl;
 
@@ -438,7 +435,6 @@ NPC* map_name2npc(char* name) {
 }
 
 FLOORITEM* map_id2fl(unsigned int id) {
-  int i;
   FLOORITEM* fl;
   struct block_list* bl;
 
@@ -586,7 +582,6 @@ int map_delblock(struct block_list* bl) {
 
 int map_foreachinarea(int (*func)(struct block_list*, va_list), int m, int x,
                       int y, int area, int type, ...) {
-  int mx, my;
   int nAreaSizeX = AREAX_SIZE, nAreaSizeY = AREAY_SIZE;
   va_list ap;
   va_start(ap, type);
@@ -874,7 +869,6 @@ int map_foreachincellwithtraps(int (*func)(struct block_list*, va_list), int m,
 
 struct block_list* map_firstincell(int m, int x, int y, int type) {
   int bx, by;
-  int i, c;
   struct block_list* bl = NULL;
 
   if (m < 0) return 0;
@@ -911,7 +905,6 @@ struct block_list* map_firstincell(int m, int x, int y, int type) {
 
 struct block_list* map_firstincellwithtraps(int m, int x, int y, int type) {
   int bx, by;
-  int i, c;
   struct block_list* bl = NULL;
 
   if (m < 0) return 0;
@@ -972,7 +965,6 @@ int map_respawnmobs(int (*func)(struct block_list*, va_list), int m, int type,
       for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++)
         for (bl = map[m].block_mob[bx + by * map[m].bxs];
              bl && blockcount < BL_LIST_MAX; bl = bl->next) {
-          MOB* mob = (MOB*)bl;
 
           if (bl->x >= x0 && bl->x <= x1 && bl->y >= y0 && bl->y <= y1 &&
               blockcount < BL_LIST_MAX)
@@ -1319,7 +1311,6 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
 }
 
 int map_reload() {
-  USER* tmpsd = NULL;
   unsigned short buff;
   unsigned int pos = 0;
   unsigned int i, x, id, sweeptime, blockcount;
@@ -2013,20 +2004,10 @@ int do_init(int argc, char** argv) {
 }
 
 int map_canmove(int m, int x, int y) {
-  // struct block_list *bl;
-  // int c;
   int obj;
-  int bx, by;
   int pass;
   obj = read_obj(m, x, y);
   pass = read_pass(m, x, y);
-  // bx=x/BLOCK_SIZE;
-  // by=y/BLOCK_SIZE;
-
-  // bl=map[m].block[x+y*map[m].bxs];
-  // c=map[m].block_count[bx+by*map[m].bxs];
-
-  // if(obj)	return 1;
 
   if (pass) {
     USER* sd = map_id2sd(pass);
@@ -2056,13 +2037,6 @@ int boards_delete(USER* sd, int board) {
 }
 
 int boards_showposts(USER* sd, int board) {
-  int len;
-  struct board_posts* post = NULL;
-  int num;
-  int pos;
-  int bcount = 0;
-  int x;
-  char name_l[255];
   struct board_show_0 a;
 
   memset(&a, 0, sizeof(struct board_show_0));
@@ -2117,10 +2091,6 @@ int boards_showposts(USER* sd, int board) {
 int boards_readpost(USER* sd, int board, int post) {
   struct boards_read_post_0 header;
 
-  int len = 0;
-  int maxpost = 0;
-  int newpost = post;
-
   memset(&header, 0, sizeof(header));
 
   if (board) {
@@ -2153,7 +2123,6 @@ int boards_readpost(USER* sd, int board, int post) {
 }
 
 int boards_post(USER* sd, int board) {
-  int nval = 0;
   struct boards_post_0 header;
   // char post[4000]; //Max of Post is 4000
   // char topic[52];
@@ -2220,7 +2189,6 @@ int boards_post(USER* sd, int board) {
 /* N-Mail shit */
 
 int nmail_read(USER* sd, int post) {
-  int len;
   // int hasm=sd->flags&;
   /*sql_request("SELECT fromuser,topic,post,month,day FROM nmail WHERE
   touser='%s' AND mail_id=%d",sd->status.name,post);
@@ -2397,7 +2365,6 @@ int nmail_write(USER* sd) {
   int topiclen, messagelen, tolen;
   int sendCopy = 0;
 
-  int newid = 0;
   nullpo_ret(0, sd);
 
   memset(topic, 0, 52);
@@ -2993,7 +2960,7 @@ int map_readglobalgamereg(char* reg) {
 }
 
 int map_loadclanbank(int id) {
-  int i, itemid, amount;
+  int i;
   int count = 0;
 
   SqlStmt* stmt;

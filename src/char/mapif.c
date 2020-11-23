@@ -154,8 +154,7 @@ int mapif_parse_auth(int fd) {
 
 /// Parse Map Info data from Map server
 int mapif_parse_mapset(int fd, int id) {
-  // int id;
-  int i, j;
+  int i;
   map_fifo[id].map_n = RFIFOW(fd, 6);
   for (i = 0; i < map_fifo[id].map_n; i++)
     map_fifo[id].map[i] = RFIFOW(fd, i * 2 + 8);
@@ -507,7 +506,7 @@ int mapif_parse_showposts(int fd) {
 
 int mapif_parse_userlist(int fd) {
   int sfd = RFIFOW(fd, 2);
-  int class, mark, rank, clan, x, hunter;
+  int class, mark, clan, x, hunter;
   unsigned int nation = 0;
   char name[32];
 
@@ -869,7 +868,7 @@ int mapif_parse_nmailwrite(int fd) {
 }
 
 int mapif_parse_nmailwritecopy(int fd) {
-  int sfd = RFIFOW(fd, 2);
+  RFIFOW(fd, 2);
   char from[32];
   char to[104];
   char topic[104];
@@ -979,7 +978,6 @@ int mapif_parse_findnewmp(int fd) {
 }
 int mapif_parse(int fd) {
   int id, i;
-  unsigned int j;
   int cmd = 0, packet_len;
   for (id = 0; id < map_fifo_max; id++) {
     if (map_fifo[id].fd == fd) break;

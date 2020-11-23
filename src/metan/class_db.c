@@ -117,7 +117,6 @@ unsigned int classdb_level(int path, int lvl) {
 int classdb_read(const char *classdb_file) {
   struct class_data *db = NULL;
   int i, cls = 0;
-  int x;
   StringBuf buf;
   SqlStmt *stmt;
   struct class_data c;
@@ -197,43 +196,7 @@ int classdb_read(const char *classdb_file) {
   printf("Class db read done. %d classes loaded!\n", cls);
   return 0;
 }
-int leveldb_read(const char *leveldb_file) {
-  FILE *fp;
-  char line[1024];
-  int lines = 0;
-  char *str[100], *p, *np;
-  struct class_data *db;
-  int i, cls = 0;
-  int x;
-  /*	fp = fopen(leveldb_file, "r");
-  if (fp==NULL) {
-          printf("DB_ERR: Can't read level db (%s).", leveldb_file);
-          exit(1);
-  }
 
-  while (fgets(line,sizeof(line),fp)) {
-          lines++;
-          if (line[0] == '/' && line[1] == '/')
-                  continue;
-          memset(str,0,sizeof(str));
-          for(i=0,np=p=line;i<50 && p;i++) {
-                  str[i]=p;
-                  p=strchr(p,',');
-                  if(p){ *p++=0; np=p; }
-          }
-
-          cls++;
-          db = classdb_search((unsigned int)strtoul(str[0], NULL, 10));
-
-          for(x=1;x<50;x++) {
-                  db->level[x]=(unsigned int)strtoul(str[x], NULL, 10);
-          }
-  }
-
-  fclose(fp);
-  printf("Level db read done. %d class levels loaded!\n", cls); */
-  return 0;
-}
 static int classdb_final(void *key, void *data, va_list ap) {
   struct class_data *db;
   nullpo_ret(0, db = data);

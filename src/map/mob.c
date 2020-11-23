@@ -55,7 +55,7 @@ int mobdb_read() {
   struct mobdb_data *db;
   struct item item;
   int i, mstr = 0;
-  int x, id;
+  int x;
   char pos;
   struct mobdb_data a;
   // StringBuf buf;
@@ -277,7 +277,6 @@ unsigned int *mobspawn_onetime(unsigned int id, int m, int x, int y, int times,
                                unsigned int owner) {
   int z;
   MOB *db;
-  int new_id = 0;
   int ntime = times;
   unsigned int *spawnedmobs;
 
@@ -326,7 +325,7 @@ unsigned int *mobspawn_onetime(unsigned int id, int m, int x, int y, int times,
 
 int mobspawn_read() {
   MOB *db = NULL;
-  int i, m, mstr = 0;
+  int i, mstr = 0;
   unsigned int new_id, checkspawn;
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
   ;
@@ -371,7 +370,6 @@ int mobspawn_read() {
   mstr = SqlStmt_NumRows(stmt);
 
   for (i = 0; i < mstr && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
-    unsigned int sptime = time(NULL);
     db = map_id2mob(mob.id);
     if (db == NULL) {
       CALLOC(db, MOB, 1);
@@ -429,16 +427,6 @@ int mobspawn_read() {
 }
 
 int mobspawn2_read(const char *mobspawn_file) {
-  FILE *fp;
-  char line[1024];
-  int lines = 0;
-  char *str[5], *p, *np;
-  MOB *db;
-  int i, mstr = 0;
-  int new_id;
-  int id;
-  int m, times, max, x, y, a, z, b;
-
   return 0;
 }
 int mobspeech_read(char *mobspeech_file) { return 0; }
@@ -781,12 +769,6 @@ int mob_flushmagic(MOB *mob) {
 }
 
 int mobdb_drops(MOB *mob, USER *sd) {
-  int rate;
-  int z;
-  int i;
-  int amount;
-  int a;
-
   sl_doscript_blargs("mobDrops", NULL, 2, &sd->bl, &mob->bl);
 
   // INVENTORY DROP //
@@ -813,7 +795,6 @@ int mob_addtocurrent(struct block_list *bl, va_list ap) {
   USER *sd;
   FLOORITEM *fl;
   FLOORITEM *fl2;
-  int type = 0;
 
   nullpo_ret(0, fl = (FLOORITEM *)bl);
 
@@ -924,11 +905,6 @@ int mob_handle_sub(MOB *mob, va_list ap) {
   USER *sd = NULL;
   struct block_list *bl = NULL;
   MOB *tmob = NULL;
-  int def[1];
-  int test;
-  int uc = 0;
-  unsigned char i = 0;
-  char invis = 0;
   char seeinvis = 0;
   unsigned int sptime = time(NULL);
 
@@ -1212,7 +1188,6 @@ int move_mob(MOB *mob) {
   int x0, y0, x1, y1;
   int nothingnew = 0;
   int subt[1];
-  int def[2];
   subt[0] = 0;
   m = mob->bl.m;
   backx = mob->bl.x;
@@ -1400,7 +1375,6 @@ int move_mob_ignore_object(MOB *mob) {
   int x0, y0, x1, y1;
   int nothingnew = 0;
   int subt[1];
-  int def[2];
   subt[0] = 0;
   m = mob->bl.m;
   backx = mob->bl.x;
@@ -1589,7 +1563,6 @@ int moveghost_mob(MOB *mob) {
   int x0, y0, x1, y1;
   int nothingnew = 0;
   int subt[1];
-  int def[2];
   subt[0] = 0;
 
   m = mob->bl.m;
@@ -2210,11 +2183,7 @@ int mob_calc_critical(MOB *mob, USER *sd) {
 }
 
 int mob_move2(MOB *mob, int x, int y, int side) {
-  int direction;
-  int backx;
-  int backy;
   int m;
-  static last;
   int cm;
   if (mob->canmove) return 1;
   m = mob->bl.m;
@@ -2328,10 +2297,8 @@ int move_mob_intent(MOB *mob, struct block_list *bl) {
   int mx, my;
   int px, py;
   int ax, ay;
-  int rd;
   int side;
-  int d = 0;
-  // int zz=0;
+
   if (!bl) return 0;
 
   mob->canmove = 0;

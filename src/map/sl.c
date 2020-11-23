@@ -633,10 +633,10 @@ int addmobspawn(lua_State *state) {
 }
 
 int getobjectsmap(lua_State *state) {
-  int m = lua_tonumber(state, 1);
-  int type = lua_tonumber(state, 2);
-  int x;
-  MOB *te;
+  // int m = lua_tonumber(state, 1);
+  // int type = lua_tonumber(state, 2);
+  // int x;
+  // MOB *te;
   // lua_newtable(state);
   // printf("Map: %d\n",type);
   // map_foreachinarea(bll_getobjects_helper, m, 1, 1, SAMEMAP, type, state);
@@ -685,7 +685,6 @@ void sl_checkargs(lua_State *state, char *fmt) {
 int sl_exec_redirectio(lua_State *state) {
   USER *sd = lua_touserdata(state, lua_upvalueindex(1));
   char *msg = lua_tostring(state, 1);
-  int msglen = lua_objlen(state, 1);
   clif_sendwisp(sd, "lua", msg);
   return 0;
 }
@@ -820,7 +819,6 @@ int get_pass(lua_State *state) {
 
 int setmap(lua_State *state) {
   sl_checkargs(state, "s");
-  USER *tmpsd = NULL;
   unsigned short buff;
   unsigned int pos = 0;
   int i;
@@ -1075,7 +1073,6 @@ int setMapAttribute(lua_State *state) {
 void sl_exec(USER *sd, char *str) {
 #define sl_exec_err()                      \
   char *msg = lua_tostring(sl_gstate, -1); \
-  int msglen = lua_objlen(sl_gstate, -1);  \
   clif_sendmsg(sd, 0, msg)
 
   if (luaL_loadstring(sl_gstate, str) != 0) {
@@ -1837,7 +1834,7 @@ int sl_listAuction(lua_State *state) {
 
 int sl_getAuctions(lua_State *state) {
   unsigned int id, chaid, itmid, amount, durability, itmtimer, customicon,
-      customiconcolor, customlook, customlookcolor, protected, expire, price;
+      customiconcolor, customlook, customlookcolor, protected, price;
   char engrave[64];
   unsigned char bidding;
 
@@ -1991,9 +1988,6 @@ int sl_copyPoemToPoetry(lua_State *state) {
   unsigned char topic[255] = {0};
   unsigned char post[4000] = {0};
   unsigned int BrdChaId = 0;
-
-  unsigned char escape[255] = {0};
-  unsigned char escape2[4000] = {0};
 
   unsigned int boardpos = 0;
 
@@ -2240,7 +2234,6 @@ int sl_getMapModifiers(lua_State *state) {
     return 1;
   }
 
-  int x = 0;
   for (int i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++, x += 2) {
@@ -2256,7 +2249,6 @@ int sl_getMapModifiers(lua_State *state) {
 }
 
 int sl_addMapModifier(lua_State *state) {
-  int x;
   unsigned int mapid = lua_tonumber(state, 1);
   char *modifier = lua_tostring(state, 2);
   int value = lua_tonumber(state, 3);
@@ -2822,8 +2814,8 @@ int sl_getMapPvP(lua_State *state) {
 
 int sl_setOfflinePlayerRegistry(lua_State *state) {
   unsigned int id = 0;
-  unsigned char *reg = lua_tostring(state, 2);
-  unsigned int val = lua_tonumber(state, 3);
+  // unsigned char *reg = lua_tostring(state, 2);
+  // unsigned int val = lua_tonumber(state, 3);
 
   if (lua_isnumber(state, 1)) {
     id = lua_tonumber(state, 1);
@@ -3092,7 +3084,7 @@ int sl_processKanDonations(lua_State *state) {
   char txn_id[255];
   char paypal_account_email[255];
 
-  time_t s, val = 1;
+  time_t s;
   struct tm *current_time;
   s = time(NULL);
   current_time = localtime(&s);
@@ -3428,7 +3420,6 @@ int sl_getSetItems(lua_State *state) {
   lua_newtable(state);
 
   if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-    int x = 0;
 
     /*for (i = 0, x = 1; i < 3; i++, x += 3) {
 
@@ -3454,7 +3445,6 @@ int sl_getSetItems(lua_State *state) {
 }
 
 void sl_init() {
-  int i, count = 0;
   sl_gstate = lua_open();
   luaL_openlibs(sl_gstate);
 
@@ -4461,7 +4451,6 @@ typel_class typel_new(char *name, lua_CFunction ctor) {
 
 int typel_mtgc(lua_State *state) {
   typel_inst *inst = lua_touserdata(state, 1);
-  struct block_list *bl = (struct block_list *)inst->self;
   luaL_unref(state, LUA_REGISTRYINDEX, inst->dataref);
 
   // FREE(inst->type);
@@ -8515,7 +8504,6 @@ int pcl_dialog(lua_State *state, USER *sd) {
 
 int pcl_init(lua_State *state, USER *sd, int dataref, void *param) {
   // USER *tsd;
-  int userc = 0;
   // if(!sd) {
   // luaL_error(state,"cannot do that.");
   // sl_err_print(state);
@@ -10006,7 +9994,6 @@ int pcl_refreshdurations(lua_State *state, USER *sd) {
 int pcl_addlegend(lua_State *state, USER *sd) {
   sl_checkargs(state, "ssnn");
   int icon, color, x;
-  int found = 0;
   unsigned tchaid = 0;
 
   icon = lua_tonumber(state, sl_memberarg(3));
@@ -10046,7 +10033,6 @@ int pcl_haslegend(lua_State *state, USER *sd) {
 
 int pcl_buy(lua_State *state, USER *sd) {
   sl_checkargs(state, "stt");
-  int x;
   unsigned int amount = lua_objlen(state, sl_memberarg(2));
   // struct item_data *item[amount+1];
 
@@ -10123,7 +10109,6 @@ int pcl_buy(lua_State *state, USER *sd) {
 int pcl_mapselection(lua_State *state, USER *sd) {
   sl_checkargs(state, "stttttt");
   // int index=0;
-  int key = 0;
   char *wm = NULL;
   int map_x0[255];
   int map_y0[255];
@@ -10196,18 +10181,12 @@ int pcl_mapselection(lua_State *state, USER *sd) {
 
 int pcl_bank(lua_State *state, USER *sd) {
   sl_checkargs(state, "s");
-  int x;
-
-  // for(x=0;x<sd->status.bank
 }
 
 int pcl_input(lua_State *state, USER *sd) {
   sl_checkargs(state, "s");
-  int count = lua_gettop(state);
   char *dialog = lua_tostring(state, sl_memberarg(1));
   char *name = NULL;
-
-  int temp = 0;
 
   if (lua_isnumber(state, sl_memberarg(2)))
     name = itemdb_name(lua_tonumber(state, sl_memberarg(2)));
@@ -10230,16 +10209,15 @@ int pcl_input(lua_State *state, USER *sd) {
 int pcl_sell(lua_State *state, USER *sd) {
   sl_checkargs(state, "st");
   char *dialog = lua_tostring(state, sl_memberarg(1));
-  unsigned int amount = lua_objlen(state, sl_memberarg(2));
+  // unsigned int amount = lua_objlen(state, sl_memberarg(2));
   int item[60];
-  int taken[26];
   int count = 0;
   int lastcount = 0;
   unsigned int temp;
-  int x, y;
+  int x;
   lua_pushnil(state);
   while (lua_next(state, sl_memberarg(2)) != 0) {
-    int index = lua_tonumber(state, -2);
+    // int index = lua_tonumber(state, -2);
 
     // temp=lua_tonumber(state,-1);
     if (lua_isnumber(state, -1))
@@ -10387,7 +10365,7 @@ int pcl_removelegendbycolor(lua_State *state, USER *sd) {
 
 int pcl_removeinventoryitem(lua_State *state, USER *sd) {
   unsigned int id = 0, amount = 0, owner = 0, max = 0;
-  int x, count = 0, type = 0;
+  int x, type = 0;
   char *engrave = NULL;
 
   if (lua_isnumber(state, sl_memberarg(1))) {
@@ -10554,7 +10532,6 @@ int pcl_removeitemdura(lua_State *state, USER *sd) {
   unsigned int id = 0;
   unsigned int amount = 0, max = 0;
   int x;
-  int count = 0;
   int type = 0;
 
   if (lua_isnumber(state, sl_memberarg(1))) {
@@ -10675,6 +10652,7 @@ int pcl_addGift(lua_State *state, USER *sd) {
 
       FREE(item);
       return 1;*/
+      return 0;
 }
 
 int pcl_retrieveGift(lua_State *state, USER *sd) {
@@ -10897,7 +10875,7 @@ int pcl_showpost(lua_State *state, USER *sd) {
 
 int pcl_hasitem(lua_State *state, USER *sd) {
   unsigned int id = 0, amount = 0, leftover = 0, owner = 0;
-  int x, count = 0;
+  int x = 0;
   char *engrave = NULL;
   char *note = NULL;
   int dura = 0;
@@ -11051,7 +11029,6 @@ int pcl_hasitemdura(lua_State *state, USER *sd) {
   unsigned int id = 0;
   unsigned int amount = 0, leftover = 0;
   int x;
-  int count = 0;
   int dura = 0;
 
   if (lua_isnumber(state, sl_memberarg(1))) {
@@ -11217,7 +11194,6 @@ int pcl_addEventXP(lua_State *state, USER *sd) {
   int eventid = -1;
   char eventname[40] = "";
   unsigned int score = lua_tonumber(state, sl_memberarg(2));
-  unsigned char sql_query[500] = "";
 
   if (lua_isnumber(state, sl_memberarg(1))) {
     sl_checkargs(state, "nn");
@@ -11319,7 +11295,7 @@ int pcl_addEventXP(lua_State *state, USER *sd) {
 
 int pcl_hasspace(lua_State *state, USER *sd) {
   unsigned int id = 0;
-  int a, x;
+  int x;
   char *engrave = NULL;
   char engraved = 0;
   char *note = NULL;
@@ -11429,7 +11405,9 @@ int pcl_removespell(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_powerboard(lua_State *state, USER *sd) { clif_sendpowerboard(sd); }
+int pcl_powerboard(lua_State *state, USER *sd) { 
+  return clif_sendpowerboard(sd); 
+}
 
 int pcl_getbankitem(lua_State *state, USER *sd) {
   sl_checkargs(state, "n");
@@ -11997,7 +11975,7 @@ int pcl_subpathbankwithdraw(lua_State *state, USER *sd) {
 // move givexp to core to allow calling of pc_givexp
 int pcl_givexp(lua_State *state, USER *sd) {
   sl_checkargs(state, "n");
-  pc_givexp(sd, lua_tonumber(state, sl_memberarg(1)), xp_rate);
+  return pc_givexp(sd, lua_tonumber(state, sl_memberarg(1)), xp_rate);
 }
 
 // threat table adding
@@ -12162,6 +12140,7 @@ int pcl_talkself(lua_State *state, USER *sd) {
   memcpy(WBUFP(buf, 11), msg, msglen);
 
   clif_send(buf, 16 + msglen, &sd->bl, SELF);
+  return 0;
 }
 
 int pcl_freeasync(lua_State *state, USER *sd) {
@@ -12189,7 +12168,7 @@ int pcl_sendhealth(lua_State *state, USER *sd) {
     critical = 255;
   }
 
-  clif_send_pc_healthscript(sd, damage, critical);
+  return clif_send_pc_healthscript(sd, damage, critical);
 }
 
 int pcl_sendmail(lua_State *state, USER *sd) {
@@ -12256,7 +12235,7 @@ int pcl_takeoff(lua_State *state, USER *sd) {
 }
 
 int pcl_stripequip(lua_State *state, USER *sd) {
-  int x, type, force, destroy = 0;
+  int x, force, destroy = 0;
   char minitext[255], itemname[100];
   sl_checkargs(state, "n");
   unsigned int equipType = lua_tonumber(state, sl_memberarg(1));
@@ -12657,16 +12636,16 @@ int pcl_getparcellist(lua_State *state, USER *sd) {
 int pcl_removeparcel(lua_State *state, USER *sd) {
   sl_checkargs(state, "nnnn");
   int sender = lua_tonumber(state, sl_memberarg(1));
-  unsigned int item = lua_tonumber(state, sl_memberarg(2));
-  unsigned int amount = lua_tonumber(state, sl_memberarg(3));
+  // unsigned int item = lua_tonumber(state, sl_memberarg(2));
+  // unsigned int amount = lua_tonumber(state, sl_memberarg(3));
   int pos = lua_tonumber(state, sl_memberarg(4));
-  int owner = lua_tonumber(state, sl_memberarg(5));
-  char *engrave = lua_tostring(state, sl_memberarg(6));
-  char npcflag = lua_tonumber(state, sl_memberarg(7));
-  unsigned int customLook = lua_tonumber(state, sl_memberarg(8));
-  unsigned int customLookColor = lua_tonumber(state, sl_memberarg(9));
-  unsigned int customIcon = lua_tonumber(state, sl_memberarg(10));
-  unsigned int customIconColor = lua_tonumber(state, sl_memberarg(11));
+  // int owner = lua_tonumber(state, sl_memberarg(5));
+  // char *engrave = lua_tostring(state, sl_memberarg(6));
+  // char npcflag = lua_tonumber(state, sl_memberarg(7));
+  // unsigned int customLook = lua_tonumber(state, sl_memberarg(8));
+  // unsigned int customLookColor = lua_tonumber(state, sl_memberarg(9));
+  // unsigned int customIcon = lua_tonumber(state, sl_memberarg(10));
+  // unsigned int customIconColor = lua_tonumber(state, sl_memberarg(11));
 
   sender -= NPC_START_NUM + 1;
 
@@ -12744,10 +12723,10 @@ int pcl_expireitem(lua_State *state, USER *sd) {
 
 int pcl_logbuysell(lua_State *state, USER *sd) {
   sl_checkargs(state, "nnnn");
-  unsigned int item = lua_tonumber(state, sl_memberarg(1));
-  unsigned int amount = lua_tonumber(state, sl_memberarg(2));
-  unsigned int money = lua_tonumber(state, sl_memberarg(3));
-  char buysell = lua_tonumber(state, sl_memberarg(4));
+  // unsigned int item = lua_tonumber(state, sl_memberarg(1));
+  // unsigned int amount = lua_tonumber(state, sl_memberarg(2));
+  // unsigned int money = lua_tonumber(state, sl_memberarg(3));
+  // char buysell = lua_tonumber(state, sl_memberarg(4));
 
   /*if (!buysell) {
               if (SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `SellLogs`
@@ -12787,6 +12766,7 @@ int pcl_settimevalues(lua_State *state, USER *sd) {
       sd->timevalues[i] = newval;
     }
   }
+  return 0;
 }
 
 int pcl_gettimevalues(lua_State *state, USER *sd) {
@@ -12908,9 +12888,9 @@ int pcl_getunknownspells(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getallspells(lua_State *state,
-                     USER *sd) {  // Used to display all spells in game
-  int i, j, x;
+int pcl_getallspells(lua_State *state, USER *sd) {
+  // Used to display all spells in game
+  int i, x;
   unsigned int id;
   unsigned int idlist[255];
   char found = 0;
@@ -12992,9 +12972,9 @@ int pcl_getallspells(lua_State *state,
   return 1;
 }
 
-int pcl_getallclassspells(lua_State *state,
-                          USER *sd) {  // Used to display all spells in game
-  int i, j, x;
+int pcl_getallclassspells(lua_State *state, USER *sd) { 
+  // Used to display all spells in game
+  int i, x;
   unsigned int id;
   unsigned int idlist[255];
 
@@ -13100,7 +13080,6 @@ int pcl_testpacket(lua_State *state, USER *sd) {
   }
 
   while (lua_next(state, sl_memberarg(1)) != 0) {
-    int packetlen = 0;
     // key is at -2, value at -1
     i = lua_tonumber(state, -2);
 

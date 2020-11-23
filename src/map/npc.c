@@ -105,9 +105,7 @@ int warp_init() {
   // char *str[10];
   // char *p,*np;
   // int lines = 0;
-  int x;
   int mx, my, mm, tm, tx, ty = 0;
-  struct npc_src_list *i;
   struct warp_list *war = NULL;
 
   /*for(i=warp_src_first;i;i=i->next) {
@@ -205,9 +203,9 @@ int warp_init() {
 int npc_init() {
   NPC *nd = NULL;
   struct item item;
-  unsigned int x, i, count, id, gid, gc, time, subtype, ids, npcf1npc = 0;
+  unsigned int x, i, count, id, gid, gc, time, subtype, npcf1npc = 0;
   unsigned int movetime;
-  unsigned short sex, m, xc, yc, face, facecolor, hair, haircolor, armorcolor,
+  unsigned short sex, m, xc, yc, face, facecolor, hair, haircolor,
       skincolor;
   char name[45];
   char c_name[45];
@@ -583,7 +581,6 @@ int npc_move(NPC *nd) {
   struct warp_list *i;
   int nothingnew = 0;
   int subt[1];
-  int def[2];
 
   subt[0] = 0;
   m = nd->bl.m;

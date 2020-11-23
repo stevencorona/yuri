@@ -45,7 +45,7 @@
 //session[fd]->max_wdata) { if(session[fd]->func_send)
 //session[fd]->func_send(fd); }
 #define WFIFOSPACE(fd) (session[fd]->max_wdata - session[fd]->wdata_size)
-#define WFIFOP(fd, pos) (session[fd]->wdata + session[fd]->wdata_size + (pos))
+#define WFIFOP(fd, pos) (char *)(session[fd]->wdata + session[fd]->wdata_size + (pos))
 #define WFIFOB(fd, pos) \
   (*(unsigned char *)(session[fd]->wdata + session[fd]->wdata_size + (pos)))
 #define WFIFOW(fd, pos) \

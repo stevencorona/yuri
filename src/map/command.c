@@ -821,8 +821,6 @@ int command_item(USER *sd, char *line, lua_State *state) {
   char itemname[32];
   unsigned int itemnum = 0;
   unsigned int itemid = 0;
-  int x;
-  int count = 0;
 
   if (!isdigit(line[0])) {
     if (sscanf(line, "%31s %d", itemname, &itemnum) < 1) return -1;
@@ -975,7 +973,6 @@ int command_kill(USER *sd, char *line, lua_State *state) {
 
 int command_killall(USER *sd, char *line, lua_State *state) {
   USER *tmpsd = NULL;
-  char buf[16];
   int x;
   for (x = 1; x < fd_max; x++) {
     tmpsd = NULL;
@@ -1213,16 +1210,16 @@ int command_reloaditem(USER *sd, char *line, lua_State *state) {
 }
 
 int command_randomspawn(USER *sd, char *line, lua_State *state) {
-  int x;
-  int y;
-  int m;
-  int id;
-  int times;
-  int z;
-  int a;
-  int max;
-  struct block_list *bl;
-  MOB *mob;
+  // int x;
+  // int y;
+  // int m;
+  // int id;
+  // int times;
+  // int z;
+  // int a;
+  // int max;
+  // struct block_list *bl;
+  // MOB *mob;
   /*
   char buf[255];
   if (sscanf(line,"%d %d",&id,&times)<1)

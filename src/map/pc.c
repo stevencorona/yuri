@@ -29,10 +29,8 @@ struct timeval start;
 int pc_addtocurrent2(struct block_list *bl, va_list ap) {
   int *def = NULL;
   int id = 0;
-  USER *sd = NULL;
   FLOORITEM *fl = NULL;
   FLOORITEM *fl2 = NULL;
-  int type = 0;
 
   nullpo_ret(0, fl = (FLOORITEM *)bl);
 
@@ -750,7 +748,6 @@ int pc_checklevel(USER *sd) {
   int x;
   int path;
   unsigned int lvlxp = 0;
-  int newlevel = 0;
   path = sd->status.class;
 
   if (path > 5) {
@@ -848,7 +845,6 @@ int pc_calcstat(USER *sd) {
   USER *tsd = NULL;
   int x;
   unsigned int id;
-  char buf[64];
   struct skill_info *p;
 
   int path, level;
@@ -1078,8 +1074,6 @@ int pc_warp(USER *sd, int m, int x, int y) {
   nullpo_ret(0, sd);
   int i;
   int oldmap = sd->bl.m;
-  int oldx = sd->bl.x;
-  int oldy = sd->bl.y;
 
   if (m < 0) m = 0;
 
@@ -1211,16 +1205,10 @@ int pc_warp(USER *sd, int m, int x, int y) {
 }
 
 int pc_loadequiprealname(USER *sd) {
-  int itemnum;
-  int i;
-
   return 0;
 }
 
 int pc_loaditemrealname(USER *sd) {
-  int itemnum;
-  int i;
-
   return 0;
 }
 
@@ -1328,7 +1316,6 @@ int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
 }
 
 int pc_checkformail(USER *sd) {
-  int num = 0;
   // sql_request("SELECT * FROM nmail WHERE touser='%s' AND
   // new=1",sd->status.name);
 
@@ -1346,7 +1333,6 @@ int pc_checkformail(USER *sd) {
 int pc_isinvenitemspace(USER *sd, int num, int id, int owner, char *engrave) {
   int i;
   int maxamount = 0;
-  char msg[255];
 
   if (itemdb_maxamount(id) > 0) {
     for (i = 0; i < sd->status.maxinv; i++) {
@@ -1388,8 +1374,7 @@ int pc_isinvenitemspace(USER *sd, int num, int id, int owner, char *engrave) {
 }
 
 int pc_additem(USER *sd, struct item *fl) {
-  char RegStr[] = "goldbardupe";
-  char msg[255], escape[255], escape2[300];
+  char escape[255], escape2[300];
   int num;
   int i;
 
@@ -1495,8 +1480,6 @@ int pc_additem(USER *sd, struct item *fl) {
 }
 
 int pc_additemnolog(USER *sd, struct item *fl) {
-  char RegStr[] = "goldbardupe";
-  char msg[255];
   int num;
   int i;
   char errMsg[64];
@@ -1695,9 +1678,7 @@ int pc_equipitem(USER *sd, int id) {
 }
 
 pc_equipscript(USER *sd) {
-  char escape[255];
   int ret = itemdb_type(sd->equipid) - 3;
-  struct item it;
 
   if (ret == EQ_LEFT) {
     if (sd->status.equip[EQ_LEFT].id && !sd->status.equip[EQ_RIGHT].id)
@@ -1796,7 +1777,6 @@ int pc_unequip(USER *sd, int type) {
 }
 
 int pc_unequipscript(USER *sd) {
-  char escape[255];
   struct item it;
   int type = sd->takeoffid;
   unsigned int takeoff = sd->status.equip[type].id;
@@ -2088,9 +2068,6 @@ int pc_changeitem(USER *sd, int id1, int id2) {
 }
 
 int pc_useitem(USER *sd, int id) {
-  char buf[255];
-  char escape[255];
-
   if (!sd->status.inventory[id].id) return 0;
 
   if (sd->status.inventory[id].owner) {
@@ -2707,10 +2684,8 @@ int pc_die(USER *sd) {
 int pc_diescript(USER *sd) {
   struct block_list *bl = map_id2sd(sd->attacker);
   USER *tsd = NULL;
-  char slain[255];
   int i, id;
   int exist = -1;
-  char msg[255];
 
   nullpo_ret(0, sd);
 
