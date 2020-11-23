@@ -493,11 +493,12 @@ int clif_parse(int fd) {
 
   switch (RFIFOB(fd, 3)) {
     case 0x00:
-
       tk_crypt_static(RFIFOP(fd, 0));  // reverse the encryption
       ver = SWAP16(RFIFOW(fd, 4));
       deep = SWAP16(RFIFOW(fd, 7));
-      // printf("got this far\n");
+
+      printf("[login] [clif] [0x00] client_version=%d patch=%d\n", ver, deep);
+
       if (ver == nex_version) {
         WFIFOB(fd, 0) = 0xAA;
         WFIFOB(fd, 1) = 0x00;
@@ -515,7 +516,8 @@ int clif_parse(int fd) {
         // set_packet_indexes(WFIFOP(fd, 0));
         WFIFOSET(fd, 20);
       } else {
-        printf("[login] [patching] ver=%d\n", ver);
+        printf("[login] [patching] version=%d, client_version=%d\n",
+               nex_version, ver);
         WFIFOB(fd, 0) = 0xAA;
         WFIFOW(fd, 1) = SWAP16(0x29);
         WFIFOB(fd, 3) = 0;
@@ -523,7 +525,7 @@ int clif_parse(int fd) {
         WFIFOW(fd, 5) = SWAP16(nex_version);
         WFIFOB(fd, 7) = 1;
         WFIFOB(fd, 8) = 0x23;
-        strcpy(WFIFOP(fd, 9), "http://files.website.com/patch/");
+        strcpy(WFIFOP(fd, 9), "http://www.google.com");
         set_packet_indexes(WFIFOP(fd, 0));
         WFIFOSET(fd, 44 + 3);
         // session[fd]->eof=1;

@@ -75,7 +75,7 @@ int logif_parse_login(int fd) {
 
   WFIFOHEAD(fd, 27);
   if (res < 0) {
-    // printf("Shit1\n");
+    // printf("Error1\n");
     WFIFOW(fd, 0) = 0x2003;
     WFIFOW(fd, 2) = RFIFOW(fd, 2);
     WFIFOB(fd, 4) = abs(res);
@@ -83,7 +83,7 @@ int logif_parse_login(int fd) {
     return 0;
   }
   if (logindata_add(id, res, RFIFOP(fd, 4))) {
-    // printf("Shit2\n");
+    // printf("Error2\n");
     // character is online, force disconnected
     WFIFOW(fd, 0) = 0x2003;
     WFIFOW(fd, 2) = RFIFOW(fd, 2);

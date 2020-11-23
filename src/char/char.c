@@ -27,9 +27,7 @@ int map_fifo_max = 0;
 struct Sql *sql_handle;
 int char_fd;
 int login_fd;
-int save_fd;
 
-int start_money = 0;
 struct point start_pos;
 
 char char_id[32];
@@ -41,18 +39,11 @@ char sql_db[32] = "";
 char sql_ip[32] = "";
 int sql_port;
 
-int dump_save = 0;
-
 char login_id[32];
 char login_pw[32];
 char login_ip_s[16];
 int login_ip;
 int login_port;
-char save_id[32];
-char save_pw[32];
-char save_ip_s[16];
-int save_ip;
-int save_port;
 
 int zlib_init(void) {
   z_stream strm;
@@ -187,20 +178,6 @@ int config_read(const char *cfg_file) {
       } else if (strcasecmp(r1, "login_pw") == 0) {
         strncpy(login_pw, r2, 32);
         login_pw[31] = '\0';
-        // Save
-      } else if (strcasecmp(r1, "save_ip") == 0) {
-        strncpy(save_ip_s, r2, 16);
-        save_ip_s[15] = '\0';
-        save_ip = inet_addr(save_ip_s);
-      } else if (strcasecmp(r1, "save_port") == 0) {
-        save_port = atoi(r2);
-      } else if (strcasecmp(r1, "save_id") == 0) {
-        strncpy(save_id, r2, 32);
-        save_id[31] = '\0';
-      } else if (strcasecmp(r1, "save_pw") == 0) {
-        strncpy(save_pw, r2, 32);
-        save_pw[31] = '\0';
-        // SQL
       } else if (strcasecmp(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
       } else if (strcasecmp(r1, "sql_port") == 0) {
@@ -212,15 +189,6 @@ int config_read(const char *cfg_file) {
       } else if (strcasecmp(r1, "sql_db") == 0) {
         strcpy(sql_db, r2);
         // DUMP & LOG
-      } else if (strcasecmp(r1, "char_log") == 0) {
-        set_logfile(r2);
-      } else if (strcasecmp(r1, "dump_log") == 0) {
-        set_dmpfile(r2);
-      } else if (strcasecmp(r1, "dump_save") == 0) {
-        dump_save = atoi(r2);
-        // NEW CHARS
-      } else if (strcasecmp(r1, "start_money") == 1) {
-        start_money = atoi(r2);
       } else if (strcasecmp(r1, "start_point") == 1) {
         sscanf(r2, "%d,%d,%d", &m, &x, &y);
       }
@@ -263,8 +231,6 @@ int do_init(int argc, char **argv) {
   char *INTER_FILE = "conf/inter.conf";
 
   srand(gettick());
-  set_logfile("log/char.log");
-  set_dmpfile("log/char_dump.log");
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
