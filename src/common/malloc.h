@@ -4,10 +4,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#ifndef strcasecmp
-#define strcasecmp(x, y) strcasecmp(x, y)
-#endif
-
 #define CALLOC(result, type, number)                                    \
   if (!((result) = (type*)calloc((number), sizeof(type))))              \
   printf("SYS_ERR: calloc failure at %s:%d(%s).\n", __FILE__, __LINE__, \
