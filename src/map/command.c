@@ -461,7 +461,7 @@ int is_command(USER *sd, const char *p, int len) {
   // set null for comparement
   *cmdp = '\0';
   for (i = 0; command[i].func; i++) {
-    if (!strcmpi(cmd_line, command[i].name)) break;
+    if (!strcasecmp(cmd_line, command[i].name)) break;
   }
   // wrong command, exit!
   if (command[i].func == NULL) return 0;
@@ -501,11 +501,13 @@ int command_shutdown(USER *sd, char *line, lua_State *state) {
     if (sscanf(line, "%d %s", &t_time, timelen) < 1) {
       return -1;
     } else if (sscanf(line, "%d %s", &t_time, timelen) == 2) {
-      if (strcmpi(timelen, "s") == 0 || strcmpi(timelen, "sec") == 0) {
+      if (strcasecmp(timelen, "s") == 0 || strcasecmp(timelen, "sec") == 0) {
         t_time *= 1000;
-      } else if (strcmpi(timelen, "m") == 0 || strcmpi(timelen, "min") == 0) {
+      } else if (strcasecmp(timelen, "m") == 0 ||
+                 strcasecmp(timelen, "min") == 0) {
         t_time *= 60000;
-      } else if (strcmpi(timelen, "h") == 0 || strcmpi(timelen, "hr") == 0) {
+      } else if (strcasecmp(timelen, "h") == 0 ||
+                 strcasecmp(timelen, "hr") == 0) {
         t_time *= 3600000;
       }
     }
@@ -1767,7 +1769,7 @@ int at_command(USER *sd, const char *p, int len) {
   // set null for comparement
   *cmdp = '\0';
   for (i = 0; command[i].func; i++) {
-    if (!strcmpi(cmd_line, command[i].name)) break;
+    if (!strcasecmp(cmd_line, command[i].name)) break;
   }
   // wrong command, exit!
   if (command[i].func == NULL) return 0;

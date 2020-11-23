@@ -49,7 +49,7 @@ int clandb_searchname_sub(void *key, void *data, va_list ap) {
   char *str;
   str = va_arg(ap, char *);
   dst = va_arg(ap, struct clan_data **);
-  if (strcmpi(clan->name, str) == 0) {
+  if (strcasecmp(clan->name, str) == 0) {
     *dst = clan;
   }
   return 0;

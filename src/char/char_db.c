@@ -496,7 +496,9 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p,
   struct bank_data bank;
   char escape1[16];
 
-  nullpo_chk(p);
+  if (p == NULL) {
+    printf("[char_db] pointer was null login_name=%s", login_name);
+  }
 
   memset(&a, 0, sizeof(a));
   memset(&item, 0, sizeof(item));
@@ -700,7 +702,7 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p,
   memcpy(p, &a, sizeof(a));
 
   p->id = id;
-  if (strcmpi(a.name, login_name)) {
+  if (strcasecmp(a.name, login_name)) {
     SqlStmt_Free(stmt);
     p->id = 0;
     return -1;
@@ -1952,7 +1954,7 @@ int memlegend_todb(struct legend legends[], int max, int id) {
     Sql_EscapeString(sql_handle, escape, legends[i].text);
 
     if (save_id[i] == i) {
-      if (strcmpi(legends[i].name, "") == 0) {
+      if (strcasecmp(legends[i].name, "") == 0) {
         if (SQL_ERROR == Sql_Query(sql_handle,
                                    "DELETE FROM `Legends` WHERE `LegChaId` = "
                                    "'%u' AND `LegPosition` = '%d'",
@@ -1974,7 +1976,7 @@ int memlegend_todb(struct legend legends[], int max, int id) {
         }
       }
     } else {
-      if (strcmpi(legends[i].name, "") != 0) {
+      if (strcasecmp(legends[i].name, "") != 0) {
         if (SQL_ERROR ==
             Sql_Query(sql_handle,
                       "INSERT INTO `Legends` (`LegChaId`, `LegIcon`, "

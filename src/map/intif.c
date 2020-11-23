@@ -449,7 +449,7 @@ int intif_parse_charload(int fd) {
           a=(struct mmo_charstatus*)cbuf;
 
           for(x=0;x<fd_max;x++) {
-                  if(session[x] && !strcmpi(session[x]->name,a->name)) {
+                  if(session[x] && !strcasecmp(session[x]->name,a->name)) {
                           intif_mmo_tosd(x,a);
                           break;
                   }
@@ -522,7 +522,7 @@ int intif_parse_showpostresponse(int fd) {
 
   if (!sd) return 0;
 
-  if (strcmpi(sd->status.name, header.name)) return 0;
+  if (strcasecmp(sd->status.name, header.name)) return 0;
 
   StringBuf_Init(&buf);
   len = 0;
@@ -766,7 +766,7 @@ int intif_parse_readpost(int fd) {
 
   if (!sd) return 0;
 
-  if (strcmpi(sd->status.name, h.name))
+  if (strcasecmp(sd->status.name, h.name))
     return 0;  // Name does not match User, Return
 
   if (!session[sd->fd]) {

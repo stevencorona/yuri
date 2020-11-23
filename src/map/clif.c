@@ -379,7 +379,7 @@ int clif_accept2(int fd, char *name, int name_len) {
   /*for(i=0;i<AUTH_FIFO_SIZE;i++) {
           if((auth_fifo[i].ip == (unsigned
   int)session[fd]->client_addr.sin_addr.s_addr)) {
-                  if(!strcmpi(n,auth_fifo[i].name)) {
+                  if(!strcasecmp(n,auth_fifo[i].name)) {
                   intif_load(fd, auth_fifo[i].id, auth_fifo[i].name);
                   auth_fifo[i].ip = 0;
                   auth_fifo[i].id = 0;
@@ -3338,7 +3338,7 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 58) = 0;
 
     len = strlen(nd->gfx.name);
-    if (strcmpi(nd->gfx.name, "")) {
+    if (strcasecmp(nd->gfx.name, "")) {
       WFIFOB(sd->fd, 59) = len;
       strcpy(WFIFOP(sd->fd, 60), nd->gfx.name);
     } else {
@@ -3583,7 +3583,7 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 58) = 0;
 
     len = strlen(mob->gfx.name);
-    if (strcmpi(mob->gfx.name, "")) {
+    if (strcasecmp(mob->gfx.name, "")) {
       WFIFOB(sd->fd, 59) = len;
       strcpy(WFIFOP(sd->fd, 60), mob->gfx.name);
     } else {
@@ -3987,7 +3987,7 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
 
     len = strlen(sd->gfx.name);
     if ((sd->status.state != 2) && (sd->status.state != 5) &&
-        strcmpi(sd->gfx.name, "")) {
+        strcasecmp(sd->gfx.name, "")) {
       WFIFOB(src_sd->fd, 59) = len;
       strcpy(WFIFOP(src_sd->fd, 60), sd->gfx.name);
     } else {
@@ -3996,7 +3996,7 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
     }
 
     /*len = strlen(sd->gfx.name);
-    if (strcmpi(sd->gfx.name, "")) {
+    if (strcasecmp(sd->gfx.name, "")) {
             WFIFOB(src_sd->fd, 59) = len;
             strcpy(WFIFOP(src_sd->fd, 60), sd->gfx.name);
     } else {
@@ -4385,7 +4385,7 @@ int clif_charspecific(int sender, int id) {
 
     len = strlen(sd->gfx.name);
     if ((sd->status.state != 2) && (sd->status.state != 5) &&
-        strcmpi(sd->gfx.name, "")) {
+        strcasecmp(sd->gfx.name, "")) {
       WFIFOB(src_sd->fd, 57) = len;
       strcpy(WFIFOP(src_sd->fd, 58), sd->gfx.name);
     } else {
@@ -4394,7 +4394,7 @@ int clif_charspecific(int sender, int id) {
     }
 
     /*len = strlen(sd->gfx.name);
-    if (strcmpi(sd->gfx.name, "")) {
+    if (strcasecmp(sd->gfx.name, "")) {
             WFIFOB(src_sd->fd, 57) = len;
             strcpy(WFIFOP(src_sd->fd, 58), sd->gfx.name);
     } else {
@@ -5153,7 +5153,7 @@ int clif_parsewalk(USER *sd) {
         sd->status.gm_level == 0) {
       clif_pushback(sd);
 
-      if (strcmpi(map[zm].maprejectmsg, "") == 0) {
+      if (strcasecmp(map[zm].maprejectmsg, "") == 0) {
         if (abs(map[zm].reqlvl - sd->status.level) >= 10) {
           clif_sendminitext(sd,
                             "Nightmarish visions of your own death repel you.");
@@ -5405,7 +5405,7 @@ int clif_noparsewalk(USER *sd, char speed) {
         sd->status.gm_level == 0) {
       clif_pushback(sd);
 
-      if (strcmpi(map[zm].maprejectmsg, "") == 0) {
+      if (strcasecmp(map[zm].maprejectmsg, "") == 0) {
         if (abs(map[zm].reqlvl - sd->status.level) >= 10) {
           clif_sendminitext(sd,
                             "Nightmarish visions of your own death repel you.");
@@ -5847,7 +5847,7 @@ int clif_getReward(USER *sd, int fd) {
 
   for (int i = 0; i < MAX_LEGENDS; i++) {
     if (strcmp(sd->status.legends[i].name, "") == 0 &&
-        strcmpi(sd->status.legends[i + 1].name, "") == 0) {
+        strcasecmp(sd->status.legends[i + 1].name, "") == 0) {
       strcpy(sd->status.legends[i].text, legendbuf);
       sprintf(sd->status.legends[i].name, "Event %i Place: %i", eventid, rank);
       sd->status.legends[i].icon = legendicon;
@@ -7588,7 +7588,7 @@ int clif_sendadditem(USER *sd, int num) {
     return 0;
   }
 
-  if (id > 0 && (!strcmpi(itemdb_name(id), "??"))) {
+  if (id > 0 && (!strcasecmp(itemdb_name(id), "??"))) {
     memset(&sd->status.inventory[num], 0, sizeof(sd->status.inventory[num]));
     return 0;
   }
@@ -7803,7 +7803,7 @@ int clif_sendequip(USER *sd, int id) {
   }
 
   if (sd->status.equip[id].id > 0 &&
-      !strcmpi(itemdb_name(sd->status.equip[id].id), "??")) {
+      !strcasecmp(itemdb_name(sd->status.equip[id].id), "??")) {
     memset(&sd->status.equip[id], 0, sizeof(sd->status.equip[id]));
     return 0;
   }
@@ -8039,7 +8039,7 @@ int ignorelist_add(USER *sd, const char *name) {
   struct sd_ignorelist *Current = sd->IgnoreList;
   // Make sure name isnt already on list
   while (Current) {
-    if (strcmpi(Current->name, name) == 0) return 1;
+    if (strcasecmp(Current->name, name) == 0) return 1;
 
     Current = Current->Next;
   }
@@ -8074,7 +8074,7 @@ int ignorelist_remove(USER *sd, const char *name) {
       strcpy(IgCmp, Current->name);
       // strlwr(IgCmp);
 
-      if (strcmpi(IgCmp, IgBuffer) == 0) {
+      if (strcasecmp(IgCmp, IgBuffer) == 0) {
         ret = 0;
         break;
       }
@@ -8112,7 +8112,7 @@ int clif_isignore(USER *sd, USER *dst_sd) {
   while (Current) {
     strcpy(IgCmp, Current->name);
 
-    if (strcmpi(IgCmp, LowerName) == 0) return 0;
+    if (strcasecmp(IgCmp, LowerName) == 0) return 0;
 
     Current = Current->Next;
   }
@@ -8123,7 +8123,7 @@ int clif_isignore(USER *sd, USER *dst_sd) {
   while (Current) {
     strcpy(IgCmp, Current->name);
 
-    if (strcmpi(IgCmp, LowerName) == 0) return 0;
+    if (strcasecmp(IgCmp, LowerName) == 0) return 0;
 
     Current = Current->Next;
   }
@@ -8195,7 +8195,7 @@ int clif_parsewisp(USER *sd) {
   msg[80] = '\0';
 
   /*
-          if(!strcmpi(dst_name,sd->status.name)) {
+          if(!strcasecmp(dst_name,sd->status.name)) {
                   clif_sendbluemessage(sd, "Cannot whisper yourself!");
                   return 0;
           }
@@ -9306,8 +9306,8 @@ int clif_parsemagic(USER *sd) {
   /*if(sd->status.gm_level == 0) {
 
           if (sd->status.state == 1 &&
-  strcmpi(magicdb_yname(sd->status.skill[pos]), "hyun_moo_revival")) { // this
-  checks that you are dead and your spell is NOT hyun_moo_revival_poet
+  strcasecmp(magicdb_yname(sd->status.skill[pos]), "hyun_moo_revival")) { //
+  this checks that you are dead and your spell is NOT hyun_moo_revival_poet
           clif_sendminitext(sd,"Spirits can't do that."); return 0; }
 
           if (sd->status.state == 3) {
@@ -11555,9 +11555,10 @@ int clif_handle_clickgetinfo(USER *sd) {
             return 0;
           }
 
-          /*if (sd->status.state == 1 && strcmpi(nd->name,"f1npc") != 0 &&
-          strcmpi(nd->name,"shaman") != 0 && strcmpi(nd->name,"arena_shop") !=
-          0) { clif_scriptmes(sd, nd->bl.id, "Go away scum!", 0, 0); return 0;
+          /*if (sd->status.state == 1 && strcasecmp(nd->name,"f1npc") != 0 &&
+          strcasecmp(nd->name,"shaman") != 0 &&
+          strcasecmp(nd->name,"arena_shop") != 0) { clif_scriptmes(sd,
+          nd->bl.id, "Go away scum!", 0, 0); return 0;
           }*/
 
           sl_doscript_blargs(nd->name, "click", 2, &sd->bl, &nd->bl);
@@ -12754,7 +12755,7 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
 
       len = strlen(sd->gfx.name);
       if ((sd->status.state != 2) && (sd->status.state != 5) &&
-          strcmpi(sd->gfx.name, "")) {
+          strcasecmp(sd->gfx.name, "")) {
         WFIFOB(src_sd->fd, 52) = len;
         strcpy(WFIFOP(src_sd->fd, 53), sd->gfx.name);
       } else {
@@ -12763,7 +12764,7 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
       }
 
       /*len = strlen(sd->gfx.name);
-      if (strcmpi(sd->gfx.name, "")) {
+      if (strcasecmp(sd->gfx.name, "")) {
               WFIFOB(src_sd->fd, 52) = len;
               strcpy(WFIFOP(src_sd->fd, 53), sd->gfx.name);
       } else {
@@ -15839,7 +15840,7 @@ SWAP16(itemdb_icon(items[x].id)); // packet only supports icon number, no colors
 
 
 
-                if (!strcmpi(items[x].real_name,"")) { // no engrave
+                if (!strcasecmp(items[x].real_name,"")) { // no engrave
                         WFIFOB(sd->fd,len) = strlen(itemdb_name(items[x].id));
                         strcpy(WFIFOP(sd->fd,len+1),itemdb_name(items[x].id));
                         len += strlen(itemdb_name(items[x].id)) + 1;
@@ -16062,7 +16063,7 @@ int clif_sendhunternote(USER *sd) {
 
   memcpy(huntername, RFIFOP(sd->fd, 6), RFIFOB(sd->fd, 5));
 
-  if (strcmpi(sd->status.name, huntername) == 0) return 1;
+  if (strcasecmp(sd->status.name, huntername) == 0) return 1;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
@@ -16168,7 +16169,7 @@ int clif_cancelafk(USER *sd) {
         sprintf(buf,"%s %s",strlwr(name2),strlwr(pass2));
         MD5_String(buf,md52);
 
-        if(!strcmpi(md5,md52)) {
+        if(!strcasecmp(md5,md52)) {
                 return 1;
         } else {
                 return 0;

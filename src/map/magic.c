@@ -17,7 +17,7 @@ int magicdb_searchname_sub(void *key, void *data, va_list ap) {
   char *str;
   str = va_arg(ap, char *);
   dst = va_arg(ap, struct magic_data **);
-  if (strcmpi(item->yname, str) == 0) *dst = item;
+  if (strcasecmp(item->yname, str) == 0) *dst = item;
   return 0;
 }
 

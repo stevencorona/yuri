@@ -425,7 +425,7 @@ NPC* map_name2npc(char* name) {
   for (i = NPC_START_NUM; i <= npc_id; i++) {
     nd = map_id2npc(i);
 
-    if (nd && !strcmpi(nd->npc_name, name)) {
+    if (nd && !strcasecmp(nd->npc_name, name)) {
       return nd;
     }
   }
@@ -453,7 +453,7 @@ USER* map_name2sd(char* name) {
 
   for (i = 0; i < fd_max; i++) {
     if (session[i] && (sd = session[i]->session_data)) {
-      if (strcmpi(name, sd->status.name) == 0) return sd;
+      if (strcasecmp(name, sd->status.name) == 0) return sd;
     }
   }
   return NULL;
@@ -1582,7 +1582,7 @@ int lang_read(const char* cfg_file) {
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
       for (i = 0; map_msg_db[i].name; i++) {
-        if (strcmpi(map_msg_db[i].name, r1) == 0) {
+        if (strcasecmp(map_msg_db[i].name, r1) == 0) {
           strncpy(map_msg[map_msg_db[i].number].message, r2, 256);
           map_msg[map_msg_db[i].number].message[255] = '\0';
           map_msg[map_msg_db[i].number].len = strlen(r2);
@@ -1659,79 +1659,79 @@ int config_read(const char* cfg_file) {
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
       // MAP
-      if (strcmpi(r1, "map_ip") == 0) {
+      if (strcasecmp(r1, "map_ip") == 0) {
         // get_actual_ip(r2,map_ip_s);
         get_actual_ip(r2);
         map_ip_s[15] = '\0';
         map_ip = inet_addr(map_ip_s);
 
-      } else if (strcmpi(r1, "map_port") == 0) {
+      } else if (strcasecmp(r1, "map_port") == 0) {
         map_port = atoi(r2);
 
         // LOGIN
-      } else if (strcmpi(r1, "loginip") == 0) {
+      } else if (strcasecmp(r1, "loginip") == 0) {
         get_actual_ip2(r2);
         log_ip_s[15] = '\0';
         log_ip = inet_addr(log_ip_s);
-      } else if (strcmpi(r1, "loginport") == 0) {
+      } else if (strcasecmp(r1, "loginport") == 0) {
         log_port = atoi(r2);
         // CHAR
-      } else if (strcmpi(r1, "char_ip") == 0) {
+      } else if (strcasecmp(r1, "char_ip") == 0) {
         strncpy(char_ip_s, r2, 16);
         char_ip_s[15] = '\0';
         char_ip = inet_addr(char_ip_s);
-      } else if (strcmpi(r1, "char_port") == 0) {
+      } else if (strcasecmp(r1, "char_port") == 0) {
         char_port = atoi(r2);
-      } else if (strcmpi(r1, "char_id") == 0) {
+      } else if (strcasecmp(r1, "char_id") == 0) {
         strncpy(char_id, r2, 32);
         char_id[31] = '\0';
-      } else if (strcmpi(r1, "char_pw") == 0) {
+      } else if (strcasecmp(r1, "char_pw") == 0) {
         strncpy(char_pw, r2, 32);
         char_pw[31] = '\0';
         // SAVE TIME
-      } else if (strcmpi(r1, "save_time") == 0) {
+      } else if (strcasecmp(r1, "save_time") == 0) {
         save_time = atoi(r2) * 1000;
         // LOG & DUMP
-      } else if (strcmpi(r1, "map_log") == 0) {
+      } else if (strcasecmp(r1, "map_log") == 0) {
         set_logfile(r2);
-      } else if (strcmpi(r1, "dump_log") == 0) {
+      } else if (strcasecmp(r1, "dump_log") == 0) {
         set_dmpfile(r2);
-      } else if (strcmpi(r1, "dump_save") == 0) {
+      } else if (strcasecmp(r1, "dump_save") == 0) {
         dump_save = atoi(r2);
-      } else if (strcmpi(r1, "meta") == 0) {
+      } else if (strcasecmp(r1, "meta") == 0) {
         add_meta(r2);
         // MAP & NPC SCRIPT
-        //} else if(strcmpi(r1, "map") == 0) {
+        //} else if(strcasecmp(r1, "map") == 0) {
         //	if (map_src_add(r2)) {
         //		printf("CFG_ERR: Map Script Configuration parse
         // error!\n"); 		printf(" line %d: %s\n", line_num, line);
         //	}
-      } else if (strcmpi(r1, "town") == 0) {
+      } else if (strcasecmp(r1, "town") == 0) {
         if (map_town_add(r2)) {
           printf("CFG_ERR: Town Name Parse error!\n");
           printf(" line %d: %s\n", line_num, line);
         }
-      } else if (strcmpi(r1, "ServerId") == 0) {
+      } else if (strcasecmp(r1, "ServerId") == 0) {
         serverid = atoi(r2);
-      } else if (strcmpi(r1, "npc") == 0) {
+      } else if (strcasecmp(r1, "npc") == 0) {
         npc_src_add(r2);
-      } else if (strcmpi(r1, "warp") == 0) {
+      } else if (strcasecmp(r1, "warp") == 0) {
         npc_warp_add(r2);
-      } else if (strcmpi(r1, "import") == 0) {
+      } else if (strcasecmp(r1, "import") == 0) {
         script_config_read_sub(r2);
-      } else if (strcmpi(r1, "xprate") == 0) {
+      } else if (strcasecmp(r1, "xprate") == 0) {
         xp_rate = atoi(r2);
-      } else if (strcmpi(r1, "droprate") == 0) {
+      } else if (strcasecmp(r1, "droprate") == 0) {
         d_rate = atoi(r2);
-      } else if (strcmpi(r1, "sql_ip") == 0) {
+      } else if (strcasecmp(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
-      } else if (strcmpi(r1, "sql_port") == 0) {
+      } else if (strcasecmp(r1, "sql_port") == 0) {
         sql_port = atoi(r2);
-      } else if (strcmpi(r1, "sql_id") == 0) {
+      } else if (strcasecmp(r1, "sql_id") == 0) {
         strcpy(sql_id, r2);
-      } else if (strcmpi(r1, "sql_pw") == 0) {
+      } else if (strcasecmp(r1, "sql_pw") == 0) {
         strcpy(sql_pw, r2);
-      } else if (strcmpi(r1, "sql_db") == 0) {
+      } else if (strcasecmp(r1, "sql_db") == 0) {
         strcpy(sql_db, r2);
       }
     }
@@ -2390,7 +2390,7 @@ int nmail_write(USER* sd) {
   memcpy(message, RFIFOP(sd->fd, topiclen + tolen + 12), messagelen);
   sendCopy = RFIFOB(sd->fd, topiclen + tolen + 12 + messagelen);
 
-  if (strcmpi(to_user, "lua") == 0) {
+  if (strcasecmp(to_user, "lua") == 0) {
     strcpy(sd->mail, message);
     sd->luaexec = 0;
     sl_doscript_blargs("canRunLuaMail", NULL, 1, &sd->bl);
@@ -2404,7 +2404,7 @@ int nmail_write(USER* sd) {
     }
   }
 
-  if (strcmpi(to_user, "poems") == 0 || strcmpi(to_user, "poem") == 0) {
+  if (strcasecmp(to_user, "poems") == 0 || strcasecmp(to_user, "poem") == 0) {
     if (map_readglobalgamereg("poemAccept") == 0) {
       nmail_sendmessage(sd, "Currently not accepting poem submissions.", 6, 0);
       return 0;
@@ -2601,7 +2601,8 @@ void mmo_setonline(unsigned int id, int val) {
     sprintf(escape, "%u.%u.%u.%u\0", a, b, c, d);
     printf("[MAP LOGIN]: %s connected from %s!\n", sd->status.name, escape);
 
-    // if (strcmpi(escape,"71.78.153.2") == 0 || strcmpi(escape,"71.238.0.230")
+    // if (strcasecmp(escape,"71.78.153.2") == 0 ||
+    // strcasecmp(escape,"71.238.0.230")
     // == 0) { clif_handle_disconnect(sd); clif_closeit(sd);}
 
     sl_doscript_blargs("login", NULL, 1, &sd->bl);
@@ -2720,7 +2721,7 @@ int map_setglobalreg(int m, char* reg, int val) {
   if (!map_isloaded(m)) return 0;
 
   for (i = 0; i < map[m].registry_num; i++) {
-    if (strcmpi(map[m].registry[i].str, reg) == 0) {
+    if (strcasecmp(map[m].registry[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2739,7 +2740,7 @@ int map_setglobalreg(int m, char* reg, int val) {
     }
   } else {
     for (i = 0; i < map[m].registry_num; i++) {
-      if (strcmpi(map[m].registry[i].str, "") == 0) {
+      if (strcasecmp(map[m].registry[i].str, "") == 0) {
         strcpy(map[m].registry[i].str, reg);
         map[m].registry[i].val = val;
         map_registrysave(m, i);
@@ -2767,7 +2768,7 @@ int map_readglobalreg(int m, char* reg) {
   if (!map_isloaded(m)) return 0;
 
   for (i = 0; i < map[m].registry_num; i++) {
-    if (strcmpi(map[m].registry[i].str, reg) == 0) {
+    if (strcasecmp(map[m].registry[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2895,7 +2896,7 @@ int map_setglobalgamereg(char* reg, int val) {
 
   // if registry exists, get number
   for (i = 0; i < gamereg.registry_num; i++) {
-    if (!strcmpi(gamereg.registry[i].str, reg)) {
+    if (!strcasecmp(gamereg.registry[i].str, reg)) {
       exist = i;
       break;
     }
@@ -2914,7 +2915,7 @@ int map_setglobalgamereg(char* reg, int val) {
     }
   } else {
     for (i = 0; i < gamereg.registry_num; i++) {
-      if (!strcmpi(gamereg.registry[i].str, "")) {
+      if (!strcasecmp(gamereg.registry[i].str, "")) {
         strcpy(gamereg.registry[i].str, reg);
         gamereg.registry[i].val = val;
         map_savegameregistry(i);
@@ -2942,7 +2943,7 @@ int map_readglobalgamereg(char* reg) {
   nullpo_ret(0, reg);
 
   for (i = 0; i < gamereg.registry_num; i++) {
-    if (!strcmpi(gamereg.registry[i].str, reg)) {
+    if (!strcasecmp(gamereg.registry[i].str, reg)) {
       exist = i;
       break;
     }

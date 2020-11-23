@@ -41,7 +41,7 @@ int pc_addtocurrent2(struct block_list *bl, va_list ap) {
   if (def[0]) return 0;
 
   if (fl->data.id == fl2->data.id && fl->data.owner == fl2->data.owner &&
-      !(strcmpi(fl->data.real_name, fl2->data.real_name)) &&
+      !(strcasecmp(fl->data.real_name, fl2->data.real_name)) &&
       fl->data.customIcon == fl2->data.customIcon &&
       fl->data.customIconColor == fl2->data.customIconColor &&
       fl->data.customLook == fl2->data.customLook &&
@@ -1240,7 +1240,7 @@ int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
     for (i = 0; i < sd->status.maxinv; i++) {
       if (sd->status.inventory[i].id == id && itemdb_maxamount(id) > 0 &&
           sd->status.inventory[i].owner == owner &&
-          !(strcmpi(sd->status.inventory[i].real_name, engrave)) &&
+          !(strcasecmp(sd->status.inventory[i].real_name, engrave)) &&
           sd->status.inventory[i].customLook == customLook &&
           sd->status.inventory[i].customLookColor == customLookColor &&
           sd->status.inventory[i].customIcon == customIcon &&
@@ -1252,7 +1252,7 @@ int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
     for (i = 0; i < 14; i++) {
       if (sd->status.equip[i].id == id && itemdb_maxamount(id) > 0 &&
           sd->status.inventory[i].owner == owner &&
-          !(strcmpi(sd->status.inventory[i].real_name, engrave)) &&
+          !(strcasecmp(sd->status.inventory[i].real_name, engrave)) &&
           sd->status.inventory[i].customLook == customLook &&
           sd->status.inventory[i].customLookColor == customLookColor &&
           sd->status.inventory[i].customIcon == customIcon &&
@@ -1266,7 +1266,7 @@ int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
           sd->status.inventory[i].amount < itemdb_stackamount(id) &&
           maxamount < itemdb_maxamount(id) &&
           sd->status.inventory[i].owner == owner &&
-          !(strcmpi(sd->status.inventory[i].real_name, engrave)) &&
+          !(strcasecmp(sd->status.inventory[i].real_name, engrave)) &&
           sd->status.inventory[i].customLook == customLook &&
           sd->status.inventory[i].customLookColor == customLookColor &&
           sd->status.inventory[i].customIcon == customIcon &&
@@ -1278,7 +1278,7 @@ int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
     for (i = 0; i < sd->status.maxinv; i++) {
       // if (sd->status.inventory[i].id == 0 && maxamount < itemdb_maxamount(id)
       // && sd->status.inventory[i].owner == owner &&
-      // !(strcmpi(sd->status.inventory[i].real_name, engrave)) &&
+      // !(strcasecmp(sd->status.inventory[i].real_name, engrave)) &&
       // sd->status.inventory[i].customLook == customLook &&
       // sd->status.inventory[i].customLookColor == customLookColor &&
       // sd->status.inventory[i].customIcon == customIcon &&
@@ -1293,7 +1293,7 @@ int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
       if (sd->status.inventory[i].id == id &&
           sd->status.inventory[i].amount < itemdb_stackamount(id) &&
           sd->status.inventory[i].owner == owner &&
-          !(strcmpi(sd->status.inventory[i].real_name, engrave)) &&
+          !(strcasecmp(sd->status.inventory[i].real_name, engrave)) &&
           sd->status.inventory[i].customLook == customLook &&
           sd->status.inventory[i].customLookColor == customLookColor &&
           sd->status.inventory[i].customIcon == customIcon &&
@@ -1349,7 +1349,7 @@ int pc_isinvenitemspace(USER *sd, int num, int id, int owner, char *engrave) {
       return itemdb_stackamount(id);
     } else if (sd->status.inventory[num].id != id ||
                sd->status.inventory[num].owner != owner ||
-               (strcmpi(sd->status.inventory[num].real_name, engrave))) {
+               (strcasecmp(sd->status.inventory[num].real_name, engrave))) {
       return 0;
     } else {
       return itemdb_maxamount(id) - maxamount;
@@ -1359,7 +1359,7 @@ int pc_isinvenitemspace(USER *sd, int num, int id, int owner, char *engrave) {
       return itemdb_stackamount(id);
     } else if (sd->status.inventory[num].id != id ||
                sd->status.inventory[num].owner != owner ||
-               (strcmpi(sd->status.inventory[num].real_name, engrave))) {
+               (strcasecmp(sd->status.inventory[num].real_name, engrave))) {
       return 0;
     } else {
       return itemdb_stackamount(id) - sd->status.inventory[num].amount;
@@ -1930,7 +1930,7 @@ int pc_addtocurrent(struct block_list *bl, va_list ap) {
 
   if (fl->data.id == sd->status.inventory[id].id &&
       fl->data.owner == sd->status.inventory[id].owner &&
-      !(strcmpi(fl->data.real_name, sd->status.inventory[id].real_name)) &&
+      !(strcasecmp(fl->data.real_name, sd->status.inventory[id].real_name)) &&
       fl->data.customIcon == sd->status.inventory[id].customIcon &&
       fl->data.customIconColor == sd->status.inventory[id].customIconColor &&
       fl->data.customLook == sd->status.inventory[id].customLook &&
@@ -2517,7 +2517,7 @@ char *pc_readglobalregstring(USER *sd, char *reg) {
   nullpo_ret(0, sd);
 
   for (i = 0; i < MAX_GLOBALPLAYERREG; i++) {
-    if (strcmpi(sd->status.global_regstring[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.global_regstring[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2540,14 +2540,14 @@ int pc_setglobalregstring(USER *sd, char *reg, char *val) {
   nullpo_ret(0, reg);
   // if registry exists, get number
   for (i = 0; i < MAX_GLOBALPLAYERREG; i++) {
-    if (strcmpi(sd->status.global_regstring[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.global_regstring[i].str, reg) == 0) {
       exist = i;
       break;
     }
   }
   // if registry exists, set value
   if (exist != -1) {
-    if (strcmpi(val, "") == 0) {
+    if (strcasecmp(val, "") == 0) {
       strcpy(sd->status.global_regstring[exist].str, "");  // empty registry
       strcpy(sd->status.global_regstring[exist].val, val);
       return 0;
@@ -2557,7 +2557,7 @@ int pc_setglobalregstring(USER *sd, char *reg, char *val) {
     }
   } else {
     for (i = 0; i < MAX_GLOBALPLAYERREG; i++) {
-      if (strcmpi(sd->status.global_regstring[i].str, "") == 0) {
+      if (strcasecmp(sd->status.global_regstring[i].str, "") == 0) {
         strcpy(sd->status.global_regstring[i].str, reg);
         strcpy(sd->status.global_regstring[i].val, val);
         return 0;
@@ -2577,7 +2577,7 @@ int pc_readglobalreg(USER *sd, char *reg) {
   nullpo_ret(0, sd);
 
   for (i = 0; i < MAX_GLOBALPLAYERREG; i++) {
-    if (strcmpi(sd->status.global_reg[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.global_reg[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2600,7 +2600,7 @@ int pc_setglobalreg(USER *sd, char *reg, unsigned long val) {
   nullpo_ret(0, reg);
   // if registry exists, get number
   for (i = 0; i < MAX_GLOBALPLAYERREG; i++) {
-    if (strcmpi(sd->status.global_reg[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.global_reg[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2617,7 +2617,7 @@ int pc_setglobalreg(USER *sd, char *reg, unsigned long val) {
     }
   } else {
     for (i = 0; i < MAX_GLOBALREG; i++) {
-      if (strcmpi(sd->status.global_reg[i].str, "") == 0) {
+      if (strcasecmp(sd->status.global_reg[i].str, "") == 0) {
         strcpy(sd->status.global_reg[i].str, reg);
         sd->status.global_reg[i].val = val;
         return 0;
@@ -2902,7 +2902,7 @@ int pc_setnpcintreg(USER *sd, char *reg, int val) {
 
   // if registry exists, get number
   for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-    if (strcmpi(sd->status.npcintreg[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.npcintreg[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2919,7 +2919,7 @@ int pc_setnpcintreg(USER *sd, char *reg, int val) {
     }
   } else {
     for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-      if (strcmpi(sd->status.npcintreg[i].str, "") == 0) {
+      if (strcasecmp(sd->status.npcintreg[i].str, "") == 0) {
         strcpy(sd->status.npcintreg[i].str, reg);
         sd->status.npcintreg[i].val = val;
         return 0;
@@ -2939,7 +2939,7 @@ int pc_readnpcintreg(USER *sd, char *reg) {
   nullpo_ret(0, reg);
 
   for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-    if (strcmpi(sd->status.npcintreg[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.npcintreg[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2963,7 +2963,7 @@ int pc_setquestreg(USER *sd, char *reg, int val) {
 
   // if registry exists, get number
   for (i = 0; i < MAX_GLOBALQUESTREG; i++) {
-    if (strcmpi(sd->status.questreg[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.questreg[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2980,7 +2980,7 @@ int pc_setquestreg(USER *sd, char *reg, int val) {
     }
   } else {
     for (i = 0; i < MAX_GLOBALQUESTREG; i++) {
-      if (strcmpi(sd->status.questreg[i].str, "") == 0) {
+      if (strcasecmp(sd->status.questreg[i].str, "") == 0) {
         strcpy(sd->status.questreg[i].str, reg);
         sd->status.questreg[i].val = val;
         return 0;
@@ -3000,7 +3000,7 @@ int pc_readquestreg(USER *sd, char *reg) {
   nullpo_ret(0, reg);
 
   for (i = 0; i < MAX_GLOBALQUESTREG; i++) {
-    if (strcmpi(sd->status.questreg[i].str, reg) == 0) {
+    if (strcasecmp(sd->status.questreg[i].str, reg) == 0) {
       exist = i;
       break;
     }
