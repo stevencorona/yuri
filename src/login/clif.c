@@ -14,6 +14,7 @@
 #include "malloc.h"
 #include "net_crypt.h"
 #include "session.h"
+#include "strlib.h"
 #include "timer.h"
 
 extern int Check_Throttle(struct sockaddr_in S);

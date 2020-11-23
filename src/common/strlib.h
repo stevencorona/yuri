@@ -17,6 +17,8 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
+char* strlwr(char*);
+
 char* jstrescape(char* pt);
 char* jstrescapecpy(char* pt, const char* spt);
 int jmemescapecpy(char* pt, const char* spt, int size);

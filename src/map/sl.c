@@ -34,6 +34,7 @@
 #include "pc.h"
 #include "recipedb.h"
 #include "session.h"
+#include "strlib.h"
 #include "timer.h"
 
 #define sl_redtext(text) "\033[31;1m" text "\033[0m"

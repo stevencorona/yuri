@@ -22,5 +22,4 @@
 #define nullpo_ret(result, target) \
   if (!(target)) return (result)
 
-char* strlwr(char*);
 void add_log(char*, ...);

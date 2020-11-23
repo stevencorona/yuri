@@ -9,17 +9,6 @@
 
 #include "../common/showmsg.h"
 
-char *strlwr(char *string) {
-  char *s;
-
-  if (string) {
-    for (s = string; *s; ++s) {
-      *s = tolower(*s);
-    }
-  }
-  return string;
-}
-
 void add_log(char *fmt, ...) {
   FILE *logfp;
   va_list ap;
