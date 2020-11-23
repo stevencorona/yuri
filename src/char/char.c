@@ -13,7 +13,7 @@
 #include "malloc.h"
 #include "mapif.h"
 #include "mmo.h"
-#include "socket.h"
+#include "session.h"
 #include "timer.h"
 
 int char_port = 2005;

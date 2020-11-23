@@ -19,8 +19,8 @@
 #include "net_crypt.h"
 #include "npc.h"
 #include "pc.h"
+#include "session.h"
 #include "sl.h"
-#include "socket.h"
 #include "timer.h"
 
 int spellgfx;

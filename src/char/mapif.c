@@ -10,7 +10,7 @@
 #include "db_mysql.h"
 #include "malloc.h"
 #include "mmo.h"
-#include "socket.h"
+#include "session.h"
 #include "strlib.h"
 
 static const int packet_len_table[] = {72,

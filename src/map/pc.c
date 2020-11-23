@@ -17,8 +17,8 @@
 #include "magic.h"
 #include "map.h"
 #include "mob.h"
+#include "session.h"
 #include "sl.h"
-#include "socket.h"
 #include "timer.h"
 
 struct timeval start;

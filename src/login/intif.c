@@ -9,7 +9,7 @@
 #include "login.h"
 #include "mmo.h"
 #include "net_crypt.h"
-#include "socket.h"
+#include "session.h"
 
 static int packet_len_table[] = {69, 5, 5, 27, 5, 0};
 

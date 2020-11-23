@@ -14,7 +14,7 @@
 #include <netdb.h>
 
 #include "../common/core.h"
-#include "../common/socket.h"
+#include "../common/session.h"
 #include "../common/timer.h"
 #include "board_db.h"
 #include "clan_db.h"

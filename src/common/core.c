@@ -9,7 +9,7 @@
 #include <sys/time.h>
 
 #include "db.h"
-#include "socket.h"
+#include "session.h"
 #include "timer.h"
 
 int (*func_parse_it)(char *) = default_parse_input;

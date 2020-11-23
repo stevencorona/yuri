@@ -6,8 +6,8 @@
 #include "db.h"
 #include "malloc.h"
 #include "map.h"
+#include "session.h"
 #include "sl.h"
-#include "socket.h"
 #include "strlib.h"
 
 DBMap *create_db;

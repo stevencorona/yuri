@@ -13,7 +13,7 @@
 #include "mmo.h"
 #include "net_crypt.h"
 #include "pc.h"
-#include "socket.h"
+#include "session.h"
 #include "strlib.h"
 #include "timer.h"
 
