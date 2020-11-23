@@ -11,9 +11,9 @@
 #include "db_mysql.h"
 #include "intif.h"
 #include "login.h"
-#include "malloc.h"
 #include "net_crypt.h"
-#include "socket.h"
+#include "session.h"
+#include "strlib.h"
 #include "timer.h"
 
 extern int Check_Throttle(struct sockaddr_in S);

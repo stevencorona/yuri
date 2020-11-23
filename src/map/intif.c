@@ -5,15 +5,15 @@
 #include <string.h>
 #include <zlib.h>
 
-#include "../common/db.h"
 #include "clif.h"
+#include "core.h"
+#include "db.h"
 #include "db_mysql.h"
-#include "malloc.h"
 #include "map.h"
 #include "mmo.h"
 #include "net_crypt.h"
 #include "pc.h"
-#include "socket.h"
+#include "session.h"
 #include "strlib.h"
 #include "timer.h"
 
@@ -379,18 +379,14 @@ int auth_add(char* name, unsigned int id, unsigned int ip) {
 int intif_parse_accept(int fd) {
   int i, j = 0;
   if (RFIFOB(fd, 2)) {
-    printf(
-        "CFG_ERR: Username or password to connect Login Server is Invalid!\n");
-    add_log(
-        "CFG_ERR: Username or password to connect Login Server is Invalid!\n");
+    printf("[map] [intif] Cannot connect to login server\n");
     return 0;
   }
 
   // serverid == RFIFOB(fd,3); // tells map server its mapserver #
 
   printf("Server ID: %i\n", RFIFOB(fd, 3));
-  add_log("Connected to Char Server.\n");
-  printf("Connected to Char Server.\n");
+  printf("[map] [intif] Connected to Char Server.\n");
   WFIFOHEAD(fd, map_n * 2 + 8);
   WFIFOW(fd, 0) = 0x3001;
   WFIFOL(fd, 2) = map_n * 2 + 8;
@@ -806,8 +802,7 @@ int intif_parse(int fd) {
   int packet_len, cmd;
 
   if (session[fd]->eof) {
-    add_log("Can't connect to Char Server.\n");
-    printf("Can't connect to Char Server.\n");
+    printf("[map] [intif] Can't connect to Char Server.\n");
     char_fd = 0;
     session_eof(fd);
     return 0;

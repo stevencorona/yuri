@@ -7,8 +7,8 @@
 #include <time.h>
 
 #include "char.h"
+#include "core.h"
 #include "db_mysql.h"
-#include "malloc.h"
 #include "md5calc.h"
 #include "mmo.h"
 #include "strlib.h"

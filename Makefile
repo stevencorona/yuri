@@ -14,7 +14,7 @@ CFLAGS += -std=gnu17
 CFLAGS += -g3 -DDEBUG
 CFLAGS += -fno-stack-protector
 CFLAGS += -DFD_SETSIZE=1024
-CFLAGS += -I../common
+CFLAGS += -I../common -I../../c_deps
 CFLAGS += $(shell ${PKG_CONFIG} --cflags mysqlclient)
 CFLAGS += $(shell ${PKG_CONFIG} --cflags zlib)
 CFLAGS += $(shell ${PKG_CONFIG} --cflags lua5.1)
@@ -24,11 +24,12 @@ LIBS += $(shell ${PKG_CONFIG} --libs zlib)
 LIBS += $(shell ${PKG_CONFIG} --libs lua5.1)
 LIBS += -lm -ldl -lcrypt -pthread
 
-COMMON_OBJ = ../common/core.o ../common/socket.o ../common/timer.o ../common/net_crypt.o ../common/db.o ../common/malloc.o  ../common/db_mysql.o ../common/md5calc.o ../common/ers.o ../common/strlib.o ../common/showmsg.o ../common/rndm.o
-COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/net_crypt.h ../common/db.h ../common/mmo.h ../common/malloc.h ../common/db_mysql.h ../common/md5calc.h ../common/ers.h ../common/strlib.h ../common/showmsg.h ../common/rndm.h
+DEPS_OBJ = ../../c_deps/db_mysql.o ../../c_deps/db.o ../../c_deps/ers.o ../../c_deps/md5calc.o ../../c_deps/rndm.o ../../c_deps/showmsg.o ../../c_deps/strlib.o ../../c_deps/timer.o
+COMMON_OBJ = ../common/core.o ../common/session.o ../common/net_crypt.o $(DEPS_OBJ)
+COMMON_H = ../common/core.h ../common/session.h ../common/net_crypt.h ../common/mmo.h
 
 MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="$(COMMON_OBJ)" COMMON_H="$(COMMON_H)"
-METADEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="../common/db.o ../common/malloc.o ../common/db_mysql.o ../common/timer.o ../common/strlib.o ../common/showmsg.o ../common/ers.o ../common/md5calc.o" COMMON_H="../common/db.h ../common/malloc.h ../common/db_mysql.h ../common/timer.h ../common/md5calc.h"
+METADEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="$(DEPS_OBJ)" COMMON_H="$(COMMON_H)"
 
 all: title common login char map metan decrypt
 
@@ -38,6 +39,7 @@ title:
 
 common:
 	@echo "Common:"
+	@$(MAKE) $(MKDEF) -C c_deps/
 	@$(MAKE) $(MKDEF) -C src/common/
 
 login: common

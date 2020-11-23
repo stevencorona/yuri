@@ -13,13 +13,11 @@
 #endif
 #include <netdb.h>
 
-#include "../common/core.h"
-#include "../common/socket.h"
-#include "../common/timer.h"
 #include "board_db.h"
 #include "clan_db.h"
 #include "class_db.h"
 #include "clif.h"
+#include "core.h"
 #include "creation.h"
 #include "db.h"
 #include "db_mysql.h"
@@ -27,7 +25,6 @@
 #include "intif.h"
 #include "itemdb.h"
 #include "magic.h"
-#include "malloc.h"
 #include "map.h"
 #include "mmo.h"
 #include "mob.h"
@@ -35,9 +32,11 @@
 #include "npc.h"
 #include "recipedb.h"
 #include "script.h"
+#include "session.h"
 #include "showmsg.h"
 #include "sl.h"
 #include "strlib.h"
+#include "timer.h"
 
 #ifndef _MAP_SERVER_
 #define _MAP_SERVER_
@@ -1766,8 +1765,7 @@ void do_term(void) {
   // mobdb_term();
   // sql_close();
 
-  printf("ClassicTK Map Server Shutdown.\n");
-  add_log("Shutdown.\n");
+  printf("[map] Map Server Shutdown\n");
 }
 
 void help_screen() {
@@ -1929,8 +1927,7 @@ int do_init(int argc, char** argv) {
   // CALLOC(userlist,struct userlist_data,1);
   // gcFixPrematureFrees();
   set_default_input(command_input);
-  add_log("");
-  add_log("ClassicTK Map Server Started.\n");
+  printf("\n[map] Map Server Started.\n");
   sql_handle = Sql_Malloc();
   if (sql_handle == NULL) {
     Sql_ShowDebug(sql_handle);
@@ -1995,10 +1992,8 @@ int do_init(int argc, char** argv) {
   for (i = 0; i < MAX_GROUPS; i++) {
     memset(groups[i], 0, sizeof(unsigned int) * MAX_GROUP_MEMBERS);
   }
-  printf("ClassicTK Map Server is \033[1;32mready\033[0m! Listening at %d.\n",
-         map_port);
 
-  add_log("Server Ready! Listening at %d.\n", map_port);
+  printf("[map] [ready] port=%d\n", map_port);
   return 0;
 }
 

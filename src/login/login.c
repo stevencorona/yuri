@@ -11,9 +11,8 @@
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "malloc.h"
 #include "net_crypt.h"
-#include "socket.h"
+#include "session.h"
 #include "timer.h"
 
 int login_port = 2010;

@@ -1,4 +1,4 @@
-#include "socket.h"
+#include "session.h"
 
 #include <errno.h>
 #include <netinet/in.h>
@@ -13,7 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "malloc.h"
+#include "core.h"
 #include "mmo.h"
 #include "net_crypt.h"
 #include "timer.h"

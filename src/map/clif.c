@@ -9,25 +9,25 @@
 #include <time.h>
 #include <zlib.h>
 
-#include "../common/db_mysql.h"
-#include "../common/rndm.h"
-#include "../common/showmsg.h"
 #include "board_db.h"
 #include "clan_db.h"
 #include "class_db.h"
 #include "command.h"
+#include "core.h"
 #include "creation.h"
+#include "db_mysql.h"
 #include "intif.h"
 #include "itemdb.h"
 #include "magic.h"
-#include "malloc.h"
 #include "map.h"
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
 #include "pc.h"
+#include "rndm.h"
+#include "session.h"
+#include "showmsg.h"
 #include "sl.h"
-#include "socket.h"
 #include "timer.h"
 
 /// testcxv

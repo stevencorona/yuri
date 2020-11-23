@@ -9,10 +9,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../common/malloc.h"
-#include "../common/showmsg.h"
+#include "showmsg.h"
 
 #define J_MAX_MALLOC_SIZE 65535
+
+char* strlwr(char* string) {
+  char* s;
+
+  if (string) {
+    for (s = string; *s; ++s) {
+      *s = tolower(*s);
+    }
+  }
+  return string;
+}
 
 // escapes a string in-place (' -> \' , \ -> \\ , % -> _)
 char* jstrescape(char* pt) {

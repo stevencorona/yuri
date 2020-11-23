@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core.h"
 #include "db.h"
-#include "malloc.h"
 
 DBMap *guide_db;
 

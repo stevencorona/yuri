@@ -8,19 +8,19 @@
 #include "board_db.h"
 #include "class_db.h"
 #include "clif.h"
+#include "core.h"
 #include "creation.h"
 #include "db_mysql.h"
 #include "itemdb.h"
 #include "magic.h"
-#include "malloc.h"
 #include "map.h"
 #include "mmo.h"
 #include "mob.h";
 #include "net_crypt.h"
 #include "npc.h"
 #include "pc.h"
+#include "session.h"
 #include "sl.h"
-#include "socket.h"
 #include "timer.h"
 
 int spellgfx;

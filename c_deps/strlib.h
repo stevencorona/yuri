@@ -17,6 +17,23 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#define CALLOC(result, type, number) \
+  (result) = (type*)calloc((number), sizeof(type))
+
+#define REALLOC(result, type, number) \
+  (result) = (type*)realloc((result), sizeof(type) * (number))
+
+#define FREE(result) \
+  do {               \
+    free(result);    \
+    result = NULL;   \
+  } while (0)
+
+#define nullpo_ret(result, target) \
+  if (!(target)) return (result)
+
+char* strlwr(char*);
+
 char* jstrescape(char* pt);
 char* jstrescapecpy(char* pt, const char* spt);
 int jmemescapecpy(char* pt, const char* spt, int size);

@@ -3,10 +3,9 @@
 
 #include "db_mysql.h"
 
-#include "../common/malloc.h"
-#include "../common/showmsg.h"
-#include "../common/strlib.h"
-#include "../common/timer.h"
+#include "showmsg.h"
+#include "strlib.h"
+#include "timer.h"
 
 #ifdef WIN32
 #include <winsock2.h>

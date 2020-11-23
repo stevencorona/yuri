@@ -6,8 +6,8 @@
 
 #include "../map/class_db.h"
 #include "../map/itemdb.h"
+#include "core.h"
 #include "db_mysql.h"
-#include "malloc.h"
 
 char scheme[32];
 int filecount;
@@ -37,8 +37,7 @@ int config_read(const char *cfg_file) {
 
   fp = fopen(cfg_file, "r");
   if (fp == NULL) {
-    printf("CFG_ERR: Configuration file (%s) not found.\n", cfg_file);
-    // add_log("CFG_ERR: Configuration file (%s) not found.\n", cfg_file);
+    printf("[metan] File (%s) not found.\n", cfg_file);
     exit(1);
   }
 

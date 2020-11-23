@@ -7,10 +7,10 @@
 
 #include "char.h"
 #include "char_db.h"
+#include "core.h"
 #include "db_mysql.h"
-#include "malloc.h"
 #include "mmo.h"
-#include "socket.h"
+#include "session.h"
 #include "strlib.h"
 
 static const int packet_len_table[] = {72,
@@ -144,10 +144,8 @@ int mapif_parse_auth(int fd) {
 
     unsigned char* p;
     p = (unsigned char*)&map_fifo[i].ip;
-    printf("Map Server #%d connected.(%u.%u.%u.%u:%d).\n", i, p[0], p[1], p[2],
-           p[3], map_fifo[i].port);
-    add_log("Map Server #%d connected(%u.%u.%u.%u:%d).\n", i, p[0], p[1], p[2],
-            p[3], map_fifo[i].port);
+    printf("[char] [mapif] Map Server Connected id=%d ip=%u.%u.%u.%u port=%d\n",
+           i, p[0], p[1], p[2], p[3], map_fifo[i].port);
 
   } else {
     session[fd]->eof = 1;
@@ -177,10 +175,8 @@ int mapif_parse_mapset(int fd, int id) {
             if (map_fifo[i].map[j] == map_fifo[id].map[k]) {
               // found same map, just report and let admin fix it...
               printf(
-                  "MAPERR: Same map number(#%d) at server #%d and server #%d\n",
-                  map_fifo[id].map[k], id, i);
-              add_log(
-                  "MAPERR: Same map number(#%d) at server #%d and server #%d\n",
+                  "[char] [mapif] Same map number(#%d) at server #%d and "
+                  "server #%d\n",
                   map_fifo[id].map[k], id, i);
             }
           }
@@ -190,9 +186,8 @@ int mapif_parse_mapset(int fd, int id) {
     // done!
   }
 
-  printf("Map Server #%d(%d map) is \033[1;32mready\033[0m!\n", id,
+  printf("[char] [mapif] Map Server #%d(%d map) Ready \n", id,
          map_fifo[id].map_n);
-  add_log("Map Server #%d send %d map.\n", id, map_fifo[id].map_n, id);
 
   return 0;
 }
@@ -999,8 +994,7 @@ int mapif_parse(int fd) {
   }
 
   if (session[fd]->eof) {
-    add_log("Map Server #%d connection lost.\n", id);
-    printf("Map Server #%d connection lost.\n", id);
+    printf("[char] [mapif] Map Server #%d connection lost\n", id);
     map_fifo[id].fd = 0;
     map_fifo_n--;
     if (id == (map_fifo_max - 1)) {
