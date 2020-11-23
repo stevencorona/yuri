@@ -802,7 +802,7 @@ int npc_readglobalreg(NPC *nd, char *reg) {
   nullpo_ret(0, nd);
 
   for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-    if (strcmpi(nd->registry[i].str, reg) == 0) {
+    if (strcasecmp(nd->registry[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -824,7 +824,7 @@ int npc_setglobalreg(NPC *nd, char *reg, int val) {
 
   // if registry exists, get number
   for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-    if (strcmpi(nd->registry[i].str, reg) == 0) {
+    if (strcasecmp(nd->registry[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -842,7 +842,7 @@ int npc_setglobalreg(NPC *nd, char *reg, int val) {
     }
   } else {
     for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-      if (strcmpi(nd->registry[i].str, "") == 0) {
+      if (strcasecmp(nd->registry[i].str, "") == 0) {
         strcpy(nd->registry[i].str, reg);
         nd->registry[i].val = val;
         return 0;

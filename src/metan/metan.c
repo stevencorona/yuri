@@ -5,8 +5,8 @@
 #include <string.h>
 
 #include "../map/class_db.h"
-#include "db_mysql.h"
 #include "../map/itemdb.h"
+#include "db_mysql.h"
 #include "malloc.h"
 
 char scheme[32];
@@ -51,15 +51,15 @@ int config_read(const char *cfg_file) {
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
       // CHAR
 
-      if (strcmpi(r1, "sql_ip") == 0) {
+      if (strcasecmp(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
-      } else if (strcmpi(r1, "sql_port") == 0) {
+      } else if (strcasecmp(r1, "sql_port") == 0) {
         sql_port = atoi(r2);
-      } else if (strcmpi(r1, "sql_id") == 0) {
+      } else if (strcasecmp(r1, "sql_id") == 0) {
         strcpy(sql_id, r2);
-      } else if (strcmpi(r1, "sql_pw") == 0) {
+      } else if (strcasecmp(r1, "sql_pw") == 0) {
         strcpy(sql_pw, r2);
-      } else if (strcmpi(r1, "sql_db") == 0) {
+      } else if (strcasecmp(r1, "sql_db") == 0) {
         strcpy(sql_db, r2);
       }
     }

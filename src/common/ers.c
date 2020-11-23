@@ -328,11 +328,11 @@ static void ers_obj_destroy(ERS self) {
   // destroy the entry manager
   if (obj->max) {
     for (i = 0; i < obj->num; i++) {
-      aFree(obj->blocks[i]);  // release block of entries
+      free(obj->blocks[i]);  // release block of entries
     }
-    aFree(obj->blocks);  // release array of blocks
+    free(obj->blocks);  // release array of blocks
   }
-  aFree(obj);  // release manager
+  free(obj);  // release manager
 }
 
 /*****************************************************************************\
@@ -386,7 +386,7 @@ ERS ers_new(uint32_t size) {
         "exiting the program...\n");
     exit(EXIT_FAILURE);
   }
-  obj = (ERS_impl)aMalloc(sizeof(struct ers_impl));
+  obj = (ERS_impl)malloc(sizeof(struct ers_impl));
   // Public interface
   obj->vtable.alloc = ers_obj_alloc_entry;
   obj->vtable.free = ers_obj_free_entry;
@@ -501,11 +501,11 @@ void ers_force_destroy_all(void) {
     obj = ers_root[i];
     if (obj->max) {
       for (j = 0; j < obj->num; j++) {
-        aFree(obj->blocks[j]);  // block of entries
+        free(obj->blocks[j]);  // block of entries
       }
-      aFree(obj->blocks);  // array of blocks
+      free(obj->blocks);  // array of blocks
     }
-    aFree(obj);  // entry manager object
+    free(obj);  // entry manager object
   }
   ers_num = 0;
 }

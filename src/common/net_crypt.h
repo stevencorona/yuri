@@ -8,10 +8,11 @@
 #define RAND_INC rand() % 0xFF
 #define USE_RANDOM_INDEXES
 
+void tk_crypt_static(char* buffer);
+void tk_crypt_dynamic(char* buffer, const char* key);
+
 char* generate_hashvalues(const char*, char*, int);
 char* populate_table(const char*, char*, int);
 int set_packet_indexes(unsigned char*);
 char* generate_key2(unsigned char*, char*, char*, int);
 char* generate_key(const char*, char*, int);
-void tk_crypt(char*);
-void crypt2(char*, char*);

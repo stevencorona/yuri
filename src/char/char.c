@@ -168,62 +168,62 @@ int config_read(const char *cfg_file) {
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
       // CHAR
-      if (strcmpi(r1, "char_port") == 0) {
+      if (strcasecmp(r1, "char_port") == 0) {
         char_port = atoi(r2);
-      } else if (strcmpi(r1, "char_id") == 0) {
+      } else if (strcasecmp(r1, "char_id") == 0) {
         strncpy(char_id, r2, 32);
         char_id[31] = '\0';
-      } else if (strcmpi(r1, "char_pw") == 0) {
+      } else if (strcasecmp(r1, "char_pw") == 0) {
         strncpy(char_pw, r2, 32);
         char_pw[31] = '\0';
         // LOGIN
-      } else if (strcmpi(r1, "login_ip") == 0) {
+      } else if (strcasecmp(r1, "login_ip") == 0) {
         strncpy(login_ip_s, r2, 16);
         login_ip_s[15] = '\0';
         login_ip = inet_addr(login_ip_s);
-      } else if (strcmpi(r1, "login_port") == 0) {
+      } else if (strcasecmp(r1, "login_port") == 0) {
         login_port = atoi(r2);
-      } else if (strcmpi(r1, "login_id") == 0) {
+      } else if (strcasecmp(r1, "login_id") == 0) {
         strncpy(login_id, r2, 32);
         login_id[31] = '\0';
-      } else if (strcmpi(r1, "login_pw") == 0) {
+      } else if (strcasecmp(r1, "login_pw") == 0) {
         strncpy(login_pw, r2, 32);
         login_pw[31] = '\0';
         // Save
-      } else if (strcmpi(r1, "save_ip") == 0) {
+      } else if (strcasecmp(r1, "save_ip") == 0) {
         strncpy(save_ip_s, r2, 16);
         save_ip_s[15] = '\0';
         save_ip = inet_addr(save_ip_s);
-      } else if (strcmpi(r1, "save_port") == 0) {
+      } else if (strcasecmp(r1, "save_port") == 0) {
         save_port = atoi(r2);
-      } else if (strcmpi(r1, "save_id") == 0) {
+      } else if (strcasecmp(r1, "save_id") == 0) {
         strncpy(save_id, r2, 32);
         save_id[31] = '\0';
-      } else if (strcmpi(r1, "save_pw") == 0) {
+      } else if (strcasecmp(r1, "save_pw") == 0) {
         strncpy(save_pw, r2, 32);
         save_pw[31] = '\0';
         // SQL
-      } else if (strcmpi(r1, "sql_ip") == 0) {
+      } else if (strcasecmp(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
-      } else if (strcmpi(r1, "sql_port") == 0) {
+      } else if (strcasecmp(r1, "sql_port") == 0) {
         sql_port = atoi(r2);
-      } else if (strcmpi(r1, "sql_id") == 0) {
+      } else if (strcasecmp(r1, "sql_id") == 0) {
         strcpy(sql_id, r2);
-      } else if (strcmpi(r1, "sql_pw") == 0) {
+      } else if (strcasecmp(r1, "sql_pw") == 0) {
         strcpy(sql_pw, r2);
-      } else if (strcmpi(r1, "sql_db") == 0) {
+      } else if (strcasecmp(r1, "sql_db") == 0) {
         strcpy(sql_db, r2);
         // DUMP & LOG
-      } else if (strcmpi(r1, "char_log") == 0) {
+      } else if (strcasecmp(r1, "char_log") == 0) {
         set_logfile(r2);
-      } else if (strcmpi(r1, "dump_log") == 0) {
+      } else if (strcasecmp(r1, "dump_log") == 0) {
         set_dmpfile(r2);
-      } else if (strcmpi(r1, "dump_save") == 0) {
+      } else if (strcasecmp(r1, "dump_save") == 0) {
         dump_save = atoi(r2);
         // NEW CHARS
-      } else if (strcmpi(r1, "start_money") == 1) {
+      } else if (strcasecmp(r1, "start_money") == 1) {
         start_money = atoi(r2);
-      } else if (strcmpi(r1, "start_point") == 1) {
+      } else if (strcasecmp(r1, "start_point") == 1) {
         sscanf(r2, "%d,%d,%d", &m, &x, &y);
       }
     }

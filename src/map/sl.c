@@ -20,7 +20,6 @@
 #include "class_db.h"
 #include "clif.h"
 #include "command.h"
-#include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
 #include "intif.h"
@@ -30,6 +29,7 @@
 #include "md5calc.h"
 #include "mmo.h"
 #include "mob.h"
+#include "net_crypt.h"
 #include "npc.h"
 #include "pc.h"
 #include "recipedb.h"
@@ -1470,7 +1470,7 @@ int checkonline(lua_State *state) {
   } else {
     name = lua_tostring(state, 1);
 
-    if (strcmpi(name, "") == 0) {
+    if (strcasecmp(name, "") == 0) {
       if (SQL_ERROR ==
               SqlStmt_Prepare(stmt,
                               "SELECT `ChaId` FROM `Character` WHERE "
@@ -9148,7 +9148,7 @@ int pcl_setKan(lua_State *state, USER *sd) {
 
 int pcl_getattr(lua_State *state, USER *sd, char *attrname) {
   if (bll_getattr(state, &sd->bl, attrname)) return 1;
-  if (!strcmpi(attrname, "id"))
+  if (!strcasecmp(attrname, "id"))
     lua_pushnumber(state, sd->status.id);
   else if (!strcmp(attrname, "npcGraphic"))
     lua_pushnumber(state, sd->npc_g);
@@ -9566,7 +9566,7 @@ int pcl_useitem(lua_State *state, USER *sd) {
   char *itemname = lua_tostring(state, sl_memberarg(1));
   int i;
   for (i = 0; i < sd->status.maxinv; i++) {
-    if (!strcmpi(itemdb_name(sd->status.inventory[i].id), itemname)) {
+    if (!strcasecmp(itemdb_name(sd->status.inventory[i].id), itemname)) {
       pc_useitem(sd, i);
       return 0;
     }
@@ -10000,8 +10000,8 @@ int pcl_addlegend(lua_State *state, USER *sd) {
   tchaid = lua_tonumber(state, sl_memberarg(5));
 
   for (x = 0; x < MAX_LEGENDS; x++) {
-    if (strcmpi(sd->status.legends[x].name, "") == 0 &&
-        strcmpi(sd->status.legends[x + 1].name, "") == 0) {
+    if (strcasecmp(sd->status.legends[x].name, "") == 0 &&
+        strcasecmp(sd->status.legends[x + 1].name, "") == 0) {
       strcpy(sd->status.legends[x].text, lua_tostring(state, sl_memberarg(1)));
       strcpy(sd->status.legends[x].name, lua_tostring(state, sl_memberarg(2)));
       sd->status.legends[x].icon = icon;
@@ -10299,7 +10299,7 @@ int pcl_removelegendbyname(lua_State *state, USER *sd) {
   int x;
 
   for (x = 0; x < MAX_LEGENDS; x++) {
-    if (strcmpi(sd->status.legends[x].name, find) == 0) {
+    if (strcasecmp(sd->status.legends[x].name, find) == 0) {
       strcpy(sd->status.legends[x].text, "");
       strcpy(sd->status.legends[x].name, "");
       sd->status.legends[x].icon = 0;
@@ -10308,8 +10308,8 @@ int pcl_removelegendbyname(lua_State *state, USER *sd) {
     }
   }
   for (x = 0; x < MAX_LEGENDS; x++) {
-    if (strcmpi(sd->status.legends[x].name, "") == 0 &&
-        strcmpi(sd->status.legends[x + 1].name, "") != 0) {
+    if (strcasecmp(sd->status.legends[x].name, "") == 0 &&
+        strcasecmp(sd->status.legends[x + 1].name, "") != 0) {
       strcpy(sd->status.legends[x].text, sd->status.legends[x + 1].text);
       strcpy(sd->status.legends[x + 1].text, "");
       strcpy(sd->status.legends[x].name, sd->status.legends[x + 1].name);
@@ -10343,8 +10343,8 @@ int pcl_removelegendbycolor(lua_State *state, USER *sd) {
     }
   }
   for (x = 0; x < MAX_LEGENDS; x++) {
-    if (strcmpi(sd->status.legends[x].name, "") == 0 &&
-        strcmpi(sd->status.legends[x + 1].name, "") != 0) {
+    if (strcasecmp(sd->status.legends[x].name, "") == 0 &&
+        strcasecmp(sd->status.legends[x + 1].name, "") != 0) {
       strcpy(sd->status.legends[x].text, sd->status.legends[x + 1].text);
       strcpy(sd->status.legends[x + 1].text, "");
       strcpy(sd->status.legends[x].name, sd->status.legends[x + 1].name);
@@ -10387,7 +10387,7 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
     for (x = 0; x < sd->status.maxinv; x++) {
       if (sd->status.inventory[x].id == id &&
           sd->status.inventory[x].amount < itemdb_stackamount(id) &&
-          !(strcmpi(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
         if (sd->status.inventory[x].amount < amount &&
             sd->status.inventory[x].amount > 0) {
           amount -= sd->status.inventory[x].amount;
@@ -10407,7 +10407,7 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
 
     for (x = 0; x < sd->status.maxinv; x++) {
       if (sd->status.inventory[x].id == id &&
-          !(strcmpi(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
         if (sd->status.inventory[x].amount < amount &&
             sd->status.inventory[x].amount > 0) {
           amount -= sd->status.inventory[x].amount;
@@ -10429,7 +10429,7 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
       if (sd->status.inventory[x].id == id &&
           sd->status.inventory[x].amount < itemdb_stackamount(id) &&
           sd->status.inventory[x].owner == owner &&
-          !(strcmpi(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
         if (sd->status.inventory[x].amount < amount &&
             sd->status.inventory[x].amount > 0) {
           amount -= sd->status.inventory[x].amount;
@@ -10450,7 +10450,7 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
     for (x = 0; x < sd->status.maxinv; x++) {
       if (sd->status.inventory[x].id == id &&
           sd->status.inventory[x].owner == owner &&
-          !(strcmpi(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
         if (sd->status.inventory[x].amount < amount &&
             sd->status.inventory[x].amount > 0) {
           amount -= sd->status.inventory[x].amount;
@@ -10912,7 +10912,7 @@ int pcl_hasitem(lua_State *state, USER *sd) {
     if (owner == 0) {
       if (!dura) {
         if (sd->status.inventory[x].id == id &&
-            !(strcmpi(sd->status.inventory[x].real_name, engrave)) &&
+            !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
             sd->status.inventory[x].customLook == customLook &&
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
@@ -10934,7 +10934,7 @@ int pcl_hasitem(lua_State *state, USER *sd) {
       } else {
         if (sd->status.inventory[x].id == id &&
             sd->status.inventory[x].dura >= dura &&
-            !(strcmpi(sd->status.inventory[x].real_name, engrave)) &&
+            !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
             sd->status.inventory[x].customLook == customLook &&
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
@@ -10959,7 +10959,7 @@ int pcl_hasitem(lua_State *state, USER *sd) {
       if (!dura) {
         if (sd->status.inventory[x].id == id &&
             sd->status.inventory[x].owner == owner &&
-            !(strcmpi(sd->status.inventory[x].real_name, engrave)) &&
+            !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
             sd->status.inventory[x].customLook == customLook &&
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
@@ -10982,7 +10982,7 @@ int pcl_hasitem(lua_State *state, USER *sd) {
         if (sd->status.inventory[x].id == id &&
             sd->status.inventory[x].dura >= dura &&
             sd->status.inventory[x].owner == owner &&
-            !(strcmpi(sd->status.inventory[x].real_name, engrave)) &&
+            !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
             sd->status.inventory[x].customLook == customLook &&
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
@@ -11336,7 +11336,7 @@ int pcl_hasspace(lua_State *state, USER *sd) {
     if (!engrave) {
       engraved = -1;
     } else {
-      engraved = strcmpi(sd->status.inventory[x].real_name, engrave);
+      engraved = strcasecmp(sd->status.inventory[x].real_name, engrave);
     }
 
     if (sd->status.inventory[x].id == id &&
@@ -11477,7 +11477,7 @@ int pcl_bankdeposit(lua_State *state, USER *sd) {
     if (sd->status.banks[x].item_id == item &&
         sd->status.banks[x].owner == owner &&
         sd->status.banks[x].time == time &&
-        !strcmpi(sd->status.banks[x].real_name, engrave) &&
+        !strcasecmp(sd->status.banks[x].real_name, engrave) &&
         sd->status.banks[x].protected == protected &&
         sd->status.banks[x].customIcon == customIcon &&
         sd->status.banks[x].customIconColor == customIconColor &&
@@ -11538,7 +11538,7 @@ int pcl_bankwithdraw(lua_State *state, USER *sd) {
     if (sd->status.banks[x].item_id == item &&
         sd->status.banks[x].owner == owner &&
         sd->status.banks[x].time == time &&
-        !strcmpi(sd->status.banks[x].real_name, engrave) &&
+        !strcasecmp(sd->status.banks[x].real_name, engrave) &&
         sd->status.banks[x].protected == protected &&
         sd->status.banks[x].customIcon == customIcon &&
         sd->status.banks[x].customIconColor == customIconColor &&
@@ -11679,7 +11679,7 @@ int pcl_clanbankdeposit(lua_State *state, USER *sd) {
   for (x = 0; x < 255; x++) {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
-        !strcmpi(clan->clanbanks[x].real_name, engrave) &&
+        !strcasecmp(clan->clanbanks[x].real_name, engrave) &&
         clan->clanbanks[x].protected == protected &&
         clan->clanbanks[x].customIcon == customIcon &&
         clan->clanbanks[x].customIconColor == customIconColor &&
@@ -11748,7 +11748,7 @@ int pcl_clanbankwithdraw(lua_State *state, USER *sd) {
   for (x = 0; x < 255; x++) {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
-        !strcmpi(clan->clanbanks[x].real_name, engrave) &&
+        !strcasecmp(clan->clanbanks[x].real_name, engrave) &&
         clan->clanbanks[x].protected == protected &&
         clan->clanbanks[x].customIcon == customIcon &&
         clan->clanbanks[x].customIconColor == customIconColor &&
@@ -11872,7 +11872,7 @@ int pcl_subpathbankdeposit(lua_State *state, USER *sd) {
   for (x = 0; x < 255; x++) {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
-        !strcmpi(clan->clanbanks[x].real_name, engrave)) {
+        !strcasecmp(clan->clanbanks[x].real_name, engrave)) {
       deposit = x;
       break;
     }
@@ -11923,7 +11923,7 @@ int pcl_subpathbankwithdraw(lua_State *state, USER *sd) {
   for (x = 0; x < 255; x++) {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
-        !strcmpi(clan->clanbanks[x].real_name, engrave)) {
+        !strcasecmp(clan->clanbanks[x].real_name, engrave)) {
       deposit = x;
       break;
     }

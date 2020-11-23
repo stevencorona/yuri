@@ -20,13 +20,13 @@ int recipedb_searchname_sub(DBKey *key, void *data, va_list ap) {
   dst = va_arg(ap, struct recipe_data **);
   nullpo_ret(0, str);
 
-  if (strcmpi(recipe->identifier, str) == 0)
+  if (strcasecmp(recipe->identifier, str) == 0)
     *dst = recipe;
-  else if (strcmpi(recipe->description, str) == 0)
+  else if (strcasecmp(recipe->description, str) == 0)
     *dst = recipe;
-  else if (strcmpi(recipe->critIdentifier, str) == 0)
+  else if (strcasecmp(recipe->critIdentifier, str) == 0)
     *dst = recipe;
-  else if (strcmpi(recipe->critDescription, str) == 0)
+  else if (strcasecmp(recipe->critDescription, str) == 0)
     *dst = recipe;
 
   return 0;

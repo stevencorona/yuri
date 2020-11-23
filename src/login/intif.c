@@ -5,10 +5,10 @@
 #include <string.h>
 
 #include "clif.h"
-#include "crypt.h"
 #include "db_mysql.h"
 #include "login.h"
 #include "mmo.h"
+#include "net_crypt.h"
 #include "socket.h"
 
 static int packet_len_table[] = {69, 5, 5, 27, 5, 0};
@@ -130,7 +130,7 @@ int intif_parse_connectconfirm(int fd) {
     WFIFOB(RFIFOW(fd, 2), 6) = '\x00';
     WFIFOB(RFIFOW(fd, 2), 7) = '\x00';
     set_packet_indexes(WFIFOP(RFIFOW(fd, 2), 0));
-    tk_crypt(WFIFOP(RFIFOW(fd, 2), 0));
+    tk_crypt_static(WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
     int len = 0;
     char *thing = NULL;

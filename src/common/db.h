@@ -230,7 +230,7 @@ typedef unsigned int (*DBHasher)(DBKey key, unsigned short maxlen);
 /**
  * Format of the releaser used by the database system.
  * Releases nothing, the key, the data or both.
- * All standard releasers use aFree to release.
+ * All standard releasers use free to release.
  * @param key Key of the database entry
  * @param data Data of the database entry
  * @param which What is being requested to be released
@@ -846,7 +846,6 @@ void linkdb_final(struct linkdb_node** head);
 
 /////////////////////////////////////////////////////////////////////
 // Vector library based on defines. (dynamic array)
-// uses aMalloc, aRealloc, aFree
 
 /// Declares an anonymous vector struct.
 ///
@@ -931,33 +930,33 @@ void linkdb_final(struct linkdb_node** head);
 ///
 /// @param __vec Vector
 /// @param __n Size
-#define VECTOR_RESIZE(__vec, __n)                                              \
-  do {                                                                         \
-    if ((__n) > VECTOR_CAPACITY(__vec)) { /* increase size */                  \
-      if (VECTOR_CAPACITY(__vec) == 0)                                         \
-        VECTOR_DATA(__vec) =                                                   \
-            aMalloc((__n) * sizeof(VECTOR_FIRST(__vec))); /* allocate new */   \
-      else                                                                     \
-        VECTOR_DATA(__vec) =                                                   \
-            aRealloc(VECTOR_DATA(__vec),                                       \
-                     (__n) * sizeof(VECTOR_FIRST(__vec))); /* reallocate */    \
-      memset(VECTOR_DATA(__vec) + VECTOR_LENGTH(__vec), 0,                     \
-             (VECTOR_CAPACITY(__vec) - VECTOR_LENGTH(__vec)) *                 \
-                 sizeof(VECTOR_FIRST(__vec)));         /* clear new data */    \
-      VECTOR_CAPACITY(__vec) = (__n);                  /* update capacity */   \
-    } else if ((__n) == 0 && VECTOR_CAPACITY(__vec)) { /* clear vector */      \
-      aFree(VECTOR_DATA(__vec));                                               \
-      VECTOR_DATA(__vec) = NULL;                 /* free data */               \
-      VECTOR_CAPACITY(__vec) = 0;                /* clear capacity */          \
-      VECTOR_LENGTH(__vec) = 0;                  /* clear length */            \
-    } else if ((__n) < VECTOR_CAPACITY(__vec)) { /* reduce size */             \
-      VECTOR_DATA(__vec) =                                                     \
-          aRealloc(VECTOR_DATA(__vec),                                         \
-                   (__n) * sizeof(VECTOR_FIRST(__vec))); /* reallocate */      \
-      VECTOR_CAPACITY(__vec) = (__n);                    /* update capacity */ \
-      if (VECTOR_LENGTH(__vec) > (__n))                                        \
-        VECTOR_LENGTH(__vec) = (__n); /* update length */                      \
-    }                                                                          \
+#define VECTOR_RESIZE(__vec, __n)                                             \
+  do {                                                                        \
+    if ((__n) > VECTOR_CAPACITY(__vec)) { /* increase size */                 \
+      if (VECTOR_CAPACITY(__vec) == 0)                                        \
+        VECTOR_DATA(__vec) =                                                  \
+            malloc((__n) * sizeof(VECTOR_FIRST(__vec))); /* allocate new */   \
+      else                                                                    \
+        VECTOR_DATA(__vec) =                                                  \
+            realloc(VECTOR_DATA(__vec),                                       \
+                    (__n) * sizeof(VECTOR_FIRST(__vec))); /* reallocate */    \
+      memset(VECTOR_DATA(__vec) + VECTOR_LENGTH(__vec), 0,                    \
+             (VECTOR_CAPACITY(__vec) - VECTOR_LENGTH(__vec)) *                \
+                 sizeof(VECTOR_FIRST(__vec)));         /* clear new data */   \
+      VECTOR_CAPACITY(__vec) = (__n);                  /* update capacity */  \
+    } else if ((__n) == 0 && VECTOR_CAPACITY(__vec)) { /* clear vector */     \
+      free(VECTOR_DATA(__vec));                                               \
+      VECTOR_DATA(__vec) = NULL;                 /* free data */              \
+      VECTOR_CAPACITY(__vec) = 0;                /* clear capacity */         \
+      VECTOR_LENGTH(__vec) = 0;                  /* clear length */           \
+    } else if ((__n) < VECTOR_CAPACITY(__vec)) { /* reduce size */            \
+      VECTOR_DATA(__vec) =                                                    \
+          realloc(VECTOR_DATA(__vec),                                         \
+                  (__n) * sizeof(VECTOR_FIRST(__vec))); /* reallocate */      \
+      VECTOR_CAPACITY(__vec) = (__n);                   /* update capacity */ \
+      if (VECTOR_LENGTH(__vec) > (__n))                                       \
+        VECTOR_LENGTH(__vec) = (__n); /* update length */                     \
+    }                                                                         \
   } while (0)
 
 /// Ensures that the array has the target number of empty positions.
@@ -1092,7 +1091,7 @@ void linkdb_final(struct linkdb_node** head);
 #define VECTOR_CLEAR(__vec)                                   \
   do {                                                        \
     if (VECTOR_CAPACITY(__vec)) {                             \
-      aFree(VECTOR_DATA(__vec));                              \
+      free(VECTOR_DATA(__vec));                               \
       VECTOR_DATA(__vec) = NULL;  /* clear allocated array */ \
       VECTOR_CAPACITY(__vec) = 0; /* clear capacity */        \
       VECTOR_LENGTH(__vec) = 0;   /* clear length */          \

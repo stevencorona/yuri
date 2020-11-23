@@ -9,10 +9,10 @@
 
 #include "clif.h"
 #include "core.h"
-#include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
 #include "malloc.h"
+#include "net_crypt.h"
 #include "socket.h"
 #include "timer.h"
 
@@ -100,37 +100,37 @@ int lang_read(const char *cfg_file) {
     }
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
-      if (strcmpi(r1, "LGN_ERRSERVER") == 0) {
+      if (strcasecmp(r1, "LGN_ERRSERVER") == 0) {
         strncpy(login_msg[LGN_ERRSERVER], r2, 256);
         login_msg[LGN_ERRSERVER][255] = '\0';
-      } else if (strcmpi(r1, "LGN_WRONGPASS") == 0) {
+      } else if (strcasecmp(r1, "LGN_WRONGPASS") == 0) {
         strncpy(login_msg[LGN_WRONGPASS], r2, 256);
         login_msg[LGN_WRONGPASS][255] = '\0';
-      } else if (strcmpi(r1, "LGN_WRONGUSER") == 0) {
+      } else if (strcasecmp(r1, "LGN_WRONGUSER") == 0) {
         strncpy(login_msg[LGN_WRONGUSER], r2, 256);
         login_msg[LGN_WRONGUSER][255] = '\0';
-      } else if (strcmpi(r1, "LGN_ERRDB") == 0) {
+      } else if (strcasecmp(r1, "LGN_ERRDB") == 0) {
         strncpy(login_msg[LGN_ERRDB], r2, 256);
         login_msg[LGN_ERRDB][255] = '\0';
-      } else if (strcmpi(r1, "LGN_USEREXIST") == 0) {
+      } else if (strcasecmp(r1, "LGN_USEREXIST") == 0) {
         strncpy(login_msg[LGN_USEREXIST], r2, 256);
         login_msg[LGN_USEREXIST][255] = '\0';
-      } else if (strcmpi(r1, "LGN_ERRPASS") == 0) {
+      } else if (strcasecmp(r1, "LGN_ERRPASS") == 0) {
         strncpy(login_msg[LGN_ERRPASS], r2, 256);
         login_msg[LGN_ERRPASS][255] = '\0';
-      } else if (strcmpi(r1, "LGN_ERRUSER") == 0) {
+      } else if (strcasecmp(r1, "LGN_ERRUSER") == 0) {
         strncpy(login_msg[LGN_ERRUSER], r2, 256);
         login_msg[LGN_ERRUSER][255] = '\0';
-      } else if (strcmpi(r1, "LGN_NEWCHAR") == 0) {
+      } else if (strcasecmp(r1, "LGN_NEWCHAR") == 0) {
         strncpy(login_msg[LGN_NEWCHAR], r2, 256);
         login_msg[LGN_NEWCHAR][255] = '\0';
-      } else if (strcmpi(r1, "LGN_CHGPASS") == 0) {
+      } else if (strcasecmp(r1, "LGN_CHGPASS") == 0) {
         strncpy(login_msg[LGN_CHGPASS], r2, 256);
         login_msg[LGN_CHGPASS][255] = '\0';
-      } else if (strcmpi(r1, "LGN_DBLLOGIN") == 0) {
+      } else if (strcasecmp(r1, "LGN_DBLLOGIN") == 0) {
         strncpy(login_msg[LGN_DBLLOGIN], r2, 256);
         login_msg[LGN_DBLLOGIN][255] = '\0';
-      } else if (strcmpi(r1, "LGN_BANNED") == 0) {
+      } else if (strcasecmp(r1, "LGN_BANNED") == 0) {
         strncpy(login_msg[LGN_BANNED], r2, 256);
         login_msg[LGN_BANNED][255] = '\0';
       }
@@ -161,37 +161,37 @@ int config_read(const char *cfg_file) {
     }
 
     if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
-      if (strcmpi(r1, "login_port") == 0) {
+      if (strcasecmp(r1, "login_port") == 0) {
         login_port = atoi(r2);
-      } else if (strcmpi(r1, "login_id") == 0) {
+      } else if (strcasecmp(r1, "login_id") == 0) {
         strncpy(login_id, r2, 32);
         login_id[31] = '\0';
-      } else if (strcmpi(r1, "login_pw") == 0) {
+      } else if (strcasecmp(r1, "login_pw") == 0) {
         strncpy(login_pw, r2, 32);
         login_pw[31] = '\0';
-      } else if (strcmpi(r1, "login_log") == 0) {
+      } else if (strcasecmp(r1, "login_log") == 0) {
         set_logfile(r2);
-      } else if (strcmpi(r1, "dump_log") == 0) {
+      } else if (strcasecmp(r1, "dump_log") == 0) {
         set_dmpfile(r2);
-      } else if (strcmpi(r1, "dump_save") == 0) {
+      } else if (strcasecmp(r1, "dump_save") == 0) {
         dump_save = atoi(r2);
-      } else if (strcmpi(r1, "meta") == 0) {
+      } else if (strcasecmp(r1, "meta") == 0) {
         add_meta(r2);
-      } else if (strcmpi(r1, "version") == 0) {
+      } else if (strcasecmp(r1, "version") == 0) {
         nex_version = atoi(r2);
-      } else if (strcmpi(r1, "deep") == 0) {
+      } else if (strcasecmp(r1, "deep") == 0) {
         nex_deep = atoi(r2);
-      } else if (strcmpi(r1, "sql_ip") == 0) {
+      } else if (strcasecmp(r1, "sql_ip") == 0) {
         strcpy(sql_ip, r2);
-      } else if (strcmpi(r1, "sql_port") == 0) {
+      } else if (strcasecmp(r1, "sql_port") == 0) {
         sql_port = atoi(r2);
-      } else if (strcmpi(r1, "sql_id") == 0) {
+      } else if (strcasecmp(r1, "sql_id") == 0) {
         strcpy(sql_id, r2);
-      } else if (strcmpi(r1, "sql_pw") == 0) {
+      } else if (strcasecmp(r1, "sql_pw") == 0) {
         strcpy(sql_pw, r2);
-      } else if (strcmpi(r1, "sql_db") == 0) {
+      } else if (strcasecmp(r1, "sql_db") == 0) {
         strcpy(sql_db, r2);
-      } else if (strcmpi(r1, "require_reg") == 0) {
+      } else if (strcasecmp(r1, "require_reg") == 0) {
         require_reg = atoi(r2);
       }
     }

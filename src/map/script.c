@@ -22,16 +22,16 @@ int script_config_read_sub(char *cfgName) {
     i = sscanf(line, "%[^:]: %[^\r\n]", w1, w2);
     if (i != 2) continue;
 
-    if (strcmpi(w1, "import") == 0) {
+    if (strcasecmp(w1, "import") == 0) {
       script_config_read_sub(w2);
-    } else if (strcmpi(w1, "npc") == 0) {
+    } else if (strcasecmp(w1, "npc") == 0) {
       npc_src_add(w2);
-    } else if (strcmpi(w1, "map") == 0) {
+    } else if (strcasecmp(w1, "map") == 0) {
       map_src_add(w2);
-    } else if (strcmpi(w1, "warp") == 0) {
+    } else if (strcasecmp(w1, "warp") == 0) {
       printf("%s\n", w2);
       npc_warp_add(w2);
-    } else if (strcmpi(w1, "town") == 0) {
+    } else if (strcasecmp(w1, "town") == 0) {
       if (map_town_add(w2)) printf("CFG ERROR!!!\n");
     }
   }

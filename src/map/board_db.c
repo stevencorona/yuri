@@ -70,9 +70,9 @@ int boarddb_searchname_sub(DBKey *key, void *data, va_list ap) {
   dst = va_arg(ap, struct board_data **);
   nullpo_ret(0, str);
 
-  if (strcmpi(db->yname, str) == 0) {
+  if (strcasecmp(db->yname, str) == 0) {
     *dst = db;
-  } else if (strcmpi(db->name, str) == 0) {
+  } else if (strcasecmp(db->name, str) == 0) {
     *dst = db;
   }
   return 0;

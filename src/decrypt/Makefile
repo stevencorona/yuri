@@ -5,9 +5,9 @@
 
 all: decrypt
 
-decrypt: main.o $(COMMON_OBJ)
+decrypt: main.o ../common/net_crypt.o $(COMMON_OBJ)
 	@echo -e " Linking... $<"
-	@$(CC) -o ../../$(BINDIR)/$@ main.o $(COMMON_OBJ) $(CLIBS)
+	@$(CC) -o ../../$(BINDIR)/$@ main.o ../common/net_crypt.o $(COMMON_OBJ) $(CLIBS)
 
 main.o: main.c $(COMMON_H)
 clean:

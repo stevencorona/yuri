@@ -20,9 +20,9 @@ int itemdb_searchname_sub(DBKey *key, void *data, va_list ap) {
   dst = va_arg(ap, struct item_data **);
   nullpo_ret(0, str);
 
-  if (strcmpi(item->yname, str) == 0) {
+  if (strcasecmp(item->yname, str) == 0) {
     *dst = item;
-  } else if (strcmpi(item->name, str) == 0) {
+  } else if (strcasecmp(item->name, str) == 0) {
     *dst = item;
   }
   return 0;

@@ -471,7 +471,7 @@ int mobdb_searchname_sub(void *key, void *data, va_list ap) {
   char *str;
   str = va_arg(ap, char *);
   dst = va_arg(ap, struct mobdb_data **);
-  if (strcmpi(mob->yname, str) == 0) *dst = mob;
+  if (strcasecmp(mob->yname, str) == 0) *dst = mob;
   return 0;
 }
 
@@ -1926,11 +1926,11 @@ int mob_find_target(struct block_list *bl, va_list ap) {
   seeinvis = mob->data->seeinvis;
   for (i = 0; i < MAX_MAGIC_TIMERS; i++) {
     if (sd->status.dura_aether[i].duration > 0) {
-      if (!strcmpi(magicdb_name(sd->status.dura_aether[i].id), "sneak"))
+      if (!strcasecmp(magicdb_name(sd->status.dura_aether[i].id), "sneak"))
         invis = 1;
-      if (!strcmpi(magicdb_name(sd->status.dura_aether[i].id), "cloak"))
+      if (!strcasecmp(magicdb_name(sd->status.dura_aether[i].id), "cloak"))
         invis = 2;
-      if (!strcmpi(magicdb_name(sd->status.dura_aether[i].id), "hide"))
+      if (!strcasecmp(magicdb_name(sd->status.dura_aether[i].id), "hide"))
         invis = 3;
     }
   }
@@ -2377,7 +2377,7 @@ int mob_readglobalreg(MOB *mob, char *reg) {
   nullpo_ret(0, reg);
 
   for (i = 0; i < MAX_GLOBALMOBREG; i++) {
-    if (strcmpi(mob->registry[i].str, reg) == 0) {
+    if (strcasecmp(mob->registry[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2401,7 +2401,7 @@ int mob_setglobalreg(MOB *mob, char *reg, int val) {
 
   // if registry exists, get number
   for (i = 0; i < MAX_GLOBALMOBREG; i++) {
-    if (strcmpi(mob->registry[i].str, reg) == 0) {
+    if (strcasecmp(mob->registry[i].str, reg) == 0) {
       exist = i;
       break;
     }
@@ -2419,7 +2419,7 @@ int mob_setglobalreg(MOB *mob, char *reg, int val) {
     }
   } else {
     for (i = 0; i < MAX_GLOBALMOBREG; i++) {
-      if (strcmpi(mob->registry[i].str, "") == 0) {
+      if (strcasecmp(mob->registry[i].str, "") == 0) {
         strcpy(mob->registry[i].str, reg);
         mob->registry[i].val = val;
         return 0;

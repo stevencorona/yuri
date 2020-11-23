@@ -13,9 +13,9 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "crypt.h"
 #include "malloc.h"
 #include "mmo.h"
+#include "net_crypt.h"
 #include "timer.h"
 
 #define SOCKET_ERROR (-1)
@@ -683,14 +683,14 @@ int session_eof(int fd) {
 
   // log_session(fd,"Closing client FD(%d)\n");
   if (session[fd]) {
-    aFree(session[fd]->rdata);
-    aFree(session[fd]->wdata);
-    aFree(session[fd]->session_data);
+    free(session[fd]->rdata);
+    free(session[fd]->wdata);
+    free(session[fd]->session_data);
     // session[fd]->session_data=NULL;
     // if(session[fd]->session_data)
     // printf("ERROR in FD %d\n",fd);
 
-    aFree(session[fd]);
+    free(session[fd]);
     session[fd] = NULL;
     // log_session(fd,"Freeing Session FD(%d)\n");
   }
