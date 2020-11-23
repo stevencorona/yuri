@@ -55,7 +55,8 @@ int intif_auth(int fd) {
   WFIFOB(char_fd, 2) = 0x00;
   WFIFOSET(char_fd, 3);
 
-  printf("[login] [char_server_connect] Connection from Char Server accepted.\n");
+  printf(
+      "[login] [char_server_connect] Connection from Char Server accepted.\n");
   return 0;
 }
 int intif_parse_2001(int fd) {
@@ -199,7 +200,7 @@ int intif_parse_changepass(int fd) {
 
   } else if (RFIFOB(fd, 4) == 0x03) {
     printf("[login] [pass_change_failure] ip=%u.%u.%u.%u\n",
-            CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
+           CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
     if (setInvalidCount(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr) >=
         10) {
       add_ip_lockout(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr);

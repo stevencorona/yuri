@@ -426,9 +426,7 @@ int mobspawn_read() {
   return 0;
 }
 
-int mobspawn2_read(const char *mobspawn_file) {
-  return 0;
-}
+int mobspawn2_read(const char *mobspawn_file) { return 0; }
 int mobspeech_read(char *mobspeech_file) { return 0; }
 
 int mobdb_id(char *str) {

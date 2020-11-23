@@ -360,7 +360,8 @@ static enum enum_field_types Sql_P_SizeToMysqlIntType(int sz) {
 /// @private
 static int Sql_P_BindSqlDataType(MYSQL_BIND* bind, enum SqlDataType buffer_type,
                                  void* buffer, size_t buffer_len,
-                                 unsigned long* out_length, int8_t* out_is_null) {
+                                 unsigned long* out_length,
+                                 int8_t* out_is_null) {
   memset(bind, 0, sizeof(MYSQL_BIND));
   switch (buffer_type) {
     case SQLDT_NULL:

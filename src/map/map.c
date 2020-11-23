@@ -795,8 +795,8 @@ int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
     printf("Map_foreachincell: block count too many!\n");
   // ShowWarning("map_foreachincell: block count too many!\n");
 
-  // map_freeblock_lock();	// ����������̉�����֎~���� - Prohibit release
-  // from memory
+  // map_freeblock_lock();	// ����������̉�����֎~���� - Prohibit
+  // release from memory
 
   for (int i = 0; i < blockcount; i++)
     if (bl_list[i]->prev)  // �L?���ǂ����`�F�b�N - Check if there is
@@ -965,7 +965,6 @@ int map_respawnmobs(int (*func)(struct block_list*, va_list), int m, int type,
       for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++)
         for (bl = map[m].block_mob[bx + by * map[m].bxs];
              bl && blockcount < BL_LIST_MAX; bl = bl->next) {
-
           if (bl->x >= x0 && bl->x <= x1 && bl->y >= y0 && bl->y <= y1 &&
               blockcount < BL_LIST_MAX)
             bl_list[blockcount++] = bl;
@@ -2355,7 +2354,6 @@ int nmail_sendmailcopy(USER* sd, char* to_user, char* topic, char* message) {
 
   return 0;
 }
-
 
 int nmail_write(USER* sd) {
   USER* tsd = NULL;

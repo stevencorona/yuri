@@ -236,7 +236,6 @@ int output_meta(char *filename, int num, unsigned int list[], int max) {
   return 0;
 }
 
-
 int main(int argc, char **argv) {
   char filename[128];
   int x = 0;

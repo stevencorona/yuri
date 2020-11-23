@@ -3420,7 +3420,6 @@ int sl_getSetItems(lua_State *state) {
   lua_newtable(state);
 
   if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-
     /*for (i = 0, x = 1; i < 3; i++, x += 3) {
 
                     lua_pushnumber(state, item[i].id);
@@ -10179,9 +10178,7 @@ int pcl_mapselection(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_bank(lua_State *state, USER *sd) {
-  sl_checkargs(state, "s");
-}
+int pcl_bank(lua_State *state, USER *sd) { sl_checkargs(state, "s"); }
 
 int pcl_input(lua_State *state, USER *sd) {
   sl_checkargs(state, "s");
@@ -10652,7 +10649,7 @@ int pcl_addGift(lua_State *state, USER *sd) {
 
       FREE(item);
       return 1;*/
-      return 0;
+  return 0;
 }
 
 int pcl_retrieveGift(lua_State *state, USER *sd) {
@@ -11405,8 +11402,8 @@ int pcl_removespell(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_powerboard(lua_State *state, USER *sd) { 
-  return clif_sendpowerboard(sd); 
+int pcl_powerboard(lua_State *state, USER *sd) {
+  return clif_sendpowerboard(sd);
 }
 
 int pcl_getbankitem(lua_State *state, USER *sd) {
@@ -12972,7 +12969,7 @@ int pcl_getallspells(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getallclassspells(lua_State *state, USER *sd) { 
+int pcl_getallclassspells(lua_State *state, USER *sd) {
   // Used to display all spells in game
   int i, x;
   unsigned int id;

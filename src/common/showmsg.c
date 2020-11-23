@@ -656,8 +656,8 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap) {
       break;
     case MSG_SQL:  // Bright Violet (For dumping out anything related with SQL)
                    // <- Actually, this is mostly used for SQL errors with the
-                   // database, as successes can as well just be anything else...
-                   // [Skotlex]
+                   // database, as successes can as well just be anything
+                   // else... [Skotlex]
       strcat(prefix, CL_MAGENTA "[SQL]" CL_RESET ":");
       break;
     case MSG_INFORMATION:  // Bright White (Variable information)

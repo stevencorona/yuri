@@ -530,8 +530,8 @@ int map_savechars(int, int);
 int map_loadregistry(int);
 NPC *map_name2npc(char *);
 
-int nmail_sendmessage(USER*, char*, int, int);
-int boards_delete(USER*, int);
-int nmail_write(USER*);
-int map_lastdeath_mob(MOB* p);
+int nmail_sendmessage(USER *, char *, int, int);
+int boards_delete(USER *, int);
+int nmail_write(USER *);
+int map_lastdeath_mob(MOB *p);
 int map_saveclanbank(int id);

@@ -1,8 +1,8 @@
 #include "clif.h"
 
 #include <arpa/inet.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
@@ -291,7 +291,6 @@ int maintenance_override(const char *n, int len) {
   return flag;
 }
 
-
 unsigned int metacrc(char *file) {
   FILE *fp = NULL;
 
@@ -414,7 +413,6 @@ int send_metalist(int fd) {
 
   return 0;
 }
-
 
 int clif_debug(unsigned char *stringthing, int len) {
   int i = 0;

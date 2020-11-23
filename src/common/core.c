@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
     do_sendrecv(next);
     do_parsepacket();
 
-    nanosleep((struct timespec[]){{0, 10000}},NULL);
+    nanosleep((struct timespec[]){{0, 10000}}, NULL);
   }
 
   return 0;

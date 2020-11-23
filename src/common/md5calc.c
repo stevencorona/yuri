@@ -207,8 +207,7 @@ static void MD5_String2binary(const char *string, unsigned char *output) {
       msg_digest[4];                 // Message digest   128bit 4byte
   unsigned int *A = &msg_digest[0],  // The message digest in accordance with
                                      // RFC (reference)
-                                         *B = &msg_digest[1],
-               *C = &msg_digest[2], *D = &msg_digest[3];
+      *B = &msg_digest[1], *C = &msg_digest[2], *D = &msg_digest[3];
   int i;
 
   // prog

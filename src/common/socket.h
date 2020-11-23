@@ -42,10 +42,11 @@
       realloc_fifo(fd, size);                                              \
   } while (0)
 //#define WFIFOHEAD(fd,size) if(fd) while(session[fd]->wdata_size +(size) >
-//session[fd]->max_wdata) { if(session[fd]->func_send)
-//session[fd]->func_send(fd); }
+// session[fd]->max_wdata) { if(session[fd]->func_send)
+// session[fd]->func_send(fd); }
 #define WFIFOSPACE(fd) (session[fd]->max_wdata - session[fd]->wdata_size)
-#define WFIFOP(fd, pos) (char *)(session[fd]->wdata + session[fd]->wdata_size + (pos))
+#define WFIFOP(fd, pos) \
+  (char *)(session[fd]->wdata + session[fd]->wdata_size + (pos))
 #define WFIFOB(fd, pos) \
   (*(unsigned char *)(session[fd]->wdata + session[fd]->wdata_size + (pos)))
 #define WFIFOW(fd, pos) \
@@ -55,7 +56,7 @@
 // use function instead of macro.
 //#define WFIFOSET(fd,len) (session[fd]->wdata_size =
 //(session[fd]->wdata_size+(len)+2048 < session[fd]->max_wdata) ?
-//session[fd]->wdata_size+len : session[fd]->wdata_size)
+// session[fd]->wdata_size+len : session[fd]->wdata_size)
 #define WBUFP(p, pos) (((unsigned char *)(p)) + (pos))
 #define WBUFB(p, pos) (*(unsigned char *)WBUFP((p), (pos)))
 #define WBUFW(p, pos) (*(unsigned short *)WBUFP((p), (pos)))

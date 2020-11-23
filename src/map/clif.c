@@ -927,7 +927,6 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
     strcpy(WFIFOP(sd->fd, 8), msg);
     WFIFOW(sd->fd, 1) = SWAP16(len + 5);
     WFIFOSET(sd->fd, encrypt(sd->fd));
-
   }
   return 0;
 }
@@ -5604,8 +5603,7 @@ int clif_getReward(USER *sd, int fd) {
       legendicon1color = 0, legendicon2 = 0, legendicon2color = 0,
       legendicon3 = 0, legendicon3color = 0, legendicon4 = 0,
       legendicon4color = 0, legendicon5 = 0, legendicon5color = 0,
-      reward1amount = 0, reward2amount = 0, reward1item = 0,
-      reward2item = 0;
+      reward1amount = 0, reward2amount = 0, reward1item = 0, reward2item = 0;
   int rewardranks = 0;
   int rank = 0;
   int _1stPlaceReward1_ItmId = 0, _1stPlaceReward1_Amount = 0,
@@ -6020,8 +6018,8 @@ int clif_sendRewardInfo(USER *sd, int fd) {
 
   int legendicon, legendiconcolor, legendicon1, legendicon1color, legendicon2,
       legendicon2color, legendicon3, legendicon3color, legendicon4,
-      legendicon4color, legendicon5, legendicon5color,
-      reward2amount, rewardamount, rewarditm, reward2itm;
+      legendicon4color, legendicon5, legendicon5color, reward2amount,
+      rewardamount, rewarditm, reward2itm;
 
   int _1stPlaceReward1_ItmId, _1stPlaceReward1_Amount, _1stPlaceReward2_ItmId,
       _1stPlaceReward2_Amount, _2ndPlaceReward1_ItmId, _2ndPlaceReward1_Amount,
@@ -6559,7 +6557,7 @@ int getevents() {
   return events;
 }
 
-int getevent_name(int pos, int fd, USER* sd) {
+int getevent_name(int pos, int fd, USER *sd) {
   char name[40];
   char buf[40];
   int i = 0;
@@ -15186,7 +15184,6 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
   clif_sendstatus(tsd, SFLAG_XPMONEY);
   return 0;
 }
-
 
 int clif_exchange_message(USER *sd, char *message, int type, int extra) {
   int len = 0;

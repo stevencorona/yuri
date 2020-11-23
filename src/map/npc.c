@@ -205,8 +205,7 @@ int npc_init() {
   struct item item;
   unsigned int x, i, count, id, gid, gc, time, subtype, npcf1npc = 0;
   unsigned int movetime;
-  unsigned short sex, m, xc, yc, face, facecolor, hair, haircolor,
-      skincolor;
+  unsigned short sex, m, xc, yc, face, facecolor, hair, haircolor, skincolor;
   char name[45];
   char c_name[45];
   char side, state, npctype, pos;

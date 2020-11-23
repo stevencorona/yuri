@@ -640,7 +640,8 @@ void create_session(int fd) {
   session[fd]->rdata_tick = last_tick;
 }
 void flush_fifo(int fd) {
-  if (session[fd] != NULL && session[fd]->func_send != NULL) session[fd]->func_send(fd);
+  if (session[fd] != NULL && session[fd]->func_send != NULL)
+    session[fd]->func_send(fd);
 }
 int session_eof(int fd) {
   unsigned long Measurement = getTicks();

@@ -1204,13 +1204,9 @@ int pc_warp(USER *sd, int m, int x, int y) {
   return 0;
 }
 
-int pc_loadequiprealname(USER *sd) {
-  return 0;
-}
+int pc_loadequiprealname(USER *sd) { return 0; }
 
-int pc_loaditemrealname(USER *sd) {
-  return 0;
-}
+int pc_loaditemrealname(USER *sd) { return 0; }
 
 int pc_loaditem(USER *sd) {
   int i;

@@ -8,19 +8,19 @@
 
 #include "board_db.h"
 #include "class_db.h"
-#include "creation.h"
 #include "clif.h"
+#include "creation.h"
+#include "crypt.h"
+#include "db_mysql.h"
 #include "itemdb.h"
 #include "magic.h"
+#include "malloc.h"
 #include "map.h"
 #include "mmo.h"
 #include "mob.h";
 #include "npc.h"
 #include "pc.h"
 #include "sl.h"
-#include "crypt.h"
-#include "db_mysql.h"
-#include "malloc.h"
 #include "socket.h"
 #include "timer.h"
 
