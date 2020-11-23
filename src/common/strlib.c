@@ -43,7 +43,7 @@ char* jstrescape(char* pt) {
     }
   }
   pt[j++] = '\0';
-  aFree(ptr);
+  free(ptr);
   return pt;
 }
 
@@ -287,13 +287,13 @@ int e_mail_check(char* email) {
 // on/off, english, fran�ais, deutsch, espa�ol
 //--------------------------------------------------
 int config_switch(const char* str) {
-  if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 ||
-      strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 ||
-      strcmpi(str, "si") == 0) {
+  if (strcasecmp(str, "on") == 0 || strcasecmp(str, "yes") == 0 ||
+      strcasecmp(str, "oui") == 0 || strcasecmp(str, "ja") == 0 ||
+      strcasecmp(str, "si") == 0) {
     return 1;
   }
-  if (strcmpi(str, "off") == 0 || strcmpi(str, "no") == 0 ||
-      strcmpi(str, "non") == 0 || strcmpi(str, "nein") == 0) {
+  if (strcasecmp(str, "off") == 0 || strcasecmp(str, "no") == 0 ||
+      strcasecmp(str, "non") == 0 || strcasecmp(str, "nein") == 0) {
     return 0;
   }
 
@@ -976,7 +976,7 @@ StringBuf* StringBuf_Malloc() {
 /// Initializes a previously allocated StringBuf
 void StringBuf_Init(StringBuf* self) {
   self->max_ = 1024;
-  self->ptr_ = self->buf_ = (char*)aMalloc(self->max_ + 1);
+  self->ptr_ = self->buf_ = (char*)malloc(self->max_ + 1);
 }
 
 /// Appends the result of printf to the StringBuf
@@ -1010,7 +1010,7 @@ int StringBuf_Vprintf(StringBuf* self, const char* fmt, va_list ap) {
     /* Else try again with more space. */
     self->max_ *= 2;  // twice the old size
     off = (int)(self->ptr_ - self->buf_);
-    self->buf_ = (char*)aRealloc(self->buf_, self->max_ + 1);
+    self->buf_ = (char*)realloc(self->buf_, self->max_ + 1);
     self->ptr_ = self->buf_ + off;
   }
 }
@@ -1023,7 +1023,7 @@ int StringBuf_Append(StringBuf* self, const StringBuf* sbuf) {
   if (needed >= available) {
     int off = (int)(self->ptr_ - self->buf_);
     self->max_ += needed;
-    self->buf_ = (char*)aRealloc(self->buf_, self->max_ + 1);
+    self->buf_ = (char*)realloc(self->buf_, self->max_ + 1);
     self->ptr_ = self->buf_ + off;
   }
 
@@ -1041,7 +1041,7 @@ int StringBuf_AppendStr(StringBuf* self, const char* str) {
                               // expansion = 1024)
     int off = (int)(self->ptr_ - self->buf_);
     self->max_ += max(needed, 1024);
-    self->buf_ = (char*)aRealloc(self->buf_, self->max_ + 1);
+    self->buf_ = (char*)realloc(self->buf_, self->max_ + 1);
     self->ptr_ = self->buf_ + off;
   }
 
@@ -1064,7 +1064,7 @@ void StringBuf_Clear(StringBuf* self) { self->ptr_ = self->buf_; }
 
 /// Destroys the StringBuf
 void StringBuf_Destroy(StringBuf* self) {
-  aFree(self->buf_);
+  free(self->buf_);
   self->ptr_ = self->buf_ = 0;
   self->max_ = 0;
 }
@@ -1072,5 +1072,5 @@ void StringBuf_Destroy(StringBuf* self) {
 // Frees a StringBuf returned by StringBuf_Malloc
 void StringBuf_Free(StringBuf* self) {
   StringBuf_Destroy(self);
-  aFree(self);
+  free(self);
 }

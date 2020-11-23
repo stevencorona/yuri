@@ -349,7 +349,7 @@ void Sql_Free(Sql* self) {
     if (self->keepalive != INVALID_TIMER) {
       timer_remove(self->keepalive);
     }
-    aFree(self);
+    free(self);
   }
 }
 
@@ -865,11 +865,11 @@ void SqlStmt_Free(SqlStmt* self) {
     SqlStmt_FreeResult(self);
     StringBuf_Destroy(&self->buf);
     mysql_stmt_close(self->stmt);
-    if (self->params) aFree(self->params);
+    if (self->params) free(self->params);
     if (self->columns) {
-      aFree(self->columns);
-      aFree(self->column_lengths);
+      free(self->columns);
+      free(self->column_lengths);
     }
-    aFree(self);
+    free(self);
   }
 }

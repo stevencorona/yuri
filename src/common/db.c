@@ -647,7 +647,7 @@ static DBKey db_dup_key(DBMap_impl* db, DBKey key) {
         str[db->maxlen] = '\0';
         key.str = str;
       } else {
-        key.str = (char*)aStrdup(key.str);
+        key.str = strdup(key.str);
       }
       return key;
 
@@ -668,7 +668,7 @@ static void db_dup_key_free(DBMap_impl* db, DBKey key) {
   switch (db->type) {
     case DB_STRING:
     case DB_ISTRING:
-      aFree((char*)key.str);
+      free((char*)key.str);
       return;
 
     default:
@@ -1055,7 +1055,7 @@ static void db_release_key(DBKey key, void* data, DBRelease which) {
   (void)data;  // not used
   DB_COUNTSTAT(db_release_key);
   if (which & DB_RELEASE_KEY) {
-    aFree((char*)key.str);  // needs to be a pointer
+    free((char*)key.str);  // needs to be a pointer
   }
 }
 
@@ -1074,7 +1074,7 @@ static void db_release_data(DBKey key, void* data, DBRelease which) {
   (void)key;  // not used
   DB_COUNTSTAT(db_release_data);
   if (which & DB_RELEASE_DATA) {
-    aFree(data);
+    free(data);
   }
 }
 
@@ -1092,10 +1092,10 @@ static void db_release_data(DBKey key, void* data, DBRelease which) {
 static void db_release_both(DBKey key, void* data, DBRelease which) {
   DB_COUNTSTAT(db_release_both);
   if (which & DB_RELEASE_KEY) {
-    aFree((char*)key.str);  // needs to be a pointer
+    free((char*)key.str);  // needs to be a pointer
   }
   if (which & DB_RELEASE_DATA) {
-    aFree(data);
+    free(data);
   }
 }
 
@@ -1369,7 +1369,7 @@ void dbit_obj_destroy(DBIterator* self) {
   // unlock the database
   db_free_unlock(it->db);
   // free iterator
-  aFree(self);
+  free(self);
 }
 
 /**
@@ -2130,12 +2130,12 @@ static int db_obj_vdestroy(DBMap* self, DBApply func, va_list args) {
   db_free_lock(db);
   db->global_lock = 1;
   sum = self->vclear(self, func, args);
-  aFree(db->free_list);
+  free(db->free_list);
   db->free_list = NULL;
   db->free_max = 0;
   ers_destroy(db->nodes);
   db_free_unlock(db);
-  aFree(db);
+  free(db);
   return sum;
 }
 
@@ -2619,7 +2619,7 @@ void linkdb_insert(struct linkdb_node** head, void* key, void* data) {
   if (head == NULL) {
     return;
   }
-  node = (struct linkdb_node*)aMalloc(sizeof(struct linkdb_node));
+  node = (struct linkdb_node*)malloc(sizeof(struct linkdb_node));
   if (*head == NULL) {
     // first node
     *head = node;
@@ -2683,7 +2683,7 @@ void* linkdb_erase(struct linkdb_node** head, void* key) {
       if (node->next) {
         node->next->prev = node->prev;
       }
-      aFree(node);
+      free(node);
       return data;
     }
     node = node->next;
@@ -2731,7 +2731,7 @@ void linkdb_final(struct linkdb_node** head) {
   node = *head;
   while (node) {
     node2 = node->next;
-    aFree(node);
+    free(node);
     node = node2;
   }
   *head = NULL;

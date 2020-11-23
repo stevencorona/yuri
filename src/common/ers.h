@@ -116,8 +116,8 @@ typedef struct eri {
 
 #ifdef DISABLE_ERS
 // Use memory manager to allocate/free and disable other interface functions
-#define ers_alloc(obj, type) (type *)aMalloc(sizeof(type))
-#define ers_free(obj, entry) aFree(entry)
+#define ers_alloc(obj, type) (type *)malloc(sizeof(type))
+#define ers_free(obj, entry) free(entry)
 #define ers_entry_size(obj) (size_t)0
 #define ers_destroy(obj)
 // Disable the public functions
