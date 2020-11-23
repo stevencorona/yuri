@@ -4,15 +4,15 @@
 
 Provide a clean fork/drop-in replacement of the Mithia server that is 100% compatible with existing LUA files and database. Slowly improve the codebase from spaghetti C to C11 to Rust.
 
-## TODO
+## Cleanup TODO
 - [x] Remove bundled zlib
 - [x] Fix pointer to int casts for 64-bit support
 - [x] Compile with Clang
 - [x] clang-fmt/clang-modernize codebase
+- [x] Clean up and document configs
 - [ ] Remove dead code
 - [ ] BCrypt Passwords
 - [ ] Flatten source directory
-- [x] Clean up and document configs
 - [ ] Receive mysql / net config as cli flag and env
 - [ ] Produce a single server binary instead of 3x
 - [ ] All logging to STDOUT
@@ -25,9 +25,37 @@ Provide a clean fork/drop-in replacement of the Mithia server that is 100% compa
 - [ ] Smoke Tests
 - [ ] Automated CI
 - [ ] Include SQL Migration & Minimum amount of LUA to run server
+- [ ] Don't hardcode paths
 
 ## Non Goals
 
 - Will not accept any C++ code. The end goal is to port the C to Rust, and using C++ significantly complicates calling between the two languages
 - Must be able to run Mithia lua code out of the box. New lua interfaces may be added, but must retain backwards compatability
 - No copyrighted material - including client, game maps, or storyline. This is not a game, just a server emulator
+
+## Current Architecture
+
+The current inherited architecture requires running 3 servers- the character server (handles character state + global state such as boards), the login server (handles logging in, creating new characters), and the map servers (runs the game world). You can run multiple map servers to handle subsets of the game-world and distribute the load.
+
+The servers communicate with eachother via TCP with a custom protocol that is similar to the game client protocol.
+
+Game state is stored in MySQL, maps and lua scripts are stored on disk.
+
+### Issues with Current Codebase
+
+- Tons of dead code, copy/pasted code, and just largely a mess (`sl.c` is 13K lines long!)
+- Very few defined structures
+- Difficult to follow logical flow between network parsing & proxying to other servers
+- Some game logic implemented in C, some implemented in Lua
+- Very unsafe C - thousands of unsafe casts and easily preventable buffer overflows cause the server to very segfault prone
+- At a scale of 30-40 players, operators begin to see lag issues with no clear cause
+- Runs as a single, serial thread! Code is too unsafe to run multi-threaded, but even slow/blocking processes are executed on the main thread.
+
+## Future State
+- Capture performance metrics for slow lua, slow queries, etc.
+- Fully defined structures for all client packets
+- Concurrent packet parsing and networking
+- Move all game logic into Lua
+- Web editor
+- Use HTTP or GRPC for internal server communication
+- Allow for map server to be gracefully restarted without dropping clients or game state
