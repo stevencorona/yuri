@@ -9,7 +9,6 @@
 #include "class_db.h"
 #include "clif.h"
 #include "creation.h"
-#include "crypt.h"
 #include "db_mysql.h"
 #include "itemdb.h"
 #include "magic.h"
@@ -17,6 +16,7 @@
 #include "map.h"
 #include "mmo.h"
 #include "mob.h";
+#include "net_crypt.h"
 #include "npc.h"
 #include "pc.h"
 #include "sl.h"

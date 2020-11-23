@@ -13,9 +13,9 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "crypt.h"
 #include "malloc.h"
 #include "mmo.h"
+#include "net_crypt.h"
 #include "timer.h"
 
 #define SOCKET_ERROR (-1)

@@ -17,7 +17,6 @@
 #include "class_db.h"
 #include "command.h"
 #include "creation.h"
-#include "crypt.h"
 #include "intif.h"
 #include "itemdb.h"
 #include "magic.h"
@@ -25,6 +24,7 @@
 #include "map.h"
 #include "mmo.h"
 #include "mob.h"
+#include "net_crypt.h"
 #include "pc.h"
 #include "sl.h"
 #include "socket.h"
@@ -148,11 +148,11 @@ int getclifslotfromequiptype(int equipType) {
 
         if(isKey(WFIFOB(fd,3)))
 
-        {	//crypt2(WFIFOP(fd,0),sd->status.EncKey);
-                crypt2(WFIFOP(fd,0),&(sd->status.EncKey));
+        {	//tk_crypt_dynamic(WFIFOP(fd,0),sd->status.EncKey);
+                tk_crypt_dynamic(WFIFOP(fd,0),&(sd->status.EncKey));
         //printf("Key %s (%d)
 (%s)\n",sd->status.name,WFIFOB(fd,3),sd->status.EncKey); } else {
-                crypt(WFIFOP(fd,0));
+                tk_crypt_static(WFIFOP(fd,0));
         }
 
         return (int) SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
@@ -165,9 +165,9 @@ int decrypt(int fd)
 
         if(isKey2(RFIFOB(fd,3)))
         {
-                crypt2(RFIFOP(fd,0),&(sd->status.EncKey));
+                tk_crypt_dynamic(RFIFOP(fd,0),&(sd->status.EncKey));
         } else {
-                crypt(RFIFOP(fd, 0));
+                tk_crypt_static(RFIFOP(fd, 0));
         }
 }*/
 int encrypt(int fd) {
@@ -183,9 +183,9 @@ int encrypt(int fd) {
   // o(")(")
   if (isKey(WFIFOB(fd, 3))) {
     generate_key2(WFIFOP(fd, 0), &(sd->EncHash), &(key), 0);
-    crypt2(WFIFOP(fd, 0), &(key));
+    tk_crypt_dynamic(WFIFOP(fd, 0), &(key));
   } else {
-    tk_crypt(WFIFOP(fd, 0));
+    tk_crypt_static(WFIFOP(fd, 0));
   }
   return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
 }
@@ -197,9 +197,9 @@ int decrypt(int fd) {
 
   if (isKey2(RFIFOB(fd, 3))) {
     generate_key2(RFIFOP(fd, 0), &(sd->EncHash), &(key), 1);
-    crypt2(RFIFOP(fd, 0), &(key));
+    tk_crypt_dynamic(RFIFOP(fd, 0), &(key));
   } else {
-    tk_crypt(RFIFOP(fd, 0));
+    tk_crypt_static(RFIFOP(fd, 0));
   }
 }
 
@@ -12311,7 +12311,7 @@ int send_metafile(USER *sd, char *file) {
   // printf("%s\n",file);
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
   set_packet_indexes(WFIFOP(sd->fd, 0));
-  tk_crypt(WFIFOP(sd->fd, 0));
+  tk_crypt_static(WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, len + 6 + 3);
 
   free(cbuf);
@@ -12353,7 +12353,7 @@ int send_metalist(USER *sd) {
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 4);
   set_packet_indexes(WFIFOP(sd->fd, 0));
-  tk_crypt(WFIFOP(sd->fd, 0));
+  tk_crypt_static(WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, len + 7 + 3);
 
   return 0;

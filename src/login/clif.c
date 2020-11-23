@@ -8,11 +8,11 @@
 #include <zlib.h>
 
 #include "core.h"
-#include "crypt.h"
 #include "db_mysql.h"
 #include "intif.h"
 #include "login.h"
 #include "malloc.h"
+#include "net_crypt.h"
 #include "socket.h"
 #include "timer.h"
 
@@ -31,7 +31,7 @@ int isKey(int fd) {
 }
 int encrypt(int fd, char *name, char *EncHash) {
   set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
+  tk_crypt_static(WFIFOP(fd, 0));
   return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
 }
 
@@ -137,7 +137,7 @@ int clif_message(int fd, char code, char *buff) {
   strcpy(WFIFOP(fd, 7), buff);
   WFIFOW(fd, packet_len + 8) = 0x00;
   set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
+  tk_crypt_static(WFIFOP(fd, 0));
   WFIFOSET(fd, packet_len + 6);
 
   return 0;
@@ -153,7 +153,7 @@ int clif_sendurl(int fd, int type, char *url) {
   memcpy(WFIFOP(fd, 8), url, strlen(url));
   WFIFOW(fd, 1) = SWAP16(strlen(url) + 8);
   set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
+  tk_crypt_static(WFIFOP(fd, 0));
   WFIFOSET(fd, strlen(url) + 8);
 
   return 0;
@@ -365,7 +365,7 @@ int send_metafile(int fd, char *file) {
 
   WFIFOW(fd, 1) = SWAP16(len + 3);
   set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
+  tk_crypt_static(WFIFOP(fd, 0));
   WFIFOSET(fd, len + 6 + 3);
 
   free(cbuf);
@@ -408,7 +408,7 @@ int send_metalist(int fd) {
 
   WFIFOW(fd, 1) = SWAP16(len + 4);
   set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt(WFIFOP(fd, 0));
+  tk_crypt_static(WFIFOP(fd, 0));
   WFIFOSET(fd, len + 7 + 3);
 
   return 0;
@@ -489,12 +489,12 @@ int clif_parse(int fd) {
     }
   }
 
-  tk_crypt(RFIFOP(fd, 0));
+  tk_crypt_static(RFIFOP(fd, 0));
 
   switch (RFIFOB(fd, 3)) {
     case 0x00:
 
-      tk_crypt(RFIFOP(fd, 0));  // reverse the encryption
+      tk_crypt_static(RFIFOP(fd, 0));  // reverse the encryption
       ver = SWAP16(RFIFOW(fd, 4));
       deep = SWAP16(RFIFOW(fd, 7));
       // printf("got this far\n");

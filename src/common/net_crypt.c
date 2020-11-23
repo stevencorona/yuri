@@ -1,4 +1,4 @@
-#include "crypt.h"
+#include "net_crypt.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,46 +8,6 @@
 
 static char enckey[] = "Urk#nI7ni";
 
-// XOR Crypt Code
-//----------------------------
-/*
-void crypt(char *buff, char *eKey="NexonInc.", unsigned char mNum=0) {
-        unsigned int packet_len;
-        unsigned char packet_inc;
-        int i, j, k, l;
-        unsigned short group;
-        buff++;
-        packet_len = SWAP16(*(unsigned short*)buff)-2;
-        buff+=3;
-        packet_inc = *buff;
-        buff++;
-        //XOR 1
-        for (i=0;i < packet_len;i++)
-                *(buff+i) = *(buff+i) ^ enckey[i%9];
-
-        group = packet_len / 9 + 1;
-        k = 0;
-        //XOR 2
-        for (i=0;i < group;i++) {
-                for (j=1;j<= 9;j++) {
-                        if (k >= packet_len) {
-                                i = group;
-                                break;
-                        }
-                        if (i == packet_inc)
-                                l = 0;
-                        else
-                                l = i;
-                        *(buff+k) = *(buff+i*9+j-1) ^ (l%256);
-                        k++;
-                }
-        }
-        //XOR 3
-        for (i=0;i < packet_len;i++)
-                *(buff+i) = *(buff+i) ^ packet_inc;
-}
-
-*/
 char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   struct cvs_MD5Context context;
   unsigned char checksum[16];
@@ -144,66 +104,9 @@ char *generate_key2(unsigned char *packet, char *table, char *keyout,
   return keyout;
 }
 
-/*char* generate_key(const char *name, char *outbuffer, int buflen)
-{
-    struct cvs_MD5Context context;
-    unsigned char checksum[16];
-    int i;
+void tk_crypt_static(char *buff) { tk_crypt_dynamic(buff, enckey); }
 
-    if(buflen < 10)
-        return 0;
-
-    cvs_MD5Init(&context);
-    cvs_MD5Update(&context, name, strlen(name));
-    cvs_MD5Final(checksum, &context);
-
-    for(i = 0; i < 5; i++)
-    {
-        sprintf(&checksum[8], "%02x", (unsigned int) checksum[i]);
-        outbuffer[i*2] = checksum[8];
-        outbuffer[i*2 + 1] = checksum[9];
-    }
-
-    outbuffer[9] = 0;
-    return outbuffer;
-
-}*/
-void tk_crypt(char *buff) {
-  unsigned int Group = 0;
-  unsigned int GroupCount = 0;
-  unsigned int packet_len = 0;
-  unsigned char packet_inc = 0;
-  unsigned char KeyVal = 0;
-  int i;
-  buff++;
-  packet_len = SWAP16(*(unsigned short *)buff) - 5;
-  buff += 3;
-  packet_inc = *buff;
-  buff++;
-
-  // buff now points to the first data byte
-  if (packet_len > 65535) {
-    return;
-  }
-
-  for (i = 0; i < packet_len; i++) {
-    *(buff + i) ^= enckey[i % 9];
-
-    KeyVal = (unsigned char)(Group % 256);  // Second Stage
-    if (KeyVal != packet_inc) {
-      *(buff + i) ^= KeyVal;
-    }
-
-    *(buff + i) ^= packet_inc;
-
-    GroupCount++;
-    if (GroupCount == 9) {
-      Group++;
-      GroupCount = 0;
-    }
-  }
-}
-void crypt2(char *buff, char *key) {
+void tk_crypt_dynamic(char *buff, char *key) {
   unsigned int Group = 0;
   unsigned int GroupCount = 0;
   unsigned int packet_len = 0;
@@ -220,14 +123,10 @@ void crypt2(char *buff, char *key) {
     return;
   }
 
-  for (int i = 0; i < packet_len;
-       i++)  // variable was declared in beginning of function but was
-             // considered unitialized during memory leak test. so we changed it
-             // to this. 5-8-17
-  {
+  for (int i = 0; i < packet_len; i++) {
     *(buff + i) ^= key[i % 9];
 
-    KeyVal = (unsigned char)(Group % 256);  // Second Stage
+    KeyVal = (unsigned char)(Group % 256);
     if (KeyVal != packet_inc) {
       *(buff + i) ^= KeyVal;
     }

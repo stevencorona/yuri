@@ -9,10 +9,10 @@
 
 #include "clif.h"
 #include "core.h"
-#include "crypt.h"
 #include "db.h"
 #include "db_mysql.h"
 #include "malloc.h"
+#include "net_crypt.h"
 #include "socket.h"
 #include "timer.h"
 
