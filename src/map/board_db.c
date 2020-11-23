@@ -110,12 +110,6 @@ int boarddb_level(int id) {
   return db->level;
 }
 
-int boarddb_special(int id) {
-  struct board_data *db = NULL;
-  db = boarddb_search(id);
-  return db->special;
-}
-
 int boarddb_gmlevel(int id) {
   struct board_data *db = NULL;
   db = boarddb_search(id);

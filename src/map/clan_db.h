@@ -18,7 +18,6 @@ struct clan_bank {
 
 extern struct DBMap* clan_db;
 
-// int clandb_add(USER*,char*);
 struct clan_data* clandb_search(int);
 struct clan_data* clandb_searchexist(int);
 char* clandb_name(int);
