@@ -5,9 +5,9 @@
 
 all: map-server
 
-map-server: map.o clif.o intif.o class_db.o itemdb.o recipedb.o pc.o npc.o script.o command.o mob.o magic.o board_db.o clan_db.o sl.o creation.o $(COMMON_OBJ)
+map-server: map.o clif.o intif.o class_db.o itemdb.o recipedb.o pc.o npc.o command.o mob.o magic.o board_db.o clan_db.o sl.o creation.o $(COMMON_OBJ)
 	@echo -e " Linking... $<"
-	@$(CC) -o ../../$(BINDIR)/$@ map.o clif.o intif.o class_db.o itemdb.o recipedb.o pc.o npc.o script.o command.o mob.o magic.o board_db.o clan_db.o sl.o creation.o $(COMMON_OBJ) $(CLIBS)
+	@$(CC) -o ../../$(BINDIR)/$@ map.o clif.o intif.o class_db.o itemdb.o recipedb.o pc.o npc.o command.o mob.o magic.o board_db.o clan_db.o sl.o creation.o $(COMMON_OBJ) $(CLIBS)
 
 map.o: map.c map.h $(COMMON_H)
 clif.o: clif.c clif.h $(COMMON_H)
@@ -17,7 +17,6 @@ itemdb.o: itemdb.c itemdb.h $(COMMON_H)
 recipedb.o: recipedb.c recipedb.h $(COMMON_H)
 pc.o: pc.c pc.h $(COMMON_H)
 npc.o: npc.c npc.h $(COMMON_H)
-script.o: script.c script.h $(COMMON_H)
 command.o: command.c command.h $(COMMON_H)
 mob.o: mob.c mob.h $(COMMON_H)
 magic.o: magic.c magic.h $(COMMON_H)

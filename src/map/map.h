@@ -3,7 +3,6 @@
 #include <stdarg.h>
 
 #include "mmo.h"
-#include "script.h"
 
 #define AUTH_FIFO_SIZE (4 * 1024)
 #define BLOCK_SIZE 8
@@ -261,7 +260,6 @@ struct map_sessiondata {
   char EncHash[0x401];
 
   // npc
-  struct script_data *npc_stackbuf;
   int npc_id, npc_pos, npc_lastpos, npc_menu, npc_amount, npc_g, npc_gc, target,
       time, time2, lasttime, timer, npc_stack, npc_stackmax;
   char *npc_script, *npc_scriptroot;

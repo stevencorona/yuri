@@ -206,4 +206,3 @@ struct boards_read_post_1 {
 };
 
 unsigned int getTicks(void);
-void crash_log(char *, ...);
