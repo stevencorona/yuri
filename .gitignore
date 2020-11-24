@@ -44,7 +44,7 @@
 *.pdb
 
 bin/*
-meta/*
+data/meta/*
 
 # Kernel Module Compile Results
 *.mod*

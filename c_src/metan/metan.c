@@ -310,7 +310,7 @@ int main(int argc, char **argv) {
 
   filecount = ci_max / 1000 + 1;
   for (x = 0; x < filecount; x++) {
-    sprintf(filename, "meta/CharicInfo%d", x);
+    sprintf(filename, "%sCharicInfo%d", meta_dir, x);
     printf("	%s\n", filename);
 
     output_meta(filename, x, charicinfo, ci_max);
@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
   filecount = ii_max / 1000 + 1;
   if (ii_max > 0) {
     for (x = 0; x < filecount; x++) {
-      sprintf(filename, "meta/ItemInfo%d", x);
+      sprintf(filename, "%sItemInfo%d", meta_dir, x);
       printf("	%s\n", filename);
       output_meta(filename, x, iteminfo, ii_max);
     }
