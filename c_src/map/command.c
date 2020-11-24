@@ -1717,7 +1717,7 @@ int command_reloadclass(USER *sd, char *line, lua_State *state) {
 }
 
 int command_reloadlevels(USER *sd, char *line, lua_State *state) {
-  leveldb_read(LEVELDB_FILE);
+  leveldb_read();
 
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "Levels reloaded!");

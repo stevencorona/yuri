@@ -1,7 +1,5 @@
 #pragma once
 
-#define LEVELDB_FILE "db/level_db.txt"
-
 struct class_data {
   char rank0[32];
   char rank1[32];
@@ -43,4 +41,4 @@ int classdb_read();
 int classdb_term();
 int classdb_init();
 
-int leveldb_read(const char* leveldb_file);
+int leveldb_read();
