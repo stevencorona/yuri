@@ -40,37 +40,37 @@ title:
 common:
 	@echo "Common:"
 	@$(MAKE) $(MKDEF) -C c_deps/
-	@$(MAKE) $(MKDEF) -C src/common/
+	@$(MAKE) $(MKDEF) -C c_src/common/
 
 login: common
 	@echo "Login Server:"
-	@$(MAKE) $(MKDEF) -C src/login/ clean
-	@$(MAKE) $(MKDEF) -C src/login/
+	@$(MAKE) $(MKDEF) -C c_src/login/ clean
+	@$(MAKE) $(MKDEF) -C c_src/login/
 
 char: common
 	@echo "Char Server:"
-	@$(MAKE) $(MKDEF) -C src/char/ clean
-	@$(MAKE) $(MKDEF) -C src/char/
+	@$(MAKE) $(MKDEF) -C c_src/char/ clean
+	@$(MAKE) $(MKDEF) -C c_src/char/
 
 map: common
 	@echo "Map Server:"
-	@$(MAKE) $(MKDEF) -C src/map/ clean
-	@$(MAKE) $(MKDEF) -C src/map/
+	@$(MAKE) $(MKDEF) -C c_src/map/ clean
+	@$(MAKE) $(MKDEF) -C c_src/map/
 
 metan: common
 	@echo "Meta Creator:"
-	@$(MAKE) $(METADEF) -C src/metan/ clean
-	@$(MAKE) $(METADEF) -C src/metan/
+	@$(MAKE) $(METADEF) -C c_src/metan/ clean
+	@$(MAKE) $(METADEF) -C c_src/metan/
 
 decrypt: common
 	@echo "Decrypt Packet Tool: "
-	@$(MAKE) $(METADEF) -C src/decrypt/ clean
-	@$(MAKE) $(METADEF) -C src/decrypt/
+	@$(MAKE) $(METADEF) -C c_src/decrypt/ clean
+	@$(MAKE) $(METADEF) -C c_src/decrypt/
 
 clean:
-	@$(MAKE) $(MKDEF) $@ -C src/common/
-	@$(MAKE) $(MKDEF) $@ -C src/login/
-	@$(MAKE) $(MKDEF) $@ -C src/char/
-	@$(MAKE) $(MKDEF) $@ -C src/map/
-	@$(MAKE) $(MKDEF) $@ -C src/metan/
-	@$(MAKE) $(MKDEF) $@ -C src/decrypt/
+	@$(MAKE) $(MKDEF) $@ -C c_src/common/
+	@$(MAKE) $(MKDEF) $@ -C c_src/login/
+	@$(MAKE) $(MKDEF) $@ -C c_src/char/
+	@$(MAKE) $(MKDEF) $@ -C c_src/map/
+	@$(MAKE) $(MKDEF) $@ -C c_src/metan/
+	@$(MAKE) $(MKDEF) $@ -C c_src/decrypt/
