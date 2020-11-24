@@ -1913,7 +1913,6 @@ int do_init(int argc, char** argv) {
   set_termfunc(do_term);
   // CALLOC(userlist,struct userlist_data,1);
   // gcFixPrematureFrees();
-  set_default_input(command_input);
   printf("\n[map] Map Server Started.\n");
   sql_handle = Sql_Malloc();
   if (sql_handle == NULL) {

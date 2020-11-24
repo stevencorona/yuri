@@ -32,6 +32,8 @@ size_t wfifo_size = (16 * 1024);
 time_t last_tick;
 time_t stall_time = 60;
 
+int server_shutdown = 0;
+
 struct socket_data* session[FD_SETSIZE];
 
 int null_parse(int fd);
@@ -789,7 +791,7 @@ int WFIFOSET(int fd, int len) {
 
 // Socket Main Routine
 //----------------------------
-int do_sendrecv(int next) {
+int do_sendrecv() {
   fd_set rfd, wfd;
   struct timeval timeout;
   int ret, i;

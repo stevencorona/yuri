@@ -2,6 +2,7 @@
 
 #include <ctype.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,30 +13,29 @@
 #include "session.h"
 #include "timer.h"
 
-int (*func_parse_it)(char *) = default_parse_input;
-static void (*term_func)(void) = NULL;
-struct timeval start;
-static long long check2 = 0;
+extern int do_init(int, char **);
+static term_func_t *term_func = NULL;
 
 // Main server entry point that runs the networking/logic loop for the
 // map/login/char servers
 int main(int argc, char **argv) {
+  struct timeval start;
+  int tick = 0;
+  bool run = true;
+
   gettimeofday(&start, NULL);
 
-  int next;
-  int tick;
-
-  int run = 1;
   server_shutdown = 0;
 
   do_socket();
 
-  signal(SIGPIPE, sig_proc);
-  signal(SIGTERM, sig_proc);
-  signal(SIGINT, sig_proc);
+  signal(SIGPIPE, handle_signal);
+  signal(SIGTERM, handle_signal);
+  signal(SIGINT, handle_signal);
   db_init();
   timer_init();
 
+  // Each server is required to implement their own do_init function callback
   do_init(argc, argv);
 
   /**
@@ -53,61 +53,41 @@ int main(int argc, char **argv) {
     tick = gettick_nocache();
 
     timer_do(tick);
-    do_sendrecv(next);
+    do_sendrecv();
     do_parsepacket();
 
-    nanosleep((struct timespec[]){{0, 10000000}}, NULL);
+    if (server_shutdown == 1) {
+      run = false;
+    }
+
+    nanosleep((struct timespec[]){{0, SERVER_TICK_RATE_NS}}, NULL);
   }
 
   return 0;
 }
 
-unsigned int getTicks(void) {
-  struct timeval now;
-  unsigned long ticks;
-  long long ticks2;
-
-  gettimeofday(&now, NULL);
-  ticks2 = (((long long)now.tv_sec) * 1000000) + now.tv_usec;
-  check2 = ticks2;
-  ticks =
-      (now.tv_sec - start.tv_sec) * 1000 + (now.tv_usec - start.tv_usec) / 1000;
-  return (ticks);
-}
-
-// Set terminate function
-//----------------------------
-void set_termfunc(void (*termfunc)(void)) { term_func = termfunc; }
-
-// Signal handling
-//----------------------------
-static void sig_proc(int sn) {
-  int i;
-  switch (sn) {
+void handle_signal(int signal) {
+  switch (signal) {
     case SIGINT:
     case SIGTERM:
       printf("[core] [signal] signal=SIGTERM\n");
-      if (term_func) {
+      if (term_func != NULL) {
         term_func();
       }
       timer_clear();
-      for (i = 0; i < fd_max; i++) {
+      for (int i = 0; i < fd_max; i++) {
         if (!session[i]) {
           continue;
         }
         // close(i);
         session_eof(i);
       }
-      // endwin();
       exit(0);
       break;
     case SIGPIPE:
+    default:
       break;
   }
 }
 
-int set_default_input(int (*func)(char *)) {
-  func_parse_it = func;
-  return 0;
-}
-int default_parse_input(char *val) { return 0; }
+void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
