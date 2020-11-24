@@ -1,12 +1,12 @@
 #include "core.h"
 
 #include <ctype.h>
-#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "db.h"
 #include "session.h"
@@ -14,29 +14,18 @@
 
 int (*func_parse_it)(char *) = default_parse_input;
 static void (*term_func)(void) = NULL;
-char date_format[32] = "%Y-%m-%d %H:%M:%S";
-static char h_svn_version[10] = "";
 struct timeval start;
 static long long check2 = 0;
 
-pthread_t thread_id_packet;
-pthread_t thread_sendrecv;
-pthread_t thread_dotimer;
-
-// --------------------------
-// Main Routine
-//----------------------------
+// Main server entry point that runs the networking/logic loop for the
+// map/login/char servers
 int main(int argc, char **argv) {
-  Last_Eof = 0;
-
   gettimeofday(&start, NULL);
 
   int next;
   int tick;
 
   int run = 1;
-  // char str[65536];
-  // memset(str,0,65536);
   server_shutdown = 0;
 
   do_socket();
@@ -67,53 +56,10 @@ int main(int argc, char **argv) {
     do_sendrecv(next);
     do_parsepacket();
 
-    nanosleep((struct timespec[]){{0, 10000}}, NULL);
+    nanosleep((struct timespec[]){{0, 10000000}}, NULL);
   }
 
   return 0;
-}
-
-//#include <pthread.h>
-const char *get_svn_revision(void) {
-  FILE *fp;
-
-  if (*h_svn_version) {
-    return h_svn_version;
-  }
-
-  if ((fp = fopen(".svn/entries", "r")) != NULL) {
-    char line[1024];
-    int rev;
-    // Check the version
-    if (fgets(line, sizeof(line), fp)) {
-      if (!isdigit(line[0])) {
-        // XML File format
-        while (fgets(line, sizeof(line), fp)) {
-          if (strstr(line, "revision=")) {
-            break;
-          }
-        }
-        if (sscanf(line, " %*[^\"]\"%d%*[^\n]", &rev) == 1) {
-          snprintf(h_svn_version, sizeof(h_svn_version), "%d", rev);
-        }
-      } else {
-        // Bin File format
-        fgets(line, sizeof(line), fp);      // Get the name
-        fgets(line, sizeof(line), fp);      // Get the entries kind
-        if (fgets(line, sizeof(line), fp))  // Get the rev numver
-        {
-          snprintf(h_svn_version, sizeof(h_svn_version), "%d", atoi(line));
-        }
-      }
-    }
-    fclose(fp);
-  }
-
-  if (!(*h_svn_version)) {
-    snprintf(h_svn_version, sizeof(h_svn_version), "Unknown");
-  }
-
-  return h_svn_version;
 }
 
 unsigned int getTicks(void) {

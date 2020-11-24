@@ -45,7 +45,6 @@ int (*default_func_accept)(int) = null_accept;
 int (*default_func_timeout)(int) = null_timeout;
 int (*default_func_shutdown)(int) = null_shutdown;
 extern int char_fd;
-extern unsigned long Last_Eof;
 
 typedef struct _connect_history {
   struct _connect_history* next;
@@ -670,8 +669,6 @@ void flush_fifo(int fd) {
   }
 }
 int session_eof(int fd) {
-  unsigned long Measurement = getTicks();
-
   if (fd < 0 || fd >= FD_SETSIZE) {
     return -1;
   }
@@ -695,10 +692,6 @@ int session_eof(int fd) {
     // log_session(fd,"Freeing Session FD(%d)\n");
   }
 
-  unsigned long Difference = getTicks() - Measurement;
-  if (Difference > Last_Eof) {
-    Last_Eof = Difference;
-  }
   return 0;
 }
 int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen) {
