@@ -12261,7 +12261,7 @@ int send_metafile(USER *sd, char *file) {
   unsigned int retval;
   FILE *fp = NULL;
 
-  sprintf(filebuf, "meta/%s", file);
+  sprintf(filebuf, "%s%s", meta_dir, file);
 
   checksum = metacrc(filebuf);
 
@@ -12334,7 +12334,7 @@ int send_metalist(USER *sd) {
     WFIFOB(sd->fd, (len + 6)) = strlen(meta_file[x]);
     memcpy(WFIFOP(sd->fd, len + 7), meta_file[x], strlen(meta_file[x]));
     len += strlen(meta_file[x]) + 1;
-    sprintf(filebuf, "meta/%s", meta_file[x]);
+    sprintf(filebuf, "%s%s", meta_dir, meta_file[x]);
     checksum = metacrc(filebuf);
     WFIFOL(sd->fd, len + 6) = SWAP32(checksum);
     len += 4;

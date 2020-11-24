@@ -213,8 +213,6 @@ int leveldb_read() {
   strncpy(path, data_dir, path_size);
   strncat(path, filename, path_size);
 
-  printf("path=%s", path);
-
   fp = fopen(path, "r");
   if (fp == NULL) {
     printf("DB_ERR: Can't read level db (%s).", path);
