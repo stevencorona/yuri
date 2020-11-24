@@ -8,6 +8,7 @@
 #include <zlib.h>
 
 #include "clif.h"
+#include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
@@ -15,22 +16,12 @@
 #include "session.h"
 #include "timer.h"
 
-int login_port = 2010;
-
 int login_fd;
 int char_fd;
-int require_reg = 0;
 char login_msg[MSG_MAX][256];
 Sql *sql_handle = NULL;
 DBMap *bf_lockout = NULL;
-char login_id[32];
-char login_pw[32];
-// Sql ID/PW
-char sql_id[32] = "";
-char sql_pw[32] = "";
-char sql_db[32] = "";
-char sql_ip[32] = "";
-int sql_port;
+
 // static char check_table_thing[]={'\\','/',';','=',':','(',')',NULL}
 const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] =

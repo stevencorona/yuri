@@ -17,6 +17,7 @@
 #include "clan_db.h"
 #include "class_db.h"
 #include "clif.h"
+#include "config.h"
 #include "core.h"
 #include "creation.h"
 #include "db.h"
@@ -39,11 +40,7 @@
 #ifndef _MAP_SERVER_
 #define _MAP_SERVER_
 #endif
-char sql_id[32] = "";
-char sql_pw[32] = "";
-char sql_ip[32] = "";
-char sql_db[32] = "";
-int sql_port;
+
 Sql* sql_handle = NULL;
 
 DBMap* item_db;
@@ -59,7 +56,6 @@ struct town_data towns[255];
 int town_n = 0;
 char town_name[1024];
 int map_loadgameregistry();
-int serverid = 0;
 
 // item id pool
 char* object;
@@ -80,24 +76,12 @@ struct map_src_list* map_src_last = NULL;
 char map_ip_s[16];
 char log_ip_s[16];
 
-unsigned int map_ip;
-unsigned int map_port;
-unsigned int log_ip;
-unsigned int log_port;
-unsigned int logip;
-unsigned int logport;
 int log_fd;
 int char_fd;
 int map_fd;
 // unsigned int myip=0;
-char char_id[32];
-char char_pw[32];
 char char_ip_s[16];
 int char_ip;
-int char_port;
-int save_time = 60000;
-int xp_rate;
-int d_rate;
 int map_max = 0;
 // unsigned int blcount_t=0;
 int auth_n = 0;
@@ -1667,9 +1651,9 @@ int config_read(const char* cfg_file) {
       } else if (strcasecmp(r1, "loginip") == 0) {
         get_actual_ip2(r2);
         log_ip_s[15] = '\0';
-        log_ip = inet_addr(log_ip_s);
+        login_ip = inet_addr(log_ip_s);
       } else if (strcasecmp(r1, "loginport") == 0) {
-        log_port = atoi(r2);
+        login_port = atoi(r2);
         // CHAR
       } else if (strcasecmp(r1, "char_ip") == 0) {
         strncpy(char_ip_s, r2, 16);

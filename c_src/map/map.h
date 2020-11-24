@@ -406,21 +406,8 @@ extern struct auth_data auth_fifo[];
 extern int auth_n;
 
 extern int char_fd;
-extern char char_id[];
-extern char char_pw[];
-extern char sql_id[];
-extern char sql_pw[];
-extern char sql_ip[];
-extern char sql_db[];
-extern int sql_port;
 extern struct Sql *sql_handle;
-extern unsigned int map_ip;
-extern unsigned int map_port;
-extern unsigned int log_ip;
-extern unsigned int log_port;
-extern int save_time;
 
-extern int serverid;
 extern char servername[16];
 
 struct map_sessiondata *map_id2sd(unsigned int);
