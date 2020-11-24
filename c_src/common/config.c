@@ -32,3 +32,7 @@ char sql_pw[32] = "";
 char sql_db[32] = "";
 char sql_ip[32] = "";
 int sql_port = 3306;
+
+char *data_dir = "./data/";
+char *maps_dir = "./data/maps/";
+char *lua_dir = "./data/lua/";

@@ -43,3 +43,7 @@ extern char sql_pw[];
 extern char sql_ip[];
 extern char sql_db[];
 extern int sql_port;
+
+extern char *maps_dir;
+extern char *lua_dir;
+extern char *data_dir;

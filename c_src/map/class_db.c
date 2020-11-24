@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
@@ -196,7 +197,7 @@ int classdb_read() {
   return 0;
 }
 
-int leveldb_read(const char *leveldb_file) {
+int leveldb_read() {
   FILE *fp;
   char line[1024];
   int lines = 0;
@@ -204,9 +205,19 @@ int leveldb_read(const char *leveldb_file) {
   struct class_data *db;
   int i, cls = 0;
   int x;
-  fp = fopen(leveldb_file, "r");
+
+  char *filename = "tnl_exp.csv";
+  size_t path_size = strlen(data_dir) + strlen(filename);
+  char *path = malloc(path_size);
+
+  strncpy(path, data_dir, path_size);
+  strncat(path, filename, path_size);
+
+  printf("path=%s", path);
+
+  fp = fopen(path, "r");
   if (fp == NULL) {
-    printf("DB_ERR: Can't read level db (%s).", leveldb_file);
+    printf("DB_ERR: Can't read level db (%s).", path);
     exit(1);
   }
 
@@ -232,6 +243,7 @@ int leveldb_read(const char *leveldb_file) {
   }
 
   fclose(fp);
+  free(path);
   printf("Level db read done. %d class levels loaded!\n", cls);
   return 0;
 }
@@ -257,6 +269,6 @@ int classdb_term() {
 int classdb_init() {
   class_db = uidb_alloc(DB_OPT_BASE);
   classdb_read();
-  leveldb_read(LEVELDB_FILE);
+  leveldb_read();
   return 0;
 }

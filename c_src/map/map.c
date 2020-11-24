@@ -1199,7 +1199,7 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
   CALLOC(map, struct map_data, 65535);
 
   for (i = 0; i < map_n && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
-    sprintf(mappath, "../ctkmaps/Accepted/%s", mapfile);
+    sprintf(mappath, "%s%s", maps_dir, mapfile);
     fp = fopen(mappath, "rb");
 
     if (fp == NULL) {
@@ -1393,7 +1393,7 @@ int map_reload() {
   map_n = SqlStmt_NumRows(stmt);
 
   for (i = 0; i < map_n && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
-    sprintf(mappath, "../ctkmaps/Accepted/%s", mapfile);
+    sprintf(mappath, "%s%s", maps_dir, mapfile);
     fp = fopen(mappath, "rb");
     blockcount = map[id].bxs * map[id].bys;
 
@@ -1847,8 +1847,23 @@ int object_flag_init(void) {
   char flag = 0;
   char count = 0;
   int z = 1;
-  FILE* fi = fopen("SObj.tbl", "rb");
-  // FILE *fo = fopen("C:\\sobjflags.tbl", "wb");
+
+  char* filename = "static_objects.tbl";
+  size_t path_size = strlen(data_dir) + strlen(filename);
+  char* path = malloc(path_size);
+
+  strncpy(path, data_dir, path_size);
+  strncat(path, filename, path_size);
+
+  FILE* fi = fopen(path, "rb");
+
+  printf("[map] [object_flag_init] reading static obj table path=%s\n", path);
+
+  if (fi == NULL) {
+    printf("[map] [error] cannot read static object table path=%s\n", path);
+    exit(1);
+  }
+
   fread(&num, 4, 1, fi);
   CALLOC(objectFlags, unsigned char, num + 1);
   fread(&flag, 1, 1, fi);
@@ -1865,6 +1880,8 @@ int object_flag_init(void) {
     // fwrite(&flag, 1, 1, fo);
     z++;
   }
+
+  free(path);
   return 0;
 }
 int do_init(int argc, char** argv) {
