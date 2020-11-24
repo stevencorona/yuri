@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "clif.h"
+#include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"

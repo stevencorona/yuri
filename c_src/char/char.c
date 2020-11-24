@@ -7,6 +7,7 @@
 #include <zlib.h>
 
 #include "char_db.h"
+#include "config.h"
 #include "core.h"
 #include "db.h"
 #include "logif.h"
@@ -14,8 +15,6 @@
 #include "mmo.h"
 #include "session.h"
 #include "timer.h"
-
-int char_port = 2005;
 
 struct DBMap *login_data;
 struct mmo_charstatus *char_dat;
@@ -27,23 +26,6 @@ int map_fifo_max = 0;
 struct Sql *sql_handle;
 int char_fd;
 int login_fd;
-
-struct point start_pos;
-
-char char_id[32];
-char char_pw[32];
-// Sql ID/PW
-char sql_id[32] = "";
-char sql_pw[32] = "";
-char sql_db[32] = "";
-char sql_ip[32] = "";
-int sql_port;
-
-char login_id[32];
-char login_pw[32];
-char login_ip_s[16];
-int login_ip;
-int login_port;
 
 int zlib_init(void) {
   z_stream strm;
@@ -139,6 +121,8 @@ int logindata_change(unsigned int id, int map_server) {
  */
 int config_read(const char *cfg_file) {
   char line[1024], r1[1024], r2[1024];
+  char login_ip_s[16];
+
   int line_num = 0;
   FILE *fp;
   int m, x, y;

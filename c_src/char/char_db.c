@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "char.h"
+#include "config.h"
 #include "core.h"
 #include "db_mysql.h"
 #include "md5calc.h"

@@ -25,11 +25,11 @@ LIBS += $(shell ${PKG_CONFIG} --libs lua5.1)
 LIBS += -lm -ldl -lcrypt -pthread
 
 DEPS_OBJ = ../../target/debug/libyuri.a ../../c_deps/db_mysql.o ../../c_deps/db.o ../../c_deps/ers.o ../../c_deps/md5calc.o ../../c_deps/rndm.o ../../c_deps/showmsg.o ../../c_deps/strlib.o ../../c_deps/timer.o
-COMMON_OBJ = ../common/core.o ../common/session.o ../common/net_crypt.o $(DEPS_OBJ)
+COMMON_OBJ = ../common/config.o ../common/core.o ../common/session.o ../common/net_crypt.o $(DEPS_OBJ)
 COMMON_H = ../common/core.h ../common/session.h ../common/net_crypt.h ../common/mmo.h
 
 MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="$(COMMON_OBJ)" COMMON_H="$(COMMON_H)"
-METADEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="$(DEPS_OBJ)" COMMON_H="$(COMMON_H)"
+METADEF = CC="$(CC)" CFLAGS="$(CFLAGS)" CLIBS="$(LIBS)" COMMON_OBJ="../common/config.o $(DEPS_OBJ)" COMMON_H="$(COMMON_H)"
 
 all: title libyuri common login char map metan decrypt
 

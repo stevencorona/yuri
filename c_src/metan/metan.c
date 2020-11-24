@@ -6,16 +6,12 @@
 
 #include "../map/class_db.h"
 #include "../map/itemdb.h"
+#include "config.h"
 #include "core.h"
 #include "db_mysql.h"
 
 char scheme[32];
 int filecount;
-char sql_id[32] = "";
-char sql_pw[32] = "";
-char sql_ip[32] = "";
-char sql_db[32] = "";
-int sql_port;
 Sql *sql_handle = NULL;
 
 unsigned short swap16(unsigned short val) {

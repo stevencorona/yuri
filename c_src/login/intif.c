@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "clif.h"
+#include "config.h"
 #include "db_mysql.h"
 #include "login.h"
 #include "mmo.h"

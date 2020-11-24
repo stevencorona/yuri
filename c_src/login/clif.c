@@ -7,6 +7,7 @@
 #include <string.h>
 #include <zlib.h>
 
+#include "config.h"
 #include "core.h"
 #include "db_mysql.h"
 #include "intif.h"

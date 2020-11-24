@@ -7,6 +7,7 @@
 
 #include "char.h"
 #include "char_db.h"
+#include "config.h"
 #include "core.h"
 #include "db_mysql.h"
 #include "mmo.h"

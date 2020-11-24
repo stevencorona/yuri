@@ -13,6 +13,7 @@
 #include "clan_db.h"
 #include "class_db.h"
 #include "command.h"
+#include "config.h"
 #include "core.h"
 #include "creation.h"
 #include "db_mysql.h"
@@ -32,8 +33,7 @@
 
 /// testcxv
 unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
-unsigned int log_ip;
-unsigned int log_port;
+
 int flags[16] = {1,   2,    4,    8,    16,   32,    64,    128, 256,
                  512, 1024, 2048, 4096, 8192, 16386, 32768, 0};
 const unsigned char clkey2[] = {6,  8,  9,  10, 15, 19, 23,
@@ -664,8 +664,8 @@ int clif_closeit(USER *sd) {
   /*WFIFOHEAD(sd->fd,255);
   WFIFOB(sd->fd,0)=0xAA;
   WFIFOB(sd->fd,3)=0x03;
-  WFIFOL(sd->fd,4)=SWAP32(log_ip);
-  WFIFOW(sd->fd,8)=SWAP16(log_port);
+  WFIFOL(sd->fd,4)=SWAP32(login_ip);
+  WFIFOW(sd->fd,8)=SWAP16(login_port);
   //len=strlen(sd->status.name);
   WFIFOW(sd->fd,11)=SWAP16(9);
   strcpy(WFIFOP(sd->fd,13),"KruIn7inc");
@@ -684,8 +684,8 @@ int clif_closeit(USER *sd) {
   WFIFOHEAD(sd->fd, 255);
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x03;
-  WFIFOL(sd->fd, 4) = SWAP32(log_ip);
-  WFIFOW(sd->fd, 8) = SWAP16(log_port);
+  WFIFOL(sd->fd, 4) = SWAP32(login_ip);
+  WFIFOW(sd->fd, 8) = SWAP16(login_port);
   WFIFOB(sd->fd, 10) = 0x16;
   WFIFOW(sd->fd, 11) = SWAP16(9);
   strcpy(WFIFOP(sd->fd, 13), "KruIn7inc");

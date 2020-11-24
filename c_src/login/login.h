@@ -1,6 +1,5 @@
 #pragma once
 #define MSG_MAX 11
-#define META_MAX 20
 
 enum {
   LGN_ERRSERVER,
@@ -17,20 +16,9 @@ enum {
 };
 
 extern int char_fd;
-extern char login_id[];
-extern char login_pw[];
 extern char login_msg[MSG_MAX][256];
-extern int require_reg;
-extern char sql_id[];
-extern char sql_pw[];
-extern char sql_ip[];
-extern char sql_db[];
-extern int sql_port;
 extern struct Sql *sql_handle;
-char meta_file[META_MAX][256];
 int metamax;
-int nex_version;
-int nex_deep;
 int getInvalidCount(unsigned int);
 int setInvalidCount(unsigned int);
 
