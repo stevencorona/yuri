@@ -984,6 +984,7 @@ int mapif_parse_findnewmp(int fd) {
   WFIFOW(fd,4)=flags;
   WFIFOSET(fd,6);
   return 0;*/
+  return 0;
 }
 int mapif_parse(int fd) {
   int id, i;

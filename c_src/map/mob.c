@@ -895,6 +895,7 @@ int kill_mob(MOB *mob) {
   clif_mob_kill(mob);
   mob_flushmagic(mob);
   // sl_doscript_blargs(mob->data->yname,"on_death",2,&mob->bl,&sd->bl);
+  return 0;
 }
 int mob_handle_sub(MOB *mob, va_list ap) {
   USER *sd = NULL;

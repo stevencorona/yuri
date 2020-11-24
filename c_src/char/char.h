@@ -28,7 +28,7 @@ extern struct Sql *sql_handle;
 
 // int logindata_del(unsigned int);
 int logindata_change(unsigned int, int);
-int logindata_search(unsigned int);
+struct char_login_data *logindata_search(unsigned int);
 
 int mapfifo_from_mapid(int);
 

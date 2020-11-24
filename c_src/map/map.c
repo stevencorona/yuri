@@ -105,6 +105,7 @@ int command_input(char* val) { return 0; }
 int add_meta(char* file) {
   strcpy(meta_file[metamax], file);
   metamax++;
+  return 0;
 }
 
 int map_moveblock(struct block_list* bl, int x1, int y1) {

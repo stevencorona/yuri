@@ -80,11 +80,11 @@ int logindata_term() {
   return 0;
 }
 
-int logindata_search(unsigned int id) {
+struct char_login_data *logindata_search(unsigned int id) {
   struct char_login_data *dat;
   dat = (struct char_login_data *)uidb_get(login_data, id);
   if (!dat) {
-    return -1;
+    return NULL;
   }
 
   return dat;
