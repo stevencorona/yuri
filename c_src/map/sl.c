@@ -297,6 +297,7 @@ int bll_getobjects_helper(struct block_list *bl, va_list ap) {
   def[0]++;
   bll_pushinst(state, bl, 0);
   lua_rawseti(state, -2, def[0]);
+  return 0;
 }
 
 int bll_getaliveobjects_helper(struct block_list *bl, va_list ap) {
@@ -320,6 +321,7 @@ int bll_getaliveobjects_helper(struct block_list *bl, va_list ap) {
   def[0]++;
   bll_pushinst(state, bl, 0);
   lua_rawseti(state, -2, def[0]);
+  return 0;
 }
 
 int bll_getaliveobjects(lua_State *state, void *self, int area) {
@@ -3318,6 +3320,7 @@ int sl_processKanDonations(lua_State *state) {
 
     FREE(characters);
   }
+  return 0;
 }
 
 int sl_guitext(lua_State *state, USER *sd) {
@@ -3703,6 +3706,7 @@ int sl_async_done(lua_State *state) {
   // free the coroutine
   USER *sd = typel_topointer(state, 1);
   sl_async_freeco(sd);
+  return 0;
 }
 
 void sl_async_freeco(USER *sd) {
@@ -4499,6 +4503,7 @@ int typel_boundfunc(lua_State *state) {
   if (inst && inst->self) {
     return wrapped(state, inst->self);
   }
+  return 0;
 }
 
 int typel_mtindex(lua_State *state) {
@@ -5284,6 +5289,7 @@ int fll_init(lua_State *state, FLOORITEM *fl, int dataref, void *param) {
   // lua_setfield(state,-2,"data");
 
   lua_pop(state, 1);  // pop the data table
+  return 0;
 }
 
 int fll_getattr(lua_State *state, FLOORITEM *fl, char *attrname) {
@@ -6239,6 +6245,7 @@ int mobl_sendhealth(lua_State *state, MOB *mob) {
   }
 
   clif_send_mob_healthscript(mob, damage, critical);
+  return 0;
 }
 
 int mobl_init(lua_State *state, MOB *mob, int dataref, void *param) {
@@ -6262,6 +6269,7 @@ int mobl_init(lua_State *state, MOB *mob, int dataref, void *param) {
             }*/
   }
   lua_pop(state, 1);  // pop the data table
+  return 0;
 }
 
 int mobl_getattr(lua_State *state, MOB *mob, char *attrname) {
@@ -6964,10 +6972,12 @@ int mobl_sendminitext(lua_State *state, MOB *mob) { return 0; }
 
 int mobregl_getattr(lua_State *state, MOB *mob, char *attrname) {
   lua_pushnumber(state, mob_readglobalreg(mob, attrname));
+  return 0;
 }
 
 int mobregl_setattr(lua_State *state, MOB *mob, char *attrname) {
   mob_setglobalreg(mob, attrname, lua_tonumber(state, -1));
+  return 0;
 }
 
 int pcl_addhealth(lua_State *, USER *);
@@ -8583,6 +8593,7 @@ int pcl_init(lua_State *state, USER *sd, int dataref, void *param) {
       lua_setfield(state,-2,"inventory");
 */
   lua_pop(state, 1);  // pop the data table
+  return 0;
 }
 
 int sl_mob_look(struct block_list *bl, va_list ap) { return 0; }
@@ -10189,7 +10200,10 @@ int pcl_mapselection(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_bank(lua_State *state, USER *sd) { sl_checkargs(state, "s"); }
+int pcl_bank(lua_State *state, USER *sd) {
+  sl_checkargs(state, "s");
+  return 0;
+}
 
 int pcl_input(lua_State *state, USER *sd) {
   sl_checkargs(state, "s");

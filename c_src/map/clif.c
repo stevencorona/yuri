@@ -178,6 +178,7 @@ int decrypt(int fd) {
   } else {
     tk_crypt_static(RFIFOP(fd, 0));
   }
+  return 0;
 }
 
 char *replace_str(char *str, char *orig, char *rep) {
@@ -239,6 +240,7 @@ int clif_Hacker(char *name, const char *reason) {
          name, reason);
   sprintf(StringBuffer, "%s possibly hacking: %s", name, reason);
   clif_broadcasttogm(StringBuffer, -1);
+  return 0;
 }
 int clif_sendurl(USER *sd, int type, char *url) {
   if (!sd) return 0;
@@ -445,6 +447,7 @@ int clif_popup(USER *sd, const char *buf) {
   WFIFOW(sd->fd, 6) = SWAP16(strlen(buf));
   strcpy(WFIFOP(sd->fd, 8), buf);
   WFIFOSET(sd->fd, encrypt(sd->fd));
+  return 0;
 }
 
 int clif_paperpopup(USER *sd, const char *buf, int width, int height) {
@@ -464,6 +467,7 @@ int clif_paperpopup(USER *sd, const char *buf, int width, int height) {
   WFIFOW(sd->fd, 9) = SWAP16(strlen(buf));  // length of message
   strcpy(WFIFOP(sd->fd, 11), buf);          // message
   WFIFOSET(sd->fd, encrypt(sd->fd));
+  return 0;
 }
 
 int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
@@ -484,6 +488,7 @@ int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
   WFIFOW(sd->fd, 9) = SWAP16(strlen(buf));  // length of message
   strcpy(WFIFOP(sd->fd, 11), buf);          // message
   WFIFOSET(sd->fd, encrypt(sd->fd));
+  return 0;
 }
 
 int clif_paperpopupwrite_save(USER *sd) {
@@ -501,6 +506,7 @@ int clif_paperpopupwrite_save(USER *sd) {
   if (strcmp(sd->status.inventory[slot].note, input) != 0) {
     memcpy(sd->status.inventory[slot].note, input, 300);
   }
+  return 0;
 }
 
 int stringTruncate(char *buffer, int maxLength) {
@@ -628,6 +634,7 @@ int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
   printf("\n");*/
 
   WFIFOSET(sd->fd, encrypt(sd->fd));
+  return 0;
 }
 
 int clif_closeit(USER *sd) {
@@ -5468,6 +5475,7 @@ int clif_guitext(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd, 1) = SWAP16(8 + strlen(msg) + 3);
 
   WFIFOSET(sd->fd, encrypt(sd->fd));
+  return 0;
 }
 
 int sendRewardParcel(USER *sd, int eventid, int rank, int rewarditem,
@@ -8829,7 +8837,7 @@ int clif_sendupdatestatus2(USER *sd) {
   return 0;
 }
 
-clif_sendupdatestatus_onkill(USER *sd) {
+int clif_sendupdatestatus_onkill(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
@@ -8978,7 +8986,7 @@ int clif_sendupdatestatus_onequip(USER *sd) {
   return 0;
 }
 
-clif_sendupdatestatus_onunequip(USER *sd) {
+int clif_sendupdatestatus_onunequip(USER *sd) {
   int tnl = clif_getLevelTNL(sd);
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
@@ -11345,6 +11353,7 @@ int clif_changeprofile(USER *sd) {
   memcpy(sd->profilepic_data, RFIFOP(sd->fd, 5), sd->profilepic_size);
   memcpy(sd->profile_data, RFIFOP(sd->fd, 5 + sd->profilepic_size),
          sd->profile_size);
+  return 0;
 }
 
 // this is for preventing hackers
@@ -11380,6 +11389,7 @@ int clif_stoptimers(USER *sd) {
       timer_remove(sd->status.dura_aether[x].aether_timer);
     }
   }
+  return 0;
 }
 int clif_handle_disconnect(USER *sd) {
   USER *tsd = NULL;
@@ -12815,37 +12825,6 @@ int clif_showboards(USER *sd) {
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
   WFIFOSET(sd->fd, encrypt(sd->fd));
   return 0;
-}
-
-char *clif_getofflinename(unsigned int owner) {
-  char name[16] = "";
-  SqlStmt *stmt;
-
-  stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
-    SqlStmt_ShowDebug(stmt);
-    return 0;
-  }
-
-  if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `ChaName` FROM `Character` WHERE `ChaId` = '%u'",
-                       owner) ||
-      SQL_ERROR == SqlStmt_Execute(stmt) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &name,
-                                      sizeof(name), NULL, NULL)) {
-    SqlStmt_ShowDebug(stmt);
-    SqlStmt_Free(stmt);
-    return 0;
-  }
-
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-    SqlStmt_Free(stmt);
-  } else {
-    SqlStmt_Free(stmt);
-  }
-
-  return &name[0];
 }
 
 int clif_buydialog(USER *sd, unsigned int id, char *dialog, struct item *item,
@@ -14554,7 +14533,9 @@ int clif_leavegroup(USER *sd) {
   sd->group_count = 0;
   sd->groupid = 0;
   clif_groupstatus(sd);
+  return 0;
 }
+
 int clif_findmount(USER *sd) {
   struct block_list *bl = NULL;
   MOB *mob = NULL;

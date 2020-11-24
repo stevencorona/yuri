@@ -585,6 +585,7 @@ int command_stealth(USER *sd, char *line, lua_State *state) {
     clif_refresh(sd);
     clif_sendminitext(sd, "Stealth :ON");
   }
+  return 0;
 }
 
 int command_ghosts(USER *sd, char *line, lua_State *state) {
@@ -607,6 +608,7 @@ int command_unphysical(USER *sd, char *line, lua_State *state) {
   } else {
     clif_sendminitext(sd, "Unphysical :OFF");
   }
+  return 0;
 }
 
 int command_immortality(USER *sd, char *line, lua_State *state) {
@@ -617,6 +619,7 @@ int command_immortality(USER *sd, char *line, lua_State *state) {
   } else {
     clif_sendminitext(sd, "Immortality :OFF");
   }
+  return 0;
 }
 
 int command_ban(USER *sd, char *line, lua_State *state) {
@@ -677,8 +680,10 @@ int command_silence(USER *sd, char *line, lua_State *state) {
       clif_sendminitext(sd, "Unsilenced.");
       clif_sendminitext(tsd, "Silence lifted.");
     }
-  } else
+  } else {
     clif_sendminitext(sd, "User not on.");
+  }
+  return 0;
 }
 
 int command_gfxtoggle(USER *sd, char *line, lua_State *state) {
@@ -729,6 +734,7 @@ int command_speed(USER *sd, char *line, lua_State *state) {
   sd->speed = d;
   clif_sendchararea(sd);
   clif_getchararea(sd);
+  return 0;
 }
 
 int command_warp(USER *sd, char *line, lua_State *state) {
@@ -883,6 +889,7 @@ int command_nspell(USER *sd, char *line, lua_State *state) {
   if (spellgfx > 427) spellgfx = 427;
   map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                     BL_PC, spellgfx, &sd->bl, soundfx);
+  return 0;
 }
 
 int command_pspell(USER *sd, char *line, lua_State *state) {
@@ -890,6 +897,7 @@ int command_pspell(USER *sd, char *line, lua_State *state) {
   if (spellgfx < 0) spellgfx = 0;
   map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                     BL_PC, spellgfx, &sd->bl, soundfx);
+  return 0;
 }
 
 int command_spellq(USER *sd, char *line, lua_State *state) {
@@ -897,6 +905,7 @@ int command_spellq(USER *sd, char *line, lua_State *state) {
 
   sprintf(mini, "Current Spell is: %d\0", spellgfx);
   clif_sendminitext(sd, mini);
+  return 0;
 }
 
 int command_hair(USER *sd, char *line, lua_State *state) {
