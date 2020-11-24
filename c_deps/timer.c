@@ -1,5 +1,6 @@
 #include "timer.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -203,7 +204,8 @@ static int acquire_timer(void) {
 /// Starts a new timer that is deleted once it expires (single-use).
 /// Returns the timer's id.
 int timer_insert(unsigned int tick, unsigned int interval,
-                 int (*func)(int, int), int data1, int data2) {
+                 int (*func)(uintptr_t*, uintptr_t*), uintptr_t* data1,
+                 uintptr_t* data2) {
   int tid;
 
   tid = acquire_timer();
