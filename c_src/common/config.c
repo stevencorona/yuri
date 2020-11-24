@@ -25,6 +25,7 @@ int serverid;
 int save_time = 60000;
 int xp_rate;
 int d_rate;
+struct town_data towns[255];
 
 char sql_id[32] = "";
 char sql_pw[32] = "";

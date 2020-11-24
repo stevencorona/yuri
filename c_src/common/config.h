@@ -31,6 +31,12 @@ extern int save_time;
 extern int xp_rate;
 extern int d_rate;
 
+struct town_data {
+  char name[32];
+};
+
+extern struct town_data towns[];
+
 extern char sql_id[];
 extern char sql_pw[];
 extern char sql_ip[];

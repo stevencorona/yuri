@@ -8,6 +8,7 @@
 #include "board_db.h"
 #include "class_db.h"
 #include "clif.h"
+#include "config.h"
 #include "core.h"
 #include "creation.h"
 #include "db_mysql.h"

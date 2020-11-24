@@ -52,7 +52,6 @@ DBMap* clan_db;
 DBMap* mobsearch_db;
 DBMap* mobid_db = NULL;
 struct map_msg_data map_msg[MSG_MAX];
-struct town_data towns[255];
 int town_n = 0;
 char town_name[1024];
 int map_loadgameregistry();

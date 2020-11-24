@@ -358,9 +358,6 @@ struct map_data {
   unsigned char reqmark, reqpath, summon;
   unsigned char canUse, canEat, canSmoke, canMount, canGroup, canEquip;
 };
-struct town_data {
-  char name[32];
-};
 
 struct userlist_data {
   unsigned int user_count, user[10000];
@@ -395,7 +392,6 @@ struct parcel {
   struct item data;
 };
 
-extern struct town_data towns[];
 extern int town_n;
 extern char name[1024];
 extern struct map_data *map;
@@ -405,10 +401,9 @@ struct userlist_data userlist;
 extern struct auth_data auth_fifo[];
 extern int auth_n;
 
+extern int map_fd;
 extern int char_fd;
 extern struct Sql *sql_handle;
-
-extern char servername[16];
 
 struct map_sessiondata *map_id2sd(unsigned int);
 struct map_sessiondata *map_name2sd(char *);
@@ -488,9 +483,6 @@ int nmail_read(struct map_sessiondata *, int);
 int nmail_sendmail(struct map_sessiondata *, char *, char *, char *);
 int map_addmob(struct map_sessiondata *, unsigned int, int, int, unsigned int);
 int mmo_char_todb(struct mmo_charstatus *);
-extern int xp_rate;
-extern int d_rate;
-extern int map_fd;
 int map_reset_timer(int, int);
 int old_time, cur_time, cur_year, cur_day, cur_season;
 int hasCoref(USER *);
