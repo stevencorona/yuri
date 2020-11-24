@@ -215,8 +215,6 @@ int command_reloadlevels(USER *, char *, lua_State *);
 
 int command_reloadwarps(USER *, char *, lua_State *);
 
-extern unsigned long Last_Eof;
-
 struct {
   int (*func)(USER *, char *, lua_State *);
 
@@ -917,8 +915,6 @@ int command_checkdupes(USER *sd, char *line, lua_State *state) {
   char BufStr[64];
   int blen;
   int x;
-  blen = sprintf(BufStr, "longest eof = %ims", Last_Eof);
-  clif_sendminitext(sd, BufStr);
 
   for (x = 1; x < fd_max; x++) {
     if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof) {
