@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #define DIFF_TICK(a, b) ((int)((a) - (b)))
 #define INVALID_TIMER -1
 
@@ -10,18 +12,19 @@
 
 struct TimerData {
   unsigned int tick;
-  int (*func)(int, int);
+  int (*func)(uintptr_t *, uintptr_t *);
   int type;
   unsigned int interval;
   int heap_pos;
 
   // general-purpose storage
   int id;
-  int data1;
-  int data2;
+  uintptr_t *data1;
+  uintptr_t *data2;
 };
 
-int timer_insert(unsigned int, unsigned int, int (*)(int, int), int, int);
+int timer_insert(unsigned int, unsigned int, int (*)(uintptr_t *, uintptr_t *),
+                 uintptr_t *, uintptr_t *);
 int timer_remove(int);
 int timer_do(unsigned int tick);
 int getDay(void);
