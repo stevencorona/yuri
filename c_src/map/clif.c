@@ -47,31 +47,7 @@ const unsigned char clkey1packets[] = {2,  3,  4,  11, 21, 38,  58,  66,
 // {2,3,4,11,21,38,58,66,67,75,80,84,85,87,98,113,115,123}; // added packet 84
 // and 85
 int clif_canmove_sub(struct block_list *, va_list);
-int isKey2(int);
-int isKey(int);
 
-/*int isKey2(int fd)
-{
-        int x=0;
-        for(x=0;x<(sizeof(clkey2)/sizeof(clkey2[0]));x++)
-        {
-                if(fd==clkey2[x])
-                        return 1;
-        }
-
-        return 0;
-
-}
-int isKey(int fd)
-{
-        int x=0;
-        for(x=0; x<(sizeof(svkey2)/sizeof(svkey2[0]));x++)
-        {
-                if(fd==svkey2[x])
-                        return 1;
-        }
-        return 0;
-}*/
 int isKey2(int fd) {
   int x = 0;
   for (x = 0; x < (sizeof(clkey1packets) / sizeof(clkey1packets[0])); x++) {
@@ -80,6 +56,7 @@ int isKey2(int fd) {
 
   return 1;
 }
+
 int isKey(int fd) {
   int x = 0;
   for (x = 0; x < (sizeof(svkey1packets) / sizeof(svkey1packets[0])); x++) {

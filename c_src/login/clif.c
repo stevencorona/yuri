@@ -21,21 +21,6 @@ extern int Check_Throttle(struct sockaddr_in S);
 extern void Add_Throttle(struct sockaddr_in S);
 const unsigned char svkey1packets[] = {2, 10, 68, 94, 96, 98, 102, 111};
 
-int isKey(int fd) {
-  int x = 0;
-  for (x = 0; x < (sizeof(svkey1packets) / sizeof(svkey1packets[0])); x++) {
-    if (fd == svkey1packets[x]) {
-      return 0;
-    }
-  }
-  return 1;
-}
-int encrypt(int fd, char *name, char *EncHash) {
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt_static(WFIFOP(fd, 0));
-  return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
-}
-
 bool bannedIPCheck(char *ip) {
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 

@@ -22,7 +22,6 @@ char login_msg[MSG_MAX][256];
 Sql *sql_handle = NULL;
 DBMap *bf_lockout = NULL;
 
-// static char check_table_thing[]={'\\','/',';','=',':','(',')',NULL}
 const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] =
     "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
