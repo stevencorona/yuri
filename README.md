@@ -4,6 +4,21 @@
 
 Provide a clean fork/drop-in replacement of the Mithia server that is 100% compatible with existing LUA files and database. Slowly improve the codebase from spaghetti C to C11 to Rust.
 
+## Building from source
+
+You will need to a C compiler for the Mithia Code. We currently target `clang`, but gcc should work fine as well.
+You will need to install rust.
+
+The C currently has the following external library dependencies that must be installed.
+
+- libmysqlclient
+- lua5.1
+- zlib
+
+If you plan on developing the rust, you will need to install `cbindgen` in order to regenerate yuri.h (`cargo install cbindgen`)
+
+Once the dependencies are installed, just run `make all`
+
 ## Cleanup TODO
 - [x] Remove bundled zlib
 - [x] Fix pointer to int casts for 64-bit support
