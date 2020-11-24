@@ -40,7 +40,7 @@ Once the dependencies are installed, just run `make all`
 - [ ] Smoke Tests
 - [ ] Automated CI
 - [ ] Include SQL Migration & Minimum amount of LUA to run server
-- [ ] Don't hardcode paths
+- [x] Unhardcode asset paths
 
 ## Non Goals
 
