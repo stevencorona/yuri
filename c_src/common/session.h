@@ -91,7 +91,7 @@ struct socket_data {
   unsigned char increment;
   char name[32];
 };
-int server_shutdown;
+extern int server_shutdown;
 // Data prototype declaration
 
 extern struct socket_data *session[FD_SETSIZE];
@@ -109,7 +109,7 @@ int WFIFOSET(int, int);
 void log_session(int, const char *);
 int add_ip_lockout(unsigned int);
 // int RFIFOSKIP(int,size_t);
-int do_sendrecv(int);
+int do_sendrecv();
 int do_parsepacket(void);
 void do_socket(void);
 int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen);
