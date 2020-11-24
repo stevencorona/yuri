@@ -3,6 +3,7 @@
 
 #include "mmo.h"
 
+// Maximum number of meta files
 #define META_MAX 20
 
 extern struct point start_pos;
