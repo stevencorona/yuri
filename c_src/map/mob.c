@@ -429,7 +429,7 @@ int mobspawn_read() {
 int mobspawn2_read(const char *mobspawn_file) { return 0; }
 int mobspeech_read(char *mobspeech_file) { return 0; }
 
-int mobdb_id(char *str) {
+int mobdb_id(const char *str) {
   struct mobdb_data *db = NULL;
   db = mobdb_searchname(str);
   if (db) return db->id;

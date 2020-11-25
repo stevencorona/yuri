@@ -16,7 +16,7 @@ struct mobdb_data* mobdb_search(unsigned int);
 int mobdb_init();
 struct mobdb_data* mobdb_searchexist(unsigned int);
 struct mobdb_data* mobdb_searchname(const char*);
-int mobdb_id(char*);
+int mobdb_id(const char*);
 int mobdb_searchname_sub(void*, void*, va_list);
 int mob_handle(int, int);
 int mob_handle_sub(MOB*, va_list);

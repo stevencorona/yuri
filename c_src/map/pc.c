@@ -2532,7 +2532,7 @@ char *pc_readglobalregstring(USER *sd, char *reg) {
   return "";
 }
 
-int pc_setglobalregstring(USER *sd, char *reg, char *val) {
+int pc_setglobalregstring(USER *sd, const char *reg, const char *val) {
   int i, exist;
 
   exist = -1;

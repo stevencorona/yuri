@@ -397,7 +397,7 @@ NPC* map_id2npc(unsigned int id) {
   return NULL;
 }
 
-NPC* map_name2npc(char* name) {
+NPC* map_name2npc(const char* name) {
   unsigned int i;
   NPC* nd = NULL;
 
@@ -426,7 +426,7 @@ FLOORITEM* map_id2fl(unsigned int id) {
   return NULL;
 }
 
-USER* map_name2sd(char* name) {
+USER* map_name2sd(const char* name) {
   int i;
   USER* sd = NULL;
 
@@ -2428,7 +2428,8 @@ int nmail_write(USER* sd) {
   return 0;
 }
 
-int nmail_sendmail(USER* sd, char* to_user, char* topic, char* message) {
+int nmail_sendmail(USER* sd, const char* to_user, const char* topic,
+                   const char* message) {
   if (strlen(to_user) > 16 || strlen(topic) > 52 || strlen(message) > 4000)
     return 0;
 
@@ -2688,7 +2689,7 @@ int map_reset_timer(int v1, int v2) {
 
   return 0;
 }
-int map_setglobalreg(int m, char* reg, int val) {
+int map_setglobalreg(int m, const char* reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2736,7 +2737,7 @@ int map_setglobalreg(int m, char* reg, int val) {
   return 0;
 }
 
-int map_readglobalreg(int m, char* reg) {
+int map_readglobalreg(int m, const char* reg) {
   int i, exist;
 
   exist = -1;

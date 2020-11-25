@@ -8,7 +8,7 @@ struct login_session_data {
 };
 
 int clif_message(int, char, char *);
-int clif_sendurl(int, int, char *);
+int clif_sendurl(int, int, const char *);
 
 int clif_accept(int);
 int clif_parse(int);

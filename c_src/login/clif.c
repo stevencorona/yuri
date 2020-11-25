@@ -129,7 +129,7 @@ int clif_message(int fd, char code, char *buff) {
   return 0;
 }
 
-int clif_sendurl(int fd, int type, char *url) {
+int clif_sendurl(int fd, int type, const char *url) {
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 3) = 0x66;
   WFIFOB(fd, 4) = 0x03;

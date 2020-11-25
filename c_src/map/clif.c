@@ -879,7 +879,7 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
 
 int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
-  char *msg = NULL;
+  const char *msg = NULL;
   // char buf[256];
   int len = 0;
 
@@ -906,7 +906,7 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_broadcast(char *msg, int m) {
+int clif_broadcast(const char *msg, int m) {
   if (m == -1) {
     for (int x = 0; x < 65535; x++) {
       if (map_isloaded(x)) {
@@ -920,7 +920,7 @@ int clif_broadcast(char *msg, int m) {
   return 0;
 }
 
-int clif_gmbroadcast(char *msg, int m) {
+int clif_gmbroadcast(const char *msg, int m) {
   if (m == -1) {
     for (int x = 0; x < 65535; x++) {
       if (map_isloaded(x)) {
@@ -933,7 +933,7 @@ int clif_gmbroadcast(char *msg, int m) {
   return 0;
 }
 
-int clif_broadcasttogm(char *msg, int m) {
+int clif_broadcasttogm(const char *msg, int m) {
   if (m == -1) {
     for (int x = 0; x < 65535; x++) {
       if (map_isloaded(x)) {
@@ -2703,7 +2703,8 @@ int clif_send_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_send(unsigned char *buf, int len, struct block_list *bl, int type) {
+int clif_send(const unsigned char *buf, int len, struct block_list *bl,
+              int type) {
   USER *sd = NULL;
   USER *tsd = NULL;
   struct socket_data *p = NULL;
@@ -5419,7 +5420,7 @@ int clif_noparsewalk(USER *sd, char speed) {
   return 1;
 }
 
-int clif_guitextsd(char *msg, USER *sd) {
+int clif_guitextsd(const char *msg, USER *sd) {
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
     return 0;
@@ -5446,7 +5447,7 @@ int clif_guitextsd(char *msg, USER *sd) {
 
 int clif_guitext(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
-  char *msg = NULL;
+  const char *msg = NULL;
   // char buf[256];
   int len = 0;
 
@@ -6937,7 +6938,7 @@ int clif_parseemotion(USER *sd) {
   return 0;
 }
 
-int clif_sendmsg(USER *sd, int type, char *buf) {
+int clif_sendmsg(USER *sd, int type, const char *buf) {
   /*	Type:
           0 = Wisp (blue text)
           3 = Mini Text/Status Text
@@ -6984,7 +6985,7 @@ int clif_sendminitext(USER *sd, char *msg) {
   return 0;
 }
 
-int clif_sendwisp(USER *sd, char *srcname, unsigned char *msg) {
+int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
   int msglen = strlen(msg);
   int srclen = strlen(srcname);
   int newlen = 0;
@@ -8286,7 +8287,7 @@ int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
   return 0;
 }
 
-int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
+int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
   char *buf;
   char name[25];
   char escape[255];
@@ -8580,7 +8581,7 @@ int clif_sendmobyell(struct block_list *bl, va_list ap) {
 int clif_speak(struct block_list *bl, va_list ap) {
   struct block_list *nd = NULL;
   USER *sd = NULL;
-  char *msg = NULL;
+  const char *msg = NULL;
   int len;
   int type;
 
@@ -9476,7 +9477,7 @@ int clif_parsemagic(USER *sd) {
   return 0;
 }
 
-int clif_scriptmes(USER *sd, int id, char *msg, int previous, int next) {
+int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   NPC *nd = map_id2npc((unsigned int)id);
@@ -10004,8 +10005,8 @@ int clif_scriptmenu(
   return 0;
 }
 
-int clif_scriptmenuseq(USER *sd, int id, char *dialog, char *menu[], int size,
-                       int previous, int next) {
+int clif_scriptmenuseq(USER *sd, int id, const char *dialog, char *menu[],
+                       int size, int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int x;
@@ -10288,8 +10289,9 @@ int clif_scriptmenuseq(USER *sd, int id, char *dialog, char *menu[], int size,
   return 0;
 }
 
-int clif_inputseq(USER *sd, int id, char *dialog, char *dialog2, char *dialog3,
-                  char *menu[], int size, int previous, int next) {
+int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
+                  const char *dialog3, char *menu[], int size, int previous,
+                  int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int len = 0;
@@ -12826,8 +12828,8 @@ int clif_showboards(USER *sd) {
   return 0;
 }
 
-int clif_buydialog(USER *sd, unsigned int id, char *dialog, struct item *item,
-                   int price[], int count) {
+int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
+                   struct item *item, int price[], int count) {
   NPC *nd = NULL;
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
@@ -13124,7 +13126,7 @@ int clif_parsebuy(USER *sd) {
   return 0;
 }
 
-int clif_selldialog(USER *sd, unsigned int id, char *dialog, int item[],
+int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
                     int count) {
   NPC *nd = NULL;
   int graphic = sd->npc_g;
@@ -13387,7 +13389,7 @@ char *clif_getaccountemail(unsigned int id) {
   return &email[0];
 }
 
-int clif_input(USER *sd, int id, char *dialog, char *item) {
+int clif_input(USER *sd, int id, const char *dialog, const char *item) {
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
 
@@ -15839,7 +15841,7 @@ limit at a time?  number is always 100 or 255
         return 0;
 }*/
 
-int clif_mapselect(USER *sd, char *wm, int *x0, int *y0, char **mname,
+int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0, char **mname,
                    unsigned int *id, int *x1, int *y1, int i) {
   int len = 0;
   int x, y;
