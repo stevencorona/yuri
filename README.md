@@ -74,7 +74,7 @@ Game state is stored in MySQL, maps and lua scripts are stored on disk.
 - [ ] Produce a single server binary instead of 3x
 - [x] All logging to STDOUT
 - [ ] Use OpenSSL MD5
-- [ ] Fix SQL autoincrement / numbering issues
+- [x] Fix SQL autoincrement / numbering issues
 - [ ] Compile with -O3 without segfaulting
 - [ ] Compile without stack smashing off
 - [ ] Address all clang warnings
