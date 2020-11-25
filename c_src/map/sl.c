@@ -8744,7 +8744,7 @@ int pcl_setAccountBan(lua_State *state, USER *sd) {
                                "WHERE `AccountId` = '%u'",
                                banned, accountid)) {
       Sql_ShowDebug(sql_handle);
-      SqlStmt_FreeResult(sql_handle);
+      Sql_FreeResult(sql_handle);
     }
   }
 
