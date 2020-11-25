@@ -269,10 +269,6 @@ int timer_do(unsigned int tick) {
     if (timer_data[tid].func) {
       // printf("%u\n",(int)timer_data[tid].func);
       if (diff <= -1000) {
-        // 1�b�ȏ�̑啝�Ȓx�����������Ă���̂ŁA
-        // timer�����^�C�~���O�����ݒl�Ƃ��鎖��
-        // �Ăяo�����^�C�~���O(������tick)���΂ŏ������Ă�
-        // timer�֐��̎��񏈗��^�C�~���O��x�点��
         toDel =
             timer_data[tid].func(timer_data[tid].data1, timer_data[tid].data2);
       } else {
