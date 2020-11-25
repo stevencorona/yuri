@@ -225,8 +225,7 @@ int do_init(int argc, char **argv) {
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
                                (uint16_t)sql_port, sql_db)) {
-    printf("[login] [sql_connect_error] id=%s port=%d\n", sql_id, sql_pw,
-           sql_port);
+    printf("[login] [sql_connect_error] id=%s port=%d\n", sql_id, sql_port);
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
     exit(EXIT_FAILURE);

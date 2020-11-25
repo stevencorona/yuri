@@ -306,7 +306,7 @@ int map_src_add(const char* r1) {
   unsigned char cantalk, showghosts, region, indoor, warpout, bind;
   struct map_src_list* new;
   char map_title[1024], map_file[1024];
-  if (sscanf(r1, "%d,%[^,],%d,%d,%d,%u,%u,%u,%u,%u,%u,%u,%u, %u,%s", &map_id,
+  if (sscanf(r1, "%d,%[^,],%hi,%d,%d,%hu,%hu,%u,%c,%c,%c,%c,%c, %c,%s", &map_id,
              map_title, &map_bgm, &pvp, &spell, &light, &weather, &sweeptime,
              &cantalk, &showghosts, &region, &indoor, &warpout, &bind,
              map_file) < 13) {
@@ -515,7 +515,7 @@ int map_addblock(struct block_list* bl) {
 
   if (bl->prev < 0x100 || bl->next < 0x100) {
     if (bl->next) {
-      printf("Prev = %u : Next = %u\n", bl->prev, bl->next);
+      printf("Prev = %u : Next = %u\n", bl->prev->id, bl->next->id);
     }
   }
   return 0;
@@ -525,11 +525,8 @@ int map_delblock(struct block_list* bl) {
   int pos;
   nullpo_ret(0, bl);
 
-  // ?��blocklist����?���Ă���
-
   if (bl->prev == NULL) {
     if (bl->next != NULL) {
-      // prev��NULL��next��NULL�łȂ��̂͗L���Ă͂Ȃ�Ȃ�
       ShowError("map_delblock error : bl->next!=NULL\n");
     }
     return 0;
@@ -2576,7 +2573,7 @@ void mmo_setonline(unsigned int id, int val) {
     b = (b >> 8) & 0xff;
     c = (c >> 16) & 0xff;
     d = (d >> 24) & 0xff;
-    sprintf(addr, "%u.%u.%u.%u\0", a, b, c, d);
+    sprintf(addr, "%u.%u.%u.%u", a, b, c, d);
     printf("[map] [login] name=%s addr=%s\n", sd->status.name, addr);
 
     // if (strcasecmp(escape,"71.78.153.2") == 0 ||

@@ -1059,7 +1059,7 @@ int clif_debug(unsigned char *stringthing, int len) {
     if (stringthing[i] <= 32 || stringthing[i] > 126) {
       printf("   ");
     } else {
-      printf("%02c ", stringthing[i]);
+      printf("%02X ", stringthing[i]);
     }
   }
 
@@ -10916,7 +10916,7 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   if (sd->fakeDrop) return 0;
 
   char mini[64];
-  sprintf(mini, "You dropped %d coins\0", fl->data.amount);
+  sprintf(mini, "You dropped %d coins", fl->data.amount);
   clif_sendminitext(sd, mini);
 
   map_foreachincell(clif_addtocurrent, sd->bl.m, sd->bl.x, sd->bl.y, BL_ITEM,
