@@ -36,7 +36,7 @@ Once the dependencies are installed, just run `make all`
 
 If you have not modified the Mithia C source, Yuri is 100% drop-in compatible with your existing Lua, Maps, and Database.
 
-1. Migrate your Mithia configuration to the `config` directory. The number of files and options have shrunk, as most unused variables have been removed.
+1. Migrate your Mithia configuration to the `config` directory. All config files have merged into a single `server.conf` and options have shrunk, as most unused variables have been removed.
 2. Copy your maps from Mithia's `maps/Accepted` folder into the `data/maps` directory
 3. Copy your lua from Mithia's `lua/Accepted` folder into the `data/lua` directory. There is no notion of Accepted/Developers/Deprecated in Yuri. This will be addressed in a future version with git integration.
 4. Copy your sys.lua from Mithia's `lua/Developers` folder into the `data/lua` directory. This file is the initial lua file loaded before all others.
