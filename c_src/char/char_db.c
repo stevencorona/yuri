@@ -103,122 +103,32 @@ int ismastpass(const char* pass3, const char* mastmd5, int expire) {
   }
 }
 
-/// Attempt to find an existing ID that is available.
-int find_new_id() {
-  int x, newid = 0;
-
-  SqlStmt* stmt;
-
-  stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
-    SqlStmt_ShowDebug(stmt);
-    return 0;
-  }
-
-  if (SQL_ERROR ==
-          SqlStmt_Prepare(stmt,
-                          "SELECT l.ChaId + 1 AS START FROM `Character` AS l "
-                          "LEFT OUTER JOIN `Character` AS r ON l.ChaId + 1 = "
-                          "r.ChaId WHERE r.ChaId IS NULL LIMIT 1") ||
-      SQL_ERROR == SqlStmt_Execute(stmt) ||
-      SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &newid, 0, NULL, NULL)) {
-    SqlStmt_ShowDebug(stmt);
-    SqlStmt_Free(stmt);
-    return 0;
-  }
-
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
-    SqlStmt_ShowDebug(stmt);
-    SqlStmt_Free(stmt);
-    return 0;
-  }
-  x = newid;
-  SqlStmt_Free(stmt);
-
-  // to Ensure no data exists when making.
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `Banks` WHERE `BnkChaId` = '%u'", x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `Aethers` WHERE `AthChaId` = '%u'", x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR == Sql_Query(sql_handle,
-                             "DELETE FROM `Equipment` WHERE `EqpChaId` = '%u'",
-                             x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR == Sql_Query(sql_handle,
-                             "DELETE FROM `Inventory` WHERE `InvChaId` = '%u'",
-                             x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `Kills` WHERE `KilChaId` = '%u'", x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `Legends` WHERE `LegChaId` = '%u'", x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR == Sql_Query(sql_handle,
-                             "DELETE FROM `SpellBook` WHERE `SbkChaId` = '%u'",
-                             x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR == Sql_Query(sql_handle,
-                             "DELETE FROM `Registry` WHERE `RegChaId` = '%u'",
-                             x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle,
-                "DELETE FROM `RegistryString` WHERE `RegChaId` = '%u'", x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `NPCRegistry` WHERE `NrgChaId` = '%u'",
-                x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle,
-                "DELETE FROM `QuestRegistry` WHERE `QrgChaId` = '%u'", x))
-    Sql_ShowDebug(sql_handle);
-  if (SQL_ERROR ==
-      Sql_Query(
-          sql_handle,
-          "DELETE FROM `Parcels` WHERE `ParSender` = '%u' AND `ParNpc` = '0'",
-          x))
-    Sql_ShowDebug(sql_handle);
-
-  return x;
-}
-
 /// Create New Character with given arguments.
 int char_db_newchar(const char* name, const char* pass, int totem, int sex,
                     int country, int face, int hair, int face_color,
                     int hair_color) {
   int result;
-  int newid = 0;
 
   result = char_db_isnameused(name);
   if (result) {
     return result;
   }
 
-  newid = find_new_id();
-  if (!newid) {
+  if (SQL_ERROR ==
+      Sql_Query(sql_handle,
+                "INSERT INTO `Character` (`ChaName`, `ChaPassword`, "
+                "`ChaTotem`, `ChaSex`, `ChaNation`, `ChaFace`, `ChaMapID`, "
+                "`ChaX`, `ChaY`, "
+                "`ChaHair`, `ChaHairColor`, `ChaFaceColor`) VALUES ("
+                "'%s', MD5('%s'), '%d', '%d', '%d', '%d', '%d', '%d', '%d', "
+                "'%d', '%d', '%d')",
+                name, pass, totem, sex, country, face, start_pos.m, start_pos.x,
+                start_pos.y, hair, hair_color, face_color)) {
+    Sql_ShowDebug(sql_handle);
     return 2;
   }
 
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle,
-                "INSERT INTO `Character` (`ChaId`,`ChaName`, `ChaPassword`, "
-                "`ChaTotem`, `ChaSex`, `ChaNation`, `ChaFace`, `ChaMapID`, "
-                "`ChaX`, `ChaY`, "
-                "`ChaHair`, `ChaHairColor`, `ChaFaceColor`) VALUES ('%d', "
-                "'%s', MD5('%s'), '%d', '%d', '%d', '%d', '%d', '%d', '%d', "
-                "'%d', '%d', '%d')",
-                newid, name, pass, totem, sex, country, face, start_pos.m,
-                start_pos.x, start_pos.y, hair, hair_color, face_color)) {
-    Sql_ShowDebug(sql_handle);
-    return 2;  // db error
-  }
-
-  return 0;  // new character is ready!
+  return 0;
 }
 
 /// Check to See if Character Name is used.
