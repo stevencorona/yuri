@@ -5571,7 +5571,7 @@ int clif_getReward(USER *sd, int fd) {
   char eventname[41];
 
   char legendbuf[255];
-  char msg[80];
+  char msg[4000];
   char monthyear[7];
   char season[7];
 
