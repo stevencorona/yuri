@@ -406,7 +406,7 @@ extern int char_fd;
 extern struct Sql *sql_handle;
 
 struct map_sessiondata *map_id2sd(unsigned int);
-struct map_sessiondata *map_name2sd(char *);
+struct map_sessiondata *map_name2sd(const char *);
 struct mobspawn_data *map_id2mob(unsigned int);
 struct flooritem_data *map_id2fl(unsigned int);
 struct npc_data *map_id2npc(unsigned int);
@@ -480,28 +480,29 @@ int boards_post(struct map_sessiondata *, int);
 char isActive(struct map_sessiondata *);
 int nmail_show(struct map_sessiondata *);
 int nmail_read(struct map_sessiondata *, int);
-int nmail_sendmail(struct map_sessiondata *, char *, char *, char *);
+int nmail_sendmail(struct map_sessiondata *, const char *, const char *,
+                   const char *);
 int map_addmob(struct map_sessiondata *, unsigned int, int, int, unsigned int);
 int mmo_char_todb(struct mmo_charstatus *);
 int map_reset_timer(int, int);
 int old_time, cur_time, cur_year, cur_day, cur_season;
 int hasCoref(USER *);
-int map_setglobalreg(int, char *, int);
-int map_readglobalreg(int, char *);
+int map_setglobalreg(int, const char *, int);
+int map_readglobalreg(int, const char *);
 // int map_registrysave(struct global_reg*,int,const char*,int);
 int map_registrysave(int, int);
 int map_registrydelete(int, int);
 int map_loadgameregistry();
 int map_savegameregistry(int);
-int map_setglobalgamereg(char *, int);
-int map_readglobalgamereg(char *);
+int map_setglobalgamereg(const char *, int);
+int map_readglobalgamereg(const char *);
 int map_loadclanbank(int);
 
 int map_weather(int, int);
 int map_cronjob(int, int);
 int map_savechars(int, int);
 int map_loadregistry(int);
-NPC *map_name2npc(char *);
+NPC *map_name2npc(const char *);
 
 int nmail_sendmessage(USER *, char *, int, int);
 int boards_delete(USER *, int);

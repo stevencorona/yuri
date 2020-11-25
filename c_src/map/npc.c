@@ -803,7 +803,7 @@ int npc_warp(NPC *nd, int m, int x, int y) {
   return 0;
 }
 
-int npc_readglobalreg(NPC *nd, char *reg) {
+int npc_readglobalreg(NPC *nd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -823,7 +823,7 @@ int npc_readglobalreg(NPC *nd, char *reg) {
   }
 }
 
-int npc_setglobalreg(NPC *nd, char *reg, int val) {
+int npc_setglobalreg(NPC *nd, const char *reg, int val) {
   int i, exist;
 
   exist = -1;

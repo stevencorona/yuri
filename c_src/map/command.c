@@ -352,7 +352,7 @@ int command_gm(USER *sd, char *line, lua_State *state) {
 
   /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
   `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-  "GM")) { SqlStmt_ShowDebug(sql_handle);
+  "GM")) { Sql_ShowDebug(sql_handle);
   }*/
 
   for (x = 1; x < fd_max; x++) {
@@ -383,7 +383,7 @@ int command_transfer(USER *sd, char *line, lua_State *state) {
 
         if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
 `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-"Guide")) { SqlStmt_ShowDebug(sql_handle);
+"Guide")) { Sql_ShowDebug(sql_handle);
         }
 
         if ((sd->status.class > 5 || sd->status.level > 25) &&
@@ -429,7 +429,7 @@ int command_light(USER *sd, char *line, lua_State *state) {
   unsigned char weather = 232;
 
   USER *tmpsd;
-  sscanf(line, "%u", &weather);
+  sscanf(line, "%hhu", &weather);
 
   map[sd->bl.m].light = weather;
   for (int x = 0; x < fd_max; x++) {
@@ -625,7 +625,7 @@ int command_immortality(USER *sd, char *line, lua_State *state) {
 int command_ban(USER *sd, char *line, lua_State *state) {
   unsigned int ipaddr = 0;
   char name[32];
-  if (sscanf(line, "%s", &name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1) return -1;
 
   USER *tsd = map_name2sd(name);
 
@@ -638,7 +638,7 @@ int command_ban(USER *sd, char *line, lua_State *state) {
             sql_handle,
             "UPDATE `Character` SET ChaBanned = '1' WHERE `ChaName` = '%s'",
             name)) {
-      SqlStmt_ShowDebug(sql_handle);
+      Sql_ShowDebug(sql_handle);
     }
     // sql_request("INSERT INTO `banlist` (`ipaddy`) VALUES('%u')",ipaddr);
     // sql_free_row();
@@ -650,7 +650,7 @@ int command_ban(USER *sd, char *line, lua_State *state) {
 int command_unban(USER *sd, char *line, lua_State *state) {
   char name[32];
 
-  if (sscanf(line, "%s", &name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1) return -1;
 
   printf("Unbanning %s\n", name);
 
@@ -658,7 +658,7 @@ int command_unban(USER *sd, char *line, lua_State *state) {
       Sql_Query(sql_handle,
                 "UPDATE `Character` SET ChaBanned = '0' WHERE `ChaName` = '%s'",
                 name)) {
-    SqlStmt_ShowDebug(sql_handle);
+    Sql_ShowDebug(sql_handle);
   }
 
   return 0;
@@ -666,7 +666,7 @@ int command_unban(USER *sd, char *line, lua_State *state) {
 
 int command_silence(USER *sd, char *line, lua_State *state) {
   char name[32];
-  if (sscanf(line, "%s", &name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1) return -1;
 
   USER *tsd = map_name2sd(name);
 
@@ -720,7 +720,7 @@ int command_broadcast(USER *sd, char *line, lua_State *state) {
 
   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
   `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-  "GM Broadcast")) { SqlStmt_ShowDebug(sql_handle);
+  "GM Broadcast")) { Sql_ShowDebug(sql_handle);
   }*/
 
   clif_broadcast(buf, -1);
@@ -903,7 +903,7 @@ int command_pspell(USER *sd, char *line, lua_State *state) {
 int command_spellq(USER *sd, char *line, lua_State *state) {
   char mini[25];
 
-  sprintf(mini, "Current Spell is: %d\0", spellgfx);
+  sprintf(mini, "Current Spell is: %d", spellgfx);
   clif_sendminitext(sd, mini);
   return 0;
 }
@@ -1037,7 +1037,7 @@ int command_givespell(USER *sd, char *line, lua_State *state) {
   int spell = 0;
   char name[32];
   int x;
-  if (sscanf(line, "%s", &name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1) return -1;
 
   spell = magicdb_id(name);
   for (x = 0; x < 52; x++) {
@@ -1056,7 +1056,7 @@ int command_givespell(USER *sd, char *line, lua_State *state) {
 int command_deletespell(USER *sd, char *line, lua_State *state) {
   int spell = 0;
   char name[32];
-  if (sscanf(line, "%s", &name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1) return -1;
 
   if (spell >= 0 && spell < 52) {
     sd->status.skill[spell] = 0;
@@ -1103,10 +1103,9 @@ int command_val(USER *sd, char *line, lua_State *state) {
 }
 
 int command_makegm(USER *sd, char *line, lua_State *state) {
-  int name[32];
+  char name[32];
   USER *tsd;
-  if (sscanf(line, "%31s", &name) < 1) return -1;
-
+  if (sscanf(line, "%31s", name) < 1) return -1;
   tsd = map_name2sd(name);
   if (tsd) {
     tsd->status.gm_level = 99;
@@ -1271,7 +1270,7 @@ int command_url(USER *sd, char *line, lua_State *state) {
   char name[32];
   char url[128];
   int type = 0;
-  if (sscanf(line, "%s %d %s", name, type, url) < 1) return -1;
+  if (sscanf(line, "%s %d %s", name, &type, url) < 1) return -1;
 
   tsd = map_name2sd(name);
 
@@ -1571,7 +1570,7 @@ int command_musicp(USER *sd, char *line, lua_State *state) {
 int command_musicq(USER *sd, char *line, lua_State *state) {
   char mini[25];
 
-  sprintf(mini, "Current music is: %d\0", musicfx);
+  sprintf(mini, "Current music is: %d", musicfx);
   clif_sendminitext(sd, mini);
   return 0;
 }
@@ -1606,7 +1605,7 @@ int command_psound(USER *sd, char *line, lua_State *state) {
 int command_soundq(USER *sd, char *line, lua_State *state) {
   char mini[25];
 
-  sprintf(mini, "Current sound is: %d\0", soundfx);
+  sprintf(mini, "Current sound is: %d", soundfx);
   clif_sendminitext(sd, mini);
   return 0;
 }

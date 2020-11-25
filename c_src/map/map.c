@@ -306,7 +306,7 @@ int map_src_add(const char* r1) {
   unsigned char cantalk, showghosts, region, indoor, warpout, bind;
   struct map_src_list* new;
   char map_title[1024], map_file[1024];
-  if (sscanf(r1, "%d,%[^,],%d,%d,%d,%u,%u,%u,%u,%u,%u,%u,%u, %u,%s", &map_id,
+  if (sscanf(r1, "%d,%[^,],%hi,%d,%d,%hu,%hu,%u,%c,%c,%c,%c,%c, %c,%s", &map_id,
              map_title, &map_bgm, &pvp, &spell, &light, &weather, &sweeptime,
              &cantalk, &showghosts, &region, &indoor, &warpout, &bind,
              map_file) < 13) {
@@ -397,7 +397,7 @@ NPC* map_id2npc(unsigned int id) {
   return NULL;
 }
 
-NPC* map_name2npc(char* name) {
+NPC* map_name2npc(const char* name) {
   unsigned int i;
   NPC* nd = NULL;
 
@@ -426,7 +426,7 @@ FLOORITEM* map_id2fl(unsigned int id) {
   return NULL;
 }
 
-USER* map_name2sd(char* name) {
+USER* map_name2sd(const char* name) {
   int i;
   USER* sd = NULL;
 
@@ -515,7 +515,7 @@ int map_addblock(struct block_list* bl) {
 
   if (bl->prev < 0x100 || bl->next < 0x100) {
     if (bl->next) {
-      printf("Prev = %u : Next = %u\n", bl->prev, bl->next);
+      printf("Prev = %u : Next = %u\n", bl->prev->id, bl->next->id);
     }
   }
   return 0;
@@ -525,11 +525,8 @@ int map_delblock(struct block_list* bl) {
   int pos;
   nullpo_ret(0, bl);
 
-  // ?��blocklist����?���Ă���
-
   if (bl->prev == NULL) {
     if (bl->next != NULL) {
-      // prev��NULL��next��NULL�łȂ��̂͗L���Ă͂Ȃ�Ȃ�
       ShowError("map_delblock error : bl->next!=NULL\n");
     }
     return 0;
@@ -2431,7 +2428,8 @@ int nmail_write(USER* sd) {
   return 0;
 }
 
-int nmail_sendmail(USER* sd, char* to_user, char* topic, char* message) {
+int nmail_sendmail(USER* sd, const char* to_user, const char* topic,
+                   const char* message) {
   if (strlen(to_user) > 16 || strlen(topic) > 52 || strlen(message) > 4000)
     return 0;
 
@@ -2576,7 +2574,7 @@ void mmo_setonline(unsigned int id, int val) {
     b = (b >> 8) & 0xff;
     c = (c >> 16) & 0xff;
     d = (d >> 24) & 0xff;
-    sprintf(addr, "%u.%u.%u.%u\0", a, b, c, d);
+    sprintf(addr, "%u.%u.%u.%u", a, b, c, d);
     printf("[map] [login] name=%s addr=%s\n", sd->status.name, addr);
 
     // if (strcasecmp(escape,"71.78.153.2") == 0 ||
@@ -2691,7 +2689,7 @@ int map_reset_timer(int v1, int v2) {
 
   return 0;
 }
-int map_setglobalreg(int m, char* reg, int val) {
+int map_setglobalreg(int m, const char* reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2739,7 +2737,7 @@ int map_setglobalreg(int m, char* reg, int val) {
   return 0;
 }
 
-int map_readglobalreg(int m, char* reg) {
+int map_readglobalreg(int m, const char* reg) {
   int i, exist;
 
   exist = -1;
@@ -2866,7 +2864,7 @@ int map_savegameregistry(int i) {
   return 0;
 }
 // sets game registry
-int map_setglobalgamereg(char* reg, int val) {
+int map_setglobalgamereg(const char* reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2914,7 +2912,7 @@ int map_setglobalgamereg(char* reg, int val) {
   return 0;
 }
 // reads game registry
-int map_readglobalgamereg(char* reg) {
+int map_readglobalgamereg(const char* reg) {
   int i, exist;
 
   exist = -1;

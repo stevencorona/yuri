@@ -1150,7 +1150,7 @@ int pc_warp(USER *sd, int m, int x, int y) {
        `WrpMapId`, `WrpX`, `WrpY`, `WrpMapIdDestination`, `WrpXDestination`,
        `WrpYDestination`) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%u')",
                             sd->status.id, oldmap, oldx, oldy, m, x, y)) {
-                            SqlStmt_ShowDebug(sql_handle);
+                            Sql_ShowDebug(sql_handle);
                             Sql_FreeResult(sql_handle);
             }*/
   }
@@ -1230,7 +1230,7 @@ int pc_loadequip(USER *sd) {
   return 0;
 }
 
-int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
+int pc_isinvenspace(USER *sd, int id, int owner, const char *engrave,
                     unsigned int customLook, unsigned int customLookColor,
                     unsigned int customIcon, unsigned int customIconColor) {
   int i;
@@ -1411,7 +1411,7 @@ int pc_additem(USER *sd, struct item *fl) {
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `PickupLogs`
          (`PicChaId`, `PicMapId`, `PicX`, `PicY`, `PicItmId`, `PicAmount`)
          VALUES ('%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m,
-         sd->bl.x, sd->bl.y, fl->id, i)) { SqlStmt_ShowDebug(sql_handle);
+         sd->bl.x, sd->bl.y, fl->id, i)) { Sql_ShowDebug(sql_handle);
                   }*/
 
       sd->status.inventory[num].id = fl->id;
@@ -1435,7 +1435,7 @@ int pc_additem(USER *sd, struct item *fl) {
          (`PicChaId`, `PicMapId`, `PicX`, `PicY`, `PicItmId`, `PicAmount`)
          VALUES ('%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m,
          sd->bl.x, sd->bl.y, fl->id, fl->amount)) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }*/
 
       sd->status.inventory[num].id = fl->id;
@@ -1734,7 +1734,7 @@ pc_equipscript(USER *sd) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `EquipLogs` (`ElgChaId`,
        `ElgMapId`, `ElgX`, `ElgY`, `ElgItmId`) VALUES ('%u', '%u', '%u', '%u',
        '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-       sd->status.inventory[sd->invslot].id)) { SqlStmt_ShowDebug(sql_handle);
+       sd->status.inventory[sd->invslot].id)) { Sql_ShowDebug(sql_handle);
             }*/
 
     memcpy(&sd->status.equip[ret], &sd->status.inventory[sd->invslot],
@@ -1784,7 +1784,7 @@ int pc_unequipscript(USER *sd) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `EquipLogs` (`ElgChaId`,
        `ElgMapId`, `ElgX`, `ElgY`, `ElgItmId`) VALUES ('%u', '%u', '%u', '%u',
        '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-       sd->status.inventory[sd->invslot].id)) { SqlStmt_ShowDebug(sql_handle);
+       sd->status.inventory[sd->invslot].id)) { Sql_ShowDebug(sql_handle);
             }*/
 
     // Sql_EscapeString(sql_handle,escape,it.real_name); 5-8-17 commented
@@ -1793,7 +1793,7 @@ int pc_unequipscript(USER *sd) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UnequipLogs`
        (`UlgChaId`, `UlgMapId`, `UlgX`, `UlgY`, `UlgItmId`) VALUES ('%u', '%u',
        '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, it.id))
-       { SqlStmt_ShowDebug(sql_handle);
+       { Sql_ShowDebug(sql_handle);
             }*/
 
     memcpy(&it, &sd->status.equip[type], sizeof(struct item));
@@ -1818,7 +1818,7 @@ int pc_unequipscript(USER *sd) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UnequipLogs`
        (`UlgChaId`, `UlgMapId`, `UlgX`, `UlgY`, `UlgItmId`) VALUES ('%u', '%u',
        '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, it.id))
-       { SqlStmt_ShowDebug(sql_handle);
+       { Sql_ShowDebug(sql_handle);
             }*/
 
     memset(&sd->status.equip[type], 0, sizeof(struct item));
@@ -1862,7 +1862,7 @@ int pc_getitemscript(USER *sd, int id) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `PickupLogs`
        (`PicChaId`, `PicMapId`, `PicX`, `PicY`, `PicItmId`, `PicAmount`) VALUES
        ('%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x,
-       sd->bl.y, fl->data.id, fl->data.amount)) { SqlStmt_ShowDebug(sql_handle);
+       sd->bl.y, fl->data.id, fl->data.amount)) { Sql_ShowDebug(sql_handle);
             }*/
 
     return 0;
@@ -2011,7 +2011,7 @@ int pc_dropitemmap(USER *sd, int id, int type) {
        `DrpMapId`, `DrpX`, `DrpY`, `DrpItmId`, `DrpAmount`) VALUES ('%u', '%u',
        '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
        fl->data.id, sd->status.inventory[id].amount + 1)) {
-                    SqlStmt_ShowDebug(sql_handle);
+                    Sql_ShowDebug(sql_handle);
             }*/
 
     memset(&sd->status.inventory[id], 0, sizeof(struct item));
@@ -2022,7 +2022,7 @@ int pc_dropitemmap(USER *sd, int id, int type) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `DropLogs` (`DrpChaId`,
        `DrpMapId`, `DrpX`, `DrpY`, `DrpItmId`, `DrpAmount`) VALUES ('%u', '%u',
        '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-       fl->data.id, 1)) { SqlStmt_ShowDebug(sql_handle);
+       fl->data.id, 1)) { Sql_ShowDebug(sql_handle);
             }*/
 
     fl->data.amount = 1;
@@ -2139,7 +2139,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sl_async_freeco(sd);
@@ -2161,7 +2161,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sl_async_freeco(sd);
@@ -2184,7 +2184,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sl_async_freeco(sd);
@@ -2206,7 +2206,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sl_async_freeco(sd);
@@ -2228,7 +2228,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sl_async_freeco(sd);
@@ -2370,7 +2370,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sd->invslot = id;
@@ -2423,7 +2423,7 @@ int pc_useitem(USER *sd, int id) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `UseLogs`
          (`UseChaId`, `UseMapId`, `UseX`, `UseY`, `UseItmId`) VALUES ('%u',
          '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-         sd->status.inventory[id].id)) { SqlStmt_ShowDebug(sql_handle);
+         sd->status.inventory[id].id)) { Sql_ShowDebug(sql_handle);
           }*/
 
       sl_async_freeco(sd);
@@ -2510,7 +2510,7 @@ int pc_setregstr(USER *sd, int reg, char *str) {
   return 0;
 }
 
-char *pc_readglobalregstring(USER *sd, char *reg) {
+char *pc_readglobalregstring(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2532,7 +2532,7 @@ char *pc_readglobalregstring(USER *sd, char *reg) {
   return "";
 }
 
-int pc_setglobalregstring(USER *sd, char *reg, char *val) {
+int pc_setglobalregstring(USER *sd, const char *reg, const char *val) {
   int i, exist;
 
   exist = -1;
@@ -2570,7 +2570,7 @@ int pc_setglobalregstring(USER *sd, char *reg, char *val) {
   return 1;
 }
 
-int pc_readglobalreg(USER *sd, char *reg) {
+int pc_readglobalreg(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2592,7 +2592,7 @@ int pc_readglobalreg(USER *sd, char *reg) {
   return 0;
 }
 
-int pc_setglobalreg(USER *sd, char *reg, unsigned long val) {
+int pc_setglobalreg(USER *sd, const char *reg, unsigned long val) {
   int i, exist;
 
   exist = -1;
@@ -2893,7 +2893,7 @@ int pc_heal(USER *sd, int hp, int mp, int caster) {
   return 0;
 }
 
-int pc_setnpcintreg(USER *sd, char *reg, int val) {
+int pc_setnpcintreg(USER *sd, const char *reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2931,7 +2931,7 @@ int pc_setnpcintreg(USER *sd, char *reg, int val) {
 }
 
 // reads acct registry
-int pc_readnpcintreg(USER *sd, char *reg) {
+int pc_readnpcintreg(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2954,7 +2954,7 @@ int pc_readnpcintreg(USER *sd, char *reg) {
   return 0;
 }
 
-int pc_setquestreg(USER *sd, char *reg, int val) {
+int pc_setquestreg(USER *sd, const char *reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2992,7 +2992,7 @@ int pc_setquestreg(USER *sd, char *reg, int val) {
 }
 
 // reads acct registry
-int pc_readquestreg(USER *sd, char *reg) {
+int pc_readquestreg(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;

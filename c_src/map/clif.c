@@ -242,7 +242,7 @@ int clif_Hacker(char *name, const char *reason) {
   clif_broadcasttogm(StringBuffer, -1);
   return 0;
 }
-int clif_sendurl(USER *sd, int type, char *url) {
+int clif_sendurl(USER *sd, int type, const char *url) {
   if (!sd) return 0;
 
   WFIFOB(sd->fd, 0) = 0xAA;
@@ -879,7 +879,7 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
 
 int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
-  char *msg = NULL;
+  const char *msg = NULL;
   // char buf[256];
   int len = 0;
 
@@ -906,7 +906,7 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_broadcast(char *msg, int m) {
+int clif_broadcast(const char *msg, int m) {
   if (m == -1) {
     for (int x = 0; x < 65535; x++) {
       if (map_isloaded(x)) {
@@ -920,7 +920,7 @@ int clif_broadcast(char *msg, int m) {
   return 0;
 }
 
-int clif_gmbroadcast(char *msg, int m) {
+int clif_gmbroadcast(const char *msg, int m) {
   if (m == -1) {
     for (int x = 0; x < 65535; x++) {
       if (map_isloaded(x)) {
@@ -933,7 +933,7 @@ int clif_gmbroadcast(char *msg, int m) {
   return 0;
 }
 
-int clif_broadcasttogm(char *msg, int m) {
+int clif_broadcasttogm(const char *msg, int m) {
   if (m == -1) {
     for (int x = 0; x < 65535; x++) {
       if (map_isloaded(x)) {
@@ -1059,7 +1059,7 @@ int clif_debug(unsigned char *stringthing, int len) {
     if (stringthing[i] <= 32 || stringthing[i] > 126) {
       printf("   ");
     } else {
-      printf("%02c ", stringthing[i]);
+      printf("%02X ", stringthing[i]);
     }
   }
 
@@ -2462,13 +2462,13 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
               amount += 1;
               if(SQL_ERROR == Sql_Query(sql_handle,"UPDATE `KillLogs` SET
       `KlgAmount` = '%u' WHERE `KlgChaId` = '%u' AND `KlgMobId` = '%u'", amount,
-      sd->status.id, mob->mobid)) { SqlStmt_ShowDebug(sql_handle); return 0;
+      sd->status.id, mob->mobid)) { Sql_ShowDebug(sql_handle); return 0;
               }
       } else {
               amount = 1;
               if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `KillLogs`
       (`KlgChaId`, `KlgMobId`, `KlgAmount`) VALUES ('%u', '%u', '%u')",
-      sd->status.id, mob->mobid, amount)) { SqlStmt_ShowDebug(sql_handle);
+      sd->status.id, mob->mobid, amount)) { Sql_ShowDebug(sql_handle);
                       return 0;
               }
       }
@@ -2703,7 +2703,8 @@ int clif_send_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_send(unsigned char *buf, int len, struct block_list *bl, int type) {
+int clif_send(const unsigned char *buf, int len, struct block_list *bl,
+              int type) {
   USER *sd = NULL;
   USER *tsd = NULL;
   struct socket_data *p = NULL;
@@ -5419,7 +5420,7 @@ int clif_noparsewalk(USER *sd, char speed) {
   return 1;
 }
 
-int clif_guitextsd(char *msg, USER *sd) {
+int clif_guitextsd(const char *msg, USER *sd) {
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
     return 0;
@@ -5446,7 +5447,7 @@ int clif_guitextsd(char *msg, USER *sd) {
 
 int clif_guitext(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
-  char *msg = NULL;
+  const char *msg = NULL;
   // char buf[256];
   int len = 0;
 
@@ -5571,7 +5572,7 @@ int clif_getReward(USER *sd, int fd) {
   char eventname[41];
 
   char legendbuf[255];
-  char msg[80];
+  char msg[4000];
   char monthyear[7];
   char season[7];
 
@@ -6937,7 +6938,7 @@ int clif_parseemotion(USER *sd) {
   return 0;
 }
 
-int clif_sendmsg(USER *sd, int type, char *buf) {
+int clif_sendmsg(USER *sd, int type, const char *buf) {
   /*	Type:
           0 = Wisp (blue text)
           3 = Mini Text/Status Text
@@ -6977,14 +6978,14 @@ int clif_sendmsg(USER *sd, int type, char *buf) {
   return 0;
 }
 
-int clif_sendminitext(USER *sd, char *msg) {
+int clif_sendminitext(USER *sd, const char *msg) {
   nullpo_ret(0, sd);
   if (!strlen(msg)) return 0;
   clif_sendmsg(sd, 3, msg);
   return 0;
 }
 
-int clif_sendwisp(USER *sd, char *srcname, unsigned char *msg) {
+int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
   int msglen = strlen(msg);
   int srclen = strlen(srcname);
   int newlen = 0;
@@ -7282,7 +7283,7 @@ int clif_checkdura(USER *sd, int equip) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `BreakLogs` (`BrkChaId`,
     `BrkMapId`, `BrkX`, `BrkY`, `BrkItmId`) VALUES ('%u', '%u', '%u', '%u',
     '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-    sd->status.equip[equip].id)) { SqlStmt_ShowDebug(sql_handle);
+    sd->status.equip[equip].id)) { Sql_ShowDebug(sql_handle);
     }*/
 
     sd->status.equip[equip].id = 0;
@@ -7404,7 +7405,7 @@ int clif_deductduraequip(USER *sd) {
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `BreakLogs`
       (`BrkChaId`, `BrkMapId`, `BrkX`, `BrkY`, `BrkItmId`) VALUES ('%u', '%u',
       '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-      sd->status.equip[equip].id)) { SqlStmt_ShowDebug(sql_handle);
+      sd->status.equip[equip].id)) { Sql_ShowDebug(sql_handle);
       }*/
 
       sd->breakid = id;
@@ -7485,7 +7486,7 @@ int clif_checkinvbod(USER *sd) {  // handles items in inventory
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `BreakLogs`
       (`BrkChaId`, `BrkMapId`, `BrkX`, `BrkY`, `BrkItmId`) VALUES ('%u', '%u',
       '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-      sd->status.inventory[x].id)) { SqlStmt_ShowDebug(sql_handle);
+      sd->status.inventory[x].id)) { Sql_ShowDebug(sql_handle);
       }*/
 
       sd->breakid = id;
@@ -8286,7 +8287,7 @@ int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
   return 0;
 }
 
-int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
+int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
   char *buf;
   char name[25];
   char escape[255];
@@ -8302,7 +8303,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
   if (is_command(sd, msg, msglen)) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
     `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-    "Slash")) { SqlStmt_ShowDebug(sql_handle);
+    "Slash")) { Sql_ShowDebug(sql_handle);
     }*/
 
     return 0;
@@ -8318,7 +8319,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Yell")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8326,7 +8327,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "English")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8334,7 +8335,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Spanish")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8342,7 +8343,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "French")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8350,7 +8351,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Chinese")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8358,7 +8359,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Portuguese")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8366,7 +8367,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Bahasa")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8374,7 +8375,7 @@ int clif_sendscriptsay(USER *sd, char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Say")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8580,7 +8581,7 @@ int clif_sendmobyell(struct block_list *bl, va_list ap) {
 int clif_speak(struct block_list *bl, va_list ap) {
   struct block_list *nd = NULL;
   USER *sd = NULL;
-  char *msg = NULL;
+  const char *msg = NULL;
   int len;
   int type;
 
@@ -9331,7 +9332,7 @@ int clif_parsemagic(USER *sd) {
       (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`, `SlgText`)
       VALUES ('%u', '%u', '%u', '%u', '%u', '%s', '%s')", sd->status.id,
       sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Question", escape))
-      { SqlStmt_ShowDebug(sql_handle);
+      { Sql_ShowDebug(sql_handle);
       }*/
       break;
     case 2:
@@ -9344,7 +9345,7 @@ int clif_parsemagic(USER *sd) {
         (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
         ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
         sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Target")) {
-                SqlStmt_ShowDebug(sql_handle);
+                Sql_ShowDebug(sql_handle);
         }*/
       } else {
         // printf("User %s has an invalid target with ID: %u\n",
@@ -9356,7 +9357,7 @@ int clif_parsemagic(USER *sd) {
       (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
       ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
       sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Self")) {
-              SqlStmt_ShowDebug(sql_handle);
+              Sql_ShowDebug(sql_handle);
       }*/
 
       break;
@@ -9476,7 +9477,7 @@ int clif_parsemagic(USER *sd) {
   return 0;
 }
 
-int clif_scriptmes(USER *sd, int id, char *msg, int previous, int next) {
+int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   NPC *nd = map_id2npc((unsigned int)id);
@@ -10004,8 +10005,8 @@ int clif_scriptmenu(
   return 0;
 }
 
-int clif_scriptmenuseq(USER *sd, int id, char *dialog, char *menu[], int size,
-                       int previous, int next) {
+int clif_scriptmenuseq(USER *sd, int id, const char *dialog, char *menu[],
+                       int size, int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int x;
@@ -10288,8 +10289,9 @@ int clif_scriptmenuseq(USER *sd, int id, char *dialog, char *menu[], int size,
   return 0;
 }
 
-int clif_inputseq(USER *sd, int id, char *dialog, char *dialog2, char *dialog3,
-                  char *menu[], int size, int previous, int next) {
+int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
+                  const char *dialog3, char *menu[], int size, int previous,
+                  int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int len = 0;
@@ -10916,7 +10918,7 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   if (sd->fakeDrop) return 0;
 
   char mini[64];
-  sprintf(mini, "You dropped %d coins\0", fl->data.amount);
+  sprintf(mini, "You dropped %d coins", fl->data.amount);
   clif_sendminitext(sd, mini);
 
   map_foreachincell(clif_addtocurrent, sd->bl.m, sd->bl.x, sd->bl.y, BL_ITEM,
@@ -10927,7 +10929,7 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `DropLogs` (`DrpChaId`,
   `DrpMapId`, `DrpX`, `DrpY`, `DrpItmId`, `DrpAmount`) VALUES ('%u', '%u', '%u',
   '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, fl->data.id,
-  fl->data.amount)) { SqlStmt_ShowDebug(sql_handle);
+  fl->data.amount)) { Sql_ShowDebug(sql_handle);
   }*/
 
   if (!def[0]) {
@@ -11055,7 +11057,7 @@ int clif_throwitem_script(USER *sd) {
   `ThwMapId`, `ThwX`, `ThwY`, `ThwItmId`, `ThwMapIdDestination`,
   `ThwXDestination`, `ThwYDestination`) VALUES ('%u', '%u', '%u', '%u', '%u',
   '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, fl->data.id,
-  fl->bl.m, x, y)) { SqlStmt_ShowDebug(sql_handle);
+  fl->bl.m, x, y)) { Sql_ShowDebug(sql_handle);
   }*/
 
   if (type || !sd->status.inventory[id].amount) {
@@ -12306,7 +12308,7 @@ int send_meta(USER *sd) {
 int send_metalist(USER *sd) {
   int len = 0;
   unsigned int checksum;
-  char filebuf[255];
+  char filebuf[256];
   int x;
 
   WFIFOHEAD(sd->fd, 65535 * 2);
@@ -12826,8 +12828,8 @@ int clif_showboards(USER *sd) {
   return 0;
 }
 
-int clif_buydialog(USER *sd, unsigned int id, char *dialog, struct item *item,
-                   int price[], int count) {
+int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
+                   struct item *item, int price[], int count) {
   NPC *nd = NULL;
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
@@ -13124,7 +13126,7 @@ int clif_parsebuy(USER *sd) {
   return 0;
 }
 
-int clif_selldialog(USER *sd, unsigned int id, char *dialog, int item[],
+int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
                     int count) {
   NPC *nd = NULL;
   int graphic = sd->npc_g;
@@ -13387,7 +13389,7 @@ char *clif_getaccountemail(unsigned int id) {
   return &email[0];
 }
 
-int clif_input(USER *sd, int id, char *dialog, char *item) {
+int clif_input(USER *sd, int id, const char *dialog, const char *item) {
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
 
@@ -15086,7 +15088,7 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
     `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
     '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id,
     sd->bl.m, sd->bl.x, sd->bl.y, it->id, it->amount, tsd->status.id, tsd->bl.m,
-    tsd->bl.x, tsd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
+    tsd->bl.x, tsd->bl.y)) { Sql_ShowDebug(sql_handle);
     }*/
     // it->id=id;
     // it->dura=sd->exchange.dura[i];
@@ -15109,7 +15111,7 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
     `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
     '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", tsd->status.id,
     tsd->bl.m, tsd->bl.x, tsd->bl.y, it2->id, it2->amount, sd->status.id,
-    sd->bl.m, sd->bl.x, sd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
+    sd->bl.m, sd->bl.x, sd->bl.y)) { Sql_ShowDebug(sql_handle);
     }*/
     // it2->id=id;
     // it2->dura=tsd->exchange.dura[i];
@@ -15442,7 +15444,7 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
 
 int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   int len = 0;
-  char buff[256];
+  char buff[260];
   int i;
   float percentage;
   char nameof[255];
@@ -15606,7 +15608,7 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   `ExgXTarget`, `ExgYTarget`, `ExgItmId`, `ExgAmount`) VALUES ('%u', '%u', '%u',
   '%u', '%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x,
   sd->bl.y, tsd->status.id, tsd->bl.m, tsd->bl.x, tsd->bl.y, 0,
-  sd->exchange.gold)) { SqlStmt_ShowDebug(sql_handle);
+  sd->exchange.gold)) { Sql_ShowDebug(sql_handle);
   }
 
   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs` (`ExgChaId`,
@@ -15614,7 +15616,7 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   `ExgYTarget`, `ExgItmId`, `ExgAmount`) VALUES ('%u', '%u', '%u', '%u', '%u',
   '%u', '%u', '%u', '%u', '%u')", tsd->status.id, tsd->bl.m, tsd->bl.x,
   tsd->bl.y, sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, 0,
-  tsd->exchange.gold)) { SqlStmt_ShowDebug(sql_handle);
+  tsd->exchange.gold)) { Sql_ShowDebug(sql_handle);
   }*/
 
   if (!session[sd->fd]) {
@@ -15839,7 +15841,7 @@ limit at a time?  number is always 100 or 255
         return 0;
 }*/
 
-int clif_mapselect(USER *sd, char *wm, int *x0, int *y0, char **mname,
+int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0, char **mname,
                    unsigned int *id, int *x1, int *y1, int i) {
   int len = 0;
   int x, y;

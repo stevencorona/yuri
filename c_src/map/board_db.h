@@ -23,7 +23,7 @@ int boarddb_path(int);
 int boarddb_gmlevel(int);
 int boarddb_clan(int);
 int boarddb_sort(int);
-unsigned int boarddb_id(char* str);
+unsigned int boarddb_id(const char* str);
 char boarddb_script(int);
 int bn_read();
 

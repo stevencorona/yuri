@@ -129,7 +129,7 @@ int clif_message(int fd, char code, char *buff) {
   return 0;
 }
 
-int clif_sendurl(int fd, int type, char *url) {
+int clif_sendurl(int fd, int type, const char *url) {
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 3) = 0x66;
   WFIFOB(fd, 4) = 0x03;
@@ -373,7 +373,7 @@ int send_meta(int fd) {
 int send_metalist(int fd) {
   int len = 0;
   unsigned int checksum = 0;
-  char filebuf[255];
+  char filebuf[256];
   int x = 0;
 
   WFIFOHEAD(fd, 65535 * 2);
