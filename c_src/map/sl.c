@@ -1740,7 +1740,7 @@ int getSpellLevel(lua_State *state) {
 
   // printf("Spell: %s\n", spell);
   // printf("Level %i\n", level);
-  if (spell != "") lua_pushnumber(state, level);
+  if (strcmp(spell, "") != 0) lua_pushnumber(state, level);
 
   return 1;
 }

@@ -16033,7 +16033,7 @@ int clif_sendhunternote(USER *sd) {
 
   if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) SqlStmt_Free(stmt);
 
-  if (hunternote == "") return 1;
+  if (strcmp(hunternote, "") == 0) return 1;
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
