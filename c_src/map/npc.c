@@ -302,7 +302,7 @@ int npc_init() {
   count = SqlStmt_NumRows(stmt);
 
   for (x = 1; x <= count && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++) {
-    nd = map_id2npc(x);
+    nd = map_id2npc(id);
     if (npcf1npc == 1) {
       nd = map_id2npc(F1_NPC);
       if (nd == NULL) {
