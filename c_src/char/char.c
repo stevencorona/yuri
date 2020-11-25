@@ -197,7 +197,6 @@ void help_screen() {
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
-  printf(" --inter [FILENAME] : set inter file\n");
   exit(0);
 }
 int keep_login_alive(int n, int a) {
@@ -210,8 +209,7 @@ int keep_login_alive(int n, int a) {
 }
 int do_init(int argc, char **argv) {
   int i;
-  char *CONF_FILE = "conf/char.conf";
-  char *INTER_FILE = "conf/inter.conf";
+  char *CONF_FILE = "conf/server.conf";
 
   srand(gettick());
 
@@ -221,13 +219,10 @@ int do_init(int argc, char **argv) {
       help_screen();
     } else if (strcmp(argv[i], "--conf") == 0) {
       CONF_FILE = argv[i + 1];
-    } else if (strcmp(argv[i], "--inter") == 0) {
-      INTER_FILE = argv[i + 1];
     }
   }
 
   config_read(CONF_FILE);
-  config_read(INTER_FILE);
   set_termfunc(do_term);
 
   printf("[char] [started] Char Server Started.\n");
