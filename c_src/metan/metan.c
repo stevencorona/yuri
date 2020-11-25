@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
   int ii_count = 0;
   int a, c;
 
-  config_read("conf/inter.conf");
+  config_read("conf/server.conf");
   // sql_init();
   sql_handle = Sql_Malloc();
   if (sql_handle == NULL) {

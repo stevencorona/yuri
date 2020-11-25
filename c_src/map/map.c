@@ -1644,11 +1644,11 @@ int config_read(const char* cfg_file) {
         map_port = atoi(r2);
 
         // LOGIN
-      } else if (strcasecmp(r1, "loginip") == 0) {
+      } else if (strcasecmp(r1, "login_ip") == 0) {
         get_actual_ip2(r2);
         log_ip_s[15] = '\0';
         login_ip = inet_addr(log_ip_s);
-      } else if (strcasecmp(r1, "loginport") == 0) {
+      } else if (strcasecmp(r1, "login_port") == 0) {
         login_port = atoi(r2);
         // CHAR
       } else if (strcasecmp(r1, "char_ip") == 0) {
@@ -1740,7 +1740,6 @@ void help_screen() {
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
-  printf(" --inter [FILENAME] : set inter file\n");
   printf(" --lang [FILENAME]  : set lang file\n");
   exit(0);
 }
@@ -1883,28 +1882,22 @@ int object_flag_init(void) {
 }
 int do_init(int argc, char** argv) {
   int i;
-  char* CONF_FILE = "conf/map.conf";
+  char* CONF_FILE = "conf/server.conf";
   char* LANG_FILE = "conf/lang.conf";
-  char* INTER_FILE = "conf/inter.conf";
-  char* CHAR_FILE = "conf/char.conf";
   srand(gettick());
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
-        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0)
+        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
       help_screen();
-    else if (strcmp(argv[i], "--conf") == 0)
+    } else if (strcmp(argv[i], "--conf") == 0) {
       CONF_FILE = argv[i + 1];
-    else if (strcmp(argv[i], "--inter") == 0)
-      INTER_FILE = argv[i + 1];
-    else if (strcmp(argv[i], "--lang") == 0)
+    } else if (strcmp(argv[i], "--lang") == 0) {
       LANG_FILE = argv[i + 1];
-    // else if(strcmp(argv[i],"--log") == 0)
+    }
   }
 
   config_read(CONF_FILE);
-  config_read(INTER_FILE);
-  config_read(CHAR_FILE);
   lang_read(LANG_FILE);
   set_termfunc(do_term);
   // CALLOC(userlist,struct userlist_data,1);

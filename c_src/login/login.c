@@ -189,16 +189,14 @@ void help_screen() {
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
-  printf(" --inter [FILENAME] : set inter file\n");
   printf(" --lang [FILENAME]  : set lang file\n");
   exit(0);
 }
 
 int do_init(int argc, char **argv) {
   int i = 0;
-  char *CONF_FILE = "conf/login.conf";
+  char *CONF_FILE = "conf/server.conf";
   char *LANG_FILE = "conf/lang.conf";
-  char *INTER_FILE = "conf/inter.conf";
 
   srand(gettick());
 
@@ -208,16 +206,12 @@ int do_init(int argc, char **argv) {
       help_screen();
     } else if (strcmp(argv[i], "--conf") == 0) {
       CONF_FILE = argv[i + 1];
-    } else if (strcmp(argv[i], "--inter") == 0) {
-      INTER_FILE = argv[i + 1];
     } else if (strcmp(argv[i], "--lang") == 0) {
       LANG_FILE = argv[i + 1];
     }
   }
 
   config_read(CONF_FILE);
-  config_read(INTER_FILE);
-  config_read("conf/char.conf");
   sql_handle = Sql_Malloc();
   if (sql_handle == NULL) {
     Sql_ShowDebug(sql_handle);
