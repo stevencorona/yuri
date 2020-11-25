@@ -1814,19 +1814,7 @@ int get_time_thing(void) {
 
   return 0;
 }
-int uptime(void) {
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `UpTime` WHERE `UtmId` = '3'"))
-    Sql_ShowDebug(sql_handle);
 
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle,
-                "INSERT INTO `UpTime`(`UtmId`, `UtmValue`) VALUES('3', '%d')",
-                gettickthing()))
-    Sql_ShowDebug(sql_handle);
-
-  return 0;
-}
 int keep_char_alive(int n, int a) {
   if (char_fd) {
     WFIFOHEAD(char_fd, 3);
@@ -1923,7 +1911,6 @@ int do_init(int argc, char** argv) {
   }
 
   // sql_init();
-  uptime();
   map_read();
   map_initblock();
   map_initiddb();
