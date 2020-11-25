@@ -4,6 +4,12 @@
 
 Provide a clean fork/drop-in replacement of the Mithia server that is 100% compatible with existing LUA files and database. Slowly improve the codebase from spaghetti C to C11 to Rust.
 
+### Benefits over Mithia
+- Builds/runs as a 64-bit binary on a modern toolchain
+- Significantly cleaned up, unsafe C being removed (buffer overflows, etc), down to 6K compiler warnings from >10K with a goal of 0
+- Dead code is actively being removed. Existing code refactored and ported to Rust
+- Eventual goal of async networking and moving database writes to an independent thread for higher performance
+
 ## Building from source
 
 You will need to a C compiler for the Mithia Code. We currently target `clang`, but gcc should work fine as well.
