@@ -106,7 +106,7 @@ int warp_init() {
   // char *str[10];
   // char *p,*np;
   // int lines = 0;
-  int mx, my, mm, tm, tx, ty = 0;
+  int warp_id, mx, my, mm, tm, tx, ty = 0;
   struct warp_list *war = NULL;
 
   /*for(i=warp_src_first;i;i=i->next) {
@@ -150,17 +150,19 @@ int warp_init() {
   }
 
   if (SQL_ERROR ==
-          SqlStmt_Prepare(
-              stmt,
-              "SELECT `SourceMapId`, `SourceX`, `SourceY`, `DestinationMapId`, "
-              "`DestinationX`, `DestinationY` FROM `Warps`") ||
+          SqlStmt_Prepare(stmt,
+                          "SELECT `WarpId`, `SourceMapId`, `SourceX`, "
+                          "`SourceY`, `DestinationMapId`, "
+                          "`DestinationX`, `DestinationY` FROM `Warps`") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &mm, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &mx, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &my, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &tm, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &tx, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &ty, 0, NULL, NULL)) {
+      SQL_ERROR ==
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &warp_id, 0, NULL, NULL) ||
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &mm, 0, NULL, NULL) ||
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &mx, 0, NULL, NULL) ||
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &my, 0, NULL, NULL) ||
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &tm, 0, NULL, NULL) ||
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &tx, 0, NULL, NULL) ||
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_INT, &ty, 0, NULL, NULL)) {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return -1;
@@ -170,9 +172,14 @@ int warp_init() {
        j < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); j++) {
     CALLOC(war, struct warp_list, 1);
 
-    if (!map_isloaded(mm)) printf("Source map not loaded: %i\n", mm);
-    if (!map_isloaded(tm)) printf("Dest map not loaded: %i\n", tm);
-    if (!map_isloaded(mm) || !map_isloaded(tm)) continue;
+    if (!map_isloaded(mm) || !map_isloaded(tm)) {
+      printf(
+          "[warp] [error] src or dst map not loaded warp_id=%i "
+          "src=%i "
+          "dst=%i\n",
+          warp_id, mm, tm);
+      continue;
+    }
 
     war->x = mx;
     war->y = my;
@@ -196,7 +203,7 @@ int warp_init() {
 
   SqlStmt_Free(stmt);
 
-  printf("%i Warps Loaded\n", count);
+  printf("[npc] [warps_loaded] count=%i\n", count);
 
   return 0;
 }
@@ -356,7 +363,7 @@ int npc_init() {
     }
 
     if (nd->bl.subtype < 3) {
-      if (map_addblock(&nd->bl)) printf("Error NPC\n");
+      map_addblock(&nd->bl);
     }
 
     map_addiddb(&nd->bl);
@@ -403,7 +410,7 @@ int npc_init() {
   }
 
   SqlStmt_Free(stmt);
-  printf("NPC script read done. Total %u NPC read!\n", count);
+  printf("[npc] read done count=%u\n", count);
   return 0;
 }
 

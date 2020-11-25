@@ -194,7 +194,7 @@ int boarddb_read() {
   // sql_free_row();
   SqlStmt_Free(stmt);
 
-  printf("Board db read done. %d boards loaded!\n", i);
+  printf("[board_db] read done count=%d\n", i);
   return 0;
 }
 int bn_read() {
@@ -217,7 +217,7 @@ int bn_read() {
     Sql_GetData(sql_handle, 1, &data, &len);
     memcpy(db->name, data, len);
     // strcpy(db->name,sql_get_str(1));
-    printf(" Board ID: %d - %s\n", db->id, db->name);
+    printf("[board_db] [bn_read] id=%d name=%s\n", db->id, db->name);
   }
   Sql_FreeResult(sql_handle);
   // sql_free_row();

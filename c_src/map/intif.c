@@ -31,7 +31,7 @@ int intif_shutdown(int fd) { exit(0); }
 int check_connect_char(int ip, int port) {
   // printf("Called Connect\n");
   if (char_fd <= 0 || session[char_fd] == NULL) {
-    printf("Attempt to connect to char-server...\n");
+    printf("[map] [intif] Connecting to char-server\n");
     char_fd = make_connection(ip, port);
     session[char_fd]->func_parse = intif_parse;
     session[char_fd]->func_shutdown = intif_shutdown;
@@ -386,7 +386,7 @@ int intif_parse_accept(int fd) {
 
   // serverid == RFIFOB(fd,3); // tells map server its mapserver #
 
-  printf("Server ID: %i\n", RFIFOB(fd, 3));
+  printf("[map] [intif] server_id=%i\n", RFIFOB(fd, 3));
   printf("[map] [intif] Connected to Char Server.\n");
   WFIFOHEAD(fd, map_n * 2 + 8);
   WFIFOW(fd, 0) = 0x3001;

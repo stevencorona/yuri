@@ -508,7 +508,7 @@ int itemdb_read() {
 
   SqlStmt_Free(stmt);
 
-  printf("Item db read done. %d item loaded!\n", itm);
+  printf("[itemdb] read done count=%d\n", itm);
   return 0;
 }
 

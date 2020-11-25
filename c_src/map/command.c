@@ -471,7 +471,7 @@ int is_command(USER *sd, const char *p, int len) {
   // skip our null terminate
   cmdp++;
   // let's go
-  printf("%d\n", i);
+  printf("[command] gm command used cmd_line=%s command=%d\n", cmd_line, i);
   command[i].func(sd, cmdp, NULL);
   return 1;
 }

@@ -291,7 +291,7 @@ int map_src_clear() {
   return 0;
 }
 int map_town_add(const char* r1) {
-  printf("%s\n", r1);
+  printf("[map] [map_town_add] name=%s\n", r1);
   if (sscanf(r1, "%[^\r\n]", town_name) != 1) return -1;
   memset(towns[town_n].name, 0, 32);
   strncpy(towns[town_n].name, town_name, 32);
@@ -484,8 +484,7 @@ int map_addblock(struct block_list* bl) {
   x = bl->x;
   y = bl->y;
   if (!map_isloaded(m)) {
-    ShowError("map_addblock: invalid map id (%d), only %d are loaded.\n", m,
-              map_n);
+    printf("[map_addblock] [error] invalid map id id=%d\n", m);
     return 1;
   }
   if (x < 0 || x >= map[m].xs || y < 0 || y >= map[m].ys) {
@@ -1204,7 +1203,8 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
     fp = fopen(mappath, "rb");
 
     if (fp == NULL) {
-      printf("MAP_ERR: Map file not found (%s).\n", mappath);
+      printf("[map] [not_found] Map file not found id=%u path=%s\n", id,
+             mappath);
       return -1;
     }
 
@@ -1573,7 +1573,7 @@ int lang_read(const char* cfg_file) {
     }
   }
   fclose(fp);
-  printf("Language File (%s) reading finished!\n", cfg_file);
+  printf("[map] [lang_read] file=%s\n", cfg_file);
   return 0;
 }
 unsigned int return_ip_n(char* addr) {
@@ -1598,7 +1598,7 @@ int get_actual_ip(char* addr) {
     while (*he->h_addr_list) {
       bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
       strncpy(map_ip_s, inet_ntoa(a), 16);
-      printf("Map IP: %s\n", inet_ntoa(a));
+      printf("[map] [listen] addr=%s\n", inet_ntoa(a));
     }
   }
 
@@ -1614,7 +1614,6 @@ int get_actual_ip2(char* addr) {
     while (*he->h_addr_list) {
       bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
       strncpy(log_ip_s, inet_ntoa(a), 16);
-      printf("Login IP: %s\n", inet_ntoa(a));
     }
   }
 
@@ -1628,7 +1627,7 @@ int config_read(const char* cfg_file) {
 
   fp = fopen(cfg_file, "r");
   if (fp == NULL) {
-    printf("CFG_ERR: Configuration file (%s) not found.\n", cfg_file);
+    printf("[map] [config_read_failure] file=%s\n", cfg_file);
     return 1;
   }
 
@@ -1708,7 +1707,7 @@ int config_read(const char* cfg_file) {
     }
   }
   fclose(fp);
-  printf("Configuration File (%s) reading finished!\n", cfg_file);
+  printf("[map] [config_read_success] file=%s\n", cfg_file);
   return 0;
 }
 
@@ -1913,7 +1912,7 @@ int do_init(int argc, char** argv) {
   set_termfunc(do_term);
   // CALLOC(userlist,struct userlist_data,1);
   // gcFixPrematureFrees();
-  printf("\n[map] Map Server Started.\n");
+  printf("[map] Map Server Started.\n");
   sql_handle = Sql_Malloc();
   if (sql_handle == NULL) {
     Sql_ShowDebug(sql_handle);
@@ -2549,7 +2548,7 @@ char* map_id2name(unsigned int id) {
 
 void mmo_setonline(unsigned int id, int val) {
   int a, b, c, d, regid;
-  char escape[255];
+  char addr[255];
   USER* sd = map_id2sd(id);
   SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
 
@@ -2577,8 +2576,8 @@ void mmo_setonline(unsigned int id, int val) {
     b = (b >> 8) & 0xff;
     c = (c >> 16) & 0xff;
     d = (d >> 24) & 0xff;
-    sprintf(escape, "%u.%u.%u.%u\0", a, b, c, d);
-    printf("[MAP LOGIN]: %s connected from %s!\n", sd->status.name, escape);
+    sprintf(addr, "%u.%u.%u.%u\0", a, b, c, d);
+    printf("[map] [login] name=%s addr=%s\n", sd->status.name, addr);
 
     // if (strcasecmp(escape,"71.78.153.2") == 0 ||
     // strcasecmp(escape,"71.238.0.230")
@@ -2595,7 +2594,7 @@ void mmo_setonline(unsigned int id, int val) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Character` SET `ChaOnline` = '%d', "
                              "`ChaLastIP` = '%s' WHERE `ChaId` = '%u'",
-                             val, escape, id))
+                             val, addr, id))
     Sql_ShowDebug(sql_handle);
 
   SqlStmt_Free(stmt);
@@ -2797,7 +2796,7 @@ int map_loadgameregistry() {
     memcpy(&gamereg.registry[i], &reg, sizeof(reg));
   }
 
-  printf("Loaded %d game registries\n", gamereg.registry_num);
+  printf("[map] [load_game_registry] count=%d\n", gamereg.registry_num);
   SqlStmt_Free(stmt);
   return 0;
 }
@@ -3000,7 +2999,7 @@ int map_loadclanbank(int id) {
   }
 
   SqlStmt_Free(stmt);
-  printf("Loaded %i bank slots for clan %s\n", count, clandb_name(id));
+  printf("[map] [clan bank slots] count=%i name=%s\n", count, clandb_name(id));
   return 0;
 }
 

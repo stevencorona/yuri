@@ -156,7 +156,7 @@ void recipedb_read() {
   }
 
   SqlStmt_Free(stmt);
-  printf("Recipe DB read done. %d recipes loaded!\n", rec);
+  printf("[recipedb] read done count=%d\n", rec);
 }
 
 void recipedb_term() {
