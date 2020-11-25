@@ -12308,7 +12308,7 @@ int send_meta(USER *sd) {
 int send_metalist(USER *sd) {
   int len = 0;
   unsigned int checksum;
-  char filebuf[256];
+  char filebuf[6000];
   int x;
 
   WFIFOHEAD(sd->fd, 65535 * 2);
@@ -15444,7 +15444,7 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
 
 int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   int len = 0;
-  char buff[260];
+  char buff[300];
   int i;
   float percentage;
   char nameof[255];
