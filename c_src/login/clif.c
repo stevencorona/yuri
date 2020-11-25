@@ -373,7 +373,7 @@ int send_meta(int fd) {
 int send_metalist(int fd) {
   int len = 0;
   unsigned int checksum = 0;
-  char filebuf[255];
+  char filebuf[256];
   int x = 0;
 
   WFIFOHEAD(fd, 65535 * 2);
