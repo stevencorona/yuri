@@ -3148,7 +3148,7 @@ int sl_processKanDonations(lua_State *state) {
                   "UPDATE `Accounts` SET `AccountKanBalance` = "
                   "AccountKanBalance + '%d' WHERE `AccountEmail` = '%s'",
                   number, game_account_email)) {
-      SqlStmt_ShowDebug(sql_handle);
+      Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
       return 1;
     }
@@ -3158,7 +3158,7 @@ int sl_processKanDonations(lua_State *state) {
                   "UPDATE `KanDonations` SET `Claimed` = '1' WHERE "
                   "`game_account_email` = '%s' AND `txn_id` = '%s'",
                   game_account_email, txn_id)) {
-      SqlStmt_ShowDebug(sql_handle);
+      Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
       return 1;
     }
@@ -4313,7 +4313,7 @@ int recipel_getattr(lua_State *state, struct recipe_data *recipe,
   return 1;
 }
 
-int parcell_getattr(lua_State *, struct parcel *, char *);
+int parcell_getattr(lua_State *, struct parcel *, const char *);
 
 void parcell_staticinit() {
   parcell_type = typel_new("Parcel", 0);
@@ -8624,7 +8624,7 @@ int pcl_setCaptchaKey(lua_State *state, USER *sd) {
           sql_handle,
           "UPDATE `Character` SET `ChaCaptchaKey` = '%s' WHERE `ChaId` = '%u'",
           md5, sd->status.id)) {
-    SqlStmt_ShowDebug(sql_handle);
+    Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
     return 1;
@@ -8684,7 +8684,7 @@ int pcl_setAccountBan(lua_State *state, USER *sd) {
             sql_handle,
             "UPDATE `Character` SET ChaBanned = '%i' WHERE `ChaName` = '%s'",
             banned, name)) {
-      SqlStmt_ShowDebug(sql_handle);
+      Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
     }
 
@@ -8743,7 +8743,7 @@ int pcl_setAccountBan(lua_State *state, USER *sd) {
                                "UPDATE `Accounts` SET `AccountBanned` = '%i' "
                                "WHERE `AccountId` = '%u'",
                                banned, accountid)) {
-      SqlStmt_ShowDebug(sql_handle);
+      Sql_ShowDebug(sql_handle);
       SqlStmt_FreeResult(sql_handle);
     }
   }
@@ -9633,7 +9633,7 @@ int pcl_setMiniMapToggle(lua_State *state, USER *sd) {
                              "UPDATE `Character` SET `ChaMiniMapToggle` = '%u' "
                              "WHERE `ChaId` = '%d'",
                              miniMapToggle, sd->status.id)) {
-    SqlStmt_ShowDebug(sql_handle);
+    Sql_ShowDebug(sql_handle);
     return 1;
   }
 
@@ -10755,7 +10755,7 @@ int pcl_retrieveGift(lua_State *state, USER *sd) {
       FREE(item);
 
       if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `Gifts` WHERE `GiftId`
-     = '%u'", giftid)) { SqlStmt_ShowDebug(sql_handle);
+     = '%u'", giftid)) { Sql_ShowDebug(sql_handle);
               Sql_FreeResult(sql_handle);
               lua_pushnil(state);
               return 1;
@@ -11312,7 +11312,7 @@ int pcl_addEventXP(lua_State *state, USER *sd) {
               "UPDATE `RankingScores` SET `Score` = `Score` + '%u', `ChaName` "
               "= '%s' WHERE `EventId` = '%i' AND `ChaId` = '%d'",
               score, sd->status.name, eventid, sd->status.id)) {
-        SqlStmt_ShowDebug(sql_handle);
+        Sql_ShowDebug(sql_handle);
         lua_pushboolean(state, 1);
         SqlStmt_Free(stmt);
       }
@@ -12685,7 +12685,7 @@ int pcl_removeparcel(lua_State *state, USER *sd) {
                 "DELETE FROM `Parcels` WHERE `ParChaIdDestination` = '%u' AND "
                 "`ParPosition` = '%d'",
                 sd->status.id, pos)) {
-    SqlStmt_ShowDebug(sql_handle);
+    Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
     return 1;
@@ -12695,7 +12695,7 @@ int pcl_removeparcel(lua_State *state, USER *sd) {
      (`RpcChaId`, `RpcMapId`, `RpcX`, `RpcY`, `RpcItmId`, `RpcAmount`,
      `RpcSender`, `RpcNpc`) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%u',
      '%d')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, item, amount, sender,
-     npcflag)) { SqlStmt_ShowDebug(sql_handle); Sql_FreeResult(sql_handle);
+     npcflag)) { Sql_ShowDebug(sql_handle); Sql_FreeResult(sql_handle);
               lua_pushboolean(state, 0);
               return 1;
       }*/
@@ -12764,7 +12764,7 @@ int pcl_logbuysell(lua_State *state, USER *sd) {
      (`SelChaId`, `SelMapId`, `SelX`, `SelY`, `SelItmId`, `SelAmount`,
      `SelPrice`) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%u')",
               sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, item, amount, money))
-     { SqlStmt_ShowDebug(sql_handle); Sql_FreeResult(sql_handle);
+     { Sql_ShowDebug(sql_handle); Sql_FreeResult(sql_handle);
                       lua_pushboolean(state, 0);
                       return 1;
               }
@@ -12773,7 +12773,7 @@ int pcl_logbuysell(lua_State *state, USER *sd) {
      (`BuyChaId`, `BuyMapId`, `BuyX`, `BuyY`, `BuyItmId`, `BuyAmount`,
      `BuyPrice`) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%u')",
               sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, item, amount, money))
-     { SqlStmt_ShowDebug(sql_handle); Sql_FreeResult(sql_handle);
+     { Sql_ShowDebug(sql_handle); Sql_FreeResult(sql_handle);
                       lua_pushboolean(state, 0);
                       return 1;
               }

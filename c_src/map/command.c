@@ -352,7 +352,7 @@ int command_gm(USER *sd, char *line, lua_State *state) {
 
   /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
   `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-  "GM")) { SqlStmt_ShowDebug(sql_handle);
+  "GM")) { Sql_ShowDebug(sql_handle);
   }*/
 
   for (x = 1; x < fd_max; x++) {
@@ -383,7 +383,7 @@ int command_transfer(USER *sd, char *line, lua_State *state) {
 
         if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
 `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-"Guide")) { SqlStmt_ShowDebug(sql_handle);
+"Guide")) { Sql_ShowDebug(sql_handle);
         }
 
         if ((sd->status.class > 5 || sd->status.level > 25) &&
@@ -638,7 +638,7 @@ int command_ban(USER *sd, char *line, lua_State *state) {
             sql_handle,
             "UPDATE `Character` SET ChaBanned = '1' WHERE `ChaName` = '%s'",
             name)) {
-      SqlStmt_ShowDebug(sql_handle);
+      Sql_ShowDebug(sql_handle);
     }
     // sql_request("INSERT INTO `banlist` (`ipaddy`) VALUES('%u')",ipaddr);
     // sql_free_row();
@@ -658,7 +658,7 @@ int command_unban(USER *sd, char *line, lua_State *state) {
       Sql_Query(sql_handle,
                 "UPDATE `Character` SET ChaBanned = '0' WHERE `ChaName` = '%s'",
                 name)) {
-    SqlStmt_ShowDebug(sql_handle);
+    Sql_ShowDebug(sql_handle);
   }
 
   return 0;
@@ -720,7 +720,7 @@ int command_broadcast(USER *sd, char *line, lua_State *state) {
 
   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
   `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-  "GM Broadcast")) { SqlStmt_ShowDebug(sql_handle);
+  "GM Broadcast")) { Sql_ShowDebug(sql_handle);
   }*/
 
   clif_broadcast(buf, -1);

@@ -2462,13 +2462,13 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
               amount += 1;
               if(SQL_ERROR == Sql_Query(sql_handle,"UPDATE `KillLogs` SET
       `KlgAmount` = '%u' WHERE `KlgChaId` = '%u' AND `KlgMobId` = '%u'", amount,
-      sd->status.id, mob->mobid)) { SqlStmt_ShowDebug(sql_handle); return 0;
+      sd->status.id, mob->mobid)) { Sql_ShowDebug(sql_handle); return 0;
               }
       } else {
               amount = 1;
               if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `KillLogs`
       (`KlgChaId`, `KlgMobId`, `KlgAmount`) VALUES ('%u', '%u', '%u')",
-      sd->status.id, mob->mobid, amount)) { SqlStmt_ShowDebug(sql_handle);
+      sd->status.id, mob->mobid, amount)) { Sql_ShowDebug(sql_handle);
                       return 0;
               }
       }
@@ -7283,7 +7283,7 @@ int clif_checkdura(USER *sd, int equip) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `BreakLogs` (`BrkChaId`,
     `BrkMapId`, `BrkX`, `BrkY`, `BrkItmId`) VALUES ('%u', '%u', '%u', '%u',
     '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-    sd->status.equip[equip].id)) { SqlStmt_ShowDebug(sql_handle);
+    sd->status.equip[equip].id)) { Sql_ShowDebug(sql_handle);
     }*/
 
     sd->status.equip[equip].id = 0;
@@ -7405,7 +7405,7 @@ int clif_deductduraequip(USER *sd) {
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `BreakLogs`
       (`BrkChaId`, `BrkMapId`, `BrkX`, `BrkY`, `BrkItmId`) VALUES ('%u', '%u',
       '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-      sd->status.equip[equip].id)) { SqlStmt_ShowDebug(sql_handle);
+      sd->status.equip[equip].id)) { Sql_ShowDebug(sql_handle);
       }*/
 
       sd->breakid = id;
@@ -7486,7 +7486,7 @@ int clif_checkinvbod(USER *sd) {  // handles items in inventory
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `BreakLogs`
       (`BrkChaId`, `BrkMapId`, `BrkX`, `BrkY`, `BrkItmId`) VALUES ('%u', '%u',
       '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y,
-      sd->status.inventory[x].id)) { SqlStmt_ShowDebug(sql_handle);
+      sd->status.inventory[x].id)) { Sql_ShowDebug(sql_handle);
       }*/
 
       sd->breakid = id;
@@ -8303,7 +8303,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
   if (is_command(sd, msg, msglen)) {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
     `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
-    "Slash")) { SqlStmt_ShowDebug(sql_handle);
+    "Slash")) { Sql_ShowDebug(sql_handle);
     }*/
 
     return 0;
@@ -8319,7 +8319,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Yell")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8327,7 +8327,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "English")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8335,7 +8335,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Spanish")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8343,7 +8343,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "French")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8351,7 +8351,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Chinese")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8359,7 +8359,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Portuguese")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8367,7 +8367,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Bahasa")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -8375,7 +8375,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs`
   (`SayChaId`, `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')",
                           sd->status.id, escape, "Say")) {
-                          SqlStmt_ShowDebug(sql_handle);
+                          Sql_ShowDebug(sql_handle);
                   }
 
                   break;
@@ -9332,7 +9332,7 @@ int clif_parsemagic(USER *sd) {
       (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`, `SlgText`)
       VALUES ('%u', '%u', '%u', '%u', '%u', '%s', '%s')", sd->status.id,
       sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Question", escape))
-      { SqlStmt_ShowDebug(sql_handle);
+      { Sql_ShowDebug(sql_handle);
       }*/
       break;
     case 2:
@@ -9345,7 +9345,7 @@ int clif_parsemagic(USER *sd) {
         (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
         ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
         sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Target")) {
-                SqlStmt_ShowDebug(sql_handle);
+                Sql_ShowDebug(sql_handle);
         }*/
       } else {
         // printf("User %s has an invalid target with ID: %u\n",
@@ -9357,7 +9357,7 @@ int clif_parsemagic(USER *sd) {
       (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
       ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
       sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Self")) {
-              SqlStmt_ShowDebug(sql_handle);
+              Sql_ShowDebug(sql_handle);
       }*/
 
       break;
@@ -10929,7 +10929,7 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `DropLogs` (`DrpChaId`,
   `DrpMapId`, `DrpX`, `DrpY`, `DrpItmId`, `DrpAmount`) VALUES ('%u', '%u', '%u',
   '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, fl->data.id,
-  fl->data.amount)) { SqlStmt_ShowDebug(sql_handle);
+  fl->data.amount)) { Sql_ShowDebug(sql_handle);
   }*/
 
   if (!def[0]) {
@@ -11057,7 +11057,7 @@ int clif_throwitem_script(USER *sd) {
   `ThwMapId`, `ThwX`, `ThwY`, `ThwItmId`, `ThwMapIdDestination`,
   `ThwXDestination`, `ThwYDestination`) VALUES ('%u', '%u', '%u', '%u', '%u',
   '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, fl->data.id,
-  fl->bl.m, x, y)) { SqlStmt_ShowDebug(sql_handle);
+  fl->bl.m, x, y)) { Sql_ShowDebug(sql_handle);
   }*/
 
   if (type || !sd->status.inventory[id].amount) {
@@ -15088,7 +15088,7 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
     `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
     '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id,
     sd->bl.m, sd->bl.x, sd->bl.y, it->id, it->amount, tsd->status.id, tsd->bl.m,
-    tsd->bl.x, tsd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
+    tsd->bl.x, tsd->bl.y)) { Sql_ShowDebug(sql_handle);
     }*/
     // it->id=id;
     // it->dura=sd->exchange.dura[i];
@@ -15111,7 +15111,7 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
     `ExgTarget`, `ExgMapIdTarget`, `ExgXTarget`, `ExgYTarget`) VALUES ('%u',
     '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')", tsd->status.id,
     tsd->bl.m, tsd->bl.x, tsd->bl.y, it2->id, it2->amount, sd->status.id,
-    sd->bl.m, sd->bl.x, sd->bl.y)) { SqlStmt_ShowDebug(sql_handle);
+    sd->bl.m, sd->bl.x, sd->bl.y)) { Sql_ShowDebug(sql_handle);
     }*/
     // it2->id=id;
     // it2->dura=tsd->exchange.dura[i];
@@ -15608,7 +15608,7 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   `ExgXTarget`, `ExgYTarget`, `ExgItmId`, `ExgAmount`) VALUES ('%u', '%u', '%u',
   '%u', '%u', '%u', '%u', '%u', '%u', '%u')", sd->status.id, sd->bl.m, sd->bl.x,
   sd->bl.y, tsd->status.id, tsd->bl.m, tsd->bl.x, tsd->bl.y, 0,
-  sd->exchange.gold)) { SqlStmt_ShowDebug(sql_handle);
+  sd->exchange.gold)) { Sql_ShowDebug(sql_handle);
   }
 
   if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs` (`ExgChaId`,
@@ -15616,7 +15616,7 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   `ExgYTarget`, `ExgItmId`, `ExgAmount`) VALUES ('%u', '%u', '%u', '%u', '%u',
   '%u', '%u', '%u', '%u', '%u')", tsd->status.id, tsd->bl.m, tsd->bl.x,
   tsd->bl.y, sd->status.id, sd->bl.m, sd->bl.x, sd->bl.y, 0,
-  tsd->exchange.gold)) { SqlStmt_ShowDebug(sql_handle);
+  tsd->exchange.gold)) { Sql_ShowDebug(sql_handle);
   }*/
 
   if (!session[sd->fd]) {

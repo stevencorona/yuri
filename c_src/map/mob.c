@@ -845,19 +845,19 @@ int mobdb_dropitem(unsigned int blockid, unsigned int id, int amount, int dura,
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO
   `CharacterDeathDropLogs` (`CddChaId`, `CddMapId`, `CddX`, `CddY`, `CddItmId`,
   `CddAmount`) VALUES ('%u', '%u', '%u', '%u', '%u', '%u')", tsd->status.id, m,
-  x, y, id, amount)) { SqlStmt_ShowDebug(sql_handle);
+  x, y, id, amount)) { Sql_ShowDebug(sql_handle);
           }
   } else if (mob) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `MobDeathDropLogs`
   (`MddMobId`, `MddMapId`, `MddX`, `MddY`, `MddItmId`, `MddAmount`) VALUES
   ('%u', '%u', '%u', '%u', '%u', '%u')", mob->data->id, m, x, y, id, amount)) {
-                  SqlStmt_ShowDebug(sql_handle);
+                  Sql_ShowDebug(sql_handle);
           }
   } else if (nd) {
           if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `NPCDeathDropLogs`
   (`NddNpcId`, `NddMapId`, `NddX`, `NddY`, `NddItmId`, `NddAmount`) VALUES
   ('%u', '%u', '%u', '%u', '%u', '%u')", nd->id, m, x, y, id, amount)) {
-                  SqlStmt_ShowDebug(sql_handle);
+                  Sql_ShowDebug(sql_handle);
           }
   }*/
 
