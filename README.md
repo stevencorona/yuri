@@ -40,7 +40,7 @@ If you have not modified the Mithia C source, Yuri is 100% drop-in compatible wi
 3. Copy your lua from Mithia's `lua/Accepted` folder into the `data/lua` directory. There is no notion of Accepted/Developers/Deprecated in Yuri. This will be addressed in a future version with git integration.
 4. Copy your sys.lua from Mithia's `lua/Developers` folder into the `data/lua` directory. This file is the initial lua file loaded before all others.
 5. If you've modified the levels_db.txt file, copy it into `data/`. The default values are included.
-6. All logs are now written to STDOUT as structured logs instead of the filesystem. Run under systemd or docker to log to filesystem.
+6. All logs are now written to `STDOUT` as structured logs instead of the filesystem. Run under systemd or docker to log to filesystem.
 
 ## Current Architecture
 
