@@ -193,7 +193,7 @@ int classdb_read() {
   }
 
   SqlStmt_Free(stmt);
-  printf("Class db read done. %d classes loaded!\n", cls);
+  printf("[class_db] read done count=%d\n", cls);
   return 0;
 }
 
@@ -242,7 +242,7 @@ int leveldb_read() {
 
   fclose(fp);
   free(path);
-  printf("Level db read done. %d class levels loaded!\n", cls);
+  printf("[leveldb] read done count=%d\n", cls);
   return 0;
 }
 

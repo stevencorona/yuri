@@ -312,7 +312,7 @@ void set_nonblocking(int fd, unsigned long yes) {
   // FIONBIO Use with a nonzero argp parameter to enable the nonblocking mode of
   // socket s. The argp parameter is zero if nonblocking is to be disabled.
   if (ioctl(fd, FIONBIO, &yes) != 0) {
-    printf("nonblocking failed.");
+    printf("[session] nonblocking failed\n");
   }
   // printf("set_nonblocking: Failed to set socket %d to non-blocking mode (code
   // %d) - Please report this!!!\n", fd, sErrno);
@@ -480,7 +480,7 @@ int null_parse(int fd) {
     // session_eof(fd);
     return 0;
   }
-  printf("null_parse : %d\n", fd);
+  printf("[session] null_parse fd=%d\n", fd);
   RFIFOSKIP(fd, RFIFOREST(fd));
   return 0;
 }
@@ -803,7 +803,7 @@ int do_sendrecv() {
   for (i = 1; i < fd_max; i++) {
     // p=session[i];
     if (!session[i] && FD_ISSET(i, &rfd)) {
-      printf("force clr fds %d\n", i);
+      printf("[session] force clr fd=%d\n", i);
       FD_CLR(i, &rfd);
       continue;
     }

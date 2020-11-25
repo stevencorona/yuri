@@ -328,4 +328,6 @@ int timer_clear() {
   if (free_timer_list) {
     FREE(free_timer_list);
   }
+
+  return 0;
 }

@@ -4440,8 +4440,10 @@ void typel_staticinit() {
   lua_pushcfunction(sl_gstate, typel_mtgc);
   lua_setfield(sl_gstate, -2, "__gc");
   typel_mtref = luaL_ref(sl_gstate, LUA_REGISTRYINDEX);
-  printf("old pause: %d\n", lua_gc(sl_gstate, LUA_GCSETPAUSE, 100));
-  printf("old mult: %d\n", lua_gc(sl_gstate, LUA_GCSETSTEPMUL, 1000));
+  printf("[sl] [lua_gc_pause] old=%d new=100\n",
+         lua_gc(sl_gstate, LUA_GCSETPAUSE, 100));
+  printf("[sl] [lua_gc_step_mul] old=%d new=1000\n",
+         lua_gc(sl_gstate, LUA_GCSETSTEPMUL, 1000));
 }
 
 typel_class typel_new(char *name, lua_CFunction ctor) {

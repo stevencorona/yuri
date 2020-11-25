@@ -220,7 +220,7 @@ int mobdb_read() {
   SqlStmt_Free(eqstmt);
 
   // StringBuf_Destroy(&buf);
-  printf("Monster db read done. %u monsters loaded!\n", mstr);
+  printf("[mob] read done count=%u\n", mstr);
   return 0;
 }
 
@@ -421,8 +421,7 @@ int mobspawn_read() {
   SqlStmt_Free(stmt);
   MOB_SPAWN_MAX = mob_id;
   srand(gettick());
-  printf("Monster spawn read done. %u monsters spawned on Server: %i!\n", mstr,
-         serverid);
+  printf("[mob] [spawn] read done count=%i\n", mstr);
 
   return 0;
 }

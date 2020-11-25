@@ -34,7 +34,6 @@ int zlib_init(void) {
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
   ret = deflateInit(&strm, Z_DEFAULT_COMPRESSION);
-  // printf("ret: %d\n",ret);
   return 0;
 }
 int mapfifo_from_mapid(int map) {
@@ -179,7 +178,7 @@ int config_read(const char *cfg_file) {
     }
   }
   fclose(fp);
-  printf("Configuration File (%s) reading finished!\n", cfg_file);
+  printf("[char] [config_read_success] file=%s\n", cfg_file);
   start_pos.m = m;
   start_pos.x = x;
   start_pos.y = y;

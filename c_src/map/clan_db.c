@@ -139,7 +139,7 @@ int clandb_read() {
 
   Sql_FreeResult(sql_handle);
 
-  printf("Clan db read done. %i clans loaded!\n", count);
+  printf("[clan_db] read done count=%i\n", count);
   return 0;
 }
 

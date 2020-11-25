@@ -237,7 +237,7 @@ int magicdb_read() {
   }
 
   SqlStmt_Free(stmt);
-  printf("Magic db read done. %d magic loaded!\n", mag);
+  printf("[magic] read done count=%d\n", mag);
   return 0;
 }
 

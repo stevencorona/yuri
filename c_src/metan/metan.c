@@ -59,7 +59,7 @@ int config_read(const char *cfg_file) {
     }
   }
   fclose(fp);
-  printf("Configuration File (%s) reading finished!\n", cfg_file);
+  printf("[metan] [config_read_success] file=%s\n", cfg_file);
   return 0;
 }
 

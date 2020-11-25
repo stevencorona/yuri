@@ -851,7 +851,6 @@ int mapif_parse_nmailwrite(int fd) {
   if (SQL_SUCCESS == result) Sql_GetData(sql_handle, 0, &data, 0);
 
   if (data) {
-    // printf("max: %d, new: %d\n", atoi(data), newMailID);
     newMailID = atoi(data) + 1;
   }
 

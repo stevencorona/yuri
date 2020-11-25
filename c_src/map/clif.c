@@ -11402,7 +11402,6 @@ int clif_handle_disconnect(USER *sd) {
       clif_exchange_close(tsd);
     }
   }
-  // printf("033[1;37m%s\033[0m disconnecting.\n",sd->status.name);
 
   pc_stoptimer(sd);
   sl_async_freeco(sd);
@@ -11421,7 +11420,7 @@ int clif_handle_disconnect(USER *sd) {
                 sd->status.id))
     Sql_ShowDebug(sql_handle);
 
-  printf(CL_MAGENTA "%s" CL_NORMAL " disconnecting\n", sd->status.name);
+  printf("[map] [handle_disconnect] name=%s\n", sd->status.name);
   return 0;
 }
 int clif_handle_missingobject(USER *sd) {
@@ -11742,7 +11741,7 @@ int clif_parse(int fd) {
   // for(pnum=0;pnum<3 && session[fd] && session[fd]->rdata_size;pnum++) {
   if (session[fd]->eof) {
     if (sd) {
-      printf("Char: %s\n", sd->status.name);
+      printf("[map] [session_eof] name=%s\n", sd->status.name);
       clif_handle_disconnect(sd);
       clif_closeit(sd);
       // sd->fd=0;

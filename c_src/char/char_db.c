@@ -39,7 +39,7 @@ char* lcase(char* input) {
   CALLOC(ret, char, strlen(input));
   memset(ret, 0, strlen(input));
   if (ret == NULL) {
-    printf("wtf!");
+    printf("[lcase] error\n");
     return input;
   }
 
@@ -74,9 +74,6 @@ int ispass(char* name, char* pass, char* md5) {
   MD5_String(buf, md52);
   MD5_String(buf2, md53);
 
-  // printf("old: %s md5: %s\n",buf,md52);
-  // printf("new: %s md5: %s\n",buf2,md53);
-
   if (!strcmp(md5, md52) ||
       !strcmp(md5,
               md53)) {  // Added to give backwards compatibility with passwords
@@ -95,17 +92,15 @@ int ismastpass(char* pass3, char* mastmd5, int expire) {
   time_t current = nowtime;
 
   MD5_String(pass3, mastmd52);
-  printf("-----------\nTime: %d\nExpiration: %d\n", current, expire);
 
   // if there is a problem with the password, or the password has expired, then
   // error out!
   if (!strcmp(mastmd5, mastmd52) && current <= expire) {
+    printf("[char] [ismastpass] master password was used\n");
     return 1;
   } else {
     return 0;
   }
-  //	printf("Entering master password check - mastmd5: %s - expire: %s-
-  // pass3: %s\n",mastmd5,expire,pass3);
 }
 
 /// Attempt to find an existing ID that is available.
@@ -1997,22 +1992,19 @@ int memlegend_todb(struct legend legends[], int max, int id) {
 }
 /// Save Character TO database
 int mmo_char_todb(struct mmo_charstatus* p) {
-  char escape1[16];
-  char escape2[255];
-  char escape3[255];
-  char escape4[16];
+  char escaped_name[16];
+  char escaped_title[255];
+  char escaped_clantitle[255];
+  char escaped_f1name[16];
+  char escaped_afkmessage[80];
 
-  char escape6[80];
-  // char status save
+  Sql_EscapeString(sql_handle, escaped_name, p->name);
+  Sql_EscapeString(sql_handle, escaped_title, p->title);
+  Sql_EscapeString(sql_handle, escaped_clantitle, p->clan_title);
+  Sql_EscapeString(sql_handle, escaped_f1name, p->f1name);
+  Sql_EscapeString(sql_handle, escaped_afkmessage, p->afkmessage);
 
-  printf("Saving %s\n", p->name);
-
-  Sql_EscapeString(sql_handle, escape1, p->name);
-  Sql_EscapeString(sql_handle, escape2, p->title);
-  Sql_EscapeString(sql_handle, escape3, p->clan_title);
-  Sql_EscapeString(sql_handle, escape4, p->f1name);
-
-  Sql_EscapeString(sql_handle, escape6, p->afkmessage);
+  printf("[char] [save_char] name=%s\n", p->name);
 
   if (SQL_ERROR ==
       Sql_Query(
@@ -2045,20 +2037,21 @@ int mmo_char_todb(struct mmo_charstatus* p) {
           "`ChaProfileLegends` = '%d', `ChaProfileSpells` = '%d', "
           "`ChaProfileInventory` = '%d', `ChaProfileBankItems` = '%d', "
           "`ChaPthRank` = '%u', `ChaClnRank` = '%u' WHERE `ChaId` = '%u'",
-          escape1, p->clan, escape3, escape2, p->level, p->class, p->mark,
-          p->totem, p->karma, p->hp, p->basehp, p->mp, p->basemp, p->exp,
-          p->money, p->sex, p->country, p->face, p->hair_color, p->armor_color,
-          p->last_pos.m, p->last_pos.x, p->last_pos.y, p->side, p->state,
-          p->hair, p->face_color, p->skin_color, p->partner, p->clan_chat,
-          p->subpath_chat, p->novice_chat, p->settingFlags, p->gm_level,
-          p->disguise, p->disguisecolor, p->maxslots, p->bankmoney, escape4,
+          escaped_name, p->clan, escaped_clantitle, escaped_title, p->level,
+          p->class, p->mark, p->totem, p->karma, p->hp, p->basehp, p->mp,
+          p->basemp, p->exp, p->money, p->sex, p->country, p->face,
+          p->hair_color, p->armor_color, p->last_pos.m, p->last_pos.x,
+          p->last_pos.y, p->side, p->state, p->hair, p->face_color,
+          p->skin_color, p->partner, p->clan_chat, p->subpath_chat,
+          p->novice_chat, p->settingFlags, p->gm_level, p->disguise,
+          p->disguisecolor, p->maxslots, p->bankmoney, escaped_f1name,
           p->maxinv, p->pk, p->killedby, p->killspk, p->pkduration, p->mute,
           p->heroes, p->tier, p->expsoldmagic, p->expsoldhealth,
           p->expsoldstats, p->basemight, p->basegrace, p->basewill,
-          p->basearmor, p->miniMapToggle, escape6, p->tutor, p->alignment,
-          p->profile_vitastats, p->profile_equiplist, p->profile_legends,
-          p->profile_spells, p->profile_inventory, p->profile_bankitems,
-          p->classRank, p->clanRank, p->id)) {
+          p->basearmor, p->miniMapToggle, escaped_afkmessage, p->tutor,
+          p->alignment, p->profile_vitastats, p->profile_equiplist,
+          p->profile_legends, p->profile_spells, p->profile_inventory,
+          p->profile_bankitems, p->classRank, p->clanRank, p->id)) {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 0;
