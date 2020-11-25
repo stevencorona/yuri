@@ -12,7 +12,7 @@
 
 DBMap *clan_db;
 
-int clandb_add(void *sd, char *name) {
+int clandb_add(void *sd, const char *name) {
   struct clan_data *db = NULL;
   unsigned int newid = 0;
   char *data;

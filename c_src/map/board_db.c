@@ -84,7 +84,7 @@ struct board_data *boarddb_searchname(const char *str) {
   return db;
 }
 
-unsigned int boarddb_id(char *str) {
+unsigned int boarddb_id(const char *str) {
   struct board_data *db = NULL;
   db = boarddb_searchname(str);
   if (db) return db->id;

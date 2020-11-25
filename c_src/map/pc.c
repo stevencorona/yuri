@@ -1230,7 +1230,7 @@ int pc_loadequip(USER *sd) {
   return 0;
 }
 
-int pc_isinvenspace(USER *sd, int id, int owner, char *engrave,
+int pc_isinvenspace(USER *sd, int id, int owner, const char *engrave,
                     unsigned int customLook, unsigned int customLookColor,
                     unsigned int customIcon, unsigned int customIconColor) {
   int i;
@@ -2510,7 +2510,7 @@ int pc_setregstr(USER *sd, int reg, char *str) {
   return 0;
 }
 
-char *pc_readglobalregstring(USER *sd, char *reg) {
+char *pc_readglobalregstring(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2570,7 +2570,7 @@ int pc_setglobalregstring(USER *sd, const char *reg, const char *val) {
   return 1;
 }
 
-int pc_readglobalreg(USER *sd, char *reg) {
+int pc_readglobalreg(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2592,7 +2592,7 @@ int pc_readglobalreg(USER *sd, char *reg) {
   return 0;
 }
 
-int pc_setglobalreg(USER *sd, char *reg, unsigned long val) {
+int pc_setglobalreg(USER *sd, const char *reg, unsigned long val) {
   int i, exist;
 
   exist = -1;
@@ -2893,7 +2893,7 @@ int pc_heal(USER *sd, int hp, int mp, int caster) {
   return 0;
 }
 
-int pc_setnpcintreg(USER *sd, char *reg, int val) {
+int pc_setnpcintreg(USER *sd, const char *reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2931,7 +2931,7 @@ int pc_setnpcintreg(USER *sd, char *reg, int val) {
 }
 
 // reads acct registry
-int pc_readnpcintreg(USER *sd, char *reg) {
+int pc_readnpcintreg(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2954,7 +2954,7 @@ int pc_readnpcintreg(USER *sd, char *reg) {
   return 0;
 }
 
-int pc_setquestreg(USER *sd, char *reg, int val) {
+int pc_setquestreg(USER *sd, const char *reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2992,7 +2992,7 @@ int pc_setquestreg(USER *sd, char *reg, int val) {
 }
 
 // reads acct registry
-int pc_readquestreg(USER *sd, char *reg) {
+int pc_readquestreg(USER *sd, const char *reg) {
   int i, exist;
 
   exist = -1;

@@ -21,6 +21,6 @@ int npc_move(NPC *);
 int npc_movetime(NPC *nd);
 int npc_warp(NPC *, int, int, int);
 int npc_warp_add(const char *);
-int npc_readglobalreg(NPC *, char *);
-int npc_setglobalreg(NPC *, char *, int);
+int npc_readglobalreg(NPC *, const char *);
+int npc_setglobalreg(NPC *, const char *, int);
 int warp_init();

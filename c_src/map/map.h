@@ -494,8 +494,8 @@ int map_registrysave(int, int);
 int map_registrydelete(int, int);
 int map_loadgameregistry();
 int map_savegameregistry(int);
-int map_setglobalgamereg(char *, int);
-int map_readglobalgamereg(char *);
+int map_setglobalgamereg(const char *, int);
+int map_readglobalgamereg(const char *);
 int map_loadclanbank(int);
 
 int map_weather(int, int);

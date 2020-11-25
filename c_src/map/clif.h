@@ -28,7 +28,7 @@ char meta_file[META_MAX][256];
 int metamax;
 
 int send_metalist(USER *);
-int clif_sendurl(USER *, int, char *);
+int clif_sendurl(USER *, int, const char *);
 int clif_blockmovement(USER *, int);
 int clif_send_pc_health(USER *, int, int);
 int clif_findspell_pos(USER *, int);
@@ -83,7 +83,7 @@ int clif_sendanimation_xy(struct block_list *, va_list);
 int clif_sendequip(USER *, int);
 int clif_sendadditem(USER *, int);
 int clif_senddelitem(USER *, int, int);
-int clif_sendminitext(USER *, char *);
+int clif_sendminitext(USER *, const char *);
 int clif_sendwisp(USER *, const char *, const char *);
 int clif_retrwisp(USER *, char *, unsigned char *);
 int clif_failwisp(USER *);

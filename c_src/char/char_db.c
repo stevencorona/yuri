@@ -55,7 +55,7 @@ char* lcase(char* input) {
 }
 
 /// Determines if the Password given matches the one in DB
-int ispass(char* name, char* pass, char* md5) {
+int ispass(const char* name, const char* pass, char* md5) {
   char md52[255] = "";
   char md53[255] = "";
   char buf[255] = "";
@@ -85,7 +85,7 @@ int ispass(char* name, char* pass, char* md5) {
 }
 
 /// Determines if the Password given matches the Master in DB
-int ismastpass(char* pass3, char* mastmd5, int expire) {
+int ismastpass(const char* pass3, const char* mastmd5, int expire) {
   char mastmd52[32] = "";
 
   time_t nowtime = time(NULL);

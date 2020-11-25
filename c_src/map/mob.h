@@ -50,8 +50,8 @@ int mob_secondduratimer(MOB*);
 int mob_thirdduratimer(MOB*);
 int mob_fourthduratimer(MOB*);
 int mob_warp(MOB*, int, int, int);
-int mob_setglobalreg(MOB*, char*, int);
-int mob_readglobalreg(MOB*, char*);
+int mob_setglobalreg(MOB*, const char*, int);
+int mob_readglobalreg(MOB*, const char*);
 
 int mob_respawn_getstats(MOB* mob);
 int mob_respawn_nousers(MOB* mob);

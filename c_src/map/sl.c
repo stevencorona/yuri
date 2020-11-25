@@ -45,10 +45,10 @@
 // accessors should return 1 if the attribute was handled; otherwise an error
 // will be raised
 typedef int (*typel_getattrfunc)(lua_State *, void * /* self */,
-                                 char * /* attrname */);
+                                 const char * /* attrname */);
 
 typedef int (*typel_setattrfunc)(lua_State *, void * /* self */,
-                                 char * /*attrname */);
+                                 const char * /*attrname */);
 
 typedef int (*typel_initfunc)(lua_State *, void * /* self */, int /* dataref */,
                               void * /* param */);
@@ -113,9 +113,9 @@ void typel_extendproto(typel_class *, char *, typel_func);
 #define sl_memberarg(x) (x + 1)
 #define sl_memberself 1
 
-int bll_getattr(lua_State *, struct block_list *, char *attrname);
+int bll_getattr(lua_State *, struct block_list *, const char *attrname);
 
-int bll_setattr(lua_State *, struct block_list *, char *attrname);
+int bll_setattr(lua_State *, struct block_list *, const char *attrname);
 
 void bll_pushinst(lua_State *, struct block_list *, void *);
 
@@ -1473,6 +1473,8 @@ int checkonline(lua_State *state) {
     }
   } else {
     name = lua_tostring(state, 1);
+    char *name_buffer[64];
+    memcpy(name_buffer, name, strlen(name));
 
     if (strcasecmp(name, "") == 0) {
       if (SQL_ERROR ==
@@ -1488,7 +1490,7 @@ int checkonline(lua_State *state) {
       if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                        "Select `ChaId` FROM `Character` WHERE "
                                        "`ChaOnline` = '1' AND `ChaName` = '%s'",
-                                       strlwr(name)) ||
+                                       strlwr(name_buffer)) ||
           SQL_ERROR == SqlStmt_Execute(stmt)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
@@ -3942,7 +3944,7 @@ void sl_resume(char *output, USER *sd) {
   sl_async_resume(sd, 1);
 }
 
-int iteml_getattr(lua_State *, struct item_data *, char *);
+int iteml_getattr(lua_State *, struct item_data *, const char *);
 
 int iteml_ctor(lua_State *);
 
@@ -3968,7 +3970,8 @@ int iteml_ctor(lua_State *state) {
   return 1;
 }
 
-int iteml_getattr(lua_State *state, struct item_data *item, char *attrname) {
+int iteml_getattr(lua_State *state, struct item_data *item,
+                  const char *attrname) {
   if (!strcmp(attrname, "vita"))
     lua_pushnumber(state, item->vita);
   else if (!strcmp(attrname, "mana"))
@@ -4085,9 +4088,9 @@ int iteml_getattr(lua_State *state, struct item_data *item, char *attrname) {
   return 1;
 }
 
-int biteml_getattr(lua_State *, struct item *, char *);
+int biteml_getattr(lua_State *, struct item *, const char *);
 
-int biteml_setattr(lua_State *, struct item *, char *);
+int biteml_setattr(lua_State *, struct item *, const char *);
 
 void biteml_staticinit() {
   biteml_type = typel_new("BoundItem", 0);
@@ -4095,7 +4098,7 @@ void biteml_staticinit() {
   biteml_type.setattr = biteml_setattr;
 }
 
-int biteml_setattr(lua_State *state, struct item *bitem, char *attrname) {
+int biteml_setattr(lua_State *state, struct item *bitem, const char *attrname) {
   if (!strcmp(attrname, "id"))
     bitem->id = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "amount"))
@@ -4128,7 +4131,7 @@ int biteml_setattr(lua_State *state, struct item *bitem, char *attrname) {
   return 1;
 }
 
-int biteml_getattr(lua_State *state, struct item *bitem, char *attrname) {
+int biteml_getattr(lua_State *state, struct item *bitem, const char *attrname) {
   if (!strcmp(attrname, "amount"))
     lua_pushnumber(state, bitem->amount);
   else if (!strcmp(attrname, "dura"))
@@ -4165,9 +4168,9 @@ int biteml_getattr(lua_State *state, struct item *bitem, char *attrname) {
   return 1;
 }
 
-int bankiteml_getattr(lua_State *, struct bank_data *, char *);
+int bankiteml_getattr(lua_State *, struct bank_data *, const char *);
 
-int bankiteml_setattr(lua_State *, struct bank_data *, char *);
+int bankiteml_setattr(lua_State *, struct bank_data *, const char *);
 
 void bankiteml_staticinit() {
   bankiteml_type = typel_new("BankItem", 0);
@@ -4176,7 +4179,7 @@ void bankiteml_staticinit() {
 }
 
 int bankiteml_setattr(lua_State *state, struct bank_data *bitem,
-                      char *attrname) {
+                      const char *attrname) {
   if (!strcmp(attrname, "id"))
     bitem->item_id = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "amount"))
@@ -4204,7 +4207,7 @@ int bankiteml_setattr(lua_State *state, struct bank_data *bitem,
 }
 
 int bankiteml_getattr(lua_State *state, struct bank_data *bitem,
-                      char *attrname) {
+                      const char *attrname) {
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, bitem->item_id);
   else if (!strcmp(attrname, "amount"))
@@ -4237,7 +4240,7 @@ int bankiteml_getattr(lua_State *state, struct bank_data *bitem,
   return 1;
 }
 
-int recipel_getattr(lua_State *, struct recipe_data *, char *);
+int recipel_getattr(lua_State *, struct recipe_data *, const char *);
 
 int recipel_ctor(lua_State *);
 
@@ -4264,7 +4267,7 @@ int recipel_ctor(lua_State *state) {
 }
 
 int recipel_getattr(lua_State *state, struct recipe_data *recipe,
-                    char *attrname) {
+                    const char *attrname) {
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, recipe->id);
   else if (!strcmp(attrname, "identifier"))
@@ -4317,7 +4320,8 @@ void parcell_staticinit() {
   parcell_type.getattr = parcell_getattr;
 }
 
-int parcell_getattr(lua_State *state, struct parcel *parcel, char *attrname) {
+int parcell_getattr(lua_State *state, struct parcel *parcel,
+                    const char *attrname) {
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, parcel->data.id);
   else if (!strcmp(attrname, "amount"))
@@ -4348,9 +4352,9 @@ int parcell_getattr(lua_State *state, struct parcel *parcel, char *attrname) {
   return 1;
 }
 
-int regl_getattr(lua_State *, USER *, char *);
+int regl_getattr(lua_State *, USER *, const char *);
 
-int regl_setattr(lua_State *, USER *, char *);
+int regl_setattr(lua_State *, USER *, const char *);
 
 // struct global_reg *regl_findreg(USER *, char *);
 void regl_staticinit() {
@@ -4359,21 +4363,21 @@ void regl_staticinit() {
   regl_type.setattr = regl_setattr;
 }
 
-int regl_getattr(lua_State *state, USER *sd, char *attrname) {
+int regl_getattr(lua_State *state, USER *sd, const char *attrname) {
   lua_pushnumber(state, pc_readglobalreg(sd, attrname));
   return 1;
 }
 
-int regl_setattr(lua_State *state, USER *sd, char *attrname) {
+int regl_setattr(lua_State *state, USER *sd, const char *attrname) {
   pc_setglobalreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
 
-int reglstring_getattr(lua_State *, USER *, char *);
+int reglstring_getattr(lua_State *, USER *, const char *);
 
-int reglstring_setattr(lua_State *, USER *, char *);
+int reglstring_setattr(lua_State *, USER *, const char *);
 
-struct global_regstring *regl_findregstring(USER *, char *);
+struct global_regstring *regl_findregstring(USER *, const char *);
 
 void reglstring_staticinit() {
   reglstring_type = typel_new("RegistryString", 0);
@@ -4381,19 +4385,19 @@ void reglstring_staticinit() {
   reglstring_type.setattr = reglstring_setattr;
 }
 
-int reglstring_getattr(lua_State *state, USER *sd, char *attrname) {
+int reglstring_getattr(lua_State *state, USER *sd, const char *attrname) {
   lua_pushstring(state, pc_readglobalregstring(sd, attrname));
   return 1;
 }
 
-int reglstring_setattr(lua_State *state, USER *sd, char *attrname) {
+int reglstring_setattr(lua_State *state, USER *sd, const char *attrname) {
   pc_setglobalregstring(sd, attrname, lua_tostring(state, -1));
   return 1;
 }
 
-int npcintregl_getattr(lua_State *, USER *, char *);
+int npcintregl_getattr(lua_State *, USER *, const char *);
 
-int npcintregl_setattr(lua_State *, USER *, char *);
+int npcintregl_setattr(lua_State *, USER *, const char *);
 
 void npcintregl_staticinit() {
   npcintregl_type = typel_new("NpcInt", 0);
@@ -4401,19 +4405,19 @@ void npcintregl_staticinit() {
   npcintregl_type.setattr = npcintregl_setattr;
 }
 
-int npcintregl_getattr(lua_State *state, USER *sd, char *attrname) {
+int npcintregl_getattr(lua_State *state, USER *sd, const char *attrname) {
   lua_pushnumber(state, pc_readnpcintreg(sd, attrname));
   return 1;
 }
 
-int npcintregl_setattr(lua_State *state, USER *sd, char *attrname) {
+int npcintregl_setattr(lua_State *state, USER *sd, const char *attrname) {
   pc_setnpcintreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
 
-int questregl_getattr(lua_State *, USER *, char *);
+int questregl_getattr(lua_State *, USER *, const char *);
 
-int questregl_setattr(lua_State *, USER *, char *);
+int questregl_setattr(lua_State *, USER *, const char *);
 
 void questregl_staticinit() {
   questregl_type = typel_new("Quest", 0);
@@ -4421,12 +4425,12 @@ void questregl_staticinit() {
   questregl_type.setattr = questregl_setattr;
 }
 
-int questregl_getattr(lua_State *state, USER *sd, char *attrname) {
+int questregl_getattr(lua_State *state, USER *sd, const char *attrname) {
   lua_pushnumber(state, pc_readquestreg(sd, attrname));
   return 1;
 }
 
-int questregl_setattr(lua_State *state, USER *sd, char *attrname) {
+int questregl_setattr(lua_State *state, USER *sd, const char *attrname) {
   pc_setquestreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
@@ -5083,7 +5087,7 @@ void bll_pushinst(lua_State *state, struct block_list *bl, void *param) {
     lua_pushnil(state);  // TODO: should this be an error?
 }
 
-int bll_getattr(lua_State *state, struct block_list *bl, char *attrname) {
+int bll_getattr(lua_State *state, struct block_list *bl, const char *attrname) {
   if (!bl) return 0;
   if (!strcmp(attrname, "x"))
     lua_pushnumber(state, bl->x);
@@ -5167,7 +5171,7 @@ int bll_getattr(lua_State *state, struct block_list *bl, char *attrname) {
   return 1;
 }
 
-int bll_setattr(lua_State *state, struct block_list *bl, char *attrname) {
+int bll_setattr(lua_State *state, struct block_list *bl, const char *attrname) {
   if (!bl) return 0;
   if (!strcmp(attrname, "mapTitle"))
     strcpy(map[bl->m].title, lua_tostring(state, -1));
@@ -5233,9 +5237,9 @@ int bll_setattr(lua_State *state, struct block_list *bl, char *attrname) {
   return 1;
 }
 
-int fll_getattr(lua_State *, FLOORITEM *, char *);
+int fll_getattr(lua_State *, FLOORITEM *, const char *);
 
-int fll_setattr(lua_State *, FLOORITEM *, char *);
+int fll_setattr(lua_State *, FLOORITEM *, const char *);
 
 int fll_move(lua_State *, FLOORITEM *);
 
@@ -5294,7 +5298,7 @@ int fll_init(lua_State *state, FLOORITEM *fl, int dataref, void *param) {
   return 0;
 }
 
-int fll_getattr(lua_State *state, FLOORITEM *fl, char *attrname) {
+int fll_getattr(lua_State *state, FLOORITEM *fl, const char *attrname) {
   if (bll_getattr(state, &fl->bl, attrname)) return 1;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, fl->data.id);
@@ -5339,7 +5343,7 @@ int fll_getattr(lua_State *state, FLOORITEM *fl, char *attrname) {
   return 1;
 }
 
-int fll_setattr(lua_State *state, FLOORITEM *fl, char *attrname) {
+int fll_setattr(lua_State *state, FLOORITEM *fl, const char *attrname) {
   if (bll_setattr(state, &fl->bl, attrname)) return 1;
   if (!strcmp(attrname, "amount"))
     fl->data.amount = lua_tonumber(state, -1);
@@ -5418,13 +5422,13 @@ int npcl_ctor(lua_State *);
 
 int npcl_init(lua_State *, NPC *, int, void *);
 
-int npcl_getattr(lua_State *, NPC *, char *);
+int npcl_getattr(lua_State *, NPC *, const char *);
 
-int npcl_setattr(lua_State *, NPC *, char *);
+int npcl_setattr(lua_State *, NPC *, const char *);
 
-int npcregl_getattr(lua_State *, NPC *, char *);
+int npcregl_getattr(lua_State *, NPC *, const char *);
 
-int npcregl_setattr(lua_State *, NPC *, char *);
+int npcregl_setattr(lua_State *, NPC *, const char *);
 
 int npcl_move(lua_State *, NPC *);
 
@@ -5490,7 +5494,7 @@ int npcl_init(lua_State *state, NPC *nd, int dataref, void *param) {
   return 0;
 }
 
-int npcl_getattr(lua_State *state, NPC *nd, char *attrname) {
+int npcl_getattr(lua_State *state, NPC *nd, const char *attrname) {
   if (bll_getattr(state, &nd->bl, attrname)) return 1;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, nd->id);
@@ -5611,7 +5615,7 @@ int npcl_getattr(lua_State *state, NPC *nd, char *attrname) {
   return 1;
 }
 
-int npcl_setattr(lua_State *state, NPC *nd, char *attrname) {
+int npcl_setattr(lua_State *state, NPC *nd, const char *attrname) {
   if (bll_setattr(state, &nd->bl, attrname)) return 1;
   if (!strcmp(attrname, "side"))
     nd->side = lua_tonumber(state, -1);
@@ -5718,12 +5722,12 @@ int npcl_setattr(lua_State *state, NPC *nd, char *attrname) {
   return 1;
 }
 
-int npcregl_getattr(lua_State *state, NPC *nd, char *attrname) {
+int npcregl_getattr(lua_State *state, NPC *nd, const char *attrname) {
   lua_pushnumber(state, npc_readglobalreg(nd, attrname));
   return 1;
 }
 
-int npcregl_setattr(lua_State *state, NPC *nd, char *attrname) {
+int npcregl_setattr(lua_State *state, NPC *nd, const char *attrname) {
   npc_setglobalreg(nd, attrname, lua_tonumber(state, -1));
   return 0;
 }
@@ -5766,9 +5770,9 @@ int mobl_attack(lua_State *, MOB *);
 
 int mobl_addhealth(lua_State *, MOB *);
 
-int mobl_getattr(lua_State *, MOB *, char *);
+int mobl_getattr(lua_State *, MOB *, const char *);
 
-int mobl_setattr(lua_State *, MOB *, char *);
+int mobl_setattr(lua_State *, MOB *, const char *);
 
 int mobl_move(lua_State *, MOB *);
 
@@ -5825,9 +5829,9 @@ int mobl_sendstatus(lua_State *, MOB *);
 
 int mobl_sendminitext(lua_State *, MOB *);
 
-int mobregl_getattr(lua_State *, MOB *, char *);
+int mobregl_getattr(lua_State *, MOB *, const char *);
 
-int mobregl_setattr(lua_State *, MOB *, char *);
+int mobregl_setattr(lua_State *, MOB *, const char *);
 
 void mobl_staticinit() {
   mobl_type = typel_new("Mob", mobl_ctor);
@@ -6274,7 +6278,7 @@ int mobl_init(lua_State *state, MOB *mob, int dataref, void *param) {
   return 0;
 }
 
-int mobl_getattr(lua_State *state, MOB *mob, char *attrname) {
+int mobl_getattr(lua_State *state, MOB *mob, const char *attrname) {
   if (bll_getattr(state, &mob->bl, attrname)) return 1;
   if (!strcmp(attrname, "state"))
     lua_pushnumber(state, mob->state);
@@ -6509,7 +6513,7 @@ int mobl_getattr(lua_State *state, MOB *mob, char *attrname) {
   return 1;
 }
 
-int mobl_setattr(lua_State *state, MOB *mob, char *attrname) {
+int mobl_setattr(lua_State *state, MOB *mob, const char *attrname) {
   if (bll_setattr(state, &mob->bl, attrname)) return 1;
   if (!strcmp(attrname, "side"))
     mob->side = lua_tonumber(state, -1);
@@ -6972,12 +6976,12 @@ int mobl_sendstatus(lua_State *state, MOB *mob) { return 0; }
 
 int mobl_sendminitext(lua_State *state, MOB *mob) { return 0; }
 
-int mobregl_getattr(lua_State *state, MOB *mob, char *attrname) {
+int mobregl_getattr(lua_State *state, MOB *mob, const char *attrname) {
   lua_pushnumber(state, mob_readglobalreg(mob, attrname));
   return 0;
 }
 
-int mobregl_setattr(lua_State *state, MOB *mob, char *attrname) {
+int mobregl_setattr(lua_State *state, MOB *mob, const char *attrname) {
   mob_setglobalreg(mob, attrname, lua_tonumber(state, -1));
   return 0;
 }
@@ -7002,9 +7006,9 @@ int pcl_setduration(lua_State *, USER *);
 
 int pcl_dialog(lua_State *, USER *);
 
-int pcl_getattr(lua_State *, USER *, char *);
+int pcl_getattr(lua_State *, USER *, const char *);
 
-int pcl_setattr(lua_State *, USER *, char *);
+int pcl_setattr(lua_State *, USER *, const char *);
 
 int pcl_setaether(lua_State *, USER *);
 
@@ -7525,7 +7529,7 @@ int pcl_menu(lua_State *state, USER *sd) {
   sl_checkargs(state, "st");
   int previous = 0, next = 0;
   int size = lua_objlen(state, sl_memberarg(2));
-  char *menuopts[size + 1];
+  const char *menuopts[size + 1];
   lua_pushnil(state);
 
   while (lua_next(state, sl_memberarg(2)) != 0) {
@@ -7558,7 +7562,7 @@ int pcl_menuseq(lua_State *state, USER *sd) {
   sl_checkargs(state, "stt");
   int previous = 0, next = 0;
   int size = lua_objlen(state, sl_memberarg(2));
-  char *menuopts[size + 1];
+  const char *menuopts[size + 1];
 
   lua_pushnil(state);
 
@@ -7593,7 +7597,7 @@ int pcl_inputseq(lua_State *state, USER *sd) {
 
   int previous = 0, next = 0;
   int size = lua_objlen(state, sl_memberarg(4));
-  char *menuopts[size + 1];
+  const char *menuopts[size + 1];
 
   lua_pushnil(state);
 
@@ -8156,7 +8160,7 @@ int pcl_sendurl(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_setattr(lua_State *state, USER *sd, char *attrname) {
+int pcl_setattr(lua_State *state, USER *sd, const char *attrname) {
   if (bll_setattr(state, &sd->bl, attrname)) return 1;
   if (!strcmp(attrname, "npcGraphic"))
     sd->npc_g = lua_tonumber(state, -1);
@@ -9170,7 +9174,7 @@ int pcl_setKan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getattr(lua_State *state, USER *sd, char *attrname) {
+int pcl_getattr(lua_State *state, USER *sd, const char *attrname) {
   if (bll_getattr(state, &sd->bl, attrname)) return 1;
   if (!strcasecmp(attrname, "id"))
     lua_pushnumber(state, sd->status.id);
@@ -10130,7 +10134,7 @@ int pcl_mapselection(lua_State *state, USER *sd) {
   sl_checkargs(state, "stttttt");
   int map_x0[255];
   int map_y0[255];
-  char *map_name[255];
+  const char *map_name[255];
   unsigned int map_id[255];
   int map_x1[255];
   int map_y1[255];
@@ -10491,6 +10495,8 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
     }
   }
 
+  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
+  // Need to build a test case and change this.
   if (engrave) {
     engrave = NULL;
   } else {
@@ -11027,12 +11033,16 @@ int pcl_hasitem(lua_State *state, USER *sd) {
     }
   }
 
+  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
+  // Need to build a test case and change this.
   if (engrave) {
     engrave = NULL;
   } else {
     FREE(engrave);
   }
 
+  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
+  // Need to build a test case and change this.
   if (note) {
     note = NULL;
   } else {
@@ -11389,6 +11399,8 @@ int pcl_hasspace(lua_State *state, USER *sd) {
     }
   }
 
+  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
+  // Need to build a test case and change this.
   if (engrave) {
     engrave = NULL;
   } else {
@@ -13255,9 +13267,9 @@ int pcl_checklevel(lua_State *state, USER *sd) {
   return 0;
 }
 
-int mapregl_getattr(lua_State *, USER *, char *);
+int mapregl_getattr(lua_State *, USER *, const char *);
 
-int mapregl_setattr(lua_State *, USER *, char *);
+int mapregl_setattr(lua_State *, USER *, const char *);
 
 void mapregl_staticinit() {
   mapregl_type = typel_new("Mapregistry", 0);
@@ -13265,24 +13277,24 @@ void mapregl_staticinit() {
   mapregl_type.setattr = mapregl_setattr;
 }
 
-int mapregl_setattr(lua_State *state, USER *sd, char *attrname) {
+int mapregl_setattr(lua_State *state, USER *sd, const char *attrname) {
   map_setglobalreg(sd->bl.m, attrname, lua_tonumber(state, -1));
   return 0;
 }
 
-int mapregl_getattr(lua_State *state, USER *sd, char *attrname) {
+int mapregl_getattr(lua_State *state, USER *sd, const char *attrname) {
   lua_pushnumber(state, map_readglobalreg(sd->bl.m, attrname));
   return 1;
 }
 
 // game registries
-int gameregl_setattr(lua_State *state, USER *sd, char *attrname) {
+int gameregl_setattr(lua_State *state, USER *sd, const char *attrname) {
   map_setglobalgamereg(attrname, lua_tonumber(state, -1));
 
   return 0;
 }
 
-int gameregl_getattr(lua_State *state, USER *sd, char *attrname) {
+int gameregl_getattr(lua_State *state, USER *sd, const char *attrname) {
   lua_pushnumber(state, map_readglobalgamereg(attrname));
   return 1;
 }

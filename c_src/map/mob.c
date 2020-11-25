@@ -2366,7 +2366,7 @@ int mob_warp(MOB *mob, int m, int x, int y) {
   return 0;
 }
 
-int mob_readglobalreg(MOB *mob, char *reg) {
+int mob_readglobalreg(MOB *mob, const char *reg) {
   int i, exist;
 
   exist = -1;
@@ -2389,7 +2389,7 @@ int mob_readglobalreg(MOB *mob, char *reg) {
   return 0;
 }
 
-int mob_setglobalreg(MOB *mob, char *reg, int val) {
+int mob_setglobalreg(MOB *mob, const char *reg, int val) {
   int i, exist;
 
   exist = -1;

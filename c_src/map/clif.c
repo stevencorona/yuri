@@ -242,7 +242,7 @@ int clif_Hacker(char *name, const char *reason) {
   clif_broadcasttogm(StringBuffer, -1);
   return 0;
 }
-int clif_sendurl(USER *sd, int type, char *url) {
+int clif_sendurl(USER *sd, int type, const char *url) {
   if (!sd) return 0;
 
   WFIFOB(sd->fd, 0) = 0xAA;
@@ -6978,7 +6978,7 @@ int clif_sendmsg(USER *sd, int type, const char *buf) {
   return 0;
 }
 
-int clif_sendminitext(USER *sd, char *msg) {
+int clif_sendminitext(USER *sd, const char *msg) {
   nullpo_ret(0, sd);
   if (!strlen(msg)) return 0;
   clif_sendmsg(sd, 3, msg);

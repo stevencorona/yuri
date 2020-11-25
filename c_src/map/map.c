@@ -2864,7 +2864,7 @@ int map_savegameregistry(int i) {
   return 0;
 }
 // sets game registry
-int map_setglobalgamereg(char* reg, int val) {
+int map_setglobalgamereg(const char* reg, int val) {
   int i, exist;
 
   exist = -1;
@@ -2912,7 +2912,7 @@ int map_setglobalgamereg(char* reg, int val) {
   return 0;
 }
 // reads game registry
-int map_readglobalgamereg(char* reg) {
+int map_readglobalgamereg(const char* reg) {
   int i, exist;
 
   exist = -1;
