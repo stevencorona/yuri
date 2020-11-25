@@ -9,6 +9,7 @@ Provide a clean fork/drop-in replacement of the Mithia server that is 100% compa
 - Significantly cleaned up, unsafe C being removed (buffer overflows, etc), down to 6K compiler warnings from >10K with a goal of 0
 - Dead code is actively being removed. Existing code refactored and ported to Rust
 - Eventual goal of async networking and moving database writes to an independent thread for higher performance
+- Fixes many confusing bugs, like NPCs not loading when there are gaps in the database
 
 ## Building from source
 
