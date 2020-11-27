@@ -17,8 +17,6 @@
 #define MAX_KILLREG 5000
 #define MAX_MAGIC_TIMERS 200
 #define MAX_LEGENDS 1000
-#define MAX_CHAR_BANK 100
-#define MAX_ACCT_BANK 100
 #define MAX_SPELLS 52
 #define MAX_INVENTORY 52
 #define MAX_EQUIP 15
@@ -168,11 +166,6 @@ struct mmo_charstatus {
   int global_regstring_num;
   struct bank_data banks[MAX_BANK_SLOTS];  // player banks
 };
-/// User List Packet
-struct user_list {
-  int class, mark, server, clan, hunter;
-  char name[16];
-};
 
 /// Board Packets (Inter-Server Communication) 0 = From Map, 1 = From Char
 struct boards_post_0 {
@@ -204,5 +197,3 @@ struct boards_read_post_1 {
   int fd, post, month, day, board, board_name, type, buttons;
   char name[16], msg[4000], user[52], topic[52];
 };
-
-unsigned int getTicks(void);
