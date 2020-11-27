@@ -18,11 +18,11 @@
 
 #include "clan_db.h"
 #include "class_db.h"
-#include "command.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
+#include "gm_command.h"
 #include "item_db.h"
 #include "map_char.h"
 #include "map_parse.h"

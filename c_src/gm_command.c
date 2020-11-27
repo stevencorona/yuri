@@ -1,4 +1,4 @@
-#include "command.h"
+#include "gm_command.h"
 
 #include <ctype.h>
 #include <stdio.h>
