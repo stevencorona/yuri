@@ -1,11 +1,11 @@
-#include "logif.h"
+#include "char_login.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "char.h"
 #include "char_db.h"
+#include "char_server.h"
 #include "config.h"
 #include "core.h"
 #include "mmo.h"

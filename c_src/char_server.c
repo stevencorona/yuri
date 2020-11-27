@@ -1,4 +1,4 @@
-#include "char.h"
+#include "char_server.h"
 
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -7,11 +7,11 @@
 #include <zlib.h>
 
 #include "char_db.h"
+#include "char_login.h"
+#include "char_map.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
-#include "logif.h"
-#include "mapif.h"
 #include "mmo.h"
 #include "session.h"
 #include "timer.h"

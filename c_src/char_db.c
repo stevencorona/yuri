@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "char.h"
+#include "char_server.h"
 #include "config.h"
 #include "core.h"
 #include "db_mysql.h"
