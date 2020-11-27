@@ -12,7 +12,7 @@
 DBMap *item_db;
 // DBMap* custom_db;
 
-int itemdb_searchname_sub(DBKey *key, void *data, va_list ap) {
+int itemdb_searchname_sub(DBKey key, void *data, va_list ap) {
   struct item_data *item = (struct item_data *)data, **dst;
   char *str;
 
@@ -512,19 +512,8 @@ int itemdb_read() {
   return 0;
 }
 
-static int itemdb_final(void *key, void *data, va_list ap) {
-  struct item_data *db;
-  nullpo_ret(0, db = data);
-
-  FREE(db->script);
-  FREE(db);
-
-  return 0;
-}
-
 int itemdb_term() {
   if (item_db) {
-    // numdb_final(item_db,itemdb_final);
     db_destroy(item_db);
   }
   return 0;

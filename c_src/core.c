@@ -14,7 +14,7 @@
 #include "timer.h"
 
 extern int do_init(int, char **);
-static term_func_t *term_func = NULL;
+static term_func_t term_func;
 
 // Main server entry point that runs the networking/logic loop for the
 // map/login/char servers

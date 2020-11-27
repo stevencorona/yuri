@@ -876,4 +876,7 @@ int Check_Throttle(struct sockaddr_in S) {
   return Ret;
 }
 
-void Remove_Throttle(int none, int nonetoo) { Throttles = NULL; }
+int Remove_Throttle(uintptr_t* none, uintptr_t* nonetoo) {
+  Throttles = NULL;
+  return 0;
+}

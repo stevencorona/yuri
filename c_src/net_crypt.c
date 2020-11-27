@@ -106,9 +106,9 @@ char *generate_key2(unsigned char *packet, char *table, char *keyout,
   return keyout;
 }
 
-void tk_crypt_static(char *buff) { tk_crypt_dynamic(buff, enckey); }
+void tk_crypt_static(unsigned char *buff) { tk_crypt_dynamic(buff, enckey); }
 
-void tk_crypt_dynamic(char *buff, const char *key) {
+void tk_crypt_dynamic(unsigned char *buff, const char *key) {
   unsigned int group = 0;
   unsigned int groupCount = 0;
   unsigned int packetLen = 0;

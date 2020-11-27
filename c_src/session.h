@@ -1,6 +1,7 @@
 #pragma once
 
 #include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -117,3 +118,5 @@ void set_defaultparse(int (*)(int));
 void set_defaultaccept(int (*)(int));
 void set_defaulttimeout(int (*)(int));
 void set_defaultshutdown(int (*)(int));
+
+int Remove_Throttle(uintptr_t *none, uintptr_t *nonetoo);

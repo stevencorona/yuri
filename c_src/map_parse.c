@@ -160,7 +160,7 @@ int encrypt(int fd) {
   // o(")(")
   if (isKey(WFIFOB(fd, 3))) {
     generate_key2(WFIFOP(fd, 0), &(sd->EncHash), &(key), 0);
-    tk_crypt_dynamic(WFIFOP(fd, 0), &(key));
+    tk_crypt_dynamic(WFIFOP(fd, 0), key);
   } else {
     tk_crypt_static(WFIFOP(fd, 0));
   }
@@ -174,7 +174,7 @@ int decrypt(int fd) {
 
   if (isKey2(RFIFOB(fd, 3))) {
     generate_key2(RFIFOP(fd, 0), &(sd->EncHash), &(key), 1);
-    tk_crypt_dynamic(RFIFOP(fd, 0), &(key));
+    tk_crypt_dynamic(RFIFOP(fd, 0), key);
   } else {
     tk_crypt_static(RFIFOP(fd, 0));
   }

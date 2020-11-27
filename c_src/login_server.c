@@ -26,8 +26,6 @@ const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] =
     "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
 
-extern void Remove_Throttle(int, int);
-
 int Valid(const char *buf, const char *mask) {
   int x = 0;
   int n = 0;
@@ -246,15 +244,16 @@ int getInvalidCount(unsigned int ip) {
   return c;
 }
 
-int login_clear_lockout(int i, int d) {
+int login_clear_lockout(uintptr_t *i, uintptr_t *d) {
   uidb_remove(bf_lockout, (unsigned int)i);
   return 1;
 }
 int setInvalidCount(unsigned int ip) {
-  int c = uidb_get(bf_lockout, ip);
+  int c = (int)(void *)uidb_get(bf_lockout, ip);
 
   if (!c) {
-    timer_insert(10 * 60 * 1000, 10 * 60 * 1000, login_clear_lockout, ip, 0);
+    timer_insert(10 * 60 * 1000, 10 * 60 * 1000, login_clear_lockout,
+                 (uintptr_t)ip, 0);
   }
 
   uidb_put(bf_lockout, ip, c + 1);

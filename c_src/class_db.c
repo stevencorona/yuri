@@ -201,7 +201,7 @@ int leveldb_read() {
   FILE *fp;
   char line[1024];
   int lines = 0;
-  char *str[99], *p, *np;
+  char *str[99], *p;
   struct class_data *db;
   int i, cls = 0;
   int x;
@@ -223,12 +223,11 @@ int leveldb_read() {
     lines++;
     if (line[0] == '/' && line[1] == '/') continue;
     memset(str, 0, sizeof(str));
-    for (i = 0, np = p = line; i < 99 && p; i++) {
+    for (i = 0, p = line; i < 99 && p; i++) {
       str[i] = p;
       p = strchr(p, ',');
       if (p) {
         *p++ = 0;
-        np = p;
       }
     }
 
@@ -246,18 +245,8 @@ int leveldb_read() {
   return 0;
 }
 
-static int classdb_final(void *key, void *data, va_list ap) {
-  struct class_data *db;
-  nullpo_ret(0, db = data);
-
-  FREE(db);
-
-  return 0;
-}
-
 int classdb_term() {
   if (class_db) {
-    // numdb_final(class_db,classdb_final);
     db_destroy(class_db);
   }
 

@@ -22,7 +22,7 @@
 
 #define SERVER_TICK_RATE_NS 10000000
 
-typedef void *(term_func_t)(void);
+typedef void (*term_func_t)(void);
 
 int main(int argc, char **argv);
 void set_termfunc(term_func_t new_term_func);

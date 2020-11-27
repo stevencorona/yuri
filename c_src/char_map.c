@@ -66,7 +66,7 @@ int mapif_send(int fd, unsigned char* buf, int len, int type) {
 }
 
 int mapif_send_newmp(int fd, unsigned int id, unsigned int flags) {
-  char data[8];
+  unsigned char data[8];
 
   WBUFW(data, 0) = 0x380D;
   WBUFL(data, 2) = id;
@@ -107,7 +107,8 @@ int mapif_parse_auth(int fd) {
   }
 
   if (cmd == 0x3000) {
-    if ((strcmp(RFIFOP(fd, 2), char_id)) && (strcmp(RFIFOP(fd, 34), char_pw))) {
+    if ((strcmp((char*)RFIFOP(fd, 2), char_id)) &&
+        (strcmp((char*)RFIFOP(fd, 34), char_pw))) {
       WFIFOHEAD(fd, 4);
       WFIFOW(fd, 0) = 0x3800;
       WFIFOB(fd, 2) = 0x01;
@@ -209,15 +210,16 @@ int mapif_parse_login(int fd, int id) {
 
 /// Parse Request of Character to Map Server
 int mapif_parse_requestchar(int fd) {
-  unsigned int ulen, clen, retval;
-  char* cbuf;
+  unsigned int ulen, retval;
+  unsigned char* cbuf;
+  uLongf clen;
   ulen = sizeof(struct mmo_charstatus);
-  clen = compressBound(ulen);
+  clen = compressBound((uLong)ulen);
   memset(char_dat, 0, sizeof(struct mmo_charstatus));
-  mmo_char_fromdb(RFIFOL(fd, 4), char_dat, RFIFOP(fd, 8));
+  mmo_char_fromdb(RFIFOL(fd, 4), char_dat, (char*)RFIFOP(fd, 8));
 
-  CALLOC(cbuf, char, clen);
-  retval = compress(cbuf, &clen, (char*)char_dat, ulen);
+  CALLOC(cbuf, unsigned char, clen);
+  retval = compress(cbuf, &clen, (unsigned char*)char_dat, ulen);
 
   if (retval) {
     FREE(cbuf);
@@ -236,13 +238,14 @@ int mapif_parse_requestchar(int fd) {
   return 0;
 }
 int mapif_parse_savechar(int fd) {
-  char* cbuf;
-  unsigned int ulen, clen, retval;
+  unsigned char* cbuf;
+  unsigned int ulen, retval;
+  uLongf clen;
 
   ulen = RFIFOL(fd, 1) - 6;
   clen = sizeof(struct mmo_charstatus);
 
-  CALLOC(cbuf, char, clen);
+  CALLOC(cbuf, unsigned char, clen);
 
   retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
@@ -261,14 +264,15 @@ int mapif_parse_logout(int fd) {
 
 /// Save and Logout character
 int mapif_parse_savecharlog(int fd) {
-  char* cbuf;
+  unsigned char* cbuf;
   struct mmo_charstatus* c = NULL;
-  unsigned int ulen, clen, retval;
+  unsigned int ulen, retval;
+  uLongf clen;
 
   ulen = RFIFOL(fd, 1) - 6;
   clen = sizeof(struct mmo_charstatus);
 
-  CALLOC(cbuf, char, clen);
+  CALLOC(cbuf, unsigned char, clen);
 
   retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
@@ -801,10 +805,10 @@ int mapif_parse_nmailwrite(int fd) {
   char* data;
   int result;
 
-  Sql_EscapeString(sql_handle, from, RFIFOP(fd, 4));
-  Sql_EscapeString(sql_handle, to, RFIFOP(fd, 20));
-  Sql_EscapeString(sql_handle, topic, RFIFOP(fd, 72));
-  Sql_EscapeString(sql_handle, msg, RFIFOP(fd, 124));
+  Sql_EscapeString(sql_handle, from, (char*)RFIFOP(fd, 4));
+  Sql_EscapeString(sql_handle, to, (char*)RFIFOP(fd, 20));
+  Sql_EscapeString(sql_handle, topic, (char*)RFIFOP(fd, 72));
+  Sql_EscapeString(sql_handle, msg, (char*)RFIFOP(fd, 124));
 
   WFIFOHEAD(fd, 6);
   WFIFOW(fd, 0) = 0x380C;
@@ -876,37 +880,18 @@ int mapif_parse_nmailwrite(int fd) {
 }
 
 int mapif_parse_nmailwritecopy(int fd) {
-  RFIFOW(fd, 2);
   char from[32];
   char to[104];
   char topic[104];
   char msg[8000];
   int newMailID = 1;
-  unsigned int toID = 0;
   char* data;
   int result;
 
-  Sql_EscapeString(sql_handle, from, RFIFOP(fd, 4));
-  Sql_EscapeString(sql_handle, to, RFIFOP(fd, 20));
-  Sql_EscapeString(sql_handle, topic, RFIFOP(fd, 72));
-  Sql_EscapeString(sql_handle, msg, RFIFOP(fd, 124));
-
-  if (SQL_ERROR ==
-      Sql_Query(sql_handle,
-                "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", to)) {
-    Sql_ShowDebug(sql_handle);
-    return 0;
-  }
-
-  if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
-    Sql_FreeResult(sql_handle);
-    return 0;
-  }
-
-  Sql_GetData(sql_handle, 0, &data, 0);
-  toID = (unsigned int)strtoul(data, NULL, 10);
-
-  Sql_FreeResult(sql_handle);
+  Sql_EscapeString(sql_handle, from, (char*)RFIFOP(fd, 4));
+  Sql_EscapeString(sql_handle, to, (char*)RFIFOP(fd, 20));
+  Sql_EscapeString(sql_handle, topic, (char*)RFIFOP(fd, 72));
+  Sql_EscapeString(sql_handle, msg, (char*)RFIFOP(fd, 124));
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "

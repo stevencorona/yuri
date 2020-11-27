@@ -2,7 +2,7 @@
 
 #include "mmo.h"
 
-extern struct char_login_data {
+struct char_login_data {
   char name[16];
   int map_server;
 };

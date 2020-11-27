@@ -122,8 +122,8 @@ int clif_message(int fd, char code, char *buff) {
   WFIFOB(fd, 6) = strlen(buff);
   strcpy(WFIFOP(fd, 7), buff);
   WFIFOW(fd, packet_len + 8) = 0x00;
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt_static(WFIFOP(fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+  tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
   WFIFOSET(fd, packet_len + 6);
 
   return 0;
@@ -138,8 +138,8 @@ int clif_sendurl(int fd, int type, const char *url) {
   WFIFOW(fd, 6) = SWAP16(strlen(url));
   memcpy(WFIFOP(fd, 8), url, strlen(url));
   WFIFOW(fd, 1) = SWAP16(strlen(url) + 8);
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt_static(WFIFOP(fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+  tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
   WFIFOSET(fd, strlen(url) + 8);
 
   return 0;
@@ -282,7 +282,7 @@ unsigned int metacrc(char *file) {
 
   unsigned int checksum = 0;
   unsigned int size = 0;
-  char fileinf[196608];
+  Bytef fileinf[196608];
   fp = fopen(file, "rbe");
   if (!fp) {
     return 0;
@@ -300,7 +300,7 @@ unsigned int metacrc(char *file) {
 int send_metafile(int fd, char *file) {
   int len = 0;
   unsigned int checksum = 0;
-  unsigned int clen = 0;
+  uLongf clen = 0;
   Bytef *ubuf = NULL;
   Bytef *cbuf = NULL;
   unsigned int ulen = 0;
@@ -321,9 +321,9 @@ int send_metafile(int fd, char *file) {
   ulen = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   // CALLOC(ubuf,0,ulen);
-  ubuf = (char *)calloc(ulen + 1, sizeof(char));
+  ubuf = calloc(ulen + 1, sizeof(Bytef));
   clen = compressBound(ulen);
-  cbuf = (char *)calloc(clen + 1, sizeof(char));
+  cbuf = calloc(clen + 1, sizeof(Bytef));
   fread(ubuf, 1, ulen, fp);
   fclose(fp);
 
@@ -350,8 +350,8 @@ int send_metafile(int fd, char *file) {
   len += 1;
 
   WFIFOW(fd, 1) = SWAP16(len + 3);
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt_static(WFIFOP(fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+  tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
   WFIFOSET(fd, len + 6 + 3);
 
   free(cbuf);
@@ -393,8 +393,8 @@ int send_metalist(int fd) {
   }
 
   WFIFOW(fd, 1) = SWAP16(len + 4);
-  set_packet_indexes(WFIFOP(fd, 0));
-  tk_crypt_static(WFIFOP(fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+  tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
   WFIFOSET(fd, len + 7 + 3);
 
   return 0;
@@ -512,7 +512,7 @@ int clif_parse(int fd) {
         WFIFOB(fd, 7) = 1;
         WFIFOB(fd, 8) = 0x23;
         strcpy(WFIFOP(fd, 9), "http://www.google.com");
-        set_packet_indexes(WFIFOP(fd, 0));
+        set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
         WFIFOSET(fd, 44 + 3);
         // session[fd]->eof=1;
       }
@@ -523,14 +523,14 @@ int clif_parse(int fd) {
       memset(sd->pass, 0, 16);
 
       if ((RFIFOB(fd, 5) > 12) || (RFIFOB(fd, 5) < 3) ||
-          string_check_allchars(RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+          string_check_allchars((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
         clif_message(fd, 0x03, login_msg[LGN_ERRUSER]);
         break;
       }
 
       if ((RFIFOB(fd, 6 + RFIFOB(fd, 5)) > 8) ||
           (RFIFOB(fd, 6 + RFIFOB(fd, 5)) < 3) ||
-          string_check(RFIFOP(fd, 7 + RFIFOB(fd, 5)),
+          string_check((char *)RFIFOP(fd, 7 + RFIFOB(fd, 5)),
                        RFIFOB(fd, 6 + RFIFOB(fd, 5)))) {
         clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);
         break;
@@ -557,19 +557,19 @@ int clif_parse(int fd) {
       break;
     case 0x03:
 
-      if (string_check(RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+      if (string_check((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
         clif_message(fd, 0x03, login_msg[LGN_ERRUSER]);
         break;
       }
 
-      if (string_check(RFIFOP(fd, 7 + RFIFOB(fd, 5)),
+      if (string_check((char *)RFIFOP(fd, 7 + RFIFOB(fd, 5)),
                        RFIFOB(fd, 6 + RFIFOB(fd, 5)))) {
         clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);
         break;
       }
 
       if (maintenance_mode()) {
-        if (maintenance_override(RFIFOP(fd, 6), RFIFOB(fd, 5)) == 0) {
+        if (maintenance_override((char *)RFIFOP(fd, 6), RFIFOB(fd, 5)) == 0) {
           clif_message(fd, 0x03,
                        "Server is undergoing maintenance. Please visit "
                        "www.website.com "
@@ -579,9 +579,9 @@ int clif_parse(int fd) {
       }
 
       if (require_reg) {
-        if (!reg_check(RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+        if (!reg_check((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
           char name[16];
-          strncpy(name, RFIFOP(fd, 6), RFIFOB(fd, 5));
+          strncpy(name, (char *)RFIFOP(fd, 6), RFIFOB(fd, 5));
 
           printf("[login] [require_reg] name=%s ip=%s\n", name, ip);
 
@@ -665,12 +665,12 @@ int clif_parse(int fd) {
       WFIFOB(fd, 7) = 0xD8;
       WFIFOB(fd, 8) = 0xA2;
       WFIFOB(fd, 9) = 0xA0;
-      set_packet_indexes(WFIFOP(fd, 0));
+      set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
       WFIFOSET(fd, 13);
       break;
     case 0x26:
 
-      if (string_check(RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+      if (string_check((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
         clif_message(fd, 0x03, login_msg[LGN_ERRUSER]);
         break;
       }
@@ -692,10 +692,11 @@ int clif_parse(int fd) {
         }
       }
 
-      if (string_check(RFIFOP(fd, 7 + RFIFOB(fd, 5)),
+      if (string_check((char *)RFIFOP(fd, 7 + RFIFOB(fd, 5)),
                        RFIFOB(fd, 6 + RFIFOB(fd, 5))) ||
           string_check(
-              RFIFOP(fd, 8 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))),
+              (char *)RFIFOP(fd,
+                             8 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))),
               RFIFOB(fd, 7 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))))) {
         clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);
         break;
