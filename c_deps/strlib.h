@@ -17,6 +17,7 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#ifndef CALLOC
 #define CALLOC(result, type, number) \
   (result) = (type*)calloc((number), sizeof(type))
 
@@ -31,6 +32,8 @@
 
 #define nullpo_ret(result, target) \
   if (!(target)) return (result)
+
+#endif
 
 char* strlwr(char*);
 

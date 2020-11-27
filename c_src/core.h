@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#ifndef CALLOC
 #define CALLOC(result, type, number) \
   (result) = (type *)calloc((number), sizeof(type))
 
@@ -17,6 +18,7 @@
 
 #define nullpo_ret(result, target) \
   if (!(target)) return (result)
+#endif
 
 #define SERVER_TICK_RATE_NS 10000000
 
