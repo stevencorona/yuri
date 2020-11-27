@@ -550,6 +550,8 @@ int sv_parse(const char* str, int len, int startoff, char delim, int* out_pos,
 #endif
         state = END;
         break;
+      default:
+        break;
     }
   }
 
