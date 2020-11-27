@@ -1,4 +1,4 @@
-#include "clif.h"
+#include "login_parse.h"
 
 #include <arpa/inet.h>
 #include <stdbool.h>
@@ -10,8 +10,8 @@
 #include "config.h"
 #include "core.h"
 #include "db_mysql.h"
-#include "intif.h"
-#include "login.h"
+#include "login_char.h"
+#include "login_server.h"
 #include "net_crypt.h"
 #include "session.h"
 #include "strlib.h"

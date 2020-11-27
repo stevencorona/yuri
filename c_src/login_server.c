@@ -1,4 +1,4 @@
-#include "login.h"
+#include "login_server.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -7,11 +7,11 @@
 #include <strings.h>
 #include <zlib.h>
 
-#include "clif.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
+#include "login_parse.h"
 #include "net_crypt.h"
 #include "session.h"
 #include "timer.h"

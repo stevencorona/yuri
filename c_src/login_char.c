@@ -1,13 +1,13 @@
-#include "intif.h"
+#include "login_char.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "clif.h"
 #include "config.h"
 #include "db_mysql.h"
-#include "login.h"
+#include "login_parse.h"
+#include "login_server.h"
 #include "mmo.h"
 #include "net_crypt.h"
 #include "session.h"
