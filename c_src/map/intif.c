@@ -19,7 +19,6 @@
 #include "timer.h"
 
 struct DBMap* auth_db;
-extern unsigned int getTicks(void);
 
 static const int packet_len_table[] = {
     4,   -1, 38,  -1,  6,   -1,  255, -1,
