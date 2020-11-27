@@ -20,7 +20,7 @@ char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   }
 
   cvs_MD5Init(&context);
-  cvs_MD5Update(&context, name, strlen(name));
+  cvs_MD5Update(&context, (unsigned char *)name, strlen(name));
   cvs_MD5Final(checksum, &context);
 
   for (i = 0; i < 16; i++) {
@@ -51,7 +51,7 @@ char *populate_table(const char *name, char *table, int tablelen) {
 
   for (i = 0; i < 32; i++) {
     generate_hashvalues(&table[0], &hash[0], sizeof(hash));
-    sprintf(&table[0], "%s%s", &table[0], &hash[0]);
+    strcat(table, hash);
   }
 
   return &table[0];
