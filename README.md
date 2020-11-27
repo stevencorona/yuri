@@ -69,7 +69,7 @@ Game state is stored in MySQL, maps and lua scripts are stored on disk.
 - [x] Clean up and document configs
 - [ ] Remove dead code
 - [ ] BCrypt Passwords
-- [ ] Flatten source directory
+- [x] Flatten source directory
 - [ ] Receive mysql / net config as cli flag and env
 - [ ] Produce a single server binary instead of 3x
 - [x] All logging to STDOUT
