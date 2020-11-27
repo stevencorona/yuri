@@ -1,13 +1,13 @@
-#include "creation.h"
+#include "creation_db.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "core.h"
 #include "db.h"
-#include "map.h"
+#include "map_server.h"
+#include "scripting.h"
 #include "session.h"
-#include "sl.h"
 #include "strlib.h"
 
 DBMap *create_db;

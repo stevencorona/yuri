@@ -1,16 +1,16 @@
-#include "intif.h"
+#include "map_char.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
 
-#include "clif.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_parse.h"
+#include "map_server.h"
 #include "mmo.h"
 #include "net_crypt.h"
 #include "pc.h"

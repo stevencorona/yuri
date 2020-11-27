@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../common/net_crypt.h"
+#include "net_crypt.h"
 
 /* test suite, not needed for encryption */
 

@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "./map/class_db.h"
-#include "./map/itemdb.h"
+#include "class_db.h"
 #include "config.h"
 #include "core.h"
 #include "db_mysql.h"
+#include "item_db.h"
 
 char scheme[32];
 int filecount;

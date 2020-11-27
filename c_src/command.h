@@ -2,7 +2,7 @@
 
 #include <lua.h>
 
-#include "map.h"
+#include "map_server.h"
 #include "mmo.h"
 
 int is_command(USER *, const char *, int);

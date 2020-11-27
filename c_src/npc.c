@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "clif.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_parse.h"
+#include "map_server.h"
 #include "mmo.h"
 #include "mob.h"
-#include "sl.h"
+#include "scripting.h"
 
 struct npc_src_list *npc_src_first = NULL;
 struct npc_src_list *npc_src_last = NULL;

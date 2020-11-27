@@ -1,6 +1,6 @@
 #pragma once
 
-#include "map.h"
+#include "map_server.h"
 
 struct npc_src_list {
   struct npc_src_list *next;

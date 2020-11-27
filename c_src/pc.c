@@ -8,17 +8,17 @@
 #include <time.h>
 
 #include "class_db.h"
-#include "clif.h"
 #include "core.h"
 #include "db_mysql.h"
-#include "intif.h"
-#include "itemdb.h"
-#include "magic.h"
-#include "map.h"
+#include "item_db.h"
+#include "magic_db.h"
+#include "map_char.h"
+#include "map_parse.h"
+#include "map_server.h"
 #include "mob.h"
 #include "rndm.h"
+#include "scripting.h"
 #include "session.h"
-#include "sl.h"
 #include "timer.h"
 
 struct timeval start;

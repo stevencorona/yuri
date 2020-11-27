@@ -3,7 +3,7 @@
 #include <lua.h>
 
 #include "class_db.h"
-#include "map.h"
+#include "map_server.h"
 
 lua_State *sl_gstate;
 void sl_init();

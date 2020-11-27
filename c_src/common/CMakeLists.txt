@@ -1,1 +1,0 @@
-add_library(common STATIC config.c core.c net_crypt.c session.c)

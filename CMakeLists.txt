@@ -20,9 +20,9 @@ include_directories(${LUA_INCLUDE_DIR})
 
 include_directories("${PROJECT_SOURCE_DIR}/c_deps")
 include_directories("${PROJECT_SOURCE_DIR}/c_src")
-include_directories(${PROJECT_SOURCE_DIR}/c_src/common)
-add_subdirectory("${PROJECT_SOURCE_DIR}/c_src/common")
 add_subdirectory("${PROJECT_SOURCE_DIR}/c_deps")
+
+add_library(common STATIC c_src/config.c c_src/core.c c_src/net_crypt.c c_src/session.c)
 
 add_executable(char_server c_src/char_db.c c_src/char_server.c c_src/char_login.c c_src/char_map.c)
 target_link_libraries(char_server PUBLIC common)
@@ -34,18 +34,18 @@ target_link_libraries(login_server PUBLIC common)
 target_link_libraries(login_server PUBLIC deps)
 target_link_libraries(login_server ZLIB::ZLIB)
 
-add_executable(map-server c_src/map/board_db.c c_src/map/clan_db.c c_src/map/class_db.c c_src/map/clif.c c_src/map/command.c c_src/map/creation.c c_src/map/intif.c c_src/map/itemdb.c c_src/map/magic.c c_src/map/map.c c_src/map/mob.c c_src/map/npc.c c_src/map/pc.c c_src/map/recipedb.c c_src/map/sl.c)
-target_link_libraries(map-server PUBLIC common)
-target_link_libraries(map-server PUBLIC deps)
-target_link_libraries(map-server ZLIB::ZLIB)
-target_link_libraries(map-server lua5.1)
-target_link_libraries(map-server m)
+add_executable(map_server c_src/board_db.c c_src/clan_db.c c_src/class_db.c c_src/map_char.c c_src/command.c c_src/creation_db.c c_src/map_parse.c c_src/item_db.c c_src/magic_db.c c_src/map_server.c c_src/mob.c c_src/npc.c c_src/pc.c c_src/recipe_db.c c_src/scripting.c)
+target_link_libraries(map_server PUBLIC common)
+target_link_libraries(map_server PUBLIC deps)
+target_link_libraries(map_server ZLIB::ZLIB)
+target_link_libraries(map_server lua5.1)
+target_link_libraries(map_server m)
 
 add_executable(decrypt_cli c_src/decrypt_cli.c)
 target_link_libraries(decrypt_cli PUBLIC common)
 target_link_libraries(decrypt_cli PUBLIC deps)
 
-add_executable(metan_cli c_src/metan_cli.c c_src/map/itemdb.c c_src/map/class_db.c)
+add_executable(metan_cli c_src/metan_cli.c c_src/item_db.c c_src/class_db.c)
 target_link_libraries(metan_cli PUBLIC common)
 target_link_libraries(metan_cli PUBLIC deps)
 

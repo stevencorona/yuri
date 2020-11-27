@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../map/board_db.h"
-#include "../map/clan_db.h"
-#include "../map/class_db.h"
-#include "../map/itemdb.h"
-#include "../map/magic.h"
+#include "board_db.h"
+#include "clan_db.h"
+#include "class_db.h"
+#include "item_db.h"
+#include "magic_db.h"
 
 #define FIFOSIZE_SERVER (512 * 1024)
 #define MAX_MAP_SERVER 5

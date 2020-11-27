@@ -1,6 +1,6 @@
 #pragma once
 
-#include "map.h"
+#include "map_server.h"
 
 enum { MOB_ALIVE, MOB_DEAD, MOB_PARA, MOB_BLIND, MOB_HIT, MOB_ESCAPE };
 enum { MOB_NORMAL, MOB_AGGRESSIVE, MOB_STATIONARY };

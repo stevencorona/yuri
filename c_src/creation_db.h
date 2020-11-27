@@ -1,6 +1,6 @@
 #pragma once
 
-#include "map.h"
+#include "map_server.h"
 
 struct creation_data {
   int id;

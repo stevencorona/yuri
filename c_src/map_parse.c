@@ -1,4 +1,4 @@
-#include "clif.h"
+#include "map_parse.h"
 
 #include <arpa/inet.h>
 #include <math.h>
@@ -15,20 +15,20 @@
 #include "command.h"
 #include "config.h"
 #include "core.h"
-#include "creation.h"
+#include "creation_db.h"
 #include "db_mysql.h"
-#include "intif.h"
-#include "itemdb.h"
-#include "magic.h"
-#include "map.h"
+#include "item_db.h"
+#include "magic_db.h"
+#include "map_char.h"
+#include "map_server.h"
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
 #include "pc.h"
 #include "rndm.h"
+#include "scripting.h"
 #include "session.h"
 #include "showmsg.h"
-#include "sl.h"
 #include "timer.h"
 
 /// testcxv

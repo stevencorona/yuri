@@ -2,7 +2,7 @@
 
 #include <stdarg.h>
 
-#include "map.h"
+#include "map_server.h"
 #include "mmo.h"
 
 int pc_requestmp(USER *);

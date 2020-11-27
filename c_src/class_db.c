@@ -8,7 +8,7 @@
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_server.h"
 #include "strlib.h"
 
 DBMap *class_db;

@@ -1,4 +1,4 @@
-#include "sl.h"
+#include "scripting.h"
 
 #include <assert.h>
 #include <dirent.h>
@@ -18,22 +18,22 @@
 
 #include "clan_db.h"
 #include "class_db.h"
-#include "clif.h"
 #include "command.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "intif.h"
-#include "itemdb.h"
-#include "map.h"
+#include "item_db.h"
+#include "map_char.h"
+#include "map_parse.h"
+#include "map_server.h"
 #include "md5calc.h"
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
 #include "npc.h"
 #include "pc.h"
-#include "recipedb.h"
+#include "recipe_db.h"
 #include "session.h"
 #include "strlib.h"
 #include "timer.h"

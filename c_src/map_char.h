@@ -1,6 +1,6 @@
 #pragma once
 
-#include "map.h"
+#include "map_server.h"
 
 struct auth_node {
   unsigned int id;

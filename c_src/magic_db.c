@@ -1,4 +1,4 @@
-#include "magic.h"
+#include "magic_db.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_server.h"
 
 DBMap *magic_db;
 

@@ -1,4 +1,4 @@
-#include "itemdb.h"
+#include "item_db.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_server.h"
 
 DBMap *item_db;
 // DBMap* custom_db;

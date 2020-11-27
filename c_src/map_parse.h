@@ -2,7 +2,7 @@
 
 #include <stdarg.h>
 
-#include "map.h"
+#include "map_server.h"
 #include "mmo.h"
 
 extern unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];

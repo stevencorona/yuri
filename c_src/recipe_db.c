@@ -1,4 +1,4 @@
-#include "recipedb.h"
+#include "recipe_db.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_server.h"
 #include "strlib.h"
 
 DBMap *recipedb;

@@ -5,14 +5,14 @@
 #include <string.h>
 #include <time.h>
 
-#include "clif.h"
 #include "config.h"
 #include "core.h"
 #include "db.h"
 #include "db_mysql.h"
-#include "map.h"
+#include "map_parse.h"
+#include "map_server.h"
 #include "rndm.h"
-#include "sl.h"
+#include "scripting.h"
 #include "strlib.h"
 #include "timer.h"
 
