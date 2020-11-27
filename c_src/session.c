@@ -71,99 +71,12 @@ struct stThrottle {
 
 struct stThrottle* Throttles = NULL;
 
-static AccessControl* access_allow = NULL;
-static AccessControl* access_deny = NULL;
-static int access_allownum = 0;
-static int access_denynum = 0;
-static int access_debug = 0;
-static int ddos_count = 10;
 static int ddos_interval = 3 * 1000;
 static int ddos_autoreset = 10 * 60 * 1000;
 /// Connection history, an array of linked lists.
 /// The array's index for any ip is ip&0xFFFF
 static ConnectHistory* connect_history[0x10000];
 
-static int connect_check_(uint32_t ip);
-
-/// Verifies if the IP can connect. (with debug info)
-/// @see connect_check_()
-static int connect_check(uint32_t ip) {
-  int result = connect_check_(ip);
-  if (access_debug) {
-    printf("[socket] [connect_check] ip=%u.%u.%u.%u\n", CONVIP2(ip));
-  }
-  return result;
-}
-
-/// Verifies if the IP can connect.
-///  0      : Connection Rejected
-///  1 or 2 : Connection Accepted
-static int connect_check_(uint32_t ip) {
-  ConnectHistory* hist = connect_history[ip & 0xFFFF];
-  int i;
-  int is_allowip = 0;
-  int is_denyip = 0;
-  int connect_ok = 0;
-
-  // Search the allow list
-  for (i = 0; i < access_allownum; ++i) {
-    if ((ip & access_allow[i].mask) ==
-        (access_allow[i].ip & access_allow[i].mask)) {
-      is_allowip = 1;
-      break;
-    }
-  }
-  // Search the deny list
-  for (i = 0; i < access_denynum; ++i) {
-    if ((ip & access_deny[i].mask) ==
-        (access_deny[i].ip & access_deny[i].mask)) {
-      is_denyip = 1;
-      break;
-    }
-  }
-  // Decide connection status
-  //  0 : Reject
-  //  1 : Accept
-  //  2 : Unconditional Accept (accepts even if flagged as DDoS)
-  if (is_denyip) {
-    connect_ok = 0;  // Reject
-  } else if (is_allowip) {
-    connect_ok = 2;  // Unconditional Accept
-  } else {
-    connect_ok = 1;  // Accept
-  }
-
-  // Inspect connection history
-  while (hist) {
-    if (ip == hist->ip) {  // IP found
-      if (hist->ddos) {    // flagged as DDoS
-        return (connect_ok == 2 ? 1 : 0);
-      } else if (DIFF_TICK(gettick(), hist->tick) <
-                 ddos_interval) {  // connection within ddos_interval
-        hist->tick = gettick();
-        if (hist->count++ >= ddos_count) {  // DDoS attack detected
-          hist->ddos = 1;
-          printf("[ddos] ip=%u.%u.%u.%u\n", CONVIP2(ip));
-          return (connect_ok == 2 ? 1 : 0);
-        }
-        return connect_ok;
-      } else {  // not within ddos_interval, clear data
-        hist->tick = gettick();
-        hist->count = 0;
-        return connect_ok;
-      }
-    }
-    hist = hist->next;
-  }
-  // IP not found, add to history
-  CALLOC(hist, ConnectHistory, 1);
-  memset(hist, 0, sizeof(ConnectHistory));
-  hist->ip = ip;
-  hist->tick = gettick();
-  hist->next = connect_history[ip & 0xFFFF];
-  connect_history[ip & 0xFFFF] = hist;
-  return connect_ok;
-}
 int add_ip_lockout(unsigned int n) {
   unsigned int ip = ntohl(n);
   ConnectHistory* hist = connect_history[ip & 0xFFFF];
@@ -189,7 +102,10 @@ int add_ip_lockout(unsigned int n) {
 }
 /// Timer function.
 /// Deletes old connection history records.
-static int connect_check_clear(int d, int data) {
+static int connect_check_clear(uintptr_t* _d, uintptr_t* _data) {
+  int d = (int)d;
+  int data = (int)data;
+
   int i;
   int clear = 0;
   int list = 0;
@@ -269,7 +185,6 @@ int access_ipmask(const char* str, AccessControl* acc) {
 
 void setsocketopts(int fd) {
   int yes = 1;  // reuse fix
-  int val, len;
 #if !defined(WIN32)
   // set SO_REAUSEADDR to true, unix only. on windows this option causes
   // the previous owner of the socket to give up, which is not desirable
@@ -301,7 +216,6 @@ void setsocketopts(int fd) {
     // ShowWarning("setsocketopts: Unable to set SO_LINGER mode for connection
     // #%d!\n", fd);
   }
-  len = sizeof(val);
 
   /*setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(char*)&wfifo_size,(int)sizeof(wfifo_size));
   setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(char*)&rfifo_size,(int)sizeof(rfifo_size));
@@ -491,7 +405,7 @@ int null_timeout(int fd) { return 0; }
 int connect_client(int listen_fd) {
   int fd;
   struct sockaddr_in client_address;
-  int len;
+  socklen_t len;
 
   len = sizeof(client_address);
 
@@ -603,7 +517,6 @@ int make_listen_port(int port) {
 int make_connection(long ip, int port) {
   struct sockaddr_in server_address;
   int fd;
-  int result;
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -629,8 +542,7 @@ int make_connection(long ip, int port) {
 
   set_nonblocking(fd, 1);
   /*result = fcntl(fd, F_SETFL, O_NONBLOCK);*/
-  result = connect(fd, (struct sockaddr*)(&server_address),
-                   sizeof(struct sockaddr_in));
+  connect(fd, (struct sockaddr*)(&server_address), sizeof(struct sockaddr_in));
 
   FD_SET(fd, &readfds);
 
