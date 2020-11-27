@@ -58,6 +58,8 @@ dkms.conf
 *.lua
 
 
+/build
+
 # Added by cargo
 
 /target
