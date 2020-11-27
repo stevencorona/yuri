@@ -1,11 +1,11 @@
-#include "metan.h"
+#include "metan_cli.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../map/class_db.h"
-#include "../map/itemdb.h"
+#include "./map/class_db.h"
+#include "./map/itemdb.h"
 #include "config.h"
 #include "core.h"
 #include "db_mysql.h"

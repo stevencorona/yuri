@@ -41,11 +41,11 @@ target_link_libraries(map-server ZLIB::ZLIB)
 target_link_libraries(map-server lua5.1)
 target_link_libraries(map-server m)
 
-add_executable(decrypt-cli c_src/decrypt/main.c)
-target_link_libraries(decrypt-cli PUBLIC common)
-target_link_libraries(decrypt-cli PUBLIC deps)
+add_executable(decrypt_cli c_src/decrypt_cli.c)
+target_link_libraries(decrypt_cli PUBLIC common)
+target_link_libraries(decrypt_cli PUBLIC deps)
 
-add_executable(metan-cli c_src/metan/metan.c c_src/map/itemdb.c c_src/map/class_db.c)
-target_link_libraries(metan-cli PUBLIC common)
-target_link_libraries(metan-cli PUBLIC deps)
+add_executable(metan_cli c_src/metan_cli.c c_src/map/itemdb.c c_src/map/class_db.c)
+target_link_libraries(metan_cli PUBLIC common)
+target_link_libraries(metan_cli PUBLIC deps)
 
