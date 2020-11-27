@@ -111,13 +111,6 @@ struct global_regstring {
   char val[255];
 };
 
-struct bank_space {
-  int item_id, amount;
-  char engrave[32];
-  unsigned int customLook, customIcon;
-  unsigned int customLookColor, customIconColor;
-};
-
 struct mmo_charstatus {
   unsigned int id, partner, clan, hp, basehp, mp, basemp, exp, money, maxslots,
       bankmoney;
