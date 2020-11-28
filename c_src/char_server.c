@@ -233,8 +233,7 @@ int do_init(int argc, char **argv) {
   set_defaultparse(mapif_parse_auth);
   char_fd = make_listen_port(char_port);
 
-  timer_insert(1000, 1000 * 10, check_connect_login, (uintptr_t *)&login_ip,
-               (uintptr_t *)&login_port);
+  timer_insert(1000, 1000 * 10, check_connect_login, login_ip, login_port);
 
   CALLOC(char_dat, struct mmo_charstatus, 1);
 

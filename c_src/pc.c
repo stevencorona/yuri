@@ -28,14 +28,13 @@ struct timeval start;
 
 int pc_addtocurrent2(struct block_list *bl, va_list ap) {
   int *def = NULL;
-  int id = 0;
   FLOORITEM *fl = NULL;
   FLOORITEM *fl2 = NULL;
 
   nullpo_ret(0, fl = (FLOORITEM *)bl);
 
   def = va_arg(ap, int *);
-  id = va_arg(ap, int);
+  va_arg(ap, int);  // id
   nullpo_ret(0, fl2 = va_arg(ap, FLOORITEM *));
 
   if (def[0]) return 0;
@@ -69,7 +68,7 @@ int pc_dropitemfull(USER *sd, struct item *fl2) {
   // printf("%d\n",type);
   memcpy(&fl->data, fl2, sizeof(struct item));
 
-  memset(&fl->looters, 0, MAX_GROUP_MEMBERS);
+  memset(&fl->looters, 0, sizeof(unsigned int) * MAX_GROUP_MEMBERS);
 
   def[0] = 0;
 
@@ -277,7 +276,7 @@ int bl_duratimer(int id, int none) {
 
         if (sd->status.dura_aether[x].duration <= 0) {
           sd->status.dura_aether[x].duration = 0;
-          clif_send_duration(&sd->bl, sd->status.dura_aether[x].id, 0,
+          clif_send_duration(sd, sd->status.dura_aether[x].id, 0,
                              map_id2sd(sd->status.dura_aether[x].caster_id));
           sd->status.dura_aether[x].caster_id = 0;
           map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y,
@@ -301,7 +300,7 @@ int bl_duratimer(int id, int none) {
         sd->status.dura_aether[x].aether -= 1000;
 
         if (sd->status.dura_aether[x].aether <= 0) {
-          clif_send_aether(&sd->bl, sd->status.dura_aether[x].id, 0);
+          clif_send_aether(sd, sd->status.dura_aether[x].id, 0);
 
           if (sd->status.dura_aether[x].duration == 0) {
             sd->status.dura_aether[x].id = 0;
@@ -320,7 +319,7 @@ int bl_secondduratimer(int id, int none) {
   USER *sd = map_id2sd((unsigned int)id);
   struct block_list *tbl = NULL;
   MOB *tmob = NULL;
-  int x, mid;
+  int x;
   long health;
 
   nullpo_ret(0, sd);
@@ -340,7 +339,6 @@ int bl_secondduratimer(int id, int none) {
   }
 
   for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    mid = sd->status.dura_aether[x].id;
     if (sd->status.dura_aether[x].id > 0) {
       if (sd->status.dura_aether[x].caster_id > 0) {
         tbl = map_id2bl(sd->status.dura_aether[x].caster_id);
@@ -372,7 +370,7 @@ int bl_thirdduratimer(int id, int none) {
   USER *sd = map_id2sd((unsigned int)id);
   struct block_list *tbl = NULL;
   MOB *tmob = NULL;
-  int x, mid;
+  int x;
   long health;
 
   nullpo_ret(0, sd);
@@ -392,7 +390,6 @@ int bl_thirdduratimer(int id, int none) {
   }
 
   for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    mid = sd->status.dura_aether[x].id;
     if (sd->status.dura_aether[x].id > 0) {
       if (sd->status.dura_aether[x].caster_id > 0) {
         tbl = map_id2bl(sd->status.dura_aether[x].caster_id);
@@ -424,7 +421,7 @@ int bl_fourthduratimer(int id, int none) {
   USER *sd = map_id2sd((unsigned int)id);
   struct block_list *tbl = NULL;
   MOB *tmob = NULL;
-  int x, mid;
+  int x;
   long health;
 
   nullpo_ret(0, sd);
@@ -444,7 +441,6 @@ int bl_fourthduratimer(int id, int none) {
   }
 
   for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    mid = sd->status.dura_aether[x].id;
     if (sd->status.dura_aether[x].id > 0) {
       if (sd->status.dura_aether[x].caster_id > 0) {
         tbl = map_id2bl(sd->status.dura_aether[x].caster_id);
@@ -476,7 +472,7 @@ int bl_fifthduratimer(int id, int none) {  // 3000 ms
   USER *sd = map_id2sd((unsigned int)id);
   struct block_list *tbl = NULL;
   MOB *tmob = NULL;
-  int x, mid;
+  int x;
   long health;
 
   nullpo_ret(0, sd);
@@ -496,7 +492,6 @@ int bl_fifthduratimer(int id, int none) {  // 3000 ms
   }
 
   for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    mid = sd->status.dura_aether[x].id;
     if (sd->status.dura_aether[x].id > 0) {
       if (sd->status.dura_aether[x].caster_id > 0) {
         tbl = map_id2bl(sd->status.dura_aether[x].caster_id);
@@ -536,7 +531,7 @@ int bl_aethertimer(int id, int none) {
       }
 
       if (sd->status.dura_aether[x].aether <= 0) {
-        clif_send_aether(&sd->bl, sd->status.dura_aether[x].id, 0);
+        clif_send_aether(sd, sd->status.dura_aether[x].id, 0);
 
         if (sd->status.dura_aether[x].duration == 0) {
           sd->status.dura_aether[x].id = 0;
@@ -771,8 +766,7 @@ int pc_givexp(USER *sd, unsigned int exp, unsigned int xprate) {
   unsigned int defaultxp;
   unsigned int tempxp;
   unsigned int difxp;
-  unsigned char xpstring[256];
-  int len;
+  char xpstring[256];
   int stack = 0;
   int bx, by;
   struct block_list *bl;
@@ -791,15 +785,15 @@ int pc_givexp(USER *sd, unsigned int exp, unsigned int xprate) {
     }
   }
   if (stack > 1) {
-    len = sprintf(xpstring,
-                  "You cannot gain experience while on top of other players.");
+    sprintf(xpstring,
+            "You cannot gain experience while on top of other players.");
     clif_sendminitext(sd, xpstring);
     return 0;
   }
 
   // afk check
   if (sd->afk == 1) {
-    len = sprintf(xpstring, "You cannot gain experience while AFK.");
+    sprintf(xpstring, "You cannot gain experience while AFK.");
     clif_sendminitext(sd, xpstring);
     return 0;
   }
@@ -832,7 +826,7 @@ int pc_givexp(USER *sd, unsigned int exp, unsigned int xprate) {
 
   sd->status.exp = tempxp;
 
-  len = sprintf(xpstring, "%u experience!", defaultxp);
+  sprintf(xpstring, "%u experience!", defaultxp);
 
   pc_checklevel(sd);
   clif_sendminitext(sd, xpstring);
@@ -1118,8 +1112,13 @@ int pc_warp(USER *sd, int m, int x, int y) {
 
     // Hand off Client to other map server
 
-    if (x < 0 || x > 255 || x == NULL) x = 1;  // Just for Justin
-    if (y < 0 || y > 255 || y == NULL) y = 1;
+    if (x < 0 || x > 255) {
+      x = 1;
+    }
+
+    if (y < 0 || y > 255) {
+      y = 1;
+    }
 
     sd->status.dest_pos.m = m;
     sd->status.dest_pos.x = x;
@@ -1339,7 +1338,8 @@ int pc_isinvenitemspace(USER *sd, int num, int id, int owner, char *engrave) {
 
     for (i = 0; i < 14; i++) {
       if (sd->status.equip[i].id == id && itemdb_maxamount(id) > 0 &&
-          (sd->takeoffid == -1 || sd->status.equip[sd->takeoffid].id != id)) {
+          (sd->takeoffid == -1 ||
+           sd->status.equip[(int)sd->takeoffid].id != id)) {
         maxamount += 1;
       }
     }
@@ -1602,11 +1602,10 @@ int pc_canequipitem(USER *sd, int id) {
 }
 
 int pc_canequipstats(USER *sd, int id) {
-  int i, itemid;
+  int i;
 
   for (i = 0; i < sd->status.maxinv; i++) {
     if (sd->status.inventory[i].id == id) {
-      itemid = i;
       break;
     }
   }
@@ -1673,7 +1672,7 @@ int pc_equipitem(USER *sd, int id) {
   return 0;
 }
 
-pc_equipscript(USER *sd) {
+int pc_equipscript(USER *sd) {
   int ret = itemdb_type(sd->equipid) - 3;
 
   if (ret == EQ_LEFT) {
@@ -1926,7 +1925,7 @@ int pc_addtocurrent(struct block_list *bl, va_list ap) {
   if (def[0]) return 0;
 
   if (fl->data.dura < itemdb_dura(fl->data.id)) return 0;
-  memset(&fl->looters, 0, MAX_GROUP_MEMBERS);
+  memset(&fl->looters, 0, sizeof(unsigned int) * MAX_GROUP_MEMBERS);
 
   if (fl->data.id == sd->status.inventory[id].id &&
       fl->data.owner == sd->status.inventory[id].owner &&
@@ -1991,7 +1990,7 @@ int pc_dropitemmap(USER *sd, int id, int type) {
   // printf("%d\n",type);
   memcpy(&fl->data, &sd->status.inventory[id], sizeof(struct item));
 
-  memset(&fl->looters, 0, MAX_GROUP_MEMBERS);
+  memset(&fl->looters, 0, sizeof(unsigned int) * MAX_GROUP_MEMBERS);
 
   def[0] = 0;
 
@@ -2678,10 +2677,10 @@ int pc_die(USER *sd) {
 }
 
 int pc_diescript(USER *sd) {
-  struct block_list *bl = map_id2sd(sd->attacker);
-  USER *tsd = NULL;
+  struct map_sessiondata *attacker = map_id2sd(sd->attacker);
+  struct block_list *bl = &attacker->bl;
+  // USER *tsd = NULL;
   int i, id;
-  int exist = -1;
 
   nullpo_ret(0, sd);
 
@@ -2690,14 +2689,13 @@ int pc_diescript(USER *sd) {
   if (bl) {
     for (i = 0; i < 20; i++) {
       if (sd->pvp[i][0] == bl->id) {
-        exist = i;
         break;
       }
     }
 
-    if (bl->type == BL_PC) {
-      tsd = (USER *)bl;
-    }
+    // if (bl->type == BL_PC) {
+    //   tsd = (USER *)bl;
+    // }
   }
 
   /*if(tsd) {

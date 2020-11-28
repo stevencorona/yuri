@@ -119,4 +119,4 @@ void set_defaultaccept(int (*)(int));
 void set_defaulttimeout(int (*)(int));
 void set_defaultshutdown(int (*)(int));
 
-int Remove_Throttle(uintptr_t *none, uintptr_t *nonetoo);
+int Remove_Throttle(int none, int nonetoo);

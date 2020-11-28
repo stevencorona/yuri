@@ -34,8 +34,8 @@
 /// testcxv
 unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
 
-int flags[16] = {1,   2,    4,    8,    16,   32,    64,    128, 256,
-                 512, 1024, 2048, 4096, 8192, 16386, 32768, 0};
+int flags[16] = {1,   2,   4,    8,    16,   32,   64,    128,
+                 256, 512, 1024, 2048, 4096, 8192, 16386, 32768};
 const unsigned char clkey2[] = {6,  8,  9,  10, 15, 19, 23,
                                 26, 28, 41, 45, 46, 50, 57};
 const unsigned char svkey2[] = {4,  7,  8,  11, 12, 19, 23,
@@ -152,17 +152,17 @@ int encrypt(int fd) {
   char key[16];
   sd = (USER *)session[fd]->session_data;
   nullpo_ret(0, sd);
-  set_packet_indexes(WFIFOP(fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
   //@(O.O)@
   //  (o)
   //  /)/)
   // (O.O)/)
   // o(")(")
   if (isKey(WFIFOB(fd, 3))) {
-    generate_key2(WFIFOP(fd, 0), &(sd->EncHash), &(key), 0);
-    tk_crypt_dynamic(WFIFOP(fd, 0), key);
+    generate_key2((unsigned char *)WFIFOP(fd, 0), sd->EncHash, key, 0);
+    tk_crypt_dynamic((unsigned char *)WFIFOP(fd, 0), key);
   } else {
-    tk_crypt_static(WFIFOP(fd, 0));
+    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
   }
   return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
 }
@@ -173,10 +173,10 @@ int decrypt(int fd) {
   nullpo_ret(0, sd);
 
   if (isKey2(RFIFOB(fd, 3))) {
-    generate_key2(RFIFOP(fd, 0), &(sd->EncHash), &(key), 1);
-    tk_crypt_dynamic(RFIFOP(fd, 0), key);
+    generate_key2((unsigned char *)RFIFOP(fd, 0), sd->EncHash, key, 1);
+    tk_crypt_dynamic((unsigned char *)RFIFOP(fd, 0), key);
   } else {
-    tk_crypt_static(RFIFOP(fd, 0));
+    tk_crypt_static((unsigned char *)RFIFOP(fd, 0));
   }
   return 0;
 }
@@ -1201,7 +1201,7 @@ int clif_send_pc_healthscript(USER *sd, int damage, int critical) {
   unsigned int maxvita;
   unsigned int currentvita;
   float percentage;
-  char buf[32];
+  unsigned char buf[32];
   int x;
   USER *tsd = NULL;
   MOB *tmob = NULL;
@@ -1430,7 +1430,7 @@ void clif_send_groupbars(USER *sd, USER *tsd) {
   WFIFOSET(sd->fd, encrypt(sd->fd));
 }
 
-void clif_send_mobbars(struct block_list *bl, va_list ap) {
+int clif_send_mobbars(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
   MOB *mob = NULL;
   float percentage;
@@ -1439,7 +1439,7 @@ void clif_send_mobbars(struct block_list *bl, va_list ap) {
   mob = (MOB *)bl;
 
   if (!sd || !mob) {
-    return;
+    return 1;
   }
 
   if (mob->current_vita == 0) {
@@ -1453,7 +1453,7 @@ void clif_send_mobbars(struct block_list *bl, va_list ap) {
 
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
-    return;
+    return 1;
   }
 
   WFIFOHEAD(sd->fd, 15);
@@ -1465,6 +1465,8 @@ void clif_send_mobbars(struct block_list *bl, va_list ap) {
   WFIFOB(sd->fd, 10) = (int)percentage;
   WFIFOL(sd->fd, 11) = SWAP32(0);
   WFIFOSET(sd->fd, encrypt(sd->fd));
+
+  return 0;
 }
 
 int clif_findspell_pos(USER *sd, int id) {
@@ -2027,16 +2029,15 @@ int clif_send_aether(USER *sd, int id, int time) {
 }
 
 int clif_npc_move(struct block_list *bl, va_list ap) {
-  char *buf;
-  int type;
+  unsigned char *buf;
   USER *sd = NULL;
   NPC *nd = NULL;
 
-  type = va_arg(ap, int);
+  va_arg(ap, int);  // type
   nullpo_ret(0, sd = (USER *)bl);
   nullpo_ret(0, nd = va_arg(ap, NPC *));
 
-  CALLOC(buf, char, 32);
+  CALLOC(buf, unsigned char, 32);
   WBUFB(buf, 0) = 0xAA;
   WBUFB(buf, 1) = 0x00;
   WBUFB(buf, 2) = 0x0C;
@@ -2521,8 +2522,7 @@ int clif_mob_kill(MOB *mob) {
 int clif_send_destroy(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
   MOB *mob = NULL;
-  int type;
-  type = va_arg(ap, int);
+  va_arg(ap, int);  // type
 
   nullpo_ret(0, sd = (USER *)bl);
   nullpo_ret(0, mob = va_arg(ap, MOB *));
@@ -2653,49 +2653,49 @@ int clif_send_sub(struct block_list *bl, va_list ap) {
     if (pc_readglobalreg(sd, "chann_en") >= 1 && RBUFB(buf, 5) == 10) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
-      if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+      if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
       if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
       WBUFB(buf, 5) = 10;
     } else if (pc_readglobalreg(sd, "chann_es") >= 1 && RBUFB(buf, 5) == 11) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
-      if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+      if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
       if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
       WBUFB(buf, 5) = 11;
     } else if (pc_readglobalreg(sd, "chann_fr") >= 1 && RBUFB(buf, 5) == 12) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
-      if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+      if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
       if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
       WBUFB(buf, 5) = 12;
     } else if (pc_readglobalreg(sd, "chann_cn") >= 1 && RBUFB(buf, 5) == 13) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
-      if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+      if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
       if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
       WBUFB(buf, 5) = 13;
     } else if (pc_readglobalreg(sd, "chann_pt") >= 1 && RBUFB(buf, 5) == 14) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
-      if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+      if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
       if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
       WBUFB(buf, 5) = 14;
     } else if (pc_readglobalreg(sd, "chann_id") >= 1 && RBUFB(buf, 5) == 15) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
-      if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+      if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
       if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
       WBUFB(buf, 5) = 15;
     }
   } else {
     WFIFOHEAD(sd->fd, len + 3);
-    if (isActive(sd) && WFIFOP(sd->fd, 0) != buf)
+    if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
       memcpy(WFIFOP(sd->fd, 0), buf, len);
     if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
   }
@@ -3045,7 +3045,7 @@ int clif_mystaytus(USER *sd) {
 
       if (sd->status.legends[x].tchaid > 0) {
         char *name = clif_getName(sd->status.legends[x].tchaid);
-        char *buff = replace_str(&sd->status.legends[x].text, "$player", name);
+        char *buff = replace_str(sd->status.legends[x].text, "$player", name);
         WFIFOB(sd->fd, len + 10) = strlen(buff);
         strcpy(WFIFOP(sd->fd, len + 11), buff);
         len += strlen(buff) + 3;
@@ -3063,7 +3063,7 @@ int clif_mystaytus(USER *sd) {
 }
 
 int clif_lookgone(struct block_list *bl) {
-  char buf[16];
+  unsigned char buf[16];
 
   if (bl->type == BL_PC || (bl->type == BL_NPC && ((NPC *)bl)->npctype == 1) ||
       (bl->type == BL_MOB))
@@ -4583,35 +4583,10 @@ int clif_sendmapinfo(USER *sd) {
 }
 
 int clif_sendxy(USER *sd) {
-  int subt[1];
-  subt[0] = 0;
-
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
     return 0;
   }
-
-  /*
-
-          Field:     Character:        Decimal:         Hex Value:
-      0                               170              AA
-      1                               0              00
-      2                               13              0D
-      3                               4              04
-      4             +                 43                2B
-      5                               0              00
-      6                               5              05
-      7                               0              00
-      8                               8              08
-      9                               0              00
-      10                               8              08
-      11                               0              00
-      12                               10              0A
-      13             !                 33                21
-      14                               193              C1
-      15                               168              A8
-
-  */
 
   WFIFOHEAD(sd->fd, 14);
   WFIFOB(sd->fd, 0) = 0xAA;
@@ -4653,9 +4628,6 @@ int clif_sendxy(USER *sd) {
 }
 
 int clif_sendxynoclick(USER *sd) {
-  int subt[1];
-  subt[0] = 0;
-
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
     return 0;
@@ -4860,14 +4832,8 @@ int clif_parsewalk(USER *sd) {
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0, direction = 0;
   unsigned short checksum = 0;
   // int speed=0;
-  char *buf = NULL;
-  int def[2];
-  int subt[1];
+  unsigned char *buf = NULL;
   int i = 0;
-
-  subt[0] = 0;
-  def[0] = 0;
-  def[1] = 0;
 
   // if (map_readglobalreg(sd->bl.m,"blackout") != 0) clif_refreshmap(sd);
 
@@ -5024,7 +4990,7 @@ int clif_parsewalk(USER *sd) {
 
   if (dx == sd->bl.x && dy == sd->bl.y) return 0;
 
-  CALLOC(buf, char, 32);
+  CALLOC(buf, unsigned char, 32);
   WBUFB(buf, 0) = 0xAA;
   WBUFB(buf, 1) = 0x00;
   WBUFB(buf, 2) = 0x0C;
@@ -5177,12 +5143,7 @@ int clif_noparsewalk(USER *sd, char speed) {
   struct warp_list *x = NULL;
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0, direction = 0;
   unsigned short m = sd->bl.m;
-  char *buf = NULL;
-  int def[2];
-  int subt[1];
-  subt[0] = 0;
-  def[0] = 0;
-  def[1] = 0;
+  unsigned char *buf = NULL;
 
   xold = dx = sd->bl.x;
   yold = dy = sd->bl.y;
@@ -5283,7 +5244,7 @@ int clif_noparsewalk(USER *sd, char speed) {
 
   if (sd->status.settingFlags & FLAG_FASTMOVE) {
     sd->status.settingFlags ^= FLAG_FASTMOVE;
-    clif_sendstatus(sd, NULL);
+    clif_sendstatus(sd, 0);
     flag = 1;
   }
 
@@ -5308,11 +5269,11 @@ int clif_noparsewalk(USER *sd, char speed) {
 
   if (flag == 1) {
     sd->status.settingFlags ^= FLAG_FASTMOVE;
-    clif_sendstatus(sd, NULL);
+    clif_sendstatus(sd, 0);
     flag = 0;
   }
 
-  CALLOC(buf, char, 32);
+  CALLOC(buf, unsigned char, 32);
   WBUFB(buf, 0) = 0xAA;
   WBUFB(buf, 1) = 0x00;
   WBUFB(buf, 2) = 0x0C;
@@ -5449,12 +5410,10 @@ int clif_guitext(struct block_list *bl, va_list ap) {
   USER *sd = NULL;
   const char *msg = NULL;
   // char buf[256];
-  int len = 0;
 
   nullpo_ret(0, sd = (USER *)bl);
 
   msg = va_arg(ap, char *);
-  len = strlen(msg);
 
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
@@ -5717,7 +5676,7 @@ int clif_getReward(USER *sd, int fd) {
     return 0;
   }
 
-  SqlStmt_Free;
+  SqlStmt_Free(stmt);
 
   if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                    "SELECT `Rank` FROM `RankingScores` WHERE "
@@ -5737,7 +5696,7 @@ int clif_getReward(USER *sd, int fd) {
     return 0;
   }
 
-  SqlStmt_Free;
+  SqlStmt_Free(stmt);
 
   if (cur_season == 1) {
     strcpy(season, "Winter");
@@ -6119,7 +6078,7 @@ int clif_sendRewardInfo(USER *sd, int fd) {
     return 0;
   }
 
-  SqlStmt_Free;
+  SqlStmt_Free(stmt);
 
   if (rewardranks == 0)
     goto end;  // This is the `EventRewardRanks_Display` integer in the
@@ -6317,7 +6276,7 @@ void retrieveEventDates(int eventid, int pos, int fd) {
     return;
   }
 
-  SqlStmt_Free;
+  SqlStmt_Free(stmt);
 
   // FROM DATE
   clif_intcheck(FromDate, pos + 7, fd);   // DATE-- Format: YYYY-MM-DD
@@ -6357,7 +6316,7 @@ int checkPlayerScore(int eventid, USER *sd) {
     return 0;
   }
 
-  SqlStmt_Free;
+  SqlStmt_Free(stmt);
 
   return score;
 }
@@ -6383,7 +6342,7 @@ void updateRanks(int eventid) {
 
   if (SQL_ERROR == Sql_Query(sql_handle, "SET @r=0")) {
     Sql_ShowDebug(sql_handle);
-    SqlStmt_Free(sql_handle);
+    Sql_FreeResult(sql_handle);
     return;
   }
 
@@ -6392,7 +6351,7 @@ void updateRanks(int eventid) {
                              "WHERE `EventId` = '%i' ORDER BY `Score` DESC",
                              eventid)) {
     Sql_ShowDebug(sql_handle);
-    SqlStmt_Free(sql_handle);
+    Sql_FreeResult(sql_handle);
     return;
   }
 }
@@ -6452,13 +6411,11 @@ int checkevent_claim(int eventid, int fd, USER *sd) {
       SqlStmt_NextRow(stmt)) {  // If no record found, set claim=2 (no icon,
                                 // disabled getreward)
     // SqlStmt_ShowDebug(stmt);
-    SqlStmt_Free(stmt);
     claim = 2;
-    return claim;
   }
 
+  SqlStmt_Free(stmt);
   return claim;
-  SqlStmt_Free;
 }
 
 void dateevent_block(int pos, int eventid, int fd, USER *sd) {
@@ -6760,7 +6717,6 @@ int clif_parsewalkpong(USER *sd) {
 int clif_parsemap(USER *sd) {
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
   unsigned short checksum;
-  int def[2];
   sd->loaded = 1;
 
   x0 = SWAP16(RFIFOW(sd->fd, 5));
@@ -6774,8 +6730,6 @@ int clif_parsemap(USER *sd) {
   }
 
   clif_sendmapdata(sd, sd->bl.m, x0, y0, x1, y1, checksum);
-  def[0] = 0;
-  def[1] = 0;
 
   return 0;
 }
@@ -6783,8 +6737,8 @@ int clif_parsemap(USER *sd) {
 int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
                      unsigned short check) {
   int x, y, pos;
-  unsigned short checksum;
-  unsigned short buf[65536];
+  short checksum;
+  short buf[65536];
 
   if (!session[sd->fd]) {
     session[sd->fd]->eof = 8;
@@ -6989,8 +6943,8 @@ int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
   int msglen = strlen(msg);
   int srclen = strlen(srcname);
   int newlen = 0;
-  unsigned char *buf;
-  unsigned char buf2[255];
+  char *buf;
+  char buf2[255];
   USER *src_sd = map_name2sd(srcname);
   if (strlen(msg) < msglen) msglen = strlen(msg);
   if (src_sd) {
@@ -7001,9 +6955,9 @@ int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
       newlen = sprintf(buf2, "\" () ");
     }
 
-    CALLOC(buf, unsigned char, srclen + msglen + newlen);
+    CALLOC(buf, char, srclen + msglen + newlen);
     memcpy(WBUFP(buf, 0), srcname, srclen);
-    strcpy(WBUFP(buf, srclen), buf2);
+    strcpy((char *)WBUFP(buf, srclen), buf2);
     memcpy(WBUFP(buf, srclen + newlen), msg, msglen);
 
     if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
@@ -7020,11 +6974,11 @@ int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
   return 0;
 }
 
-int clif_retrwisp(USER *sd, char *dstname, unsigned char *msg) {
+int clif_retrwisp(USER *sd, char *dstname, char *msg) {
   int msglen = strlen(msg);
 
   int dstlen = strlen(dstname);
-  unsigned char *buf[2 + dstlen + msglen];
+  char buf[2 + dstlen + msglen];
 
   // CALLOC(buf, unsigned char, 2+dstlen+msglen);
   // memcpy(WBUFP(buf, 0), dstname, dstlen);
@@ -7296,7 +7250,7 @@ int clif_checkdura(USER *sd, int equip) {
     sd->status.equip[equip].customLookColor = 0;
     sd->status.equip[equip].customIcon = 0;
     sd->status.equip[equip].customIconColor = 0;
-    memset(sd->status.equip[equip].trapsTable, 0, 100);
+    memset(sd->status.equip[equip].trapsTable, 0, sizeof(unsigned int) * 100);
     sd->status.equip[equip].time = 0;
     sd->status.equip[equip].repair = 0;
     strcpy(sd->status.equip[equip].real_name, "");
@@ -7422,7 +7376,7 @@ int clif_deductduraequip(USER *sd) {
       sd->status.equip[equip].customLookColor = 0;
       sd->status.equip[equip].customIcon = 0;
       sd->status.equip[equip].customIconColor = 0;
-      memset(sd->status.equip[equip].trapsTable, 0, 100);
+      memset(sd->status.equip[equip].trapsTable, 0, sizeof(unsigned int) * 100);
       sd->status.equip[equip].time = 0;
       sd->status.equip[equip].repair = 0;
       strcpy(sd->status.equip[equip].real_name, "");
@@ -7526,7 +7480,7 @@ int clif_senddelitem(USER *sd, int num, int type) {
   sd->status.inventory[num].customLookColor = 0;
   sd->status.inventory[num].customIcon = 0;
   sd->status.inventory[num].customIconColor = 0;
-  memset(sd->status.inventory[num].trapsTable, 0, 100);
+  memset(sd->status.inventory[num].trapsTable, 0, sizeof(unsigned int) * 100);
 
   sd->status.inventory[num].time = 0;
   strcpy(sd->status.inventory[num].real_name, "");
@@ -8127,7 +8081,7 @@ int clif_parsewisp(USER *sd) {
   char dst_name[100];
   char strText[255];
   USER *dst_sd = NULL;
-  int dstlen, srclen, msglen;
+  int dstlen, msglen;
   char msg[100];
   char escape[255];
 
@@ -8153,7 +8107,6 @@ int clif_parsewisp(USER *sd) {
   nullpo_ret(0, sd);
   dstlen = RFIFOB(sd->fd, 5);
 
-  srclen = strlen(sd->status.name);
   msglen = RFIFOB(sd->fd, 6 + dstlen);
 
   if ((msglen > 80) || (dstlen > 80) || (dstlen > RFIFOREST(sd->fd)) ||
@@ -8263,7 +8216,6 @@ int clif_parsewisp(USER *sd) {
 }
 
 int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
-  char i;
   /*	Type:
           0 = Talk
           1 = Shout
@@ -8277,7 +8229,7 @@ int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
     strcpy(sd->speech, msg);
   }
 
-  for (i = 0; i < MAX_SPELLS; i++) {
+  for (int i = 0; i < MAX_SPELLS; i++) {
     if (sd->status.skill[i] > 0) {
       sl_doscript_blargs(magicdb_yname(sd->status.skill[i]), "on_say", 1,
                          &sd->bl);
@@ -8288,7 +8240,7 @@ int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
 }
 
 int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
-  char *buf;
+  unsigned char *buf;
   char name[25];
   char escape[255];
   int namelen = strlen(sd->status.name);
@@ -8390,7 +8342,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
     }
 
     WFIFOHEAD(sd->fd, msglen + namelen + 13);
-    CALLOC(buf, char, 16 + namelen + msglen);
+    CALLOC(buf, unsigned char, 16 + namelen + msglen);
     WBUFB(buf, 0) = 0xAA;
     WBUFW(buf, 1) = SWAP16(10 + namelen + msglen);
     WBUFB(buf, 3) = 0x0D;
@@ -8433,7 +8385,7 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
     }
 
     WFIFOHEAD(sd->fd, msglen + namelen + 13);
-    CALLOC(buf, char, 16 + namelen + msglen);
+    CALLOC(buf, unsigned char, 16 + namelen + msglen);
     WBUFB(buf, 0) = 0xAA;
     WBUFW(buf, 1) = SWAP16(10 + namelen + msglen);
     WBUFB(buf, 3) = 0x0D;
@@ -8486,11 +8438,10 @@ int clif_distance(struct block_list *bl, struct block_list *bl2) {
 int clif_sendnpcsay(struct block_list *bl, va_list ap) {
   NPC *nd = NULL;
   USER *sd = NULL;
-  char *msg = NULL;
 
   if (bl->subtype != SCRIPT) return 0;
 
-  msg = va_arg(ap, char *);
+  va_arg(ap, char *);  // msg
   nullpo_ret(0, sd = va_arg(ap, USER *));
   nullpo_ret(0, nd = (NPC *)bl);
 
@@ -8532,11 +8483,11 @@ int clif_sendmobsay(struct block_list *bl, va_list ap) {
 int clif_sendnpcyell(struct block_list *bl, va_list ap) {
   NPC *nd = NULL;
   USER *sd = NULL;
-  char *msg = NULL;
+  // char *msg = NULL;
 
   if (bl->subtype != SCRIPT) return 0;
 
-  msg = va_arg(ap, char *);
+  va_arg(ap, char *);  // msg;
   nullpo_ret(0, sd = va_arg(ap, USER *));
   nullpo_ret(0, nd = (NPC *)bl);
 
@@ -8637,8 +8588,7 @@ int clif_parseignore(USER *sd) {
 }
 
 int clif_parsesay(USER *sd) {
-  char i;
-  char *msg = RFIFOP(sd->fd, 7);
+  char *msg = (char *)RFIFOP(sd->fd, 7);
 
   sd->talktype = RFIFOB(sd->fd, 5);
 
@@ -8650,7 +8600,7 @@ int clif_parsesay(USER *sd) {
 
   // memcpy(msg,RFIFOP(sd->fd, 7),RFIFOB(sd->fd, 6));
   strcpy(sd->speech, msg);
-  for (i = 0; i < MAX_SPELLS; i++) {
+  for (int i = 0; i < MAX_SPELLS; i++) {
     if (sd->status.skill[i] > 0) {
       sl_doscript_blargs(magicdb_yname(sd->status.skill[i]), "on_say", 1,
                          &sd->bl);
@@ -8713,7 +8663,7 @@ int clif_refresh(USER *sd) {
   WFIFOW(sd->fd, 1) = SWAP16(2);
   WFIFOB(sd->fd, 3) = 0x22;
   WFIFOB(sd->fd, 4) = 0x03;
-  set_packet_indexes(WFIFOP(sd->fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, 5 + 3);
   // sd->refresh_check=1;
 
@@ -8729,7 +8679,7 @@ int clif_refresh(USER *sd) {
       }
 
       sprintf(buff, "Join a group     :OFF");
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       clif_sendminitext(sd, buff);
     }
   }
@@ -8758,7 +8708,7 @@ int clif_refreshnoclick(USER *sd) {
   WFIFOW(sd->fd, 1) = SWAP16(2);
   WFIFOB(sd->fd, 3) = 0x22;
   WFIFOB(sd->fd, 4) = 0x03;
-  set_packet_indexes(WFIFOP(sd->fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, 5 + 3);
 
   if (!map[sd->bl.m].canGroup) {
@@ -8773,7 +8723,7 @@ int clif_refreshnoclick(USER *sd) {
       }
 
       sprintf(buff, "Join a group     :OFF");
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       clif_sendminitext(sd, buff);
     }
   }
@@ -9276,7 +9226,6 @@ int clif_parsemagic(USER *sd) {
   int i;
   char msg[255];
   char escape[255];
-  int len;
 
   pos = RFIFOB(sd->fd, 5) - 1;
 
@@ -9299,7 +9248,7 @@ int clif_parsemagic(USER *sd) {
     time = i / 1000;
     sl_doscript_blargs(magicdb_yname(sd->status.skill[pos]), "on_aethers", 1,
                        &sd->bl);
-    len = sprintf(msg, "Wait %d second(s) for aethers to settle.", time);
+    sprintf(msg, "Wait %d second(s) for aethers to settle.", time);
     clif_sendminitext(sd, msg);
     return 0;
   }
@@ -9325,7 +9274,7 @@ int clif_parsemagic(USER *sd) {
       //	}
       //}
       // memcpy(sd->question,RFIFOP(sd->fd,6),q_len);
-      strcpy(sd->question, RFIFOP(sd->fd, 6));
+      strcpy(sd->question, (char *)RFIFOP(sd->fd, 6));
       Sql_EscapeString(sql_handle, escape, sd->question);
 
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SpellLogs`
@@ -10005,7 +9954,7 @@ int clif_scriptmenu(
   return 0;
 }
 
-int clif_scriptmenuseq(USER *sd, int id, const char *dialog, char *menu[],
+int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
                        int size, int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
@@ -10290,8 +10239,8 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, char *menu[],
 }
 
 int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
-                  const char *dialog3, char *menu[], int size, int previous,
-                  int next) {
+                  const char *dialog3, const char *menu[], int size,
+                  int previous, int next) {
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int len = 0;
@@ -10628,7 +10577,7 @@ int clif_parselookat(USER *sd) {
 }
 
 int clif_parseattack(USER *sd) {
-  int id;
+  // int id;
   int attackspeed;
   int x;
 
@@ -10636,7 +10585,7 @@ int clif_parseattack(USER *sd) {
 
   if (sd->paralyzed || sd->sleep != 1.0f) return 0;
 
-  id = sd->status.equip[EQ_WEAP].id;
+  // id = sd->status.equip[EQ_WEAP].id;
 
   if (sd->status.state == 1 || sd->status.state == 3) return 0;
 
@@ -10697,7 +10646,7 @@ int clif_parseattack(USER *sd) {
   if (itemdb_look(sd->status.equip[EQ_WEAP].id) >= 20000 &&
       itemdb_look(sd->status.equip[EQ_WEAP].id) < 30000) {  // bows
     sl_doscript_blargs(itemdb_yname(sd->status.equip[EQ_WEAP].id), "shootArrow",
-                       NULL, 1, &sd->bl);
+                       1, &sd->bl);
     sl_doscript_blargs("shootArrow", NULL, 1, &sd->bl);
   }
 
@@ -11031,7 +10980,7 @@ int clif_throwitem_sub(USER *sd, int id, int type, int x, int y) {
 
 int clif_throwitem_script(USER *sd) {
   FLOORITEM *fl = NULL;
-  char sndbuf[48];
+  unsigned char sndbuf[48];
   int def[1];
   int id = sd->invslot;
   int x = sd->throwx;
@@ -11237,7 +11186,7 @@ int clif_parsethrow(USER *sd) {
 int clif_parseviewchange(USER *sd) {
   int dx = 0, dy = 0;
   int x0, y0, x1, y1, direction = 0;
-  unsigned short checksum;
+  // unsigned short checksum;
 
   direction = RFIFOB(sd->fd, 5);
   dx = RFIFOB(sd->fd, 6);
@@ -11246,7 +11195,7 @@ int clif_parseviewchange(USER *sd) {
   y0 = SWAP16(RFIFOW(sd->fd, 10));
   x1 = RFIFOB(sd->fd, 12);
   y1 = RFIFOB(sd->fd, 13);
-  checksum = SWAP16(RFIFOW(sd->fd, 14));
+  // checksum = SWAP16(RFIFOW(sd->fd, 14));
 
   if (sd->status.state == 3) {
     clif_sendminitext(sd, "You cannot do that while riding a mount.");
@@ -11365,7 +11314,6 @@ int check_packet_size(int fd, int len) {
   if (session[fd]->rdata_size >
       len) {  // there is more here, so check for congruity
     if (RFIFOB(fd, len) != 0xAA) {
-      RFIFOREST(fd);
       session[fd]->eof = 1;
       return 1;
     }
@@ -11774,7 +11722,7 @@ int clif_parse(int fd) {
     switch (RFIFOB(fd, 3)) {
       case 0x10:
         // clif_debug(RFIFOP(sd->fd,4),SWAP16(RFIFOW(sd->fd,1)))
-        clif_accept2(fd, RFIFOP(fd, 16), RFIFOB(fd, 15));
+        clif_accept2(fd, (char *)RFIFOP(fd, 16), RFIFOB(fd, 15));
 
         break;
 
@@ -12186,7 +12134,8 @@ printf("\n");*/
 
     case 0x77:
       clif_cancelafk(sd);
-      clif_parsefriends(sd, RFIFOP(sd->fd, 5), SWAP16(RFIFOW(sd->fd, 1)) - 5);
+      clif_parsefriends(sd, (char *)RFIFOP(sd->fd, 5),
+                        SWAP16(RFIFOW(sd->fd, 1)) - 5);
       break;
     case 0x82:
       clif_cancelafk(sd);
@@ -12225,7 +12174,7 @@ unsigned int metacrc(char *file) {
 
   unsigned int checksum = 0;
   unsigned int size;
-  char fileinf[196608];
+  Bytef fileinf[196608];
   fp = fopen(file, "rb");
   if (!fp) return 0;
   fseek(fp, 0, SEEK_END);
@@ -12241,7 +12190,7 @@ unsigned int metacrc(char *file) {
 int send_metafile(USER *sd, char *file) {
   int len = 0;
   unsigned int checksum = 0;
-  unsigned int clen = 0;
+  uLongf clen = 0;
   Bytef *ubuf;
   Bytef *cbuf;
   unsigned int ulen = 0;
@@ -12260,9 +12209,9 @@ int send_metafile(USER *sd, char *file) {
   ulen = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   // CALLOC(ubuf,0,ulen);
-  ubuf = (char *)calloc(ulen + 1, sizeof(char));
+  ubuf = calloc(ulen + 1, sizeof(Bytef));
   clen = compressBound(ulen);
-  cbuf = (char *)calloc(clen + 1, sizeof(char));
+  cbuf = calloc(clen + 1, sizeof(Bytef));
   fread(ubuf, 1, ulen, fp);
   fclose(fp);
 
@@ -12287,8 +12236,8 @@ int send_metafile(USER *sd, char *file) {
   len += 1;
   // printf("%s\n",file);
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  set_packet_indexes(WFIFOP(sd->fd, 0));
-  tk_crypt_static(WFIFOP(sd->fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(sd->fd, 0));
+  tk_crypt_static((unsigned char *)WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, len + 6 + 3);
 
   free(cbuf);
@@ -12301,7 +12250,7 @@ int send_meta(USER *sd) {
   memset(temp, 0, 255);
   memcpy(temp, RFIFOP(sd->fd, 7), RFIFOB(sd->fd, 6));
 
-  send_metafile(sd->fd, temp);
+  send_metafile(sd, temp);
 
   return 0;
 }
@@ -12329,8 +12278,8 @@ int send_metalist(USER *sd) {
   }
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 4);
-  set_packet_indexes(WFIFOP(sd->fd, 0));
-  tk_crypt_static(WFIFOP(sd->fd, 0));
+  set_packet_indexes((unsigned char *)WFIFOP(sd->fd, 0));
+  tk_crypt_static((unsigned char *)WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, len + 7 + 3);
 
   return 0;
@@ -12394,8 +12343,8 @@ int clif_sendtest(USER *sd) {
 }
 int clif_parsemenu(USER *sd) {
   int selection;
-  unsigned int id;
-  id = SWAP32(RFIFOL(sd->fd, 6));
+  // unsigned int id;
+  // id = SWAP32(RFIFOL(sd->fd, 6));
   selection = SWAP16(RFIFOW(sd->fd, 10));
   sl_resumemenu(selection, sd);
   return 0;
@@ -12908,8 +12857,8 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
 
       if (strcmp(itemdb_buytext(item[x].id), "") != 0) {
         strcpy(buff, itemdb_buytext(item[x].id));
-      } else if (strcmp(item[x].buytext, "") != 0) {
-        strcpy(buff, item[x].buytext);
+      } else if (strcmp((char *)item[x].buytext, "") != 0) {
+        strcpy(buff, (char *)item[x].buytext);
       } else {
         char *path =
             classdb_name(itemdb_class(item[x].id), itemdb_rank(item[x].id));
@@ -13083,8 +13032,8 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
 
       if (strcmp(itemdb_buytext(item[x].id), "") != 0) {
         strcpy(buff, itemdb_buytext(item[x].id));
-      } else if (strcmp(item[x].buytext, "") != 0) {
-        strcpy(buff, item[x].buytext);
+      } else if (strcmp((char *)item[x].buytext, "") != 0) {
+        strcpy(buff, (char *)item[x].buytext);
       } else {
         char *path =
             classdb_name(itemdb_class(item[x].id), itemdb_rank(item[x].id));
@@ -14056,7 +14005,7 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
 
       if (tsd->status.legends[x].tchaid > 0) {
         char *name = clif_getName(tsd->status.legends[x].tchaid);
-        char *buff = replace_str(&tsd->status.legends[x].text, "$player", name);
+        char *buff = replace_str(tsd->status.legends[x].text, "$player", name);
 
         WFIFOB(sd->fd, len + 8) = strlen(buff);
         memcpy(WFIFOP(sd->fd, len + 9), buff, strlen(buff));
@@ -14384,7 +14333,6 @@ int clif_addgroup(USER *sd) {
   int x;
   char nameof[256];
   USER *tsd = NULL;
-  int len = 0;
   char buff[256];
   memset(nameof, 0, 256);
   memcpy(nameof, RFIFOP(sd->fd, 6), RFIFOB(sd->fd, 5));
@@ -14461,7 +14409,7 @@ int clif_addgroup(USER *sd) {
     tsd->groupid = sd->groupid;
   }
 
-  len = sprintf(buff, "%s is joining the group.", tsd->status.name);
+  sprintf(buff, "%s is joining the group.", tsd->status.name);
 
   clif_updategroup(sd, buff);
 
@@ -14663,7 +14611,7 @@ int clif_changestatus(USER *sd, int type) {
       } else {
         clif_sendminitext(sd, "Listen to whisper:OFF");
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 0x02:  // group
       sd->status.settingFlags ^= FLAG_GROUP;
@@ -14678,7 +14626,7 @@ int clif_changestatus(USER *sd, int type) {
         sprintf(buff, "Join a group     :OFF");
       }
 
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       clif_sendminitext(sd, buff);
       break;
     case 0x03:  // Shout
@@ -14688,7 +14636,7 @@ int clif_changestatus(USER *sd, int type) {
       } else {
         clif_sendminitext(sd, "Listen to shout  :OFF");
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 0x04:  // Advice
       sd->status.settingFlags ^= FLAG_ADVICE;
@@ -14697,7 +14645,7 @@ int clif_changestatus(USER *sd, int type) {
       } else {
         clif_sendminitext(sd, "Listen to advice :OFF");
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 0x05:  // Magic
       sd->status.settingFlags ^= FLAG_MAGIC;
@@ -14706,7 +14654,7 @@ int clif_changestatus(USER *sd, int type) {
       } else {
         clif_sendminitext(sd, "Believe in magic :OFF");
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 0x06:  // Weather
       sd->status.settingFlags ^= FLAG_WEATHER;
@@ -14718,7 +14666,7 @@ int clif_changestatus(USER *sd, int type) {
       clif_sendminitext(sd, buff);
 
       clif_sendweather(sd);
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 0x07:  // Realm center (F4)
       oldm = sd->bl.m;
@@ -14743,7 +14691,7 @@ int clif_changestatus(USER *sd, int type) {
       } else {
         clif_sendminitext(sd, "Realm-centered   :OFF");
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 0x08:  // exchange
       sd->status.settingFlags ^= FLAG_EXCHANGE;
@@ -14755,7 +14703,7 @@ int clif_changestatus(USER *sd, int type) {
         sprintf(buff, "Exchange         :OFF");
       }
 
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       clif_sendminitext(sd, buff);
       break;
     case 0x09:  // Fast move
@@ -14766,7 +14714,7 @@ int clif_changestatus(USER *sd, int type) {
       } else {
         clif_sendminitext(sd, "Fast Move        :OFF");
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
     case 10:  // Clan chat
       sd->status.clan_chat = (sd->status.clan_chat + 1) % 2;
@@ -14785,7 +14733,7 @@ int clif_changestatus(USER *sd, int type) {
         sprintf(buff, "Hear sounds      :OFF");
       }
       clif_sendminitext(sd, buff);
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       break;
 
     case 14:  // Helm
@@ -14800,7 +14748,7 @@ int clif_changestatus(USER *sd, int type) {
         pc_setglobalreg(sd, "show_helmet",
                         0);  // Added 4/6/17 to give registry for helmet status
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       clif_sendchararea(sd);
       clif_getchararea(sd);
       // map_foreachinarea(clif_updatestate,sd->bl.m,sd->bl.x,sd->bl.y,AREA,BL_PC,sd);
@@ -14819,7 +14767,7 @@ int clif_changestatus(USER *sd, int type) {
         pc_setglobalreg(sd, "show_necklace",
                         0);  // Added 4/6/17 to give registry for helmet status
       }
-      clif_sendstatus(sd, NULL);
+      clif_sendstatus(sd, 0);
       clif_sendchararea(sd);
       clif_getchararea(sd);
       // map_foreachinarea(clif_updatestate,sd->bl.m,sd->bl.x,sd->bl.y,AREA,BL_PC,sd);
@@ -14901,11 +14849,10 @@ int clif_handgold(USER *sd) {
 }
 
 int clif_postitem(USER *sd) {
-  struct item_data *item = NULL;
-
   int slot = RFIFOB(sd->fd, 5) - 1;
 
-  item = itemdb_search(sd->status.inventory[slot].id);
+  // struct item_data *item = NULL;
+  // item = itemdb_search(sd->status.inventory[slot].id);
 
   int x = 0;
   int y = 0;
@@ -15382,7 +15329,6 @@ int clif_startexchange(USER *sd, unsigned int target) {
 int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   int len = 0;
   char buff[256];
-  int i;
   char nameof[255];
   if (!sd) return 0;
   if (!tsd) return 0;
@@ -15404,7 +15350,6 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   WFIFOB(sd->fd, 6) = 0x00;
   WFIFOB(sd->fd, 7) = sd->exchange.list_count;
   len = 0;
-  i = sd->exchange.item_count;
 
   sprintf(buff, "%s", nameof);
   WFIFOW(sd->fd, len + 8) = 0xFFFF;
@@ -15841,8 +15786,9 @@ limit at a time?  number is always 100 or 255
         return 0;
 }*/
 
-int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0, char **mname,
-                   unsigned int *id, int *x1, int *y1, int i) {
+int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0,
+                   const char **mname, unsigned int *id, int *x1, int *y1,
+                   int i) {
   int len = 0;
   int x, y;
 
@@ -16084,11 +16030,9 @@ int clif_pushback(USER *sd) {
 }
 
 int clif_cancelafk(USER *sd) {
-  int reset = 0;
-
   nullpo_ret(0, sd);
 
-  if (sd->afk) reset = 1;
+  // if (sd->afk) reset = 1;
 
   sd->afktime = 0;
   sd->afk = 0;

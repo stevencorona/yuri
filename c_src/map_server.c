@@ -173,24 +173,6 @@ void map_addiddb(struct block_list* bl) {
   uidb_put(id_db, bl->id, bl);
 }
 
-void map_foreachmob(int (*func)(struct block_list* bl, va_list args), ...) {
-  DBIterator* iter;
-  struct block_list* md;
-
-  iter = db_iterator(mobid_db);
-  for (md = (struct mob_data*)dbi_first(iter); dbi_exists(iter);
-       md = (struct block_list*)dbi_next(iter)) {
-    va_list args;
-    int ret;
-
-    va_start(args, func);
-    ret = func(md, args);
-    va_end(args);
-    if (ret == -1) break;  // stop iterating
-  }
-  dbi_destroy(iter);
-}
-
 void map_initiddb() {
   id_db = uidb_alloc(DB_OPT_BASE);
   mobid_db = uidb_alloc(DB_OPT_BASE);
@@ -199,13 +181,13 @@ void map_initiddb() {
 
 int map_finaliddb(void* key, void* data, va_list ap) {
   struct block_list* db;
-  struct npc_data* nd;
+  // struct npc_data* nd;
   nullpo_ret(0, db = data);
 
   map_delblock(db);
   switch (db->id) {
     case BL_NPC:
-      nd = data;
+      // nd = data;
       switch (db->subtype) {
         case FLOOR:
         case SCRIPT:
@@ -513,11 +495,11 @@ int map_addblock(struct block_list* bl) {
 
   if (bl->type == BL_PC) map[m].user++;
 
-  if (bl->prev < 0x100 || bl->next < 0x100) {
-    if (bl->next) {
-      printf("Prev = %u : Next = %u\n", bl->prev->id, bl->next->id);
-    }
-  }
+  // if (bl->prev < 0x100 || bl->next < 0x100) {
+  //   if (bl->next) {
+  //     printf("Prev = %u : Next = %u\n", bl->prev->id, bl->next->id);
+  //   }
+  // }
   return 0;
 }
 
@@ -1956,7 +1938,6 @@ int do_init(int argc, char** argv) {
 
   cronjobtimer = timer_insert(1000, 1000, map_cronjob, 0, 0);
   timer_insert(100, 100, npc_runtimers, 0, 0);
-  // timer_insert(250,250,mob_timer_new,0,0);
   timer_insert(50, 50, mob_timer_spawns, 0, 0);
   timer_insert(30000, 30000, map_weather, 0, 0);
   // timer_insert(save_time, save_time, map_savechars, 0, 0);
@@ -1971,9 +1952,9 @@ int do_init(int argc, char** argv) {
 }
 
 int map_canmove(int m, int x, int y) {
-  int obj;
+  // int obj;
   int pass;
-  obj = read_obj(m, x, y);
+  // obj = read_obj(m, x, y);
   pass = read_pass(m, x, y);
 
   if (pass) {
@@ -2324,7 +2305,6 @@ int nmail_sendmailcopy(USER* sd, char* to_user, char* topic, char* message) {
 }
 
 int nmail_write(USER* sd) {
-  USER* tsd = NULL;
   char to_user[52];
   char topic[52];
   char message[4000];
@@ -2405,7 +2385,7 @@ int nmail_write(USER* sd) {
     return 0;
   }
 
-  tsd = map_name2sd(to_user);
+  // tsd = map_name2sd(to_user);
 
   /*if (tsd && clif_isignore(sd, tsd))*/
 
@@ -2462,7 +2442,7 @@ int map_changepostcolor(int board, int post, int color) {
   return 0;
 }
 int map_getpostcolor(int board, int post) {
-  int x, color = 0;
+  int color;
   SqlStmt* stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
@@ -2484,9 +2464,7 @@ int map_getpostcolor(int board, int post) {
     return -1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-    x = color;
-  }
+  SqlStmt_NextRow(stmt);
 
   SqlStmt_Free(stmt);
   // sql_request("SELECT color FROM boards WHERE board_id=%d AND
@@ -2498,8 +2476,8 @@ int map_getpostcolor(int board, int post) {
 }
 
 char* map_id2name(unsigned int id) {
-  unsigned char* owner;
-  CALLOC(owner, unsigned char, 255);
+  char* owner;
+  CALLOC(owner, char, 255);
   memset(owner, 0, 255);
 
   char name[16];

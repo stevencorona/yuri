@@ -12,7 +12,7 @@
 
 DBMap *magic_db;
 
-int magicdb_searchname_sub(void *key, void *data, va_list ap) {
+int magicdb_searchname_sub(DBKey key, void *data, va_list ap) {
   struct magic_data *item = (struct magic_data *)data, **dst;
   char *str;
   str = va_arg(ap, char *);
@@ -131,7 +131,7 @@ int magicdb_ticker(int id) {
 int magicdb_level(const char *spell_name) {
   int id = magicdb_id(spell_name);
 
-  if (id != NULL) {
+  if (id != 0) {
     struct magic_data *db;
     db = magicdb_search(id);
     return db->level;
@@ -241,19 +241,8 @@ int magicdb_read() {
   return 0;
 }
 
-static int magicdb_final(void *key, void *data, va_list ap) {
-  struct magic_data *db;
-  nullpo_ret(0, db = data);
-
-  // FREE(db->script);
-  FREE(db);
-
-  return 0;
-}
-
 int magicdb_term() {
   if (magic_db) {
-    // numdb_final(magic_db,magicdb_final);
     db_destroy(magic_db);
   }
   return 0;

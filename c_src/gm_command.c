@@ -17,7 +17,7 @@
 #include "map_parse.h"
 #include "map_server.h"
 #include "mmo.h"
-#include "mob.h";
+#include "mob.h"
 #include "net_crypt.h"
 #include "npc.h"
 #include "pc.h"
@@ -124,17 +124,12 @@ struct {
                {command_reloadboard, "reloadboard", 99},
                {command_reloadclan, "reloadclan", 99},
                {command_item, "i", 50},
-               //{command_online,"online",1},
-               //	{command_metan,"metan",99},
-               //{command_reload,"reload",50},
                {command_reloadnpc, "reloadnpc", 99},
-               //	{command_reloadrecipe,"reloadrecipe",99),
                {command_reloadmaps, "reloadmaps", 99},
                {command_reloadclass, "reloadclass", 99},
                {command_reloadlevels, "reloadlevels", 99},
                {command_reloadwarps, "reloadwarps", 99},
-               {command_transfer, "transfer", 99},
-               {NULL, NULL, NULL}};
+               {command_transfer, "transfer", 99}};
 
 struct userlist_data userlist;
 
@@ -297,8 +292,8 @@ int command_shutdowncancel(USER *sd, char *line, lua_State *state) {
     clif_broadcast("---------------------------------------------------", -1);
     clif_broadcast("Server shutdown cancelled.", -1);
     clif_broadcast("---------------------------------------------------", -1);
+    timer_remove(downtimer);
     downtimer = 0;
-    timer_remove(map_reset_timer);
 
   } else {
     clif_sendminitext(sd, "Server is not shutting down.");
@@ -439,7 +434,6 @@ int command_immortality(USER *sd, char *line, lua_State *state) {
 }
 
 int command_ban(USER *sd, char *line, lua_State *state) {
-  unsigned int ipaddr = 0;
   char name[32];
   if (sscanf(line, "%s", name) < 1) return -1;
 
@@ -447,7 +441,6 @@ int command_ban(USER *sd, char *line, lua_State *state) {
 
   if (tsd) {
     printf("Banning %s\n", name);
-    ipaddr = session[tsd->fd]->client_addr.sin_addr.s_addr;
 
     if (SQL_ERROR ==
         Sql_Query(
@@ -456,6 +449,8 @@ int command_ban(USER *sd, char *line, lua_State *state) {
             name)) {
       Sql_ShowDebug(sql_handle);
     }
+    // unsigned int ipaddr;
+    // ipaddr = session[tsd->fd]->client_addr.sin_addr.s_addr;
     // sql_request("INSERT INTO `banlist` (`ipaddy`) VALUES('%u')",ipaddr);
     // sql_free_row();
     session[tsd->fd]->eof = 1;
@@ -612,19 +607,18 @@ int command_spellwork(USER *sd, char *line, lua_State *state) {
 }
 
 int command_debug(USER *sd, char *line, lua_State *state) {
-  char *str[64], *p, *np;
+  char *str[64], *p;
   int strnum, i, skip, packnum;
   if (sscanf(line, "%d%n", &packnum, &skip) < 1) return -1;
   p = line + skip;
   while (*p && isspace(*p)) p++;
   strnum = 0;
-  for (i = 0, np = p; i < 64 && p; i++) {
+  for (i = 0; i < 64 && p; i++) {
     str[i] = p;
     p = strchr(p, ',');
     strnum++;
     if (p) {
       *p++ = 0;
-      np = p;
     } else {
       break;
     }
@@ -739,15 +733,13 @@ int command_hair(USER *sd, char *line, lua_State *state) {
 int command_checkdupes(USER *sd, char *line, lua_State *state) {
   USER *tmpsd;
   char BufStr[64];
-  int blen;
   int x;
 
   for (x = 1; x < fd_max; x++) {
     if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof) {
       int numDupes = pc_readglobalreg(tmpsd, "goldbardupe");
       if (numDupes) {
-        blen = sprintf(BufStr, "%s gold bar %i times", tmpsd->status.name,
-                       numDupes);
+        sprintf(BufStr, "%s gold bar %i times", tmpsd->status.name, numDupes);
         clif_sendminitext(sd, BufStr);
       }
     }
@@ -759,15 +751,14 @@ int command_checkdupes(USER *sd, char *line, lua_State *state) {
 int command_checkwpe(USER *sd, char *line, lua_State *state) {
   USER *tmpsd;
   char BufStr[64];
-  int blen;
   int x;
 
   for (x = 1; x < fd_max; x++) {
     if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof) {
       int numDupes = pc_readglobalreg(tmpsd, "WPEtimes");
       if (numDupes) {
-        blen = sprintf(BufStr, "%s WPE attempt %i times", tmpsd->status.name,
-                       numDupes);
+        sprintf(BufStr, "%s WPE attempt %i times", tmpsd->status.name,
+                numDupes);
         clif_sendminitext(sd, BufStr);
       }
     }
@@ -778,16 +769,15 @@ int command_checkwpe(USER *sd, char *line, lua_State *state) {
 
 int command_kill(USER *sd, char *line, lua_State *state) {
   char buf[64];
-  int len;
 
   USER *tsd = map_name2sd(line);
   if (tsd) {
-    len = sprintf(buf, "Done.");
+    sprintf(buf, "Done.");
 
     if (session[tsd->fd]) session[tsd->fd]->eof = 1;
     clif_sendminitext(sd, buf);
   } else {
-    len = sprintf(buf, "User not found.");
+    sprintf(buf, "User not found.");
     clif_sendminitext(sd, buf);
   }
 
@@ -932,11 +922,10 @@ int command_makegm(USER *sd, char *line, lua_State *state) {
 int command_xprate(USER *sd, char *line, lua_State *state) {
   int rate;
   char buf[256];
-  int len;
 
   if (sscanf(line, "%d", &rate) < 1) return -1;
 
-  len = sprintf(buf, "Experience rate: %ux", rate);
+  sprintf(buf, "Experience rate: %ux", rate);
   clif_sendminitext(sd, buf);
   xp_rate = rate;
 
@@ -946,21 +935,19 @@ int command_xprate(USER *sd, char *line, lua_State *state) {
 int command_drate(USER *sd, char *line, lua_State *state) {
   int rate;
   char buf[256];
-  int len;
 
   if (sscanf(line, "%d", &rate) < 1) return -1;
 
-  len = sprintf(buf, "Drop rate: %u x", rate);
+  sprintf(buf, "Drop rate: %u x", rate);
   clif_sendminitext(sd, buf);
   d_rate = rate;
   return 0;
 }
 
 int command_who(USER *sd, char *line, lua_State *state) {
-  int len;
   char buf[256];
 
-  len = sprintf(buf, "There are %d users online.", userlist.user_count);
+  sprintf(buf, "There are %d users online.", userlist.user_count);
   clif_sendminitext(sd, buf);
   return 0;
 }
@@ -1396,9 +1383,9 @@ int command_sound(USER *sd, char *line, lua_State *state) {
 
   if (sscanf(line, "%d", &sound) > -1) {
     soundfx = sound;
-    clif_playsound(sd, soundfx);
+    clif_playsound(&sd->bl, soundfx);
   } else {
-    clif_playsound(sd, soundfx);
+    clif_playsound(&sd->bl, soundfx);
   }
 
   return 0;
@@ -1407,14 +1394,14 @@ int command_sound(USER *sd, char *line, lua_State *state) {
 int command_nsound(USER *sd, char *line, lua_State *state) {
   soundfx += 1;
   if (soundfx > 125) soundfx = 125;
-  clif_playsound(sd, soundfx);
+  clif_playsound(&sd->bl, soundfx);
   return 0;
 }
 
 int command_psound(USER *sd, char *line, lua_State *state) {
   soundfx -= 1;
   if (soundfx < 0) soundfx = 0;
-  clif_playsound(sd, soundfx);
+  clif_playsound(&sd->bl, soundfx);
   return 0;
 }
 

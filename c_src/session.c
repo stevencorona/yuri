@@ -102,10 +102,7 @@ int add_ip_lockout(unsigned int n) {
 }
 /// Timer function.
 /// Deletes old connection history records.
-static int connect_check_clear(uintptr_t* _d, uintptr_t* _data) {
-  int d = (int)d;
-  int data = (int)data;
-
+static int connect_check_clear(int d, int data) {
   int i;
   int clear = 0;
   int list = 0;
@@ -876,7 +873,7 @@ int Check_Throttle(struct sockaddr_in S) {
   return Ret;
 }
 
-int Remove_Throttle(uintptr_t* none, uintptr_t* nonetoo) {
+int Remove_Throttle(int none, int nonetoo) {
   Throttles = NULL;
   return 0;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "db.h"
 #include "map_server.h"
 
 enum { MOB_ALIVE, MOB_DEAD, MOB_PARA, MOB_BLIND, MOB_HIT, MOB_ESCAPE };
@@ -17,7 +18,7 @@ int mobdb_init();
 struct mobdb_data* mobdb_searchexist(unsigned int);
 struct mobdb_data* mobdb_searchname(const char*);
 int mobdb_id(const char*);
-int mobdb_searchname_sub(void*, void*, va_list);
+int mobdb_searchname_sub(DBKey, void*, va_list);
 int mob_handle(int, int);
 int mob_handle_sub(MOB*, va_list);
 int mob_handle_magic(struct block_list*, va_list);
@@ -39,7 +40,6 @@ int mob_move(struct block_list*, va_list);
 int mobdb_dropitem(unsigned int, unsigned int, int, int, int, int, int, int,
                    int, USER*);
 // int move_mob_intent(MOB*,USER*);
-int mob_timer_new(int, int);
 int mob_timer_spawns(int, int);
 int move_mob(MOB*);
 int move_mob_ignore_object(MOB*);

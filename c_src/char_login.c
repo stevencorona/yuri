@@ -15,10 +15,10 @@
 
 static const int packet_len_table[] = {3, 20, 43, 40, 52, 0, 0};
 
-int check_connect_login(uintptr_t *ip, uintptr_t *port) {
+int check_connect_login(int ip, int port) {
   if (login_fd <= 0 || session[login_fd] == NULL) {
     printf("[char] [logif] Connecting to login-server\n");
-    login_fd = make_connection(*ip, *port);
+    login_fd = make_connection(ip, port);
     session[login_fd]->func_parse = logif_parse;
     realloc_rfifo(login_fd, FIFOSIZE_SERVER, FIFOSIZE_SERVER);
     WFIFOHEAD(login_fd, 69);
