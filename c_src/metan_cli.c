@@ -25,43 +25,6 @@ unsigned short swap16(unsigned short val) {
 
   return y;
 }
-int config_read(const char *cfg_file) {
-  char line[1024], r1[1024], r2[1024];
-  int line_num = 0;
-  FILE *fp;
-
-  fp = fopen(cfg_file, "r");
-  if (fp == NULL) {
-    printf("[metan] File (%s) not found.\n", cfg_file);
-    exit(1);
-  }
-
-  while (fgets(line, sizeof(line), fp)) {
-    line_num++;
-    if (line[0] == '/' && line[1] == '/') {
-      continue;
-    }
-
-    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
-      // CHAR
-
-      if (strcasecmp(r1, "sql_ip") == 0) {
-        strcpy(sql_ip, r2);
-      } else if (strcasecmp(r1, "sql_port") == 0) {
-        sql_port = atoi(r2);
-      } else if (strcasecmp(r1, "sql_id") == 0) {
-        strcpy(sql_id, r2);
-      } else if (strcasecmp(r1, "sql_pw") == 0) {
-        strcpy(sql_pw, r2);
-      } else if (strcasecmp(r1, "sql_db") == 0) {
-        strcpy(sql_db, r2);
-      }
-    }
-  }
-  fclose(fp);
-  printf("[metan] [config_read_success] file=%s\n", cfg_file);
-  return 0;
-}
 
 int output_meta(char *filename, int num, unsigned int list[], int max) {
   FILE *fp;
