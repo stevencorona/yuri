@@ -6,9 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "md5calc.h"
-
-static char enckey[] = "Urk#nI7ni";
 
 char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   struct cvs_MD5Context context;
@@ -106,7 +105,7 @@ char *generate_key2(unsigned char *packet, char *table, char *keyout,
   return keyout;
 }
 
-void tk_crypt_static(unsigned char *buff) { tk_crypt_dynamic(buff, enckey); }
+void tk_crypt_static(unsigned char *buff) { tk_crypt_dynamic(buff, xor_key); }
 
 void tk_crypt_dynamic(unsigned char *buff, const char *key) {
   unsigned int group = 0;

@@ -26,7 +26,7 @@ char_id: 34d6adef1e3e4ba69f756247a58a8878
 char_pw: d3adfd7f9e714bb7af2d4c8b613d2104
 
 // Client <-> Server Encryption Key
-xor_key: KEYKEYKEY
+xor_key: Urk#nI7ni
 
 // Character Server Configuration
 
