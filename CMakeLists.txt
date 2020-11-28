@@ -14,7 +14,11 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -DDEBUG -DFD_SETSIZE=1024")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
 find_package(ZLIB)
-find_package(Lua51 REQUIRED)
+// find_package(Lua5.1)
+
+// For LuaJIT
+find_package(PkgConfig REQUIRED) 
+pkg_check_modules(LUAJIT REQUIRED IMPORTED_TARGET luajit)
 
 include_directories(${LUA_INCLUDE_DIR})
 
@@ -40,7 +44,7 @@ add_executable(map_server c_src/board_db.c c_src/clan_db.c c_src/class_db.c c_sr
 target_link_libraries(map_server common)
 target_link_libraries(map_server deps)
 target_link_libraries(map_server ZLIB::ZLIB)
-target_link_libraries(map_server lua5.1)
+target_link_libraries(map_server PkgConfig::LUAJIT)
 target_link_libraries(map_server m)
 target_link_libraries(map_server ${PROJECT_SOURCE_DIR}/target/debug/libyuri.a)
 

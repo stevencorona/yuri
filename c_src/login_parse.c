@@ -290,9 +290,9 @@ unsigned int metacrc(char *file) {
   fseek(fp, 0, SEEK_END);
   size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
-  fread(fileinf, 1, size, fp);
+  size_t size_read = fread(fileinf, 1, size, fp);
   fclose(fp);
-  checksum = crc32(checksum, fileinf, size);
+  checksum = crc32(checksum, fileinf, size_read);
 
   return checksum;
 }
@@ -324,10 +324,11 @@ int send_metafile(int fd, char *file) {
   ubuf = calloc(ulen + 1, sizeof(Bytef));
   clen = compressBound(ulen);
   cbuf = calloc(clen + 1, sizeof(Bytef));
-  fread(ubuf, 1, ulen, fp);
+  size_t size_read = fread(ubuf, 1, ulen, fp);
+
   fclose(fp);
 
-  retval = compress(cbuf, &clen, ubuf, ulen);
+  retval = compress(cbuf, &clen, ubuf, size_read);
 
   if (retval != 0) {
     printf("[login] [send_metafile_error] retval=%d\n", retval);

@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <luajit.h>
 #include <lualib.h>
 #include <math.h>
 #include <stdarg.h>

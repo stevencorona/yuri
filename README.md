@@ -7,8 +7,9 @@ Provide a clean fork/drop-in replacement of the Mithia server that is 100% compa
 ### Benefits over Mithia
 - Builds/runs as a 64-bit binary on a modern toolchain
 - Significantly cleaned up, unsafe C removed (buffer overflows, etc), ZERO COMPILER WARNINGS!
+- Uses LuaJIT instead of interpreted Lua, providing 2-20x speed-up in lua execution
 - Dead code is actively being removed. Existing code refactored and ported to Rust
-- Eventual goal of async networking and moving database writes to an independent thread for higher performance
+- Eventual goal of async networking and moving database writes to an external thread for higher performance
 - Fixes many confusing bugs, like NPCs not loading when there are gaps in the database
 
 ## Building from source
@@ -19,7 +20,7 @@ You will need to install rust.
 The C currently has the following external library dependencies that must be installed.
 
 - libmysqlclient
-- lua5.1
+- luajit-2.1
 - zlib
 
 If you plan on developing the rust, you will need to install `cbindgen` in order to regenerate yuri.h (`cargo install cbindgen`)
@@ -67,22 +68,22 @@ Game state is stored in MySQL, maps and lua scripts are stored on disk.
 - [x] Compile with Clang
 - [x] clang-fmt/clang-modernize codebase
 - [x] Clean up and document configs
+- [x] Flatten source directory
+- [x] All logging to STDOUT
+- [x] Fix SQL autoincrement / numbering issues
+- [x] Fix all clang warnings
+- [x] Switch to LuaJIT
+- [x] Unhardcode asset paths
+- [ ] Compile with -O3 without segfaulting (almost there)
+- [ ] Compile without stack smashing off (almost there)
 - [ ] Remove dead code
 - [ ] BCrypt Passwords
-- [x] Flatten source directory
 - [ ] Receive mysql / net config as cli flag and env
 - [ ] Produce a single server binary instead of 3x
-- [x] All logging to STDOUT
 - [ ] Use OpenSSL MD5
-- [x] Fix SQL autoincrement / numbering issues
-- [ ] Compile with -O3 without segfaulting
-- [ ] Compile without stack smashing off
-- [x] Fix all clang warnings
-- [ ] Switch to LuaJIT
-- [ ] Smoke Tests
+- [ ] Unit Tests
 - [ ] Automated CI
 - [ ] Include SQL Migration & Minimum amount of LUA to run server
-- [x] Unhardcode asset paths
 
 ## Future State
 - Capture performance metrics for slow lua, slow queries, etc.

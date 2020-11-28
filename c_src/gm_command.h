@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lua.h>
+#include <luajit.h>
 
 #include "map_server.h"
 #include "mmo.h"
