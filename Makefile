@@ -1,7 +1,6 @@
 #!make
 
 CC ?= clang
-MAKE = make -s
 
 all: clean libyuri cmake metan_cli decrypt_cli char_server login_server map_server
 libyuri:
@@ -12,19 +11,19 @@ yuri.h:
 cmake:
 	@cmake -H. -Bbuild
 common: deps
-	@cmake --build build --target common --
+	@cmake --build build --target common --parallel --
 deps: cmake libyuri
-	@cmake --build build --target deps --
+	@cmake --build build --target deps --parallel --
 metan_cli: common
-	@cmake --build build --target metan_cli --
+	@cmake --build build --target metan_cli --parallel --
 decrypt_cli: common 
-	@cmake --build build --target decrypt_cli --
+	@cmake --build build --target decrypt_cli --parallel --
 char_server: common
-	@cmake --build build --target char_server --
+	@cmake --build build --target char_server --parallel --
 login_server: common
-	@cmake --build build --target login_server --
+	@cmake --build build --target login_server --parallel --
 map_server: common
-	@cmake --build build --target map_server --
+	@cmake --build build --target map_server --parallel --
 clean:
 	@rm -rf ./bin/*
 	@rm -rf ./build
