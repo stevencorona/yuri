@@ -31,39 +31,10 @@
 #include "showmsg.h"
 #include "timer.h"
 
-/// testcxv
 unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
 
 int flags[16] = {1,   2,   4,    8,    16,   32,   64,    128,
                  256, 512, 1024, 2048, 4096, 8192, 16386, 32768};
-const unsigned char clkey2[] = {6,  8,  9,  10, 15, 19, 23,
-                                26, 28, 41, 45, 46, 50, 57};
-const unsigned char svkey2[] = {4,  7,  8,  11, 12, 19, 23,
-                                24, 51, 54, 57, 64, 99};  // added 125(7D)
-const unsigned char svkey1packets[] = {2, 3, 10, 64, 68, 94, 96, 98, 102, 111};
-const unsigned char clkey1packets[] = {2,  3,  4,  11, 21, 38,  58,  66,
-                                       67, 75, 80, 87, 98, 113, 115, 123};
-// const unsigned char clkey1packets[] =
-// {2,3,4,11,21,38,58,66,67,75,80,84,85,87,98,113,115,123}; // added packet 84
-// and 85
-int clif_canmove_sub(struct block_list *, va_list);
-
-int isKey2(int fd) {
-  int x = 0;
-  for (x = 0; x < (sizeof(clkey1packets) / sizeof(clkey1packets[0])); x++) {
-    if (fd == clkey1packets[x]) return 0;
-  }
-
-  return 1;
-}
-
-int isKey(int fd) {
-  int x = 0;
-  for (x = 0; x < (sizeof(svkey1packets) / sizeof(svkey1packets[0])); x++) {
-    if (fd == svkey1packets[x]) return 0;
-  }
-  return 1;
-}
 
 int getclifslotfromequiptype(int equipType) {
   int type;
@@ -116,69 +87,6 @@ int getclifslotfromequiptype(int equipType) {
   }
 
   return type;
-}
-
-/*int encrypt(int fd)
-{
-        USER* sd=NULL;
-        sd = (USER*)session[fd]->session_data;
-
-        if(isKey(WFIFOB(fd,3)))
-
-        {	//tk_crypt_dynamic(WFIFOP(fd,0),sd->status.EncKey);
-                tk_crypt_dynamic(WFIFOP(fd,0),&(sd->status.EncKey));
-        //printf("Key %s (%d)
-(%s)\n",sd->status.name,WFIFOB(fd,3),sd->status.EncKey); } else {
-                tk_crypt_static(WFIFOP(fd,0));
-        }
-
-        return (int) SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
-
-}
-int decrypt(int fd)
-{
-        USER* sd=NULL;
-        sd = (USER*)session[fd]->session_data;
-
-        if(isKey2(RFIFOB(fd,3)))
-        {
-                tk_crypt_dynamic(RFIFOP(fd,0),&(sd->status.EncKey));
-        } else {
-                tk_crypt_static(RFIFOP(fd, 0));
-        }
-}*/
-int encrypt(int fd) {
-  USER *sd = NULL;
-  char key[16];
-  sd = (USER *)session[fd]->session_data;
-  nullpo_ret(0, sd);
-  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
-  //@(O.O)@
-  //  (o)
-  //  /)/)
-  // (O.O)/)
-  // o(")(")
-  if (isKey(WFIFOB(fd, 3))) {
-    generate_key2((unsigned char *)WFIFOP(fd, 0), sd->EncHash, key, 0);
-    tk_crypt_dynamic((unsigned char *)WFIFOP(fd, 0), key);
-  } else {
-    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
-  }
-  return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
-}
-int decrypt(int fd) {
-  USER *sd = NULL;
-  char key[16];
-  sd = (USER *)session[fd]->session_data;
-  nullpo_ret(0, sd);
-
-  if (isKey2(RFIFOB(fd, 3))) {
-    generate_key2((unsigned char *)RFIFOP(fd, 0), sd->EncHash, key, 1);
-    tk_crypt_dynamic((unsigned char *)RFIFOP(fd, 0), key);
-  } else {
-    tk_crypt_static((unsigned char *)RFIFOP(fd, 0));
-  }
-  return 0;
 }
 
 char *replace_str(char *str, char *orig, char *rep) {

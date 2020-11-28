@@ -234,9 +234,7 @@ int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
                          int invslot);
 int clif_paperpopup(USER *sd, const char *buf, int width, int height);
 char *clif_getaccountemail(unsigned int id);
-
-int encrypt(int);
-int decrypt(int);
+int clif_canmove_sub(struct block_list *, va_list);
 
 int send_meta(USER *);
 int send_metalist(USER *);
