@@ -1517,10 +1517,9 @@ int luareload(lua_State *state) {
 }
 
 int luatimems(lua_State *state) {
-  struct timeb tmb;
-
-  ftime(&tmb);
-  lua_pushnumber(state, tmb.millitm);
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  lua_pushnumber(state, ts.tv_nsec / 1000000);
   return 1;
 }
 
