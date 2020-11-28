@@ -12793,7 +12793,7 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 47;  // THis is a buy packet
+  WFIFOB(sd->fd, 3) = 0x2F;  // THis is a buy packet
   // WFIFOB(sd->fd,4)=3;
   WFIFOB(sd->fd, 5) = 4;  // This is a buy packet(id)
   WFIFOB(sd->fd, 6) = 2;  // For parsing purposes
@@ -13088,7 +13088,7 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 47;  // THis is a buy packet
+  WFIFOB(sd->fd, 3) = 0x2F;  // THis is a buy packet
   WFIFOB(sd->fd, 4) = 3;
   WFIFOB(sd->fd, 5) = 5;  // This is a buy packet(id)
   WFIFOB(sd->fd, 6) = 4;  // For parsing purposes
