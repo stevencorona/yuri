@@ -209,7 +209,7 @@ int keep_login_alive(int n, int a) {
 }
 int do_init(int argc, char **argv) {
   int i;
-  char *CONF_FILE = "conf/server.conf";
+  char *CONF_FILE = "conf/server.yaml";
 
   srand(gettick());
 
