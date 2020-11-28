@@ -23,21 +23,17 @@ int intif_debug(int fd, int len) {
   return 0;
 }
 int intif_auth(int fd) {
-  int cmd = 0;
-  int packet_len = 0;
-
   if (char_fd > 0) {
     session_eof(fd);
     return 0;
   }
-  cmd = RFIFOB(fd, 3);
-  packet_len = 69;
+  int packet_len = 69;
   if (RFIFOREST(fd) < packet_len) {
     return 0;
   }
 
-  if ((strcmp(RFIFOP(fd, 5), login_id) != 0) &&
-      (strcmp(RFIFOP(fd, 37), login_pw))) {
+  if ((strcmp((char *)RFIFOP(fd, 5), login_id) != 0) &&
+      (strcmp((char *)RFIFOP(fd, 37), login_pw))) {
     WFIFOHEAD(fd, 3);
     WFIFOW(fd, 0) = 0x1000;
     WFIFOB(fd, 2) = 0x01;
@@ -100,7 +96,7 @@ int intif_parse_connectconfirm(int fd) {
     printf("[login] [auth_success] name=%s ip=%u.%u.%u.%u\n", sd->name,
            CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
 
-    unsigned char ipaddress[16] = "";
+    char ipaddress[16] = "";
 
     sprintf(ipaddress, "%u.%u.%u.%u",
             CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr));
@@ -130,8 +126,8 @@ int intif_parse_connectconfirm(int fd) {
     WFIFOB(RFIFOW(fd, 2), 5) = '\x00';
     WFIFOB(RFIFOW(fd, 2), 6) = '\x00';
     WFIFOB(RFIFOW(fd, 2), 7) = '\x00';
-    set_packet_indexes(WFIFOP(RFIFOW(fd, 2), 0));
-    tk_crypt_static(WFIFOP(RFIFOW(fd, 2), 0));
+    set_packet_indexes((unsigned char *)WFIFOP(RFIFOW(fd, 2), 0));
+    tk_crypt_static((unsigned char *)WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 8 + 3);
     int len = 0;
     char *thing = NULL;
@@ -142,8 +138,8 @@ int intif_parse_connectconfirm(int fd) {
     WFIFOL(RFIFOW(fd, 2), 4) = SWAP32(RFIFOL(fd, 21));
     WFIFOW(RFIFOW(fd, 2), 8) = SWAP16(RFIFOW(fd, 25));
 
-    len = strlen(RFIFOP(fd, 5)) + 16;
-    thing = RFIFOP(fd, 5);
+    len = strlen((char *)RFIFOP(fd, 5)) + 16;
+    thing = (char *)RFIFOP(fd, 5);
     WFIFOB(RFIFOW(fd, 2), 10) = len;
 
     WFIFOW(RFIFOW(fd, 2), 11) = SWAP16(9);
@@ -154,7 +150,7 @@ int intif_parse_connectconfirm(int fd) {
     WFIFOL(RFIFOW(fd, 2), 23 + strlen(thing)) = SWAP32(RFIFOW(fd, 2));
 
     WFIFOW(RFIFOW(fd, 2), 1) = SWAP16(len + 8);
-    set_packet_indexes(WFIFOP(RFIFOW(fd, 2), 0));
+    set_packet_indexes((unsigned char *)WFIFOP(RFIFOW(fd, 2), 0));
     WFIFOSET(RFIFOW(fd, 2), 11 + len + 3);
   } else if (RFIFOB(fd, 4) == 0x01) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);

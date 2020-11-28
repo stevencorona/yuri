@@ -62,7 +62,7 @@ char *boarddb_name(int id) {
   return db->name;
 }
 
-int boarddb_searchname_sub(DBKey *key, void *data, va_list ap) {
+int boarddb_searchname_sub(DBKey key, void *data, va_list ap) {
   struct board_data *db = (struct board_data *)data, **dst;
   char *str;
 
@@ -223,18 +223,9 @@ int bn_read() {
   // sql_free_row();
   return 0;
 }
-static int boarddb_final(void *key, void *data, va_list ap) {
-  struct board_data *db;
-  nullpo_ret(0, db = data);
-
-  FREE(db);
-
-  return 0;
-}
 
 int boarddb_term() {
   if (board_db) {
-    // numdb_final(board_db,boarddb_final);
     db_destroy(board_db);
   }
 

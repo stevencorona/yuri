@@ -215,18 +215,8 @@ int createdb_start(USER *sd) {
   return 0;
 }
 
-static int createdb_final(void *key, void *data, va_list ap) {
-  struct creation_data *db;
-  nullpo_ret(0, db = data);
-
-  FREE(db);
-
-  return 0;
-}
-
 int createdb_term() {
   if (create_db) {
-    // numdb_final(create_db,createdb_final);
     db_destroy(create_db);
   }
 

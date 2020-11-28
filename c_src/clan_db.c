@@ -44,7 +44,7 @@ int clandb_add(void *sd, const char *name) {
   return newid;
 }
 
-int clandb_searchname_sub(void *key, void *data, va_list ap) {
+int clandb_searchname_sub(DBKey key, void *data, va_list ap) {
   struct clan_data *clan = (struct clan_data *)data, **dst;
   char *str;
   str = va_arg(ap, char *);
@@ -121,7 +121,7 @@ int clandb_read() {
     Sql_ShowDebug(sql_handle);
     return 0;
   }
-  for (i = 0; i < SQL_SUCCESS == Sql_NextRow(sql_handle); i++) {
+  for (i = 0; i < (SQL_SUCCESS == Sql_NextRow(sql_handle)); i++) {
     char *data;
     size_t len;
     Sql_GetData(sql_handle, 0, &data, NULL);
@@ -143,18 +143,8 @@ int clandb_read() {
   return 0;
 }
 
-static int clandb_final(void *key, void *data, va_list ap) {
-  struct clan_data *db;
-  nullpo_ret(0, db = data);
-
-  FREE(db);
-
-  return 0;
-}
-
 int clandb_term() {
   if (clan_db) {
-    // numdb_final(clan_db,clandb_final);
     db_destroy(clan_db);
   }
 

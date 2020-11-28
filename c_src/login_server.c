@@ -26,8 +26,6 @@ const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] =
     "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
 
-extern void Remove_Throttle(int, int);
-
 int Valid(const char *buf, const char *mask) {
   int x = 0;
   int n = 0;
@@ -241,23 +239,25 @@ int do_init(int argc, char **argv) {
   return 0;
 }
 
+// These are all unsafe and weird -  uidb expects pointer value, but we're
+// trying to give it a uint.
 int getInvalidCount(unsigned int ip) {
-  int c = uidb_get(bf_lockout, ip);
+  unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
   return c;
 }
 
 int login_clear_lockout(int i, int d) {
-  uidb_remove(bf_lockout, (unsigned int)i);
+  uidb_remove(bf_lockout, (uintptr_t)i);
   return 1;
 }
 int setInvalidCount(unsigned int ip) {
-  int c = uidb_get(bf_lockout, ip);
+  unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
 
   if (!c) {
     timer_insert(10 * 60 * 1000, 10 * 60 * 1000, login_clear_lockout, ip, 0);
   }
 
-  uidb_put(bf_lockout, ip, c + 1);
+  uidb_put(bf_lockout, ip, (void *)(uintptr_t)(c + 1));
 
   return c + 1;
 }

@@ -34,7 +34,7 @@ int zlib_init(void) {
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
   ret = deflateInit(&strm, Z_DEFAULT_COMPRESSION);
-  return 0;
+  return ret;
 }
 int mapfifo_from_mapid(int map) {
   int i, j;
@@ -186,7 +186,7 @@ int config_read(const char *cfg_file) {
   return 0;
 }
 
-void do_term(void) {
+void do_term() {
   logindata_term();
   char_db_term();
   session_eof(login_fd);

@@ -12,19 +12,18 @@
 
 struct TimerData {
   unsigned int tick;
-  int (*func)(uintptr_t *, uintptr_t *);
+  int (*func)(int, int);
   int type;
   unsigned int interval;
   int heap_pos;
 
   // general-purpose storage
   int id;
-  uintptr_t *data1;
-  uintptr_t *data2;
+  int data1;
+  int data2;
 };
 
-int timer_insert(unsigned int, unsigned int, int (*)(uintptr_t *, uintptr_t *),
-                 uintptr_t *, uintptr_t *);
+int timer_insert(unsigned int, unsigned int, int (*)(int, int), int, int);
 int timer_remove(int);
 int timer_do(unsigned int tick);
 int getDay(void);

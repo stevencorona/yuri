@@ -85,7 +85,7 @@ int clif_sendadditem(USER *, int);
 int clif_senddelitem(USER *, int, int);
 int clif_sendminitext(USER *, const char *);
 int clif_sendwisp(USER *, const char *, const char *);
-int clif_retrwisp(USER *, char *, unsigned char *);
+int clif_retrwisp(USER *, char *, char *);
 int clif_failwisp(USER *);
 int clif_sendsay(USER *, char *, int, int);
 int clif_sendmsg(USER *, int, const char *);
@@ -121,7 +121,7 @@ int clif_sendstatus3(USER *);
 int clif_object_look_specific(USER *, unsigned int);
 void clif_send_selfbar(USER *);
 void clif_send_groupbars(USER *, USER *);
-void clif_send_mobbars(struct block_list *, va_list);
+int clif_send_mobbars(struct block_list *, va_list);
 void clif_intcheck(int, int, int);
 
 // parse func
@@ -156,7 +156,7 @@ int clif_scriptmes(USER *, int, const char *, int, int);
 int clif_accept(int);
 int clif_parse(int);
 int clif_scriptmenu(USER *, int, char *, char *[], int);
-int clif_scriptmenuseq(USER *, int, const char *, char *[], int, int, int);
+int clif_scriptmenuseq(USER *, int, const char *, const char **, int, int, int);
 int clif_hairfacemenu(USER *, char *, char *[], int);
 int clif_parsemenu(USER *);
 int clif_sendmagic(USER *, int);
@@ -181,8 +181,8 @@ int clif_exchange_additem(USER *, USER *, int, int);
 int clif_updategroup(USER *, char *);
 int clif_startexchange(USER *, unsigned int);
 int clif_sendhunternote(USER *);
-int clif_mapselect(USER *, const char *, int *, int *, char **, unsigned int *,
-                   int *, int *, int);
+int clif_mapselect(USER *, const char *, int *, int *, const char **,
+                   unsigned int *, int *, int *, int);
 int clif_deductweapon(USER *, int);
 int clif_deductarmor(USER *, int);
 int clif_deductdura(USER *, int, int);
@@ -227,8 +227,8 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
 int clif_send_pc_healthscript(USER *sd, int damage, int critical);
 int clif_sendminimap(USER *sd);
 int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
-                  const char *dialog3, char *menu[], int size, int previous,
-                  int next);
+                  const char *dialog3, const char *menu[], int size,
+                  int previous, int next);
 int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
                                int count);
 int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,

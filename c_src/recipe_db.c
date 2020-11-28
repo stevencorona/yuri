@@ -12,7 +12,7 @@
 
 DBMap *recipedb;
 
-int recipedb_searchname_sub(DBKey *key, void *data, va_list ap) {
+int recipedb_searchname_sub(DBKey key, void *data, va_list ap) {
   struct recipe_data *recipe = (struct recipe_data *)data, **dst;
   char *str;
 

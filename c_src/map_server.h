@@ -455,7 +455,6 @@ int map_sweepdel(struct flooritem_data *);
 int map_moveblock(struct block_list *, int, int);
 struct block_list *map_firstincell(int, int, int, int);
 struct block_list *map_firstincellwithtraps(int, int, int, int);
-void map_foreachmob(int (*)(struct block_list *, va_list), ...);
 int map_read();  // int,const char*,char,int,int,unsigned short,unsigned
                  // short,unsigned int,unsigned char,unsigned char,unsigned
                  // char,unsigned char,unsigned char,const char*);

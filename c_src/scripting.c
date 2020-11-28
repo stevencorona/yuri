@@ -235,7 +235,9 @@ void sl_async_freeco(USER *);
 
 void sl_async_resume(USER *, int);
 
-int bll_spawn(lua_State *state, struct block_list *bl) {
+int bll_spawn(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   // sl_checkargs(state,"nnnn");
   int i = 0;
   int mob = 0;
@@ -314,7 +316,7 @@ int bll_getaliveobjects_helper(struct block_list *bl, va_list ap) {
   }
   if (bl->type == BL_PC) {
     ptr = (USER *)bl;
-    if (ptr && (ptr->optFlags & optFlag_stealth) || ptr->status.state == 1)
+    if (ptr && ((ptr->optFlags & optFlag_stealth) || ptr->status.state == 1))
       return 0;
   }
 
@@ -522,7 +524,7 @@ int sl_sendanimation(USER *sd, ...) {
   return 0;
 }
 
-int bll_selfanimationxy(lua_State *state, struct block_list *bl) {
+int bll_selfanimationxy(lua_State *state, void *self) {
   USER *sd = NULL;
   int anim = lua_tonumber(state, sl_memberarg(2));
   int x = lua_tonumber(state, sl_memberarg(3));
@@ -537,11 +539,13 @@ int bll_selfanimationxy(lua_State *state, struct block_list *bl) {
     sd = map_name2sd(lua_tostring(state, sl_memberarg(1)));
   }
 
-  sl_sendanimationxy(&sd->bl, anim, times, x, y);
+  sl_sendanimationxy(sd, anim, times, x, y);
   return 0;
 }
 
-int bll_selfanimation(lua_State *state, struct block_list *bl) {
+int bll_selfanimation(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   USER *sd = NULL;
   int anim = lua_tonumber(state, sl_memberarg(2));
   int times = lua_tonumber(state, sl_memberarg(3));
@@ -554,7 +558,7 @@ int bll_selfanimation(lua_State *state, struct block_list *bl) {
     sd = map_name2sd(lua_tostring(state, sl_memberarg(1)));
   }
 
-  sl_sendanimation(&sd->bl, anim, bl, times);
+  sl_sendanimation(sd, anim, bl, times);
   return 0;
 }
 
@@ -571,7 +575,7 @@ int bll_sendaction(lua_State *state, void *self) {
 int bll_throw(lua_State *state, void *self) {
   sl_checkargs(state, "nnnnn");
   int x, y, icon, color, action;
-  char buf[255];
+  unsigned char buf[255];
   x = lua_tonumber(state, sl_memberarg(1));
   y = lua_tonumber(state, sl_memberarg(2));
   icon = lua_tonumber(state, sl_memberarg(3));
@@ -1490,7 +1494,7 @@ int checkonline(lua_State *state) {
       if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                        "Select `ChaId` FROM `Character` WHERE "
                                        "`ChaOnline` = '1' AND `ChaName` = '%s'",
-                                       strlwr(name_buffer)) ||
+                                       strlwr(*name_buffer)) ||
           SQL_ERROR == SqlStmt_Execute(stmt)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
@@ -1686,7 +1690,7 @@ BLOCK_SIZE) * map[mm + m].bxs];
 int savemap(lua_State *state) {
   int m = lua_tonumber(state, 1);
   const char *mapFile = lua_tostring(state, 2);
-  unsigned short *val;
+  short val;
   int x, y;
   FILE *fp;
 
@@ -1737,7 +1741,7 @@ int sendMeta(lua_State *state) {
 }
 
 int getSpellLevel(lua_State *state) {
-  const unsigned char *spell = lua_tostring(state, 1);
+  const char *spell = lua_tostring(state, 1);
   int level = magicdb_level(spell);
 
   // printf("Spell: %s\n", spell);
@@ -1989,7 +1993,7 @@ int sl_copyPoemToPoetry(lua_State *state) {
   unsigned int month = d->tm_mon;
 
   unsigned int BrdId = lua_tonumber(state, 1);
-  const unsigned char *BrdChaName = lua_tostring(state, 2);
+  const char *BrdChaName = lua_tostring(state, 2);
 
   unsigned char topic[255] = {0};
   unsigned char post[4000] = {0};
@@ -2062,7 +2066,7 @@ int sl_copyPoemToPoetry(lua_State *state) {
 int sl_getPoems(lua_State *state) {
   unsigned int BrdId = 0;
   unsigned int BrdChaId = 0;
-  unsigned char topic[72] = {0};
+  char topic[72] = {0};
 
   unsigned int i = 0;
   unsigned int x = 0;
@@ -3325,24 +3329,27 @@ int sl_processKanDonations(lua_State *state) {
   return 0;
 }
 
-int sl_guitext(lua_State *state, USER *sd) {
-  sl_checkargs(state, "ns");
-  int type = lua_tonumber(state, 1);
-  int m = lua_tonumber(state, 2);
-  const unsigned char *string = lua_tostring(state, 3);
+// TODO: Investigate if this is used anywhere. Commented it out because it uses
+// sd, but these types of callbacks from lua should not have sd context
+int sl_guitext(lua_State *state) {
+  // sl_checkargs(state, "ns");
+  // int type = lua_tonumber(state, 1);
+  // int m = lua_tonumber(state, 2);
+  // const char *string = lua_tostring(state, 3);
 
-  int i = 0;
-  if (type == -1 &&
-      m == 0) {  // This check is so Server Broadcast (by passing -1 into first
-                 // argument and 0 for mapid) will take priority over a game.
-    for (i = 0; i < 65535; i++) {
-      if (map_isloaded(i)) {
-        map_foreachinarea(clif_guitext, i, 0, 0, SAMEMAP, BL_PC, string, sd);
-      }
-    }
-  } else {
-    map_foreachinarea(clif_guitext, m, 0, 0, SAMEMAP, BL_PC, string, sd);
-  }
+  // int i = 0;
+  // if (type == -1 &&
+  //     m == 0) {  // This check is so Server Broadcast (by passing -1 into
+  //     first
+  //                // argument and 0 for mapid) will take priority over a game.
+  //   for (i = 0; i < 65535; i++) {
+  //     if (map_isloaded(i)) {
+  //       map_foreachinarea(clif_guitext, i, 0, 0, SAMEMAP, BL_PC, string, sd);
+  //     }
+  //   }
+  // } else {
+  //   map_foreachinarea(clif_guitext, m, 0, 0, SAMEMAP, BL_PC, string, sd);
+  // }
 
   return 0;
 }
@@ -3350,7 +3357,7 @@ int sl_guitext(lua_State *state, USER *sd) {
 int sl_setMapRegistry(lua_State *state) {
   sl_checkargs(state, "sn");
   int m = lua_tonumber(state, 1);
-  const unsigned char *attrname = lua_tostring(state, 2);
+  const char *attrname = lua_tostring(state, 2);
   unsigned int value = lua_tonumber(state, 3);
 
   // printf("m: %i, attrname: %s, value: %u\n",m,attrname,value);
@@ -3365,7 +3372,7 @@ int sl_setMapRegistry(lua_State *state) {
 int sl_getMapRegistry(lua_State *state) {
   sl_checkargs(state, "s");
   int m = lua_tonumber(state, 1);
-  const unsigned char *attrname = lua_tostring(state, 2);
+  const char *attrname = lua_tostring(state, 2);
 
   if (!map_isloaded(m)) return 0;
 
@@ -3706,7 +3713,7 @@ void sl_fixmem() { lua_gc(sl_gstate, LUA_GCCOLLECT, 0); }
 
 int sl_async_done(lua_State *state) {
   // free the coroutine
-  USER *sd = typel_topointer(state, 1);
+  USER *sd = (USER *)typel_topointer(state, 1);
   sl_async_freeco(sd);
   return 0;
 }
@@ -3751,7 +3758,7 @@ void sl_async_resume(USER *sd, int nargs) {
 int sl_async(lua_State *state) {
   // first argument should be a player object, second argument should be a
   // function to call
-  USER *sd = typel_topointer(state, 1);
+  USER *sd = (USER *)typel_topointer(state, 1);
   if (!sd) return 0;
 
   if (sd->coref) {  // clif_sendminitext(sd,"You are busy.");
@@ -3944,7 +3951,7 @@ void sl_resume(char *output, USER *sd) {
   sl_async_resume(sd, 1);
 }
 
-int iteml_getattr(lua_State *, struct item_data *, const char *);
+int iteml_getattr(lua_State *, void *, const char *);
 
 int iteml_ctor(lua_State *);
 
@@ -3970,8 +3977,9 @@ int iteml_ctor(lua_State *state) {
   return 1;
 }
 
-int iteml_getattr(lua_State *state, struct item_data *item,
-                  const char *attrname) {
+int iteml_getattr(lua_State *state, void *self, const char *attrname) {
+  struct item_data *item = (struct item_data *)self;
+
   if (!strcmp(attrname, "vita"))
     lua_pushnumber(state, item->vita);
   else if (!strcmp(attrname, "mana"))
@@ -4088,9 +4096,9 @@ int iteml_getattr(lua_State *state, struct item_data *item,
   return 1;
 }
 
-int biteml_getattr(lua_State *, struct item *, const char *);
+int biteml_getattr(lua_State *, void *, const char *);
 
-int biteml_setattr(lua_State *, struct item *, const char *);
+int biteml_setattr(lua_State *, void *, const char *);
 
 void biteml_staticinit() {
   biteml_type = typel_new("BoundItem", 0);
@@ -4098,7 +4106,9 @@ void biteml_staticinit() {
   biteml_type.setattr = biteml_setattr;
 }
 
-int biteml_setattr(lua_State *state, struct item *bitem, const char *attrname) {
+int biteml_setattr(lua_State *state, void *self, const char *attrname) {
+  struct item *bitem = (struct item *)self;
+
   if (!strcmp(attrname, "id"))
     bitem->id = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "amount"))
@@ -4131,7 +4141,8 @@ int biteml_setattr(lua_State *state, struct item *bitem, const char *attrname) {
   return 1;
 }
 
-int biteml_getattr(lua_State *state, struct item *bitem, const char *attrname) {
+int biteml_getattr(lua_State *state, void *self, const char *attrname) {
+  struct item *bitem = (struct item *)self;
   if (!strcmp(attrname, "amount"))
     lua_pushnumber(state, bitem->amount);
   else if (!strcmp(attrname, "dura"))
@@ -4168,9 +4179,9 @@ int biteml_getattr(lua_State *state, struct item *bitem, const char *attrname) {
   return 1;
 }
 
-int bankiteml_getattr(lua_State *, struct bank_data *, const char *);
+int bankiteml_getattr(lua_State *, void *, const char *);
 
-int bankiteml_setattr(lua_State *, struct bank_data *, const char *);
+int bankiteml_setattr(lua_State *, void *, const char *);
 
 void bankiteml_staticinit() {
   bankiteml_type = typel_new("BankItem", 0);
@@ -4178,8 +4189,8 @@ void bankiteml_staticinit() {
   bankiteml_type.setattr = bankiteml_setattr;
 }
 
-int bankiteml_setattr(lua_State *state, struct bank_data *bitem,
-                      const char *attrname) {
+int bankiteml_setattr(lua_State *state, void *self, const char *attrname) {
+  struct bank_data *bitem = (struct bank_data *)self;
   if (!strcmp(attrname, "id"))
     bitem->item_id = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "amount"))
@@ -4206,8 +4217,8 @@ int bankiteml_setattr(lua_State *state, struct bank_data *bitem,
   return 1;
 }
 
-int bankiteml_getattr(lua_State *state, struct bank_data *bitem,
-                      const char *attrname) {
+int bankiteml_getattr(lua_State *state, void *self, const char *attrname) {
+  struct bank_data *bitem = (struct bank_data *)self;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, bitem->item_id);
   else if (!strcmp(attrname, "amount"))
@@ -4240,7 +4251,7 @@ int bankiteml_getattr(lua_State *state, struct bank_data *bitem,
   return 1;
 }
 
-int recipel_getattr(lua_State *, struct recipe_data *, const char *);
+int recipel_getattr(lua_State *, void *, const char *);
 
 int recipel_ctor(lua_State *);
 
@@ -4266,8 +4277,8 @@ int recipel_ctor(lua_State *state) {
   return 1;
 }
 
-int recipel_getattr(lua_State *state, struct recipe_data *recipe,
-                    const char *attrname) {
+int recipel_getattr(lua_State *state, void *self, const char *attrname) {
+  struct recipe_data *recipe = (struct recipe_data *)self;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, recipe->id);
   else if (!strcmp(attrname, "identifier"))
@@ -4313,15 +4324,15 @@ int recipel_getattr(lua_State *state, struct recipe_data *recipe,
   return 1;
 }
 
-int parcell_getattr(lua_State *, struct parcel *, const char *);
+int parcell_getattr(lua_State *, void *, const char *);
 
 void parcell_staticinit() {
   parcell_type = typel_new("Parcel", 0);
   parcell_type.getattr = parcell_getattr;
 }
 
-int parcell_getattr(lua_State *state, struct parcel *parcel,
-                    const char *attrname) {
+int parcell_getattr(lua_State *state, void *self, const char *attrname) {
+  struct parcel *parcel = (struct parcel *)self;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, parcel->data.id);
   else if (!strcmp(attrname, "amount"))
@@ -4352,9 +4363,9 @@ int parcell_getattr(lua_State *state, struct parcel *parcel,
   return 1;
 }
 
-int regl_getattr(lua_State *, USER *, const char *);
+int regl_getattr(lua_State *, void *, const char *);
 
-int regl_setattr(lua_State *, USER *, const char *);
+int regl_setattr(lua_State *, void *, const char *);
 
 // struct global_reg *regl_findreg(USER *, char *);
 void regl_staticinit() {
@@ -4363,19 +4374,23 @@ void regl_staticinit() {
   regl_type.setattr = regl_setattr;
 }
 
-int regl_getattr(lua_State *state, USER *sd, const char *attrname) {
+int regl_getattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
+
   lua_pushnumber(state, pc_readglobalreg(sd, attrname));
   return 1;
 }
 
-int regl_setattr(lua_State *state, USER *sd, const char *attrname) {
+int regl_setattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
+
   pc_setglobalreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
 
-int reglstring_getattr(lua_State *, USER *, const char *);
+int reglstring_getattr(lua_State *, void *, const char *);
 
-int reglstring_setattr(lua_State *, USER *, const char *);
+int reglstring_setattr(lua_State *, void *, const char *);
 
 struct global_regstring *regl_findregstring(USER *, const char *);
 
@@ -4385,19 +4400,21 @@ void reglstring_staticinit() {
   reglstring_type.setattr = reglstring_setattr;
 }
 
-int reglstring_getattr(lua_State *state, USER *sd, const char *attrname) {
+int reglstring_getattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
   lua_pushstring(state, pc_readglobalregstring(sd, attrname));
   return 1;
 }
 
-int reglstring_setattr(lua_State *state, USER *sd, const char *attrname) {
+int reglstring_setattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
   pc_setglobalregstring(sd, attrname, lua_tostring(state, -1));
   return 1;
 }
 
-int npcintregl_getattr(lua_State *, USER *, const char *);
+int npcintregl_getattr(lua_State *, void *, const char *);
 
-int npcintregl_setattr(lua_State *, USER *, const char *);
+int npcintregl_setattr(lua_State *, void *, const char *);
 
 void npcintregl_staticinit() {
   npcintregl_type = typel_new("NpcInt", 0);
@@ -4405,19 +4422,23 @@ void npcintregl_staticinit() {
   npcintregl_type.setattr = npcintregl_setattr;
 }
 
-int npcintregl_getattr(lua_State *state, USER *sd, const char *attrname) {
+int npcintregl_getattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
+
   lua_pushnumber(state, pc_readnpcintreg(sd, attrname));
   return 1;
 }
 
-int npcintregl_setattr(lua_State *state, USER *sd, const char *attrname) {
+int npcintregl_setattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
+
   pc_setnpcintreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
 
-int questregl_getattr(lua_State *, USER *, const char *);
+int questregl_getattr(lua_State *, void *, const char *);
 
-int questregl_setattr(lua_State *, USER *, const char *);
+int questregl_setattr(lua_State *, void *, const char *);
 
 void questregl_staticinit() {
   questregl_type = typel_new("Quest", 0);
@@ -4425,12 +4446,16 @@ void questregl_staticinit() {
   questregl_type.setattr = questregl_setattr;
 }
 
-int questregl_getattr(lua_State *state, USER *sd, const char *attrname) {
+int questregl_getattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
+
   lua_pushnumber(state, pc_readquestreg(sd, attrname));
   return 1;
 }
 
-int questregl_setattr(lua_State *state, USER *sd, const char *attrname) {
+int questregl_setattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
+
   pc_setquestreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
@@ -4558,12 +4583,16 @@ int typel_mtnewindex(lua_State *state) {
   return 0;
 }
 
-int bll_deliddb(lua_State *state, struct block_list *bl) {
+int bll_deliddb(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   map_deliddb(bl);
   return 0;
 }
 
-int bll_playsound(lua_State *state, struct block_list *bl) {
+int bll_playsound(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   sl_checkargs(state, "n");
   int sound = lua_tonumber(state, sl_memberarg(1));
 
@@ -4571,7 +4600,9 @@ int bll_playsound(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_talk(lua_State *state, struct block_list *bl) {
+int bll_talk(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   sl_checkargs(state, "ns");
   int type = lua_tonumber(state, sl_memberarg(1));
   const char *msg = lua_tostring(state, sl_memberarg(2));
@@ -4582,7 +4613,7 @@ int bll_talk(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_talkcolor(lua_State *state, struct block_list *bl) {
+int bll_talkcolor(lua_State *state, void *self) {
   sl_checkargs(state, "ns");
   int color = lua_tonumber(state, sl_memberarg(1));
   const char *msg = lua_tostring(state, sl_memberarg(2));
@@ -4606,14 +4637,18 @@ int bll_talkcolor(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_permspawn(lua_State *state, struct block_list *bl) { return 0; }
+int bll_permspawn(lua_State *state, void *self) { return 0; }
 
-int bll_sendside(lua_State *state, struct block_list *bl) {
+int bll_sendside(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   clif_sendside(bl);
   return 0;
 }
 
-int bll_delete(lua_State *state, struct block_list *bl) {
+int bll_delete(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   nullpo_ret(0, bl);
 
   if (bl->type == BL_PC) {
@@ -4631,7 +4666,7 @@ int bll_delete(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_addnpc(lua_State *state, struct block_list *bl) {
+int bll_addnpc(lua_State *state, void *self) {
   sl_checkargs(state, "snnn");
   struct npc_data *nd = NULL;
   int timer = 0;
@@ -4672,7 +4707,9 @@ int bll_addnpc(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_dropitem(lua_State *state, struct block_list *bl) {
+int bll_dropitem(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   // sl_checkargs(state, "nn");
   unsigned int id;
   unsigned int amount;
@@ -4705,7 +4742,8 @@ int bll_dropitem(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_dropitemxy(lua_State *state, struct block_list *bl) {
+int bll_dropitemxy(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
   // sl_checkargs(state, "nnnnn");
   unsigned int id;
   unsigned int amount;
@@ -4753,14 +4791,17 @@ int bll_handle_mob(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int bll_respawn(lua_State *state, struct block_list *bl) {
+int bll_respawn(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
   int m = bl->m;
 
   map_foreachinarea(bll_handle_mob, m, 1, 1, SAMEMAP, BL_MOB);
   return 0;
 }
 
-int bll_objectcanmove(lua_State *state, struct block_list *bl) {
+int bll_objectcanmove(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   sl_checkargs(state, "nnn");
   int x = lua_tonumber(state, sl_memberarg(1));
   int y = lua_tonumber(state, sl_memberarg(2));
@@ -4775,7 +4816,9 @@ int bll_objectcanmove(lua_State *state, struct block_list *bl) {
   return 1;
 }
 
-int bll_objectcanmovefrom(lua_State *state, struct block_list *bl) {
+int bll_objectcanmovefrom(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   sl_checkargs(state, "nnn");
   int x = lua_tonumber(state, sl_memberarg(1));
   int y = lua_tonumber(state, sl_memberarg(2));
@@ -4790,7 +4833,9 @@ int bll_objectcanmovefrom(lua_State *state, struct block_list *bl) {
   return 1;
 }
 
-int bll_repeatanimation(lua_State *state, struct block_list *bl) {
+int bll_repeatanimation(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   sl_checkargs(state, "nn");
   // int x;
   // MOB* mob=NULL;
@@ -4826,7 +4871,7 @@ int bll_repeatanimation(lua_State *state, struct block_list *bl) {
   return 0;
 }
 
-int bll_sendparcel(lua_State *state, struct block_list *bl) {
+int bll_sendparcel(lua_State *state, void *self) {
   sl_checkargs(state, "nnn");
   int x;
   int pos = -1;
@@ -4919,7 +4964,9 @@ int bll_sendparcel(lua_State *state, struct block_list *bl) {
   return 1;
 }
 
-int bll_updatestate(lua_State *state, struct block_list *bl) {
+int bll_updatestate(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   USER *sd = NULL;
   MOB *mob = NULL;
   NPC *npc = NULL;
@@ -4957,12 +5004,16 @@ int bll_updatestate(lua_State *state, struct block_list *bl) {
   return 1;
 }
 
-int bll_removesprite(lua_State *state, struct block_list *bl) {
+int bll_removesprite(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   clif_lookgone(bl);
   return 1;
 }
 
-int bll_getfriends(lua_State *state, struct block_list *bl) {
+int bll_getfriends(lua_State *state, void *self) {
+  struct block_list *bl = (struct block_list *)self;
+
   int i, id, numFriends;
   USER *sd = (USER *)bl;
   USER *tsd = NULL;
@@ -5237,20 +5288,6 @@ int bll_setattr(lua_State *state, struct block_list *bl, const char *attrname) {
   return 1;
 }
 
-int fll_getattr(lua_State *, FLOORITEM *, const char *);
-
-int fll_setattr(lua_State *, FLOORITEM *, const char *);
-
-int fll_move(lua_State *, FLOORITEM *);
-
-int fll_init(lua_State *, FLOORITEM *, int, void *);
-
-int fll_ctor(lua_State *);
-
-int fll_getTrapSpotters(lua_State *, FLOORITEM *);
-
-int fll_addTrapSpotters(lua_State *, FLOORITEM *);
-
 void fll_staticinit() {
   fll_type = typel_new("FloorItem", fll_ctor);
   fll_type.getattr = fll_getattr;
@@ -5288,7 +5325,7 @@ int fll_ctor(lua_State *state) {
   return 1;
 }
 
-int fll_init(lua_State *state, FLOORITEM *fl, int dataref, void *param) {
+int fll_init(lua_State *state, void *self, int dataref, void *param) {
   sl_pushref(state, dataref);
 
   // biteml_pushinst(state,&fl->data);
@@ -5298,7 +5335,8 @@ int fll_init(lua_State *state, FLOORITEM *fl, int dataref, void *param) {
   return 0;
 }
 
-int fll_getattr(lua_State *state, FLOORITEM *fl, const char *attrname) {
+int fll_getattr(lua_State *state, void *self, const char *attrname) {
+  FLOORITEM *fl = (FLOORITEM *)self;
   if (bll_getattr(state, &fl->bl, attrname)) return 1;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, fl->data.id);
@@ -5343,7 +5381,9 @@ int fll_getattr(lua_State *state, FLOORITEM *fl, const char *attrname) {
   return 1;
 }
 
-int fll_setattr(lua_State *state, FLOORITEM *fl, const char *attrname) {
+int fll_setattr(lua_State *state, void *self, const char *attrname) {
+  FLOORITEM *fl = (FLOORITEM *)self;
+
   if (bll_setattr(state, &fl->bl, attrname)) return 1;
   if (!strcmp(attrname, "amount"))
     fl->data.amount = lua_tonumber(state, -1);
@@ -5386,7 +5426,9 @@ int fll_setattr(lua_State *state, FLOORITEM *fl, const char *attrname) {
   return 1;
 }
 
-int fll_addTrapSpotters(lua_State *state, FLOORITEM *fl) {
+int fll_addTrapSpotters(lua_State *state, void *self) {
+  FLOORITEM *fl = (FLOORITEM *)self;
+
   unsigned int playerid = lua_tonumber(state, sl_memberarg(1));
 
   for (int i = 0; i < 100; i++) {
@@ -5399,7 +5441,9 @@ int fll_addTrapSpotters(lua_State *state, FLOORITEM *fl) {
   return 1;
 }
 
-int fll_getTrapSpotters(lua_State *state, FLOORITEM *fl) {
+int fll_getTrapSpotters(lua_State *state, void *self) {
+  FLOORITEM *fl = (FLOORITEM *)self;
+
   lua_newtable(state);
 
   for (int i = 0; i < 100; i++) {
@@ -5417,24 +5461,6 @@ int fll_getTrapSpotters(lua_State *state, FLOORITEM *fl) {
 
   return 1;
 }
-
-int npcl_ctor(lua_State *);
-
-int npcl_init(lua_State *, NPC *, int, void *);
-
-int npcl_getattr(lua_State *, NPC *, const char *);
-
-int npcl_setattr(lua_State *, NPC *, const char *);
-
-int npcregl_getattr(lua_State *, NPC *, const char *);
-
-int npcregl_setattr(lua_State *, NPC *, const char *);
-
-int npcl_move(lua_State *, NPC *);
-
-int npcl_warp(lua_State *, NPC *);
-
-int npcl_getequippeditem(lua_State *, NPC *);
 
 void npcl_staticinit() {
   npcl_type = typel_new("NPC", npcl_ctor);
@@ -5478,7 +5504,9 @@ int npcl_ctor(lua_State *state) {
   return 1;
 }
 
-int npcl_init(lua_State *state, NPC *nd, int dataref, void *param) {
+int npcl_init(lua_State *state, void *self, int dataref, void *param) {
+  NPC *nd = (NPC *)self;
+
   sl_pushref(state, dataref);
 
   npcregl_pushinst(state, nd);
@@ -5494,7 +5522,8 @@ int npcl_init(lua_State *state, NPC *nd, int dataref, void *param) {
   return 0;
 }
 
-int npcl_getattr(lua_State *state, NPC *nd, const char *attrname) {
+int npcl_getattr(lua_State *state, void *self, const char *attrname) {
+  NPC *nd = (NPC *)self;
   if (bll_getattr(state, &nd->bl, attrname)) return 1;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, nd->id);
@@ -5615,7 +5644,9 @@ int npcl_getattr(lua_State *state, NPC *nd, const char *attrname) {
   return 1;
 }
 
-int npcl_setattr(lua_State *state, NPC *nd, const char *attrname) {
+int npcl_setattr(lua_State *state, void *self, const char *attrname) {
+  NPC *nd = (NPC *)self;
+
   if (bll_setattr(state, &nd->bl, attrname)) return 1;
   if (!strcmp(attrname, "side"))
     nd->side = lua_tonumber(state, -1);
@@ -5722,22 +5753,30 @@ int npcl_setattr(lua_State *state, NPC *nd, const char *attrname) {
   return 1;
 }
 
-int npcregl_getattr(lua_State *state, NPC *nd, const char *attrname) {
+int npcregl_getattr(lua_State *state, void *self, const char *attrname) {
+  NPC *nd = (NPC *)self;
+
   lua_pushnumber(state, npc_readglobalreg(nd, attrname));
   return 1;
 }
 
-int npcregl_setattr(lua_State *state, NPC *nd, const char *attrname) {
+int npcregl_setattr(lua_State *state, void *self, const char *attrname) {
+  NPC *nd = (NPC *)self;
+
   npc_setglobalreg(nd, attrname, lua_tonumber(state, -1));
   return 0;
 }
 
-int npcl_move(lua_State *state, NPC *nd) {
+int npcl_move(lua_State *state, void *self) {
+  NPC *nd = (NPC *)self;
+
   lua_pushnumber(state, npc_move(nd));
   return 1;
 }
 
-int npcl_warp(lua_State *state, NPC *nd) {
+int npcl_warp(lua_State *state, void *self) {
+  NPC *nd = (NPC *)self;
+
   sl_checkargs(state, "nnn");
   unsigned short m, x, y;
 
@@ -5749,7 +5788,9 @@ int npcl_warp(lua_State *state, NPC *nd) {
   return 0;
 }
 
-int npcl_getequippeditem(lua_State *state, NPC *nd) {
+int npcl_getequippeditem(lua_State *state, void *self) {
+  NPC *nd = (NPC *)self;
+
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   lua_newtable(state);
@@ -5765,73 +5806,6 @@ int npcl_getequippeditem(lua_State *state, NPC *nd) {
 
   return 1;
 }
-
-int mobl_attack(lua_State *, MOB *);
-
-int mobl_addhealth(lua_State *, MOB *);
-
-int mobl_getattr(lua_State *, MOB *, const char *);
-
-int mobl_setattr(lua_State *, MOB *, const char *);
-
-int mobl_move(lua_State *, MOB *);
-
-int mobl_move_ignore_object(lua_State *, MOB *);
-
-int mobl_init(lua_State *, MOB *, int, void *);
-
-int mobl_ctor(lua_State *);
-
-int mobl_setduration(lua_State *, MOB *);
-
-int mobl_moveintent(lua_State *, MOB *);
-
-int mobl_hasduration(lua_State *, MOB *);
-
-int mobl_hasdurationid(lua_State *, MOB *);  // hasduration with id check
-int mobl_getduration(lua_State *, MOB *);
-
-int mobl_getdurationid(lua_State *, MOB *);
-
-int mobl_removehealth(lua_State *, MOB *);
-
-int mobl_flushduration(lua_State *, MOB *);
-
-int mobl_flushdurationnouncast(lua_State *, MOB *);
-
-int mobl_durationamount(lua_State *, MOB *);
-
-int mobl_checkthreat(lua_State *, MOB *);
-
-int mobl_sendhealth(lua_State *, MOB *);
-
-int mobl_warp(lua_State *, MOB *);
-
-int mobl_moveghost(lua_State *, MOB *);
-
-int mobl_callbase(lua_State *, MOB *);
-
-int mobl_checkmove(lua_State *, MOB *);
-
-int mobl_setinddmg(lua_State *, MOB *);
-
-int mobl_setgrpdmg(lua_State *, MOB *);
-
-int mobl_getinddmg(lua_State *, MOB *);
-
-int mobl_getgrpdmg(lua_State *, MOB *);
-
-int mobl_getequippeditem(lua_State *, MOB *);
-
-int mobl_calcstat(lua_State *, MOB *);
-
-int mobl_sendstatus(lua_State *, MOB *);
-
-int mobl_sendminitext(lua_State *, MOB *);
-
-int mobregl_getattr(lua_State *, MOB *, const char *);
-
-int mobregl_setattr(lua_State *, MOB *, const char *);
 
 void mobl_staticinit() {
   mobl_type = typel_new("Mob", mobl_ctor);
@@ -5880,7 +5854,8 @@ void mobregl_staticinit() {
   mobregl_type.setattr = mobregl_setattr;
 }
 
-int mobl_durationamount(lua_State *state, MOB *mob) {
+int mobl_durationamount(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int x, id;
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
@@ -5935,7 +5910,8 @@ return 1;*/
   return 1;
 }
 
-int mobl_removehealth(lua_State *state, MOB *mob) {
+int mobl_removehealth(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
   int caster = lua_tonumber(state, sl_memberarg(2));
@@ -5971,14 +5947,16 @@ int mobl_removehealth(lua_State *state, MOB *mob) {
   return 0;
 }
 
-int mobl_moveintent(lua_State *state, MOB *mob) {
+int mobl_moveintent(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   struct block_list *bl = map_id2bl(lua_tonumber(state, sl_memberarg(1)));
   nullpo_ret(0, bl);
   lua_pushnumber(state, move_mob_intent(mob, bl));
   return 1;
 }
 
-int mobl_setduration(lua_State *state, MOB *mob) {
+int mobl_setduration(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "sn");
   struct block_list *bl = NULL;
   int id, time, x, caster_id, recast, alreadycast, mid;
@@ -6048,12 +6026,13 @@ int mobl_setduration(lua_State *state, MOB *mob) {
   return 0;
 }
 
-/*int mobl_flushduration(lua_State *state, MOB *mob) {
-        mob_flushmagic(mob);
+/*int mobl_flushduration(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;        mob_flushmagic(mob);
         return 0;
 }*/
 
-int mobl_flushduration(lua_State *state, MOB *mob) {
+int mobl_flushduration(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   struct block_list *bl = NULL;
   int x;
   int id;
@@ -6107,7 +6086,8 @@ int mobl_flushduration(lua_State *state, MOB *mob) {
   return 0;
 }
 
-int mobl_flushdurationnouncast(lua_State *state, MOB *mob) {
+int mobl_flushdurationnouncast(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   int x;
   int id;
   int dis = lua_tonumber(state, sl_memberarg(1));
@@ -6148,7 +6128,8 @@ int mobl_flushdurationnouncast(lua_State *state, MOB *mob) {
   return 0;
 }
 
-int mobl_hasduration(lua_State *state, MOB *mob) {
+int mobl_hasduration(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "s");
   int x, id;
 
@@ -6166,7 +6147,8 @@ int mobl_hasduration(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_hasdurationid(lua_State *state, MOB *mob) {
+int mobl_hasdurationid(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "sn");
   int x, id, caster_id;
 
@@ -6190,7 +6172,8 @@ int mobl_hasdurationid(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_getduration(lua_State *state, MOB *mob) {
+int mobl_getduration(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "s");
   int i, id;
 
@@ -6209,7 +6192,8 @@ int mobl_getduration(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_getdurationid(lua_State *state, MOB *mob) {
+int mobl_getdurationid(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "sn");
   int i, id, caster_id;
 
@@ -6230,7 +6214,8 @@ int mobl_getdurationid(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_sendhealth(lua_State *state, MOB *mob) {
+int mobl_sendhealth(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "nn");
   int damage;
   float dmg = lua_tonumber(state, sl_memberarg(1));
@@ -6254,7 +6239,9 @@ int mobl_sendhealth(lua_State *state, MOB *mob) {
   return 0;
 }
 
-int mobl_init(lua_State *state, MOB *mob, int dataref, void *param) {
+int mobl_init(lua_State *state, void *self, int dataref, void *param) {
+  MOB *mob = (MOB *)self;
+
   sl_pushref(state, dataref);
 
   mobregl_pushinst(state, mob);
@@ -6278,7 +6265,9 @@ int mobl_init(lua_State *state, MOB *mob, int dataref, void *param) {
   return 0;
 }
 
-int mobl_getattr(lua_State *state, MOB *mob, const char *attrname) {
+int mobl_getattr(lua_State *state, void *self, const char *attrname) {
+  MOB *mob = (MOB *)self;
+
   if (bll_getattr(state, &mob->bl, attrname)) return 1;
   if (!strcmp(attrname, "state"))
     lua_pushnumber(state, mob->state);
@@ -6513,7 +6502,9 @@ int mobl_getattr(lua_State *state, MOB *mob, const char *attrname) {
   return 1;
 }
 
-int mobl_setattr(lua_State *state, MOB *mob, const char *attrname) {
+int mobl_setattr(lua_State *state, void *self, const char *attrname) {
+  MOB *mob = (MOB *)self;
+
   if (bll_setattr(state, &mob->bl, attrname)) return 1;
   if (!strcmp(attrname, "side"))
     mob->side = lua_tonumber(state, -1);
@@ -6682,14 +6673,16 @@ int mobl_setattr(lua_State *state, MOB *mob, const char *attrname) {
   return 1;
 }
 
-int mobl_attack(lua_State *state, MOB *mob) {
+int mobl_attack(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
   mob_attack(mob, id);
   return 0;
 }
 
-int mobl_addhealth(lua_State *state, MOB *mob) {
+int mobl_addhealth(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
   struct block_list *bl = map_id2bl(mob->attacker);
@@ -6732,18 +6725,21 @@ int mobl_addhealth(lua_State *state, MOB *mob) {
   return 0;
 }
 
-int mobl_move(lua_State *state, MOB *mob) {
+int mobl_move(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   lua_pushboolean(state, move_mob(mob));
   return 1;
 }
 
-int mobl_move_ignore_object(lua_State *state, MOB *mob) {
+int mobl_move_ignore_object(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   lua_pushboolean(state, move_mob_ignore_object(mob));
   return 1;
 }
 
 // check threat
-int mobl_checkthreat(lua_State *state, MOB *mob) {
+int mobl_checkthreat(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   unsigned int id;
   int x;
@@ -6769,7 +6765,8 @@ int mobl_checkthreat(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_warp(lua_State *state, MOB *mob) {
+int mobl_warp(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "nnn");
   unsigned short m, x, y;
 
@@ -6781,12 +6778,14 @@ int mobl_warp(lua_State *state, MOB *mob) {
   return 0;
 }
 
-int mobl_moveghost(lua_State *state, MOB *mob) {
+int mobl_moveghost(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   lua_pushnumber(state, moveghost_mob(mob));
   return 1;
 }
 
-int mobl_callbase(lua_State *state, MOB *mob) {
+int mobl_callbase(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "s");
   const char *script = lua_tostring(state, sl_memberarg(1));
   struct block_list *bl = map_id2bl(mob->attacker);
@@ -6805,7 +6804,8 @@ int mobl_callbase(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_checkmove(lua_State *state, MOB *mob) {
+int mobl_checkmove(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   char direction;
   short backx;
   short backy;
@@ -6871,7 +6871,8 @@ int mobl_checkmove(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_getgrpdmg(lua_State *state, MOB *mob) {
+int mobl_getgrpdmg(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   int x, y;
   lua_newtable(state);
 
@@ -6887,7 +6888,8 @@ int mobl_getgrpdmg(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_getinddmg(lua_State *state, MOB *mob) {
+int mobl_getinddmg(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   int x, y;
   lua_newtable(state);
 
@@ -6903,7 +6905,8 @@ int mobl_getinddmg(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_setgrpdmg(lua_State *state, MOB *mob) {
+int mobl_setgrpdmg(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   int x;
   USER *sd = map_id2sd(lua_tonumber(state, sl_memberarg(1)));
   float dmg = lua_tonumber(state, sl_memberarg(2));
@@ -6926,7 +6929,8 @@ int mobl_setgrpdmg(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_setinddmg(lua_State *state, MOB *mob) {
+int mobl_setinddmg(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   int x;
   USER *sd = map_id2sd(lua_tonumber(state, sl_memberarg(1)));
   float dmg = lua_tonumber(state, sl_memberarg(2));
@@ -6950,7 +6954,8 @@ int mobl_setinddmg(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_getequippeditem(lua_State *state, MOB *mob) {
+int mobl_getequippeditem(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   lua_newtable(state);
@@ -6967,349 +6972,28 @@ int mobl_getequippeditem(lua_State *state, MOB *mob) {
   return 1;
 }
 
-int mobl_calcstat(lua_State *state, MOB *mob) {
+int mobl_calcstat(lua_State *state, void *self) {
+  MOB *mob = (MOB *)self;
   mob_calcstat(mob);
   return 0;
 }
 
-int mobl_sendstatus(lua_State *state, MOB *mob) { return 0; }
+int mobl_sendstatus(lua_State *state, void *self) { return 0; }
 
-int mobl_sendminitext(lua_State *state, MOB *mob) { return 0; }
+int mobl_sendminitext(lua_State *state, void *self) { return 0; }
 
-int mobregl_getattr(lua_State *state, MOB *mob, const char *attrname) {
+int mobregl_getattr(lua_State *state, void *self, const char *attrname) {
+  MOB *mob = (MOB *)self;
+
   lua_pushnumber(state, mob_readglobalreg(mob, attrname));
   return 0;
 }
 
-int mobregl_setattr(lua_State *state, MOB *mob, const char *attrname) {
+int mobregl_setattr(lua_State *state, void *self, const char *attrname) {
+  MOB *mob = (MOB *)self;
   mob_setglobalreg(mob, attrname, lua_tonumber(state, -1));
   return 0;
 }
-
-int pcl_addhealth(lua_State *, USER *);
-
-int pcl_removehealth(lua_State *, USER *);
-
-int pcl_resurrect(lua_State *, USER *);
-
-int pcl_warp(lua_State *, USER *);
-
-int pcl_forcedrop(lua_State *, USER *);
-
-int pcl_useitem(lua_State *, USER *);
-
-int pcl_level(lua_State *, USER *);
-
-int pcl_sendminitext(lua_State *, USER *);
-
-int pcl_setduration(lua_State *, USER *);
-
-int pcl_dialog(lua_State *, USER *);
-
-int pcl_getattr(lua_State *, USER *, const char *);
-
-int pcl_setattr(lua_State *, USER *, const char *);
-
-int pcl_setaether(lua_State *, USER *);
-
-int pcl_hasaether(lua_State *, USER *);
-
-int pcl_getaether(lua_State *, USER *);
-
-int pcl_getallaethers(lua_State *, USER *);
-
-int pcl_forcesave(lua_State *, USER *);
-
-int pcl_refreshdurations(lua_State *, USER *);
-
-int pcl_hasduration(lua_State *, USER *);
-
-int pcl_hasdurationid(lua_State *, USER *);
-
-int pcl_getduration(lua_State *, USER *);
-
-int pcl_getdurationid(lua_State *, USER *);
-
-int pcl_getalldurations(lua_State *, USER *);
-
-int pcl_addlegend(lua_State *, USER *);
-
-int pcl_haslegend(lua_State *, USER *);
-
-int pcl_getlegend(lua_State *, USER *);
-
-int pcl_buy(lua_State *, USER *);
-
-int pcl_input(lua_State *, USER *);
-
-int pcl_sell(lua_State *, USER *);
-
-int pcl_sendstatus(lua_State *, USER *);
-
-int pcl_sendhealthscript(lua_State *, USER *);
-
-int pcl_calcstat(lua_State *, USER *);
-
-int pcl_getinventoryitem(lua_State *, USER *);
-
-int pcl_getexchangeitem(lua_State *, USER *);
-
-int pcl_getboditem(lua_State *, USER *);
-
-int pcl_getequippeditem(lua_State *, USER *);
-
-int pcl_removelegendbyname(lua_State *, USER *);
-
-int pcl_removelegendbycolor(lua_State *, USER *);
-
-int pcl_menu(lua_State *, USER *);
-
-int pcl_showhealth(lua_State *, USER *);
-
-int pcl_addclan(lua_State *, USER *);
-
-int pcl_ctor(lua_State *);
-
-int pcl_talkself(lua_State *, USER *);
-
-int pcl_hasequipped(lua_State *, USER *);
-
-int pcl_killcount(lua_State *, USER *);
-
-int pcl_setkillcount(lua_State *, USER *);
-
-int pcl_flushkills(lua_State *, USER *);
-
-int pcl_flushallkills(lua_State *, USER *);
-
-int pcl_removeinventoryitem(lua_State *, USER *);
-
-int pcl_removeitemslot(lua_State *, USER *);
-
-int pcl_removeitemdura(lua_State *, USER *);
-
-int pcl_addGift(lua_State *, USER *);
-
-int pcl_retrieveGift(lua_State *, USER *);
-
-int pcl_additem(lua_State *, USER *);
-
-int pcl_init(lua_State *, USER *, int, void *);
-
-int pcl_showboard(lua_State *, USER *);
-
-int pcl_showpost(lua_State *, USER *);
-
-int pcl_hasitem(lua_State *, USER *);
-
-int pcl_hasitemdura(lua_State *, USER *);
-
-int pcl_addspell(lua_State *, USER *);
-
-int pcl_removespell(lua_State *, USER *);
-
-int pcl_mapselection(lua_State *, USER *);
-
-int pcl_hasspell(lua_State *, USER *);
-
-int pcl_getspells(lua_State *, USER *);              // for remove spells
-int pcl_getspellname(lua_State *, USER *);           // for remove spells
-int pcl_getspellyname(lua_State *, USER *);          // for remove spells
-int pcl_getspellnamefromyname(lua_State *, USER *);  // for remove spells
-int pcl_getspellsubspec(lua_State *, USER *);        // for remove spells
-int pcl_addEventXP(lua_State *,
-                   USER *);  // add XP to player for specific event #
-int pcl_flushduration(lua_State *, USER *);
-
-int pcl_flushdurationnouncast(lua_State *, USER *);
-
-// int pcl_flushdurationrange(lua_State *, USER *);
-int pcl_flushaether(lua_State *, USER *);
-
-int pcl_hasspace(lua_State *, USER *);
-
-int pcl_deductarmor(lua_State *, USER *);
-
-int pcl_deductweapon(lua_State *, USER *);
-
-int pcl_updateinv(lua_State *, USER *);
-
-int pcl_durationamount(lua_State *, USER *);
-
-int pcl_addguide(lua_State *, USER *);
-
-int pcl_delguide(lua_State *, USER *);
-
-int pcl_popup(lua_State *, USER *);
-
-int pcl_paperpopup(lua_State *, USER *);
-
-// int pcl_paperpopupwrite(lua_State*,USER*, struct item *bitem);
-int pcl_paperpopupwrite(lua_State *, USER *);
-
-int pcl_menuseq(lua_State *, USER *);
-
-int pcl_inputseq(lua_State *, USER *);
-
-int pcl_sendboardquestions(lua_State *, USER *);
-
-int pcl_powerboard(lua_State *, USER *);
-
-int pcl_lock(lua_State *, USER *);
-
-int pcl_unlock(lua_State *, USER *);
-
-int pcl_swing(lua_State *, USER *);
-
-int pcl_swingtarget(lua_State *, USER *);
-
-// int pcl_givexp(lua_State*, USER*);
-// int pcl_givexpgroup(lua_State *, USER *);
-int pcl_addthreat(lua_State *, USER *);         // threat table
-int pcl_setthreat(lua_State *, USER *);         // threat table
-int pcl_addthreatgeneral(lua_State *, USER *);  // threat table
-
-int pcl_getbankitem(lua_State *, USER *);
-
-int pcl_getbankitems(lua_State *, USER *);
-
-int pcl_bankdeposit(lua_State *, USER *);
-
-int pcl_bankwithdraw(lua_State *, USER *);
-
-int pcl_getclanbankitems(lua_State *, USER *);
-
-int pcl_clanbankdeposit(lua_State *, USER *);
-
-int pcl_clanbankwithdraw(lua_State *, USER *);
-
-int pcl_getsubpathbankitems(lua_State *, USER *);
-
-int pcl_subpathbankdeposit(lua_State *, USER *);
-
-int pcl_subpathbankwithdraw(lua_State *, USER *);
-
-int pcl_speak(lua_State *, USER *);
-
-int pcl_freeasync(lua_State *, USER *);
-
-int pcl_sendhealth(lua_State *, USER *);
-
-int pcl_sendmail(lua_State *, USER *);
-
-int pcl_sendurl(lua_State *, USER *);
-
-int pcl_pickup(lua_State *, USER *);
-
-int pcl_equip(lua_State *, USER *);
-
-int pcl_forceequip(lua_State *, USER *);
-
-int pcl_takeoff(lua_State *, USER *);
-
-int pcl_stripequip(lua_State *, USER *);
-
-int pcl_die(lua_State *, USER *);
-
-int pcl_throwitem(lua_State *, USER *);
-
-int pcl_minirefresh(lua_State *, USER *);
-
-int pcl_refresh(lua_State *, USER *);
-
-int pcl_refreshInventory(lua_State *, USER *);
-
-int pcl_move(lua_State *, USER *);
-
-int pcl_respawn(lua_State *, USER *);
-
-int pcl_deductdura(lua_State *, USER *);
-
-int pcl_deductdurainv(lua_State *, USER *);
-
-int pcl_deductduraequip(lua_State *, USER *);
-
-int pcl_checkinvbod(lua_State *, USER *);
-
-int pcl_setpk(lua_State *, USER *);
-
-int pcl_getpk(lua_State *, USER *);
-
-int pcl_guitext(lua_State *, USER *);
-
-int pcl_getcreationitems(lua_State *, USER *);
-
-int pcl_getcreationamounts(lua_State *, USER *);
-
-int pcl_getparcel(lua_State *, USER *);
-
-int pcl_getparcellist(lua_State *, USER *);
-
-int pcl_removeparcel(lua_State *, USER *);
-
-int pcl_expireitem(lua_State *, USER *);
-
-int pcl_logbuysell(lua_State *, USER *);
-
-int pcl_settimevalues(lua_State *, USER *);
-
-int pcl_gettimevalues(lua_State *, USER *);
-
-int pcl_setHeroShow(lua_State *, USER *);
-
-int pcl_setAccountBan(lua_State *, USER *);
-
-int pcl_setCaptchaKey(lua_State *, USER *);
-
-int pcl_getCaptchaKey(lua_State *, USER *);
-
-int pcl_sendminimap(lua_State *, USER *);
-
-int pcl_addKan(lua_State *, USER *);
-
-int pcl_removeKan(lua_State *, USER *);
-
-int pcl_setKan(lua_State *, USER *);
-
-int pcl_checkKan(lua_State *, USER *);
-
-int pcl_claimKan(lua_State *, USER *);
-
-int pcl_updatePath(lua_State *, USER *);
-
-int pcl_updateCountry(lua_State *, USER *);
-
-int pcl_updateMail(lua_State *, USER *);
-
-int pcl_kanBalance(lua_State *, USER *);
-
-int pcl_lookat(lua_State *, USER *);
-
-int pcl_getunknownspells(lua_State *, USER *);
-
-int pcl_getallclassspells(lua_State *, USER *);
-
-int pcl_getallspells(lua_State *, USER *);
-
-int pcl_status(lua_State *, USER *);
-
-int pcl_testpacket(lua_State *, USER *);
-
-int pcl_getcasterid(lua_State *, USER *);
-
-int pcl_changeview(lua_State *, USER *);
-
-int pcl_settimer(lua_State *, USER *);
-
-int pcl_addtime(lua_State *, USER *);
-
-int pcl_removetime(lua_State *, USER *);
-
-int pcl_checklevel(lua_State *, USER *);  // added for testing 11-26-16
-
-// int pcl_addActivationKey(lua_State*,USER*); // adds activation key to account
-// to facilitate registration int pcl_checkActivationKey(lua_State*,USER*);
-int pcl_setMiniMapToggle(lua_State *, USER *);  // miniMapToggle 1 or 0
 
 void pcl_staticinit() {
   pcl_type = typel_new("Player", pcl_ctor);
@@ -7491,12 +7175,14 @@ void pcl_staticinit() {
   bll_extendproto(&pcl_type);
 }
 
-int pcl_swing(lua_State *state, USER *sd) {
+int pcl_swing(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_parseattack(sd);
   return 0;
 }
 
-int pcl_swingtarget(lua_State *state, USER *sd) {
+int pcl_swingtarget(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   struct block_list *bl =
       ((struct block_list *)typel_topointer(state, sl_memberarg(1)));
 
@@ -7507,25 +7193,28 @@ int pcl_swingtarget(lua_State *state, USER *sd) {
   }
 
   if (bl->type == BL_MOB) {
-    clif_mob_damage(sd, typel_topointer(state, sl_memberarg(1)));
+    clif_mob_damage(sd, (MOB *)typel_topointer(state, sl_memberarg(1)));
   } else if (bl->type == BL_PC) {
-    clif_pc_damage(sd, typel_topointer(state, sl_memberarg(1)));
+    clif_pc_damage(sd, (USER *)typel_topointer(state, sl_memberarg(1)));
   }
 
   return 0;
 }
 
-int pcl_lock(lua_State *state, USER *sd) {
+int pcl_lock(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_blockmovement(sd, 0);
   return 0;
 }
 
-int pcl_unlock(lua_State *state, USER *sd) {
+int pcl_unlock(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_blockmovement(sd, 1);
   return 0;
 }
 
-int pcl_menu(lua_State *state, USER *sd) {
+int pcl_menu(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "st");
   int previous = 0, next = 0;
   int size = lua_objlen(state, sl_memberarg(2));
@@ -7558,7 +7247,8 @@ int pcl_menu(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_menuseq(lua_State *state, USER *sd) {
+int pcl_menuseq(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "stt");
   int previous = 0, next = 0;
   int size = lua_objlen(state, sl_memberarg(2));
@@ -7592,7 +7282,8 @@ int pcl_menuseq(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_inputseq(lua_State *state, USER *sd) {
+int pcl_inputseq(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "ssstt");
 
   int previous = 0, next = 0;
@@ -7631,19 +7322,20 @@ int pcl_inputseq(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_sendboardquestions(lua_State *state, USER *sd) {
+int pcl_sendboardquestions(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "ttt");
 
   unsigned int amount = lua_objlen(state, sl_memberarg(1));
 
   struct board_questionaire questions[amount + 1];
-  memset(&questions, 0, sizeof(questions));
+  memset(questions, 0, sizeof(questions));
 
   lua_pushnil(state);
   while (lua_next(state, sl_memberarg(1)) != 0) {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
-    strcpy(&questions[index - 1].header, lua_tostring(state, -1));
+    strcpy(questions[index - 1].header, lua_tostring(state, -1));
     lua_pop(state, 1);
   }
 
@@ -7651,7 +7343,7 @@ int pcl_sendboardquestions(lua_State *state, USER *sd) {
   while (lua_next(state, sl_memberarg(2)) != 0) {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
-    strcpy(&questions[index - 1].question, lua_tostring(state, -1));
+    strcpy(questions[index - 1].question, lua_tostring(state, -1));
     lua_pop(state, 1);
   }
 
@@ -7663,7 +7355,7 @@ int pcl_sendboardquestions(lua_State *state, USER *sd) {
     lua_pop(state, 1);
   }
 
-  clif_sendBoardQuestionaire(sd, &questions, amount);
+  clif_sendBoardQuestionaire(sd, questions, amount);
 
   return lua_yield(state, 0);
 
@@ -7695,21 +7387,23 @@ int pcl_sendboardquestions(lua_State *state, USER *sd) {
       return lua_yield(state,0);*/
 }
 
-int pcl_popup(lua_State *state, USER *sd) {
+int pcl_popup(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
 
   clif_popup(sd, lua_tostring(state, sl_memberarg(1)));
   return 0;
 }
 
-int pcl_paperpopup(lua_State *state, USER *sd) {
+int pcl_paperpopup(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   if (!sd) return 0;
 
   sl_checkargs(state, "nns");
 
   int width = lua_tonumber(state, sl_memberarg(1));
   int height = lua_tonumber(state, sl_memberarg(2));
-  const unsigned char *string = lua_tostring(state, sl_memberarg(3));
+  const char *string = lua_tostring(state, sl_memberarg(3));
 
   clif_paperpopup(sd, string, width, height);
 
@@ -7717,7 +7411,8 @@ int pcl_paperpopup(lua_State *state, USER *sd) {
 }
 
 // int pcl_paperpopupwrite(lua_State *state, USER *sd, struct item *bitem) {
-int pcl_paperpopupwrite(lua_State *state, USER *sd) {
+int pcl_paperpopupwrite(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   if (!sd) return 0;
 
   sl_checkargs(state, "nns");
@@ -7726,14 +7421,15 @@ int pcl_paperpopupwrite(lua_State *state, USER *sd) {
 
   int width = lua_tonumber(state, sl_memberarg(1));
   int height = lua_tonumber(state, sl_memberarg(2));
-  const unsigned char *string = lua_tostring(state, sl_memberarg(3));
+  const char *string = lua_tostring(state, sl_memberarg(3));
 
   clif_paperpopupwrite(sd, string, width, height, sd->invslot);
 
   return 0;
 }
 
-/*int pcl_addguide(lua_State *state, USER *sd) {
+/*int pcl_addguide(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
         sl_checkargs(state, "s");
         int id=guidedb_id(lua_tostring(state,sl_memberarg(1)));
         int x;
@@ -7749,7 +7445,8 @@ int pcl_paperpopupwrite(lua_State *state, USER *sd) {
         return 0;
 }*/
 
-/*int pcl_delguide(lua_State *state, USER *sd) {
+/*int pcl_delguide(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
         sl_checkargs(state, "s");
         int id=guidedb_id(lua_tostring(state,sl_memberarg(1)));
         int x;
@@ -7762,7 +7459,8 @@ int pcl_paperpopupwrite(lua_State *state, USER *sd) {
         return 0;
 }*/
 
-int pcl_durationamount(lua_State *state, USER *sd) {
+int pcl_durationamount(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int x, id;
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
@@ -7779,24 +7477,28 @@ int pcl_durationamount(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_updateinv(lua_State *state, USER *sd) {
+int pcl_updateinv(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_loaditem(sd);
   return 0;
 }
 
-int pcl_deductarmor(lua_State *state, USER *sd) {
+int pcl_deductarmor(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   clif_deductarmor(sd, lua_tonumber(state, sl_memberarg(1)));
   return 0;
 }
 
-int pcl_deductweapon(lua_State *state, USER *sd) {
+int pcl_deductweapon(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   clif_deductweapon(sd, lua_tonumber(state, sl_memberarg(1)));
   return 0;
 }
 
-int pcl_flushduration(lua_State *state, USER *sd) {
+int pcl_flushduration(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   struct block_list *bl = NULL;
   int x;
   int id;
@@ -7856,7 +7558,8 @@ int pcl_flushduration(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_flushdurationnouncast(lua_State *state, USER *sd) {
+int pcl_flushdurationnouncast(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int x;
   int id;
   int dis = lua_tonumber(state, sl_memberarg(1));
@@ -7908,7 +7611,8 @@ int pcl_flushdurationnouncast(lua_State *state, USER *sd) {
   return 0;
 }
 
-/*int pcl_flushduration(lua_State *state, USER *sd) {
+/*int pcl_flushduration(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
         struct block_list *bl = NULL;
         int x;
         int id;
@@ -7944,7 +7648,8 @@ map_id2bl(sd->status.dura_aether[x].caster_id);
         return 0;
 }*/
 
-int pcl_flushaether(lua_State *state, USER *sd) {
+int pcl_flushaether(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int x;
   int id;
   int dis = lua_tonumber(state, sl_memberarg(1));
@@ -7985,7 +7690,8 @@ int pcl_flushaether(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_killcount(lua_State *state, USER *sd) {
+int pcl_killcount(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int x;
   int id;
 
@@ -8007,7 +7713,8 @@ int pcl_killcount(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_setkillcount(lua_State *state, USER *sd) {
+int pcl_setkillcount(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int id;
   int amount = 0;
 
@@ -8041,7 +7748,8 @@ int pcl_setkillcount(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_flushallkills(lua_State *state, USER *sd) {
+int pcl_flushallkills(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   for (int x = 0; x < MAX_KILLREG; x++) {
     sd->status.killreg[x].mob_id = 0;
     sd->status.killreg[x].amount = 0;
@@ -8050,7 +7758,8 @@ int pcl_flushallkills(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_flushkills(lua_State *state, USER *sd) {
+int pcl_flushkills(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int x;
   int flushid = 0;
 
@@ -8081,7 +7790,8 @@ int pcl_flushkills(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_showhealth(lua_State *state, USER *sd) {
+int pcl_showhealth(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int type = lua_tonumber(state, sl_memberarg(1));
   int damage = lua_tonumber(state, sl_memberarg(2));
@@ -8090,7 +7800,8 @@ int pcl_showhealth(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_addclan(lua_State *state, USER *sd) {
+int pcl_addclan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   struct clan_data *clan;
   sl_checkargs(state, "s");
   const char *c_name = lua_tostring(state, sl_memberarg(1));
@@ -8106,7 +7817,8 @@ int pcl_addclan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_hasequipped(lua_State *state, USER *sd) {
+int pcl_hasequipped(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int id = 0;
   bool found = false;
 
@@ -8151,7 +7863,8 @@ int pcl_ctor(lua_State *state) {
   return 1;
 }
 
-int pcl_sendurl(lua_State *state, USER *sd) {
+int pcl_sendurl(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int type = lua_tonumber(state, sl_memberarg(1));
   const char *url = lua_tostring(state, sl_memberarg(2));
 
@@ -8160,7 +7873,8 @@ int pcl_sendurl(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_setattr(lua_State *state, USER *sd, const char *attrname) {
+int pcl_setattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
   if (bll_setattr(state, &sd->bl, attrname)) return 1;
   if (!strcmp(attrname, "npcGraphic"))
     sd->npc_g = lua_tonumber(state, -1);
@@ -8499,7 +8213,8 @@ int pcl_setattr(lua_State *state, USER *sd, const char *attrname) {
   return 1;
 }
 
-int pcl_dialog(lua_State *state, USER *sd) {
+int pcl_dialog(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "st");
   int previous = 0, next = 0;
 
@@ -8528,7 +8243,8 @@ int pcl_dialog(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_init(lua_State *state, USER *sd, int dataref, void *param) {
+int pcl_init(lua_State *state, void *self, int dataref, void *param) {
+  USER *sd = (USER *)self;
   // USER *tsd;
   // if(!sd) {
   // luaL_error(state,"cannot do that.");
@@ -8604,13 +8320,15 @@ int pcl_init(lua_State *state, USER *sd, int dataref, void *param) {
 
 int sl_mob_look(struct block_list *bl, va_list ap) { return 0; }
 
-int pcl_sendminimap(lua_State *state, USER *sd) {
+int pcl_sendminimap(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_sendminimap(sd);
 
   return 0;
 }
 
-int pcl_setCaptchaKey(lua_State *state, USER *sd) {
+int pcl_setCaptchaKey(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
 
   const char *key = lua_tostring(state, sl_memberarg(1));
@@ -8635,7 +8353,8 @@ int pcl_setCaptchaKey(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getCaptchaKey(lua_State *state, USER *sd) {
+int pcl_getCaptchaKey(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   char key[64] = "";
 
   SqlStmt *stmt;
@@ -8667,7 +8386,8 @@ int pcl_getCaptchaKey(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_setAccountBan(lua_State *state, USER *sd) {
+int pcl_setAccountBan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int banned = lua_tonumber(state, sl_memberarg(1));
 
   int accountid = clif_isregistered(sd->status.id);
@@ -8730,7 +8450,7 @@ int pcl_setAccountBan(lua_State *state, USER *sd) {
     SqlStmt_Free(stmt);
 
     if (banned == 1) {
-      for (int i = 0; i < sizeof(ChaIds);
+      for (int i = 0; i < ARRAYLENGTH(ChaIds);
            i++) {  // disconnect all now banned chars
         if (ChaIds[i] > 0) {
           USER *tsd = map_id2sd(ChaIds[i]);
@@ -8751,7 +8471,8 @@ int pcl_setAccountBan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_setHeroShow(lua_State *state, USER *sd) {
+int pcl_setHeroShow(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   sd->status.heroes = lua_tonumber(state, sl_memberarg(1));
 
@@ -8770,7 +8491,8 @@ int pcl_setHeroShow(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_updatePath(lua_State *state, USER *sd) {
+int pcl_updatePath(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int path = lua_tonumber(state, sl_memberarg(1));
   int mark = lua_tonumber(state, sl_memberarg(2));
 
@@ -8795,7 +8517,8 @@ int pcl_updatePath(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_updateCountry(lua_State *state, USER *sd) {
+int pcl_updateCountry(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int country = lua_tonumber(state, sl_memberarg(1));
 
   sd->status.country = country;
@@ -8817,7 +8540,8 @@ int pcl_updateCountry(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_updateMail(lua_State *state, USER *sd) {
+int pcl_updateMail(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   const char *name = lua_tostring(state, sl_memberarg(1));
 
   if (SQL_ERROR == Sql_Query(sql_handle,
@@ -8836,7 +8560,8 @@ int pcl_updateMail(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_addKan(lua_State *state, USER *sd) {
+int pcl_addKan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
 
@@ -8915,7 +8640,8 @@ int pcl_addKan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_removeKan(lua_State *state, USER *sd) {
+int pcl_removeKan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
 
@@ -8978,7 +8704,8 @@ int pcl_removeKan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_kanBalance(lua_State *state, USER *sd) {
+int pcl_kanBalance(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int kanBalance = 0;
 
   char *email = clif_getaccountemail(sd->status.id);
@@ -9023,7 +8750,8 @@ int pcl_kanBalance(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_checkKan(lua_State *state, USER *sd) {
+int pcl_checkKan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   char kan_amount[80];
   memset(kan_amount, 0, sizeof(kan_amount));
 
@@ -9072,7 +8800,7 @@ int pcl_checkKan(lua_State *state, USER *sd) {
   }
 
   FREE(email);
-  if (number != NULL) {
+  if (number != 0) {
     lua_pushnumber(state, number);
     return 1;
   }
@@ -9080,7 +8808,8 @@ int pcl_checkKan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_claimKan(lua_State *state, USER *sd) {
+int pcl_claimKan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
   int payment_id = 0;
@@ -9139,7 +8868,8 @@ int pcl_claimKan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_setKan(lua_State *state, USER *sd) {
+int pcl_setKan(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
 
@@ -9174,7 +8904,8 @@ int pcl_setKan(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getattr(lua_State *state, USER *sd, const char *attrname) {
+int pcl_getattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
   if (bll_getattr(state, &sd->bl, attrname)) return 1;
   if (!strcasecmp(attrname, "id"))
     lua_pushnumber(state, sd->status.id);
@@ -9589,7 +9320,8 @@ int pcl_getattr(lua_State *state, USER *sd, const char *attrname) {
   return 1;
 }
 
-int pcl_useitem(lua_State *state, USER *sd) {
+int pcl_useitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *itemname = lua_tostring(state, sl_memberarg(1));
   int i;
@@ -9602,7 +9334,8 @@ int pcl_useitem(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_warp(lua_State *state, USER *sd) {
+int pcl_warp(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, sl_memberarg(1)),
       x = lua_tonumber(state, sl_memberarg(2)),
@@ -9612,7 +9345,8 @@ int pcl_warp(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_forcedrop(lua_State *state, USER *sd) {
+int pcl_forcedrop(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
 
@@ -9620,12 +9354,14 @@ int pcl_forcedrop(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_resurrect(lua_State *state, USER *sd) {
+int pcl_resurrect(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_res(sd);
   return 0;
 }
 
-int pcl_setMiniMapToggle(lua_State *state, USER *sd) {
+int pcl_setMiniMapToggle(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int miniMapToggle = lua_tonumber(state, sl_memberarg(1));
 
@@ -9647,7 +9383,8 @@ int pcl_setMiniMapToggle(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_addhealth(lua_State *state, USER *sd) {
+int pcl_addhealth(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
   struct block_list *bl = map_id2bl(sd->attacker);
@@ -9665,7 +9402,8 @@ int pcl_addhealth(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_removehealth(lua_State *state, USER *sd) {
+int pcl_removehealth(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
   int caster = lua_tonumber(state, sl_memberarg(2));
@@ -9702,7 +9440,8 @@ int pcl_removehealth(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_sendminitext(lua_State *state, USER *sd) {
+int pcl_sendminitext(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *msg = lua_tostring(state, sl_memberarg(1));
 
@@ -9710,7 +9449,8 @@ int pcl_sendminitext(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_setduration(lua_State *state, USER *sd) {
+int pcl_setduration(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   struct block_list *bl = NULL;
   int id, time, x, caster_id, recast, alreadycast, mid;
@@ -9797,7 +9537,8 @@ int pcl_setduration(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_setaether(lua_State *state, USER *sd) {
+int pcl_setaether(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   int id;
   int time;
@@ -9842,7 +9583,8 @@ int pcl_setaether(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_hasaether(lua_State *state, USER *sd) {
+int pcl_hasaether(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int x, id;
 
@@ -9860,7 +9602,8 @@ int pcl_hasaether(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getaether(lua_State *state, USER *sd) {
+int pcl_getaether(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int x, id;
 
@@ -9879,7 +9622,8 @@ int pcl_getaether(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getallaethers(lua_State *state, USER *sd) {
+int pcl_getallaethers(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
@@ -9896,7 +9640,8 @@ int pcl_getallaethers(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_hasduration(lua_State *state, USER *sd) {
+int pcl_hasduration(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int id = 0;
 
@@ -9915,7 +9660,8 @@ int pcl_hasduration(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_hasdurationid(lua_State *state, USER *sd) {
+int pcl_hasdurationid(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   int x, id, caster_id;
 
@@ -9938,7 +9684,8 @@ int pcl_hasdurationid(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getduration(lua_State *state, USER *sd) {
+int pcl_getduration(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int i, id;
 
@@ -9957,7 +9704,8 @@ int pcl_getduration(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getdurationid(lua_State *state, USER *sd) {
+int pcl_getdurationid(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   int i, id, caster_id;
 
@@ -9979,7 +9727,8 @@ int pcl_getdurationid(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getalldurations(lua_State *state, USER *sd) {
+int pcl_getalldurations(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
@@ -9994,13 +9743,15 @@ int pcl_getalldurations(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_forcesave(lua_State *state, USER *sd) {
+int pcl_forcesave(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   intif_save(sd);
 
   return 1;
 }
 
-int pcl_refreshdurations(lua_State *state, USER *sd) {
+int pcl_refreshdurations(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i = 0;
   int x = 0;
 
@@ -10016,7 +9767,8 @@ int pcl_refreshdurations(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_addlegend(lua_State *state, USER *sd) {
+int pcl_addlegend(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "ssnn");
   int icon, color, x;
   unsigned tchaid = 0;
@@ -10040,7 +9792,8 @@ int pcl_addlegend(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_haslegend(lua_State *state, USER *sd) {
+int pcl_haslegend(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int i;
   const char *legend = lua_tostring(state, sl_memberarg(1));
@@ -10056,7 +9809,8 @@ int pcl_haslegend(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_buy(lua_State *state, USER *sd) {
+int pcl_buy(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "stt");
   unsigned int amount = lua_objlen(state, sl_memberarg(2));
   // struct item_data *item[amount+1];
@@ -10103,7 +9857,7 @@ int pcl_buy(lua_State *state, USER *sd) {
   lua_pushnil(state);
   while (lua_next(state, sl_memberarg(6)) != 0) {
     int index = lua_tonumber(state, -2);
-    strcpy(item[index - 1].buytext, lua_tostring(state, -1));
+    strcpy((char *)item[index - 1].buytext, lua_tostring(state, -1));
     lua_pop(state, 1);
   }
 
@@ -10130,7 +9884,8 @@ int pcl_buy(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_mapselection(lua_State *state, USER *sd) {
+int pcl_mapselection(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "stttttt");
   int map_x0[255];
   int map_y0[255];
@@ -10201,12 +9956,13 @@ int pcl_mapselection(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_bank(lua_State *state, USER *sd) {
+int pcl_bank(lua_State *state, void *self) {
   sl_checkargs(state, "s");
   return 0;
 }
 
-int pcl_input(lua_State *state, USER *sd) {
+int pcl_input(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *dialog = lua_tostring(state, sl_memberarg(1));
   const char *name = NULL;
@@ -10229,13 +9985,13 @@ int pcl_input(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_sell(lua_State *state, USER *sd) {
+int pcl_sell(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "st");
   const char *dialog = lua_tostring(state, sl_memberarg(1));
   // unsigned int amount = lua_objlen(state, sl_memberarg(2));
   int item[60];
   int count = 0;
-  int lastcount = 0;
   unsigned int temp;
   int x;
   lua_pushnil(state);
@@ -10249,7 +10005,6 @@ int pcl_sell(lua_State *state, USER *sd) {
       temp = itemdb_id(lua_tostring(state, -1));
 
     for (x = 0; x < sd->status.maxinv; x++) {
-      lastcount = 0;
       if (sd->status.inventory[x].id == temp) {
         item[count] = x;
         // lastcount=count;
@@ -10265,19 +10020,22 @@ int pcl_sell(lua_State *state, USER *sd) {
   return lua_yield(state, 0);
 }
 
-int pcl_sendstatus(lua_State *state, USER *sd) {
+int pcl_sendstatus(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_requestmp(sd);
   clif_sendstatus(sd, SFLAG_FULLSTATS | SFLAG_HPMP | SFLAG_XPMONEY);
   clif_sendupdatestatus_onequip(sd);
   return 0;
 }
 
-int pcl_calcstat(lua_State *state, USER *sd) {
+int pcl_calcstat(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_calcstat(sd);
   return 0;
 }
 
-int pcl_getboditem(lua_State *state, USER *sd) {
+int pcl_getboditem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   if (sd->boditems.item[num].id != 0)
@@ -10287,7 +10045,8 @@ int pcl_getboditem(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getexchangeitem(lua_State *state, USER *sd) {
+int pcl_getexchangeitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   if (sd->exchange.item[num].id != 0)
@@ -10297,7 +10056,8 @@ int pcl_getexchangeitem(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getinventoryitem(lua_State *state, USER *sd) {
+int pcl_getinventoryitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   if (sd->status.inventory[num].id != 0)
@@ -10307,9 +10067,10 @@ int pcl_getinventoryitem(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_addinventoryitem(lua_State *state, USER *sd) { return 1; }
+int pcl_addinventoryitem(lua_State *state, void *self) { return 1; }
 
-int pcl_getequippeditem(lua_State *state, USER *sd) {
+int pcl_getequippeditem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   if (sd->status.equip[num].id != 0)
@@ -10319,7 +10080,8 @@ int pcl_getequippeditem(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_removelegendbyname(lua_State *state, USER *sd) {
+int pcl_removelegendbyname(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *find = lua_tostring(state, sl_memberarg(1));
   int x;
@@ -10351,7 +10113,8 @@ int pcl_removelegendbyname(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_removelegendbycolor(lua_State *state, USER *sd) {
+int pcl_removelegendbycolor(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int find = lua_tonumber(state, sl_memberarg(1));
   int x, count = 0;
@@ -10386,8 +10149,9 @@ int pcl_removelegendbycolor(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_removeinventoryitem(lua_State *state, USER *sd) {
-  unsigned int id = 0, amount = 0, owner = 0, max = 0;
+int pcl_removeinventoryitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
+  unsigned int id = 0, amount = 0, owner = 0;
   int x, type = 0;
   const char *engrave = NULL;
 
@@ -10403,7 +10167,6 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
   type = lua_tonumber(state, sl_memberarg(3));
   owner = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
-  max = amount;
 
   if (!engrave) {
     CALLOC(engrave, char, 64);
@@ -10500,21 +10263,21 @@ int pcl_removeinventoryitem(lua_State *state, USER *sd) {
   if (engrave) {
     engrave = NULL;
   } else {
-    FREE(engrave);
+    free(engrave);
   }
 
   lua_pushboolean(state, 0);
   return 1;
 }
 
-int pcl_removeitemslot(lua_State *state, USER *sd) {
+int pcl_removeitemslot(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
-  int slot, amount, max, type;
+  int slot, amount, type;
 
   slot = lua_tonumber(state, sl_memberarg(1));
   amount = lua_tonumber(state, sl_memberarg(2));
   type = lua_tonumber(state, sl_memberarg(3));
-  max = amount;
 
   if (sd->status.inventory[slot].id > 0) {
     if ((sd->status.inventory[slot].amount < amount) &&
@@ -10553,9 +10316,10 @@ int pcl_removeitemslot(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_removeitemdura(lua_State *state, USER *sd) {
+int pcl_removeitemdura(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0;
-  unsigned int amount = 0, max = 0;
+  unsigned int amount = 0;
   int x;
   int type = 0;
 
@@ -10568,7 +10332,6 @@ int pcl_removeitemdura(lua_State *state, USER *sd) {
   }
   amount = lua_tonumber(state, sl_memberarg(2));
   type = lua_tonumber(state, sl_memberarg(3));
-  max = amount;
 
   for (x = 0; x < sd->status.maxinv; x++) {
     if (sd->status.inventory[x].id == id) {
@@ -10613,7 +10376,7 @@ int pcl_removeitemdura(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_addGift(lua_State *state, USER *sd) {
+int pcl_addGift(lua_State *state, void *self) {
   /*int x;
       unsigned int size=lua_objlen(state,sl_memberarg(1));
       struct item_data *item;
@@ -10680,7 +10443,7 @@ int pcl_addGift(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_retrieveGift(lua_State *state, USER *sd) {
+int pcl_retrieveGift(lua_State *state, void *self) {
   /*unsigned int giftid = lua_tonumber(state, sl_memberarg(1));
 
 
@@ -10764,7 +10527,8 @@ int pcl_retrieveGift(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_additem(lua_State *state, USER *sd) {
+int pcl_additem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int amount = 0;
   int dura = 0;
@@ -10861,7 +10625,8 @@ int pcl_additem(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_showboard(lua_State *state, USER *sd) {
+int pcl_showboard(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0;
 
   if (lua_isnumber(state, sl_memberarg(1))) {
@@ -10878,7 +10643,8 @@ int pcl_showboard(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_showpost(lua_State *state, USER *sd) {
+int pcl_showpost(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int post = 0;
 
@@ -10898,7 +10664,8 @@ int pcl_showpost(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_hasitem(lua_State *state, USER *sd) {
+int pcl_hasitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0, amount = 0, leftover = 0, owner = 0;
   int x = 0;
   const char *engrave = NULL;
@@ -11038,7 +10805,7 @@ int pcl_hasitem(lua_State *state, USER *sd) {
   if (engrave) {
     engrave = NULL;
   } else {
-    FREE(engrave);
+    free(engrave);
   }
 
   // TODO: This is unsafe - we cannot free the lua_string, which this may do.
@@ -11046,7 +10813,7 @@ int pcl_hasitem(lua_State *state, USER *sd) {
   if (note) {
     note = NULL;
   } else {
-    FREE(note);
+    free(note);
   }
 
   leftover -= amount;
@@ -11054,7 +10821,8 @@ int pcl_hasitem(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_hasitemdura(lua_State *state, USER *sd) {
+int pcl_hasitemdura(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int amount = 0, leftover = 0;
   int x;
@@ -11101,7 +10869,8 @@ int pcl_hasitemdura(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_addspell(lua_State *state, USER *sd) {
+int pcl_addspell(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int spell;
   int x;
 
@@ -11134,7 +10903,8 @@ int pcl_addspell(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_hasspell(lua_State *state, USER *sd) {
+int pcl_hasspell(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int spell = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   // char name[32];
@@ -11153,7 +10923,8 @@ int pcl_hasspell(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getspells(lua_State *state, USER *sd) {
+int pcl_getspells(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
@@ -11168,7 +10939,8 @@ int pcl_getspells(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getspellname(lua_State *state, USER *sd) {
+int pcl_getspellname(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
@@ -11183,7 +10955,8 @@ int pcl_getspellname(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getspellyname(lua_State *state, USER *sd) {
+int pcl_getspellyname(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
@@ -11198,7 +10971,7 @@ int pcl_getspellyname(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getspellnamefromyname(lua_State *state, USER *sd) {
+int pcl_getspellnamefromyname(lua_State *state, void *self) {
   int id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
   lua_pushstring(state, magicdb_name(id));
@@ -11206,7 +10979,8 @@ int pcl_getspellnamefromyname(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_addEventXP(lua_State *state, USER *sd) {
+int pcl_addEventXP(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   char date_string[100] = "";
   char time_string[100] = "";
   time_t t;
@@ -11322,18 +11096,17 @@ int pcl_addEventXP(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_hasspace(lua_State *state, USER *sd) {
+int pcl_hasspace(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   unsigned int id = 0;
   int x;
   const char *engrave = NULL;
   char engraved = 0;
-  const char *note = NULL;
 
   unsigned int customLook = 0;
   unsigned int customLookColor = 0;
   unsigned int customIcon = 0;
   unsigned int customIconColor = 0;
-  unsigned int protected = 0;
 
   if (lua_isnumber(state, sl_memberarg(1))) {
     sl_checkargs(state, "nn");
@@ -11350,9 +11123,9 @@ int pcl_hasspace(lua_State *state, USER *sd) {
   customLookColor = lua_tonumber(state, sl_memberarg(6));
   customIcon = lua_tonumber(state, sl_memberarg(7));
   customIconColor = lua_tonumber(state, sl_memberarg(8));
- protected
-  = lua_tonumber(state, sl_memberarg(9));
-  note = lua_tostring(state, sl_memberarg(10));
+  //  protected
+  //   = lua_tonumber(state, sl_memberarg(9));
+  // note = lua_tostring(state, sl_memberarg(10));
 
   if (!engrave) {
     CALLOC(engrave, char, 64);
@@ -11404,14 +11177,15 @@ int pcl_hasspace(lua_State *state, USER *sd) {
   if (engrave) {
     engrave = NULL;
   } else {
-    FREE(engrave);
+    free(engrave);
   }
 
   lua_pushboolean(state, 0);
   return 1;
 }
 
-int pcl_removespell(lua_State *state, USER *sd) {
+int pcl_removespell(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int spell;
   int x;
 
@@ -11436,11 +11210,13 @@ int pcl_removespell(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_powerboard(lua_State *state, USER *sd) {
+int pcl_powerboard(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   return clif_sendpowerboard(sd);
 }
 
-int pcl_getbankitem(lua_State *state, USER *sd) {
+int pcl_getbankitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   if (sd->status.banks[num].item_id != 0)
@@ -11451,7 +11227,8 @@ int pcl_getbankitem(lua_State *state, USER *sd) {
 }
 
 // get bank items
-int pcl_getbankitems(lua_State *state, USER *sd) {
+int pcl_getbankitems(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
@@ -11484,7 +11261,8 @@ int pcl_getbankitems(lua_State *state, USER *sd) {
 }
 
 // deposit item
-int pcl_bankdeposit(lua_State *state, USER *sd) {
+int pcl_bankdeposit(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
   unsigned int time;
@@ -11546,7 +11324,8 @@ int pcl_bankdeposit(lua_State *state, USER *sd) {
   lua_pushboolean(state, 0);
   return 0;
 }  // withdraw item
-int pcl_bankwithdraw(lua_State *state, USER *sd) {
+int pcl_bankwithdraw(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
   unsigned int time;
@@ -11643,7 +11422,8 @@ int pcl_bankwithdraw(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getclanbankitems(lua_State *state, USER *sd) {
+int pcl_getclanbankitems(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
 
   struct clan_data *clan = NULL;
@@ -11682,7 +11462,8 @@ int pcl_getclanbankitems(lua_State *state, USER *sd) {
 }
 
 // deposit item
-int pcl_clanbankdeposit(lua_State *state, USER *sd) {
+int pcl_clanbankdeposit(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
   unsigned int time;
@@ -11752,7 +11533,8 @@ int pcl_clanbankdeposit(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_clanbankwithdraw(lua_State *state, USER *sd) {
+int pcl_clanbankwithdraw(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
   unsigned int time;
@@ -11854,7 +11636,8 @@ int pcl_clanbankwithdraw(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getsubpathbankitems(lua_State *state, USER *sd) {
+int pcl_getsubpathbankitems(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
 
   struct clan_data *clan = NULL;
@@ -11883,7 +11666,8 @@ int pcl_getsubpathbankitems(lua_State *state, USER *sd) {
 }
 
 // deposit item
-int pcl_subpathbankdeposit(lua_State *state, USER *sd) {
+int pcl_subpathbankdeposit(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
   unsigned int time;
@@ -11935,7 +11719,8 @@ int pcl_subpathbankdeposit(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_subpathbankwithdraw(lua_State *state, USER *sd) {
+int pcl_subpathbankwithdraw(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
   unsigned int time;
@@ -12004,13 +11789,15 @@ int pcl_subpathbankwithdraw(lua_State *state, USER *sd) {
 }
 
 // move givexp to core to allow calling of pc_givexp
-int pcl_givexp(lua_State *state, USER *sd) {
+int pcl_givexp(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   return pc_givexp(sd, lua_tonumber(state, sl_memberarg(1)), xp_rate);
 }
 
 // threat table adding
-int pcl_addthreat(lua_State *state, USER *sd) {
+int pcl_addthreat(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   unsigned int id, amount;
   int x;
@@ -12036,7 +11823,8 @@ int pcl_addthreat(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_setthreat(lua_State *state, USER *sd) {
+int pcl_setthreat(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   unsigned int id, amount;
   int x;
@@ -12062,7 +11850,8 @@ int pcl_setthreat(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_addthreatgeneral(lua_State *state, USER *sd) {
+int pcl_addthreatgeneral(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int amount;
   int i;
@@ -12121,7 +11910,8 @@ int pcl_addthreatgeneral(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_speak(lua_State *state, USER *sd) {
+int pcl_speak(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   const char *msg = lua_tostring(state, sl_memberarg(1));
   int msglen = strlen(msg);
@@ -12131,31 +11921,24 @@ int pcl_speak(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_talkself(lua_State *state, USER *sd) {
+int pcl_talkself(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "ns");
-  char *buf;
+  unsigned char *buf;
   int type = lua_tonumber(state, sl_memberarg(1));
   const char *msg = lua_tostring(state, sl_memberarg(2));
   unsigned int id = lua_tonumber(state, sl_memberarg(3));
   int msglen = strlen(msg);
   struct block_list *bl = map_id2bl(id);
-  USER *tsd = NULL;
-  MOB *mob = NULL;
-  NPC *npc = NULL;
 
   if (bl != NULL) {
-    if (bl->type == BL_PC)
-      tsd = (USER *)bl;
-    else if (bl->type == BL_MOB)
-      mob = (MOB *)bl;
-    else if (bl->type == BL_NPC)
-      npc = (NPC *)bl;
-    else
+    if (bl->type != BL_PC && bl->type != BL_MOB && bl->type != BL_NPC) {
       return 0;
+    }
   }
 
   WFIFOHEAD(sd->fd, msglen + 13);
-  CALLOC(buf, char, 16 + msglen);
+  CALLOC(buf, unsigned char, 16 + msglen);
   WBUFB(buf, 0) = 0xAA;
   WBUFW(buf, 1) = SWAP16(10 + msglen);
   WBUFB(buf, 3) = 0x0D;
@@ -12174,12 +11957,14 @@ int pcl_talkself(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_freeasync(lua_State *state, USER *sd) {
+int pcl_freeasync(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_async_freeco(sd);
   return 0;
 }
 
-int pcl_sendhealth(lua_State *state, USER *sd) {
+int pcl_sendhealth(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int damage;
   float dmg = lua_tonumber(state, sl_memberarg(1));
@@ -12202,7 +11987,8 @@ int pcl_sendhealth(lua_State *state, USER *sd) {
   return clif_send_pc_healthscript(sd, damage, critical);
 }
 
-int pcl_sendmail(lua_State *state, USER *sd) {
+int pcl_sendmail(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "sss");
   const char *to_user = lua_tostring(state, sl_memberarg(1));
   const char *topic = lua_tostring(state, sl_memberarg(2));
@@ -12212,14 +11998,16 @@ int pcl_sendmail(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_pickup(lua_State *state, USER *sd) {
+int pcl_pickup(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int id = lua_tonumber(state, sl_memberarg(1));
   pc_getitemscript(sd, id);
   return 0;
 }
 
-int pcl_forceequip(lua_State *state, USER *sd) {
+int pcl_forceequip(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   struct item_data *db = NULL;
 
   int id = 0;
@@ -12255,17 +12043,20 @@ int pcl_forceequip(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_equip(lua_State *state, USER *sd) {
+int pcl_equip(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_equipscript(sd);
   return 0;
 }
 
-int pcl_takeoff(lua_State *state, USER *sd) {
+int pcl_takeoff(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_unequipscript(sd);
   return 0;
 }
 
-int pcl_stripequip(lua_State *state, USER *sd) {
+int pcl_stripequip(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int x, force, destroy = 0;
   char minitext[255], itemname[100];
   sl_checkargs(state, "n");
@@ -12311,23 +12102,27 @@ int pcl_stripequip(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_die(lua_State *state, USER *sd) {
+int pcl_die(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_diescript(sd);
   return 0;
 }
 
-int pcl_throwitem(lua_State *state, USER *sd) {
+int pcl_throwitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_throwitem_script(sd);
   return 0;
 }
 
-int pcl_refresh(lua_State *state, USER *sd) {
+int pcl_refresh(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_setpos(sd, sd->bl.m, sd->bl.x, sd->bl.y);
   clif_refreshnoclick(sd);
   return 0;
 }
 
-int pcl_refreshInventory(lua_State *state, USER *sd) {
+int pcl_refreshInventory(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   for (int i = 0; i < 52; i++) {
     clif_sendadditem(sd, i);
   }
@@ -12335,19 +12130,22 @@ int pcl_refreshInventory(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_move(lua_State *state, USER *sd) {
+int pcl_move(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   // sl_checkargs(state, "n");
   char speed = lua_tonumber(state, sl_memberarg(1));
   lua_pushnumber(state, clif_noparsewalk(sd, speed));
   return 1;
 }
 
-int pcl_respawn(lua_State *state, USER *sd) {
+int pcl_respawn(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_spawn(sd);
   return 0;
 }
 
-int pcl_deductdura(lua_State *state, USER *sd) {
+int pcl_deductdura(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int equip = lua_tonumber(state, sl_memberarg(1));
   unsigned int amount = lua_tonumber(state, sl_memberarg(2));
@@ -12356,17 +12154,20 @@ int pcl_deductdura(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_deductduraequip(lua_State *state, USER *sd) {
+int pcl_deductduraequip(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_deductduraequip(sd);
   return 0;
 }
 
-int pcl_checkinvbod(lua_State *state, USER *sd) {
+int pcl_checkinvbod(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_checkinvbod(sd);
   return 0;
 }
 
-int pcl_deductdurainv(lua_State *state, USER *sd) {
+int pcl_deductdurainv(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int slot = lua_tonumber(state, sl_memberarg(1));
   unsigned int amount = lua_tonumber(state, sl_memberarg(2));
@@ -12375,7 +12176,8 @@ int pcl_deductdurainv(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_setpk(lua_State *state, USER *sd) {
+int pcl_setpk(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
   int exist = -1;
@@ -12408,7 +12210,8 @@ int pcl_setpk(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getpk(lua_State *state, USER *sd) {
+int pcl_getpk(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
   int x;
@@ -12424,7 +12227,8 @@ int pcl_getpk(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_guitext(lua_State *state, USER *sd) {
+int pcl_guitext(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
 
   const char *msg = lua_tostring(state, sl_memberarg(1));
@@ -12434,7 +12238,8 @@ int pcl_guitext(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_getcreationitems(lua_State *state, USER *sd) {
+int pcl_getcreationitems(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int len = lua_tonumber(state, sl_memberarg(1));
   int curitem;
@@ -12449,7 +12254,8 @@ int pcl_getcreationitems(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_getcreationamounts(lua_State *state, USER *sd) {
+int pcl_getcreationamounts(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int len = lua_tonumber(state, sl_memberarg(1));
   int item = lua_tonumber(state, sl_memberarg(2));
@@ -12465,7 +12271,8 @@ int pcl_getcreationamounts(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_getparcel(lua_State *state, USER *sd) {
+int pcl_getparcel(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   struct parcel *item;
   unsigned int id, amount, owner, sender, customLookColor, customIconColor,
       customIcon, customLook;
@@ -12564,7 +12371,8 @@ int pcl_getparcel(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getparcellist(lua_State *state, USER *sd) {
+int pcl_getparcellist(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   struct parcel *item;
   unsigned int id, amount, owner, sender, customLookColor, customIconColor,
       customIcon, customLook;
@@ -12664,7 +12472,8 @@ int pcl_getparcellist(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_removeparcel(lua_State *state, USER *sd) {
+int pcl_removeparcel(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nnnn");
   int sender = lua_tonumber(state, sl_memberarg(1));
   // unsigned int item = lua_tonumber(state, sl_memberarg(2));
@@ -12705,7 +12514,8 @@ int pcl_removeparcel(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_expireitem(lua_State *state, USER *sd) {
+int pcl_expireitem(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int x, eqdel;
   unsigned int t = time(NULL);
   char msg[255];
@@ -12752,7 +12562,7 @@ int pcl_expireitem(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_logbuysell(lua_State *state, USER *sd) {
+int pcl_logbuysell(lua_State *state, void *self) {
   sl_checkargs(state, "nnnn");
   // unsigned int item = lua_tonumber(state, sl_memberarg(1));
   // unsigned int amount = lua_tonumber(state, sl_memberarg(2));
@@ -12784,7 +12594,8 @@ int pcl_logbuysell(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_settimevalues(lua_State *state, USER *sd) {
+int pcl_settimevalues(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int i;
   unsigned int newval = lua_tonumber(state, sl_memberarg(1));
@@ -12800,7 +12611,8 @@ int pcl_settimevalues(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_gettimevalues(lua_State *state, USER *sd) {
+int pcl_gettimevalues(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, x;
 
   lua_newtable(state);
@@ -12813,7 +12625,8 @@ int pcl_gettimevalues(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_lookat(lua_State *state, USER *sd) {
+int pcl_lookat(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   struct block_list *bl = map_id2bl(lua_tonumber(state, sl_memberarg(1)));
 
@@ -12821,7 +12634,8 @@ int pcl_lookat(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_getunknownspells(lua_State *state, USER *sd) {
+int pcl_getunknownspells(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   int i, j, x;
   unsigned int id;
   unsigned int idlist[255];
@@ -12919,7 +12733,7 @@ int pcl_getunknownspells(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getallspells(lua_State *state, USER *sd) {
+int pcl_getallspells(lua_State *state, void *self) {
   // Used to display all spells in game
   int i, x;
   unsigned int id;
@@ -13003,7 +12817,7 @@ int pcl_getallspells(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getallclassspells(lua_State *state, USER *sd) {
+int pcl_getallclassspells(lua_State *state, void *self) {
   // Used to display all spells in game
   int i, x;
   unsigned int id;
@@ -13091,12 +12905,14 @@ int pcl_getallclassspells(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_status(lua_State *state, USER *sd) {
+int pcl_status(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   clif_mystaytus(sd);
   return 1;
 }
 
-int pcl_testpacket(lua_State *state, USER *sd) {
+int pcl_testpacket(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "t");
   int i = 0;
   int index = 0;
@@ -13154,7 +12970,8 @@ int pcl_testpacket(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_getcasterid(lua_State *state, USER *sd) {
+int pcl_getcasterid(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int spell = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   int i, x;
@@ -13171,7 +12988,8 @@ int pcl_getcasterid(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_changeview(lua_State *state, USER *sd) {
+int pcl_changeview(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x = lua_tonumber(state, sl_memberarg(1));
   int y = lua_tonumber(state, sl_memberarg(2));
@@ -13193,7 +13011,8 @@ int pcl_changeview(lua_State *state, USER *sd) {
   return 1;
 }
 
-int pcl_settimer(lua_State *state, USER *sd) {
+int pcl_settimer(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   char type = lua_tonumber(state, sl_memberarg(1));
   unsigned int length = lua_tonumber(state, sl_memberarg(2));
@@ -13219,7 +13038,8 @@ int pcl_settimer(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_addtime(lua_State *state, USER *sd) {
+int pcl_addtime(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int addition = lua_tonumber(state, sl_memberarg(1));
 
@@ -13240,7 +13060,8 @@ int pcl_addtime(lua_State *state, USER *sd) {
   return 0;
 }
 
-int pcl_removetime(lua_State *state, USER *sd) {
+int pcl_removetime(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int addition = lua_tonumber(state, sl_memberarg(1));
 
@@ -13262,14 +13083,15 @@ int pcl_removetime(lua_State *state, USER *sd) {
 }
 
 // attempting to call checklevel through LUA script - added for testing 11-26-16
-int pcl_checklevel(lua_State *state, USER *sd) {
+int pcl_checklevel(lua_State *state, void *self) {
+  USER *sd = (USER *)self;
   pc_checklevel(sd);
   return 0;
 }
 
-int mapregl_getattr(lua_State *, USER *, const char *);
+int mapregl_getattr(lua_State *, void *, const char *);
 
-int mapregl_setattr(lua_State *, USER *, const char *);
+int mapregl_setattr(lua_State *, void *, const char *);
 
 void mapregl_staticinit() {
   mapregl_type = typel_new("Mapregistry", 0);
@@ -13277,24 +13099,26 @@ void mapregl_staticinit() {
   mapregl_type.setattr = mapregl_setattr;
 }
 
-int mapregl_setattr(lua_State *state, USER *sd, const char *attrname) {
+int mapregl_setattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
   map_setglobalreg(sd->bl.m, attrname, lua_tonumber(state, -1));
   return 0;
 }
 
-int mapregl_getattr(lua_State *state, USER *sd, const char *attrname) {
+int mapregl_getattr(lua_State *state, void *self, const char *attrname) {
+  USER *sd = (USER *)self;
   lua_pushnumber(state, map_readglobalreg(sd->bl.m, attrname));
   return 1;
 }
 
 // game registries
-int gameregl_setattr(lua_State *state, USER *sd, const char *attrname) {
+int gameregl_setattr(lua_State *state, void *self, const char *attrname) {
   map_setglobalgamereg(attrname, lua_tonumber(state, -1));
 
   return 0;
 }
 
-int gameregl_getattr(lua_State *state, USER *sd, const char *attrname) {
+int gameregl_getattr(lua_State *state, void *self, const char *attrname) {
   lua_pushnumber(state, map_readglobalgamereg(attrname));
   return 1;
 }

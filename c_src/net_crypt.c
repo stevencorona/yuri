@@ -20,7 +20,7 @@ char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   }
 
   cvs_MD5Init(&context);
-  cvs_MD5Update(&context, name, strlen(name));
+  cvs_MD5Update(&context, (unsigned char *)name, strlen(name));
   cvs_MD5Final(checksum, &context);
 
   for (i = 0; i < 16; i++) {
@@ -51,7 +51,7 @@ char *populate_table(const char *name, char *table, int tablelen) {
 
   for (i = 0; i < 32; i++) {
     generate_hashvalues(&table[0], &hash[0], sizeof(hash));
-    sprintf(&table[0], "%s%s", &table[0], &hash[0]);
+    strcat(table, hash);
   }
 
   return &table[0];
@@ -106,9 +106,9 @@ char *generate_key2(unsigned char *packet, char *table, char *keyout,
   return keyout;
 }
 
-void tk_crypt_static(char *buff) { tk_crypt_dynamic(buff, enckey); }
+void tk_crypt_static(unsigned char *buff) { tk_crypt_dynamic(buff, enckey); }
 
-void tk_crypt_dynamic(char *buff, const char *key) {
+void tk_crypt_dynamic(unsigned char *buff, const char *key) {
   unsigned int group = 0;
   unsigned int groupCount = 0;
   unsigned int packetLen = 0;

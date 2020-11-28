@@ -30,9 +30,6 @@ unsigned char timercheck = 0;
 DBMap *mobdb;
 // struct dbt *onetimedb;
 
-int mobAIeasy(MOB *, struct block_list *);
-int mobAInormal(MOB *);
-int mobAIhard(MOB *);
 int mob_timerhandle(int, int);
 
 unsigned int mob_get_new_id() { return mob_id++; }
@@ -211,7 +208,7 @@ int mobdb_read() {
 
       // Equip Read
       for (i = 0; i < 14 && SQL_SUCCESS == SqlStmt_NextRow(eqstmt); i++) {
-        memcpy(&db->equip[pos], &item, sizeof(item));
+        memcpy(&db->equip[(int)pos], &item, sizeof(item));
       }
     }
   }
@@ -281,7 +278,7 @@ unsigned int *mobspawn_onetime(unsigned int id, int m, int x, int y, int times,
   int ntime = times;
   unsigned int *spawnedmobs;
 
-  CALLOC(spawnedmobs, int, times);
+  CALLOC(spawnedmobs, unsigned int, times);
 
   for (z = 0; z < ntime; z++) {
     CALLOC(db, MOB, 1);
@@ -462,7 +459,7 @@ struct mobdb_data *mobdb_searchname(const char *str) {
   return mob;
 }
 
-int mobdb_searchname_sub(void *key, void *data, va_list ap) {
+int mobdb_searchname_sub(DBKey key, void *data, va_list ap) {
   struct mobdb_data *mob = (struct mobdb_data *)data, **dst;
   char *str;
   str = va_arg(ap, char *);
@@ -662,18 +659,6 @@ int mob_fourthduratimer(MOB *mob) {
   return 0;
 }
 
-int mob_timer_new(int id, int n) {
-  unsigned int x;
-
-  for (x = MOB_START_NUM; x < MOB_SPAWN_START;
-       x++) {  // only process up to that.
-
-    mob_handle_sub(map_id2bl(x), NULL);
-  }
-
-  return 0;
-}
-
 int mob_timer_spawns(int id, int n) {
   MOB *mob = NULL;
   unsigned int x;
@@ -785,17 +770,15 @@ int mobdb_drops(MOB *mob, USER *sd) {
 
 int mob_addtocurrent(struct block_list *bl, va_list ap) {
   int *def;
-  int id = 0;
-  USER *sd;
   FLOORITEM *fl;
   FLOORITEM *fl2;
 
   nullpo_ret(0, fl = (FLOORITEM *)bl);
 
   def = va_arg(ap, int *);
-  id = va_arg(ap, int);
+  va_arg(ap, int);  // id
   nullpo_ret(0, fl2 = va_arg(ap, FLOORITEM *));
-  sd = va_arg(ap, USER *);
+  va_arg(ap, USER *);  // sd
 
   if (def[0]) return 0;
 
@@ -809,19 +792,19 @@ int mob_addtocurrent(struct block_list *bl, va_list ap) {
 
 int mobdb_dropitem(unsigned int blockid, unsigned int id, int amount, int dura,
                    int protected, int owner, int m, int x, int y, USER *sd) {
-  USER *tsd = NULL;
+  // USER *tsd;
   MOB *mob = NULL;
-  NPC *nd = NULL;
+  // NPC *nd = NULL;
   FLOORITEM *fl;
   int def[1];
   int z;
 
   if (blockid < MOB_START_NUM) {
-    tsd = map_id2sd((unsigned int)blockid);
+    // tsd = map_id2sd((unsigned int)blockid);
   } else if (blockid >= MOB_START_NUM && blockid < FLOORITEM_START_NUM) {
     mob = map_id2mob((unsigned int)blockid);
   } else if (blockid >= NPC_START_NUM) {
-    nd = map_id2npc((unsigned int)blockid);
+    // nd = map_id2npc((unsigned int)blockid);
   }
 
   // printf("item id: %u, amount: %i, dura: %i, protected: %i, owner:
@@ -863,7 +846,7 @@ int mobdb_dropitem(unsigned int blockid, unsigned int id, int amount, int dura,
 
   fl->timer = time(NULL);
 
-  memset(&fl->looters, 0, MAX_GROUP_MEMBERS);
+  memset(&fl->looters, 0, sizeof(int) * MAX_GROUP_MEMBERS);
 
   if (mob) {
     struct map_sessiondata *attacker = map_id2sd(mob->attacker);
@@ -900,14 +883,9 @@ int mob_handle_sub(MOB *mob, va_list ap) {
   USER *sd = NULL;
   struct block_list *bl = NULL;
   MOB *tmob = NULL;
-  char seeinvis = 0;
   unsigned int sptime = time(NULL);
 
-  time_t seconds;
-  seconds = time(NULL);
-
   nullpo_ret(0, mob);
-  seeinvis = mob->data->seeinvis;
 
   if ((mob->start < mob->end && cur_time >= mob->start &&
        cur_time <= mob->end) ||
@@ -1179,7 +1157,6 @@ int move_mob(MOB *mob) {
   struct warp_list *i;
   // static last;
   int dx, dy;
-  int cm;
   int x0, y0, x1, y1;
   int nothingnew = 0;
   int subt[1];
@@ -1299,7 +1276,7 @@ int move_mob(MOB *mob) {
     mob->canmove = 0;
     return 0;
   }
-  cm = mob->canmove;
+
   if ((map_canmove(m, dx, dy) == 1) || (mob->canmove == 1)) {
     mob->canmove = 0;
     return 0;
@@ -1366,7 +1343,6 @@ int move_mob_ignore_object(MOB *mob) {
   struct warp_list *i;
   // static last;
   int dx, dy;
-  int cm;
   int x0, y0, x1, y1;
   int nothingnew = 0;
   int subt[1];
@@ -1486,8 +1462,6 @@ int move_mob_ignore_object(MOB *mob) {
     mob->canmove = 0;
     return 0;
   }
-
-  cm = mob->canmove;
 
   /*if((map_canmove(m,dx,dy)==1) || (mob->canmove==1)) {
           mob->canmove=0;
@@ -2234,60 +2208,6 @@ int mob_move(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-// MOB AI STUFF GOES HERE
-int mob_pathfind(MOB *mob) {
-  USER *sd = map_id2sd(mob->target);
-
-  if (sd->optFlags & optFlag_stealth || sd->uFlags & uFlag_immortal) {
-    mob->target = 0;
-    mob->attacker = 0;
-    return 0;
-  }
-
-  int i;
-  nullpo_ret(0, sd);
-
-  int num = move_mob_intent(mob, sd);
-  switch (num) {
-    case 0:
-      for (i = 0; i < 10; i++) {
-        mob->side = rnd(4);
-        if (move_mob(mob)) {
-          return 0;
-        }
-      }
-      break;
-    case 1:
-      break;
-    case 2:
-      return 1;
-  }
-  return 0;
-}
-int mobAIhit(MOB *mob) {
-  int near;
-  if (mob->target) {
-    near = mob_pathfind(mob);
-    if (near) {
-      mob_attack(mob, map_id2sd(mob->target));
-    }
-  }
-  return 0;
-}
-int mobAIeasy(MOB *mob, struct block_list *bl) {
-  if (mob->paralyzed) return 0;
-  if (mob->state != MOB_HIT) {
-    mob->side = rnd(4);
-    move_mob(mob);
-  } else {
-    // mobAIhit(mob);
-  }
-  return 0;
-}
-
-int mobAInormal(MOB *mob) { return 0; }
-
-int mobAIhard(MOB *mob) { return 0; }
 int move_mob_intent(MOB *mob, struct block_list *bl) {
   int mx, my;
   int px, py;

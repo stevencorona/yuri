@@ -403,7 +403,7 @@ int npc_init() {
 
         // Equip Read
         for (i = 0; i < 14 && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
-          memcpy(&nd->equip[pos], &item, sizeof(item));
+          memcpy(&nd->equip[(int)pos], &item, sizeof(item));
         }
       }
     }
@@ -583,13 +583,11 @@ int npc_move_sub(struct block_list *bl, va_list ap) {
 }
 
 int npc_move(NPC *nd) {
-  int direction, backx, backy, m, dx, dy, cm, x0, y0, x1, y1;
+  int direction, backx, backy, m, dx, dy, x0, y0, x1, y1;
   int c = 0;
   struct warp_list *i;
   int nothingnew = 0;
-  int subt[1];
 
-  subt[0] = 0;
   m = nd->bl.m;
   backx = nd->bl.x;
   backy = nd->bl.y;
@@ -727,8 +725,6 @@ int npc_move(NPC *nd) {
     nd->canmove = 0;
     return 0;
   }
-
-  cm = nd->canmove;
 
   if (map_canmove(m, dx, dy) == 1 || nd->canmove == 1) {
     nd->canmove = 0;

@@ -87,8 +87,7 @@ int intif_load(int fd, int id, char* name) {
 }
 
 int intif_savequit(USER* sd) {
-  unsigned int clen = 0, ulen = 0;
-  int retval = 0;
+  int retval;
   nullpo_ret(0, sd);
 
   if (!map_isloaded(sd->status.dest_pos.m)) {
@@ -109,11 +108,12 @@ int intif_savequit(USER* sd) {
   sd->status.disguise = sd->disguise;
   sd->status.disguisecolor = sd->disguise_color;
 
-  ulen = sizeof(struct mmo_charstatus);
-  clen = compressBound(ulen);
+  size_t ulen = sizeof(struct mmo_charstatus);
+  uLongf clen = compressBound(ulen);
 
   WFIFOHEAD(char_fd, clen + 6);
-  retval = compress2(WFIFOP(char_fd, 6), &clen, &sd->status, ulen,
+  retval = compress2((unsigned char*)WFIFOP(char_fd, 6), &clen,
+                     (unsigned char*)&sd->status, ulen,
                      1);  // fastest compression.
 
   if (retval) {
@@ -127,6 +127,7 @@ int intif_savequit(USER* sd) {
 
   return 0;
 }
+
 int intif_save(USER* sd) {
   if (char_fd <= 0) return -1;
   int retval = 0;
@@ -139,13 +140,12 @@ int intif_save(USER* sd) {
   sd->status.disguise = sd->disguise;
   sd->status.disguisecolor = sd->disguise_color;
 
-  unsigned int clen = 0, ulen = 0;
-  ulen = sizeof(struct mmo_charstatus);
-  clen = compressBound(ulen);
+  size_t ulen = sizeof(struct mmo_charstatus);
+  uLongf clen = compressBound(ulen);
 
   WFIFOHEAD(char_fd, clen + 6);
-  retval = compress2(WFIFOP(char_fd, 6), &clen, &sd->status, ulen,
-                     1);  // fastest compression.
+  retval = compress2((unsigned char*)WFIFOP(char_fd, 6), &clen,
+                     (unsigned char*)&sd->status, ulen, 1);
 
   if (retval) {
     printf("Error Compressing: %s\n", sd->status.name);
@@ -181,7 +181,7 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
 
   session[fd]->session_data = sd;
 
-  populate_table(&(sd->status.name), &(sd->EncHash), sizeof(sd->EncHash));
+  populate_table(sd->status.name, sd->EncHash, sizeof(sd->EncHash));
   sd->bl.id = sd->status.id;
   sd->bl.prev = sd->bl.next = NULL;
 
@@ -418,7 +418,7 @@ int intif_parse_mapset(int fd) {
   return 0;
 }
 int intif_parse_authadd(int fd) {
-  auth_add(RFIFOP(fd, 8), RFIFOL(fd, 4), RFIFOL(fd, 34));
+  auth_add((char*)RFIFOP(fd, 8), RFIFOL(fd, 4), RFIFOL(fd, 34));
 
   // printf("Auth add: %s\n",RFIFOP(fd,8));
   // printf("Accepting IP: %u - %s\n",RFIFOL(fd,33), auth_fifo
@@ -432,15 +432,16 @@ int intif_parse_authadd(int fd) {
   return 0;
 }
 int intif_parse_charload(int fd) {
-  unsigned int ulen, clen, retval;
-  char* cbuf = NULL;
+  unsigned int ulen;
+  uLongf clen;
+  Bytef* cbuf = NULL;
 
   if (!session[RFIFOW(fd, 6)]) return 0;
 
   ulen = sizeof(struct mmo_charstatus);
   clen = ulen;
-  CALLOC(cbuf, char, ulen);
-  retval = uncompress(cbuf, &clen, RFIFOP(fd, 8), RFIFOL(fd, 2) - 8);
+  CALLOC(cbuf, Bytef, ulen);
+  uncompress(cbuf, &clen, RFIFOP(fd, 8), RFIFOL(fd, 2) - 8);
   /*if(!retval) {
           a=(struct mmo_charstatus*)cbuf;
 
