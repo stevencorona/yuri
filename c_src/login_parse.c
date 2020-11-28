@@ -499,7 +499,7 @@ int clif_parse(int fd) {
         WFIFOB(fd, 9) = 0x00;
         // added stuff for baram?
         WFIFOB(fd, 10) = 0x09;
-        strcpy(WFIFOP(fd, 11), "KruIn7inc");
+        strcpy(WFIFOP(fd, 11), xor_key);
         // set_packet_indexes(WFIFOP(fd, 0));
         WFIFOSET(fd, 20);
       } else {

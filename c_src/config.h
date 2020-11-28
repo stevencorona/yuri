@@ -6,6 +6,8 @@
 // Maximum number of meta files
 #define META_MAX 20
 
+char xor_key[9];
+
 extern struct point start_pos;
 
 extern char login_id[];
@@ -18,7 +20,9 @@ extern int require_reg;
 extern int nex_version;
 extern int nex_deep;
 extern char meta_file[META_MAX][256];
+extern int metamax;
 
+extern int char_ip;
 extern int char_port;
 
 extern char char_id[];
@@ -37,6 +41,7 @@ struct town_data {
 };
 
 extern struct town_data towns[];
+extern int town_n;
 
 extern char sql_id[];
 extern char sql_pw[];
@@ -48,3 +53,5 @@ extern char *data_dir;
 extern char *lua_dir;
 extern char *maps_dir;
 extern char *meta_dir;
+
+int config_read(const char *cfg_file);

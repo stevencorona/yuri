@@ -536,7 +536,7 @@ int clif_transfer(USER *sd, int serverid, int m, int x, int y) {
   WFIFOB(sd->fd, 10) = 0x16;
   WFIFOW(sd->fd, 11) = SWAP16(9);
   // len=strlen(sd->status.name);
-  strcpy(WFIFOP(sd->fd, 13), "KruIn7inc");
+  strcpy(WFIFOP(sd->fd, 13), xor_key);
   len = 11;
   WFIFOB(sd->fd, len + 11) = strlen(sd->status.name);
   strcpy(WFIFOP(sd->fd, len + 12), sd->status.name);
@@ -559,9 +559,7 @@ int clif_transfer_test(USER *sd, int m, int x, int y) {
     return 0;
   }
 
-  char map_ipaddress_s[] = "51.254.215.72";
-  // char map_ipaddress_s[] = "52.88.44.46";
-  // char map_ipaddress_s[] = "103.224.182.241"; // etk
+  char map_ipaddress_s[] = "192.88.99.100";
   unsigned int map_ipaddress = inet_addr(map_ipaddress_s);
 
   WFIFOHEAD(sd->fd, 255);
@@ -572,11 +570,11 @@ int clif_transfer_test(USER *sd, int m, int x, int y) {
   WFIFOB(sd->fd, 10) = 0x16;
   WFIFOW(sd->fd, 11) = SWAP16(9);
 
-  strcpy(WFIFOP(sd->fd, 13), "KruIn7inc");
+  strcpy(WFIFOP(sd->fd, 13), xor_key);
   len = 11;
-  WFIFOB(sd->fd, len + 11) = strlen("Peter");
-  strcpy(WFIFOP(sd->fd, len + 12), "Peter");
-  len += strlen("Peter") + 1;
+  WFIFOB(sd->fd, len + 11) = strlen("FAKEUSERNAME");
+  strcpy(WFIFOP(sd->fd, len + 12), "FAKEUSERNAME");
+  len += strlen("FAKEUSERNAME") + 1;
   len += 4;
 
   WFIFOB(sd->fd, 10) = len;
@@ -652,7 +650,7 @@ int clif_closeit(USER *sd) {
   WFIFOW(sd->fd,8)=SWAP16(login_port);
   //len=strlen(sd->status.name);
   WFIFOW(sd->fd,11)=SWAP16(9);
-  strcpy(WFIFOP(sd->fd,13),"KruIn7inc");
+  strcpy(WFIFOP(sd->fd,13),"xor_key");
   len=11;
   WFIFOB(sd->fd,len+11)=strlen(sd->status.name);
   strcpy(WFIFOP(sd->fd,len+12),sd->status.name);
@@ -672,7 +670,7 @@ int clif_closeit(USER *sd) {
   WFIFOW(sd->fd, 8) = SWAP16(login_port);
   WFIFOB(sd->fd, 10) = 0x16;
   WFIFOW(sd->fd, 11) = SWAP16(9);
-  strcpy(WFIFOP(sd->fd, 13), "KruIn7inc");
+  strcpy(WFIFOP(sd->fd, 13), xor_key);
   len = 11;
   WFIFOB(sd->fd, len + 11) = strlen(sd->status.name);
   strcpy(WFIFOP(sd->fd, len + 12), sd->status.name);
@@ -12753,7 +12751,7 @@ int clif_showboards(USER *sd) {
   WFIFOB(sd->fd, 4) = 3;
   WFIFOB(sd->fd, 5) = 1;
   WFIFOB(sd->fd, 6) = 13;
-  strcpy(WFIFOP(sd->fd, 7), "NexusTKBoards");
+  strcpy(WFIFOP(sd->fd, 7), "YuriBoards");
   len = 15;
   b_count = 0;
   for (i = 0; i < 256; i++) {

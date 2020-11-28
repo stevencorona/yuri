@@ -25,6 +25,8 @@ login_pw: d6ed86ed53a749639b215436916c8c1e
 char_id: 34d6adef1e3e4ba69f756247a58a8878
 char_pw: d3adfd7f9e714bb7af2d4c8b613d2104
 
+xor_key: KEYKEYKEY
+
 // Character Server Configuration
 
 // Char Server Address

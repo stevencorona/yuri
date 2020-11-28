@@ -144,7 +144,7 @@ int intif_parse_connectconfirm(int fd) {
 
     WFIFOW(RFIFOW(fd, 2), 11) = SWAP16(9);
 
-    strcpy(WFIFOP(RFIFOW(fd, 2), 13), "KruIn7inc");
+    strcpy(WFIFOP(RFIFOW(fd, 2), 13), xor_key);
     WFIFOB(RFIFOW(fd, 2), 22) = strlen(thing);
     strcpy(WFIFOP(RFIFOW(fd, 2), 23), thing);
     WFIFOL(RFIFOW(fd, 2), 23 + strlen(thing)) = SWAP32(RFIFOW(fd, 2));
