@@ -460,12 +460,10 @@ int map_read();  // int,const char*,char,int,int,unsigned short,unsigned
                  // char,unsigned char,unsigned char,const char*);
 int map_reload();
 int map_src_add(const char *);
-int map_town_add(const char *);
 int map_src_clear();
 int map_adduserlist(struct map_sessiondata *);
 int map_deluserlist(struct map_sessiondata *);
 int lang_read(const char *);
-int config_read(const char *);
 int map_changepostcolor(int, int, int);
 int map_getpostcolor(int, int);
 char *map_id2name(unsigned int);

@@ -52,8 +52,6 @@ DBMap* clan_db;
 DBMap* mobsearch_db;
 DBMap* mobid_db = NULL;
 struct map_msg_data map_msg[MSG_MAX];
-int town_n = 0;
-char town_name[1024];
 int map_loadgameregistry();
 
 // item id pool
@@ -79,8 +77,6 @@ int log_fd;
 int char_fd;
 int map_fd;
 // unsigned int myip=0;
-char char_ip_s[16];
-int char_ip;
 int map_max = 0;
 // unsigned int blcount_t=0;
 int auth_n = 0;
@@ -101,12 +97,6 @@ int bl_list_count = 0;
 
 time_t gettickthing(void) { return time(NULL); }
 int command_input(char* val) { return 0; }
-
-int add_meta(char* file) {
-  strcpy(meta_file[metamax], file);
-  metamax++;
-  return 0;
-}
 
 int map_moveblock(struct block_list* bl, int x1, int y1) {
   int x0 = bl->x, y0 = bl->y;
@@ -272,15 +262,7 @@ int map_src_clear() {
   map_src_last = NULL;
   return 0;
 }
-int map_town_add(const char* r1) {
-  printf("[map] [map_town_add] name=%s\n", r1);
-  if (sscanf(r1, "%[^\r\n]", town_name) != 1) return -1;
-  memset(towns[town_n].name, 0, 32);
-  strncpy(towns[town_n].name, town_name, 32);
-  town_n++;
 
-  return 0;
-}
 int map_src_add(const char* r1) {
   int map_id, pvp, spell;
   unsigned int sweeptime;
@@ -1553,140 +1535,6 @@ int lang_read(const char* cfg_file) {
   }
   fclose(fp);
   printf("[map] [lang_read] file=%s\n", cfg_file);
-  return 0;
-}
-unsigned int return_ip_n(char* addr) {
-  struct hostent* he;
-  struct in_addr a;
-  he = gethostbyname(addr);
-  if (he) {
-    while (*he->h_addr_list) {
-      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
-    }
-  }
-
-  return a.s_addr;
-}
-
-int get_actual_ip(char* addr) {
-  struct hostent* he;
-  struct in_addr a;
-
-  he = gethostbyname(addr);
-  if (he) {
-    while (*he->h_addr_list) {
-      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
-      strncpy(map_ip_s, inet_ntoa(a), 16);
-      printf("[map] [listen] addr=%s\n", inet_ntoa(a));
-    }
-  }
-
-  return 0;
-}
-
-int get_actual_ip2(char* addr) {
-  struct hostent* he;
-  struct in_addr a;
-
-  he = gethostbyname(addr);
-  if (he) {
-    while (*he->h_addr_list) {
-      bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
-      strncpy(log_ip_s, inet_ntoa(a), 16);
-    }
-  }
-
-  return 0;
-}
-
-int config_read(const char* cfg_file) {
-  char line[1024], r1[1024], r2[1024];
-  int line_num = 0;
-  FILE* fp;
-
-  fp = fopen(cfg_file, "r");
-  if (fp == NULL) {
-    printf("[map] [config_read_failure] file=%s\n", cfg_file);
-    return 1;
-  }
-
-  while (fgets(line, sizeof(line), fp)) {
-    line_num++;
-    if (line[0] == '/' && line[1] == '/') continue;
-
-    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
-      // MAP
-      if (strcasecmp(r1, "map_ip") == 0) {
-        // get_actual_ip(r2,map_ip_s);
-        get_actual_ip(r2);
-        map_ip_s[15] = '\0';
-        map_ip = inet_addr(map_ip_s);
-
-      } else if (strcasecmp(r1, "map_port") == 0) {
-        map_port = atoi(r2);
-
-        // LOGIN
-      } else if (strcasecmp(r1, "login_ip") == 0) {
-        get_actual_ip2(r2);
-        log_ip_s[15] = '\0';
-        login_ip = inet_addr(log_ip_s);
-      } else if (strcasecmp(r1, "login_port") == 0) {
-        login_port = atoi(r2);
-        // CHAR
-      } else if (strcasecmp(r1, "char_ip") == 0) {
-        strncpy(char_ip_s, r2, 16);
-        char_ip_s[15] = '\0';
-        char_ip = inet_addr(char_ip_s);
-      } else if (strcasecmp(r1, "char_port") == 0) {
-        char_port = atoi(r2);
-      } else if (strcasecmp(r1, "char_id") == 0) {
-        strncpy(char_id, r2, 32);
-        char_id[31] = '\0';
-      } else if (strcasecmp(r1, "char_pw") == 0) {
-        strncpy(char_pw, r2, 32);
-        char_pw[31] = '\0';
-        // SAVE TIME
-      } else if (strcasecmp(r1, "save_time") == 0) {
-        save_time = atoi(r2) * 1000;
-        // LOG & DUMP
-      } else if (strcasecmp(r1, "meta") == 0) {
-        add_meta(r2);
-        // MAP & NPC SCRIPT
-        //} else if(strcasecmp(r1, "map") == 0) {
-        //	if (map_src_add(r2)) {
-        //		printf("CFG_ERR: Map Script Configuration parse
-        // error!\n"); 		printf(" line %d: %s\n", line_num, line);
-        //	}
-      } else if (strcasecmp(r1, "town") == 0) {
-        if (map_town_add(r2)) {
-          printf("CFG_ERR: Town Name Parse error!\n");
-          printf(" line %d: %s\n", line_num, line);
-        }
-      } else if (strcasecmp(r1, "server_id") == 0) {
-        serverid = atoi(r2);
-      } else if (strcasecmp(r1, "npc") == 0) {
-        npc_src_add(r2);
-      } else if (strcasecmp(r1, "warp") == 0) {
-        npc_warp_add(r2);
-      } else if (strcasecmp(r1, "xprate") == 0) {
-        xp_rate = atoi(r2);
-      } else if (strcasecmp(r1, "droprate") == 0) {
-        d_rate = atoi(r2);
-      } else if (strcasecmp(r1, "sql_ip") == 0) {
-        strcpy(sql_ip, r2);
-      } else if (strcasecmp(r1, "sql_port") == 0) {
-        sql_port = atoi(r2);
-      } else if (strcasecmp(r1, "sql_id") == 0) {
-        strcpy(sql_id, r2);
-      } else if (strcasecmp(r1, "sql_pw") == 0) {
-        strcpy(sql_pw, r2);
-      } else if (strcasecmp(r1, "sql_db") == 0) {
-        strcpy(sql_db, r2);
-      }
-    }
-  }
-  fclose(fp);
-  printf("[map] [config_read_success] file=%s\n", cfg_file);
   return 0;
 }
 

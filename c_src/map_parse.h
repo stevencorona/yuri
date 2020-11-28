@@ -25,7 +25,6 @@ enum { LOOK_GET, LOOK_SEND };
 #define META_MAX 20
 
 char meta_file[META_MAX][256];
-int metamax;
 
 int send_metalist(USER *);
 int clif_sendurl(USER *, int, const char *);

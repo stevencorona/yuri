@@ -32,6 +32,4 @@ struct char_login_data *logindata_search(unsigned int);
 
 int mapfifo_from_mapid(int);
 
-int config_read(const char *);
-
 void do_term(void);
