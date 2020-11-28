@@ -193,8 +193,8 @@ void help_screen() {
 
 int do_init(int argc, char **argv) {
   int i = 0;
-  char *CONF_FILE = "conf/server.conf";
-  char *LANG_FILE = "conf/lang.conf";
+  char *CONF_FILE = "conf/server.yaml";
+  char *LANG_FILE = "conf/lang.yaml";
 
   srand(gettick());
 

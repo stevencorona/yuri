@@ -1864,8 +1864,8 @@ int object_flag_init(void) {
 }
 int do_init(int argc, char** argv) {
   int i;
-  char* CONF_FILE = "conf/server.conf";
-  char* LANG_FILE = "conf/lang.conf";
+  char* CONF_FILE = "conf/server.yaml";
+  char* LANG_FILE = "conf/lang.yaml";
   srand(gettick());
 
   for (i = 1; i < argc; i++) {
