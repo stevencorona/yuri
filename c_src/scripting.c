@@ -10167,9 +10167,13 @@ int pcl_removeinventoryitem(lua_State *state, void *self) {
   owner = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
 
+  printf("pcl_removeitem engrave=%s\n", engrave);
+
   if (!engrave) {
-    CALLOC(engrave, char, 64);
+    engrave = "";
   }
+
+  printf("pcl_removeitem engrave=%s\n", engrave);
 
   if (owner == 0) {
     for (x = 0; x < sd->status.maxinv; x++) {
@@ -10255,14 +10259,6 @@ int pcl_removeinventoryitem(lua_State *state, void *self) {
         }
       }
     }
-  }
-
-  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
-  // Need to build a test case and change this.
-  if (engrave) {
-    engrave = NULL;
-  } else {
-    free(engrave);
   }
 
   lua_pushboolean(state, 0);
@@ -10695,11 +10691,11 @@ int pcl_hasitem(lua_State *state, void *self) {
   leftover = amount;
 
   if (!engrave) {
-    CALLOC(engrave, char, 64);
+    engrave = "";
   }
 
   if (!note) {
-    CALLOC(note, char, 300);
+    note = "";
   }
 
   for (x = 0; x < sd->status.maxinv; x++) {
@@ -10797,22 +10793,6 @@ int pcl_hasitem(lua_State *state, void *self) {
         }
       }
     }
-  }
-
-  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
-  // Need to build a test case and change this.
-  if (engrave) {
-    engrave = NULL;
-  } else {
-    free(engrave);
-  }
-
-  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
-  // Need to build a test case and change this.
-  if (note) {
-    note = NULL;
-  } else {
-    free(note);
   }
 
   leftover -= amount;
@@ -11127,7 +11107,7 @@ int pcl_hasspace(lua_State *state, void *self) {
   // note = lua_tostring(state, sl_memberarg(10));
 
   if (!engrave) {
-    CALLOC(engrave, char, 64);
+    engrave = "";
   }
 
   if (pc_isinvenspace(sd, id, owner, engrave, customLook, customLookColor,
@@ -11169,14 +11149,6 @@ int pcl_hasspace(lua_State *state, void *self) {
       lua_pushboolean(state, 1);
       return 1;
     }
-  }
-
-  // TODO: This is unsafe - we cannot free the lua_string, which this may do.
-  // Need to build a test case and change this.
-  if (engrave) {
-    engrave = NULL;
-  } else {
-    free(engrave);
   }
 
   lua_pushboolean(state, 0);
