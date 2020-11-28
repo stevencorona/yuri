@@ -6,7 +6,7 @@ Provide a clean fork/drop-in replacement of the Mithia server that is 100% compa
 
 ### Benefits over Mithia
 - Builds/runs as a 64-bit binary on a modern toolchain
-- Significantly cleaned up, unsafe C being removed (buffer overflows, etc), down to ~600 compiler warnings from >10K with a goal of 0
+- Significantly cleaned up, unsafe C removed (buffer overflows, etc), ZERO COMPILER WARNINGS!
 - Dead code is actively being removed. Existing code refactored and ported to Rust
 - Eventual goal of async networking and moving database writes to an independent thread for higher performance
 - Fixes many confusing bugs, like NPCs not loading when there are gaps in the database
@@ -77,7 +77,7 @@ Game state is stored in MySQL, maps and lua scripts are stored on disk.
 - [x] Fix SQL autoincrement / numbering issues
 - [ ] Compile with -O3 without segfaulting
 - [ ] Compile without stack smashing off
-- [ ] Address all clang warnings
+- [x] Fix all clang warnings
 - [ ] Switch to LuaJIT
 - [ ] Smoke Tests
 - [ ] Automated CI
