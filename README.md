@@ -77,7 +77,7 @@ Game state is stored in MySQL, maps and lua scripts are stored on disk.
 - [x] Fix SQL autoincrement / numbering issues
 - [ ] Compile with -O3 without segfaulting
 - [ ] Compile without stack smashing off
-- [ ] Address all clang warnings
+- [x] Fix all clang warnings
 - [ ] Switch to LuaJIT
 - [ ] Smoke Tests
 - [ ] Automated CI
