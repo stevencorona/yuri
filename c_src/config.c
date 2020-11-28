@@ -170,7 +170,7 @@ int config_read(const char *cfg_file) {
       } else if (strcasecmp(r1, "save_time") == 0) {
         save_time = atoi(r2) * 1000;
       } else if (strcasecmp(r1, "xor_key") == 0) {
-        strncpy(xor_key, r1, 9);
+        strncpy(xor_key, r2, 9);
       }
     }
   }

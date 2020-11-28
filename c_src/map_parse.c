@@ -12751,7 +12751,7 @@ int clif_showboards(USER *sd) {
   WFIFOB(sd->fd, 4) = 3;
   WFIFOB(sd->fd, 5) = 1;
   WFIFOB(sd->fd, 6) = 13;
-  strcpy(WFIFOP(sd->fd, 7), "NexusTKBoards");
+  strcpy(WFIFOP(sd->fd, 7), "YuriBoards");
   len = 15;
   b_count = 0;
   for (i = 0; i < 256; i++) {
