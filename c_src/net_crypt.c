@@ -1,13 +1,71 @@
 #include "net_crypt.h"
 
 #include <arpa/inet.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "config.h"
+#include "map_server.h"
 #include "md5calc.h"
+#include "session.h"
+
+const unsigned char svkey1packets[] = {2, 3, 10, 64, 68, 94, 96, 98, 102, 111};
+const unsigned char clkey1packets[] = {2,  3,  4,  11, 21, 38,  58,  66,
+                                       67, 75, 80, 87, 98, 113, 115, 123};
+
+bool is_key_client(int opcode) {
+  for (int x = 0; x < (sizeof(clkey1packets) / sizeof(clkey1packets[0])); x++) {
+    if (opcode == clkey1packets[x]) return 0;
+  }
+
+  return 1;
+}
+
+bool is_key_server(int opcode) {
+  for (int x = 0; x < (sizeof(svkey1packets) / sizeof(svkey1packets[0])); x++) {
+    if (opcode == svkey1packets[x]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+int encrypt(int fd) {
+  USER *sd = NULL;
+  char key[16];
+  sd = session[fd]->session_data;
+
+  if (sd == NULL) return 1;
+
+  set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+
+  if (is_key_server(WFIFOB(fd, 3))) {
+    generate_key2((unsigned char *)WFIFOP(fd, 0), sd->EncHash, key, 0);
+    tk_crypt_dynamic((unsigned char *)WFIFOP(fd, 0), key);
+  } else {
+    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
+  }
+  return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
+}
+
+int decrypt(int fd) {
+  USER *sd = NULL;
+  char key[16];
+  sd = (USER *)session[fd]->session_data;
+
+  if (sd == NULL) return 1;
+
+  if (is_key_client(RFIFOB(fd, 3))) {
+    generate_key2((unsigned char *)RFIFOP(fd, 0), sd->EncHash, key, 1);
+    tk_crypt_dynamic((unsigned char *)RFIFOP(fd, 0), key);
+  } else {
+    tk_crypt_static((unsigned char *)RFIFOP(fd, 0));
+  }
+  return 0;
+}
 
 char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
   struct cvs_MD5Context context;

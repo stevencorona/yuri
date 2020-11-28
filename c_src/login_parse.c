@@ -19,7 +19,6 @@
 
 extern int Check_Throttle(struct sockaddr_in S);
 extern void Add_Throttle(struct sockaddr_in S);
-const unsigned char svkey1packets[] = {2, 10, 68, 94, 96, 98, 102, 111};
 
 bool bannedIPCheck(char *ip) {
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);

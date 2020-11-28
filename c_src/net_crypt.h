@@ -11,6 +11,9 @@
 void tk_crypt_static(unsigned char* buffer);
 void tk_crypt_dynamic(unsigned char* buffer, const char* key);
 
+int encrypt(int fd);
+int decrypt(int fd);
+
 char* generate_hashvalues(const char*, char*, int);
 char* populate_table(const char*, char*, int);
 int set_packet_indexes(unsigned char*);
