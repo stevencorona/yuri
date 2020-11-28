@@ -14,9 +14,9 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -DDEBUG -DFD_SETSIZE=1024")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
 find_package(ZLIB)
-// find_package(Lua5.1)
+# find_package(Lua5.1)
 
-// For LuaJIT
+# For LuaJIT
 find_package(PkgConfig REQUIRED) 
 pkg_check_modules(LUAJIT REQUIRED IMPORTED_TARGET luajit)
 
