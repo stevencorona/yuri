@@ -60,6 +60,9 @@ fn main() {
     // Link zlib
     println!("cargo:rustc-link-lib=z");
     
-    // Export the OUT_DIR for dependent crates
-    println!("cargo:out_dir={}", out_dir.display());
+    // Export metadata for dependent crates
+    println!("cargo:metadata=COMMON_OUT_DIR={}", out_dir.display());
+    
+    // Make the libraries available to dependent crates
+    println!("cargo:rustc-link-search=native={}", out_dir.display());
 }
