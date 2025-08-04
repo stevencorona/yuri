@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(yuri)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -13,11 +14,18 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -DDEBUG -DFD_SETSIZE=1024")
 # Eventually disable this
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
+# MySQL client configuration for macOS Homebrew
+set(CMAKE_PREFIX_PATH "/opt/homebrew/opt/mysql-client;${CMAKE_PREFIX_PATH}")
+list(APPEND CMAKE_LIBRARY_PATH "/opt/homebrew/opt/mysql-client/lib")
+list(APPEND CMAKE_INCLUDE_PATH "/opt/homebrew/opt/mysql-client/include")
+set(ENV{PKG_CONFIG_PATH} "/opt/homebrew/opt/mysql-client/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+link_directories(/opt/homebrew/opt/mysql-client/lib)
+
 find_package(ZLIB)
 # find_package(Lua5.1)
 
 # For LuaJIT
-find_package(PkgConfig REQUIRED) 
+find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED IMPORTED_TARGET luajit)
 
 include_directories(${LUA_INCLUDE_DIR})
