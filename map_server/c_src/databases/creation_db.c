@@ -5,6 +5,7 @@
 
 #include "core.h"
 #include "db.h"
+#include "item_db.h"
 #include "map_server.h"
 #include "scripting.h"
 #include "session.h"

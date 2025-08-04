@@ -46,7 +46,6 @@ int (*default_func_parse)(int) = null_parse;
 int (*default_func_accept)(int) = null_accept;
 int (*default_func_timeout)(int) = null_timeout;
 int (*default_func_shutdown)(int) = null_shutdown;
-extern int char_fd;
 
 typedef struct _connect_history {
   struct _connect_history* next;

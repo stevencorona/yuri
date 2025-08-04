@@ -24,6 +24,7 @@
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
+#include "map_crypt.h"
 #include "pc.h"
 #include "rndm.h"
 #include "scripting.h"

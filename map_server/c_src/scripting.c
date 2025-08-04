@@ -17,6 +17,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "board_db.h"
 #include "clan_db.h"
 #include "class_db.h"
 #include "config.h"
@@ -25,6 +26,7 @@
 #include "db_mysql.h"
 #include "gm_command.h"
 #include "item_db.h"
+#include "magic_db.h"
 #include "map_char.h"
 #include "map_parse.h"
 #include "map_server.h"
@@ -32,6 +34,7 @@
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
+#include "map_crypt.h"
 #include "npc.h"
 #include "pc.h"
 #include "recipe_db.h"

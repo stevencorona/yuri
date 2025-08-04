@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "board_db.h"
+#include "clan_db.h"
 #include "class_db.h"
 #include "config.h"
 #include "core.h"
@@ -19,6 +20,7 @@
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
+#include "map_crypt.h"
 #include "npc.h"
 #include "pc.h"
 #include "scripting.h"

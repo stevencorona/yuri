@@ -32,6 +32,7 @@
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
+#include "map_crypt.h"
 #include "npc.h"
 #include "recipe_db.h"
 #include "scripting.h"
@@ -43,6 +44,9 @@
 #ifndef _MAP_SERVER_
 #define _MAP_SERVER_
 #endif
+
+// Forward declarations
+void set_termfunc(term_func_t new_term_func);
 
 Sql* sql_handle = NULL;
 
@@ -3005,7 +3009,7 @@ void handle_signal(int signal) {
 
 void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
 
-int main(int argc, char **argv) {
+int start_map_server(int argc, char **argv) {
   struct timeval start;
   int tick = 0;
   bool run = true;

@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifndef CALLOC
 #define CALLOC(result, type, number) \
@@ -23,7 +24,3 @@
 #define SERVER_TICK_RATE_NS 10000000
 
 typedef void (*term_func_t)(void);
-
-int main(int argc, char **argv);
-void set_termfunc(term_func_t new_term_func);
-void handle_signal(int signal);

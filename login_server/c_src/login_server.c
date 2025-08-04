@@ -20,6 +20,9 @@
 #include "session.h"
 #include "timer.h"
 
+// Forward declarations
+void set_termfunc(term_func_t new_term_func);
+
 int login_fd = 0;
 int char_fd = 0;
 char login_msg[MSG_MAX][256];
@@ -234,7 +237,7 @@ void handle_signal(int signal) {
 
 void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
 
-int main(int argc, char **argv) {
+int start_login_server(int argc, char **argv) {
   struct timeval start;
   int tick = 0;
   bool run = true;

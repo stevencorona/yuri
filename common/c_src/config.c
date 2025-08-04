@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "map_server.h"
+#include "mmo.h"
 
 char xor_key[9] = "";
 

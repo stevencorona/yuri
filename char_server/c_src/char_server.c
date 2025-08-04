@@ -20,6 +20,9 @@
 #include "session.h"
 #include "timer.h"
 
+// Forward declarations
+void set_termfunc(term_func_t new_term_func);
+
 struct DBMap *login_data;
 struct mmo_charstatus *char_dat;
 struct char_login_data *clogin_dat;
@@ -202,7 +205,7 @@ void handle_signal(int signal) {
 
 void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
 
-int main(int argc, char **argv) {
+int start_char_server(int argc, char **argv) {
   struct timeval start;
   int tick = 0;
   bool run = true;
