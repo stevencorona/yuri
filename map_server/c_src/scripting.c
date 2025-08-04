@@ -10682,7 +10682,7 @@ int pcl_hasitem(lua_State *state, void *self) {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
-  amount = abs(lua_tonumber(state, sl_memberarg(2)));
+  amount = fabs(lua_tonumber(state, sl_memberarg(2)));
   dura = lua_tonumber(state, sl_memberarg(3));
   owner = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
@@ -10818,7 +10818,7 @@ int pcl_hasitemdura(lua_State *state, void *self) {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
-  amount = abs(lua_tonumber(state, sl_memberarg(2)));
+  amount = fabs(lua_tonumber(state, sl_memberarg(2)));
   dura = lua_tonumber(state, sl_memberarg(3));
 
   leftover = amount;

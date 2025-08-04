@@ -5003,13 +5003,13 @@ int clif_parsewalk(USER *sd) {
       clif_pushback(sd);
 
       if (strcasecmp(map[zm].maprejectmsg, "") == 0) {
-        if (abs(map[zm].reqlvl - sd->status.level) >= 10) {
+        int level_diff = (int)map[zm].reqlvl - (int)sd->status.level;
+        if (abs(level_diff) >= 10) {
           clif_sendminitext(sd,
                             "Nightmarish visions of your own death repel you.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) >= 5 &&
-                   map[zm].reqlvl - sd->status.level < 10) {
+        } else if (abs(level_diff) >= 5 && level_diff < 10) {
           clif_sendminitext(sd, "You're not quite ready to enter yet.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) < 5) {
+        } else if (abs(level_diff) < 5) {
           clif_sendminitext(
               sd, "You almost understand the secrets to this entrance.");
         } else if (sd->status.mark < map[zm].reqmark) {
@@ -5250,13 +5250,13 @@ int clif_noparsewalk(USER *sd, char speed) {
       clif_pushback(sd);
 
       if (strcasecmp(map[zm].maprejectmsg, "") == 0) {
-        if (abs(map[zm].reqlvl - sd->status.level) >= 10) {
+        int level_diff = (int)map[zm].reqlvl - (int)sd->status.level;
+        if (abs(level_diff) >= 10) {
           clif_sendminitext(sd,
                             "Nightmarish visions of your own death repel you.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) >= 5 &&
-                   map[zm].reqlvl - sd->status.level < 10) {
+        } else if (abs(level_diff) >= 5 && level_diff < 10) {
           clif_sendminitext(sd, "You're not quite ready to enter yet.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) < 5) {
+        } else if (abs(level_diff) < 5) {
           clif_sendminitext(
               sd, "You almost understand the secrets to this entrance.");
         } else if (sd->status.mark < map[zm].reqmark) {
