@@ -128,7 +128,7 @@ int clif_message(int fd, char code, char *buff) {
   return 0;
 }
 
-int clif_sendurl(int fd, int type, const char *url) {
+int login_clif_sendurl(int fd, int type, const char *url) {
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 3) = 0x66;
   WFIFOB(fd, 4) = 0x03;
@@ -276,7 +276,7 @@ int maintenance_override(const char *n, int len) {
   return flag;
 }
 
-unsigned int metacrc(char *file) {
+unsigned int login_metacrc(char *file) {
   FILE *fp = NULL;
 
   unsigned int checksum = 0;
@@ -296,7 +296,7 @@ unsigned int metacrc(char *file) {
   return checksum;
 }
 
-int send_metafile(int fd, char *file) {
+int login_send_metafile(int fd, char *file) {
   int len = 0;
   unsigned int checksum = 0;
   uLongf clen = 0;
@@ -309,7 +309,7 @@ int send_metafile(int fd, char *file) {
 
   sprintf(filebuf, "%s%s", meta_dir, file);
 
-  checksum = metacrc(filebuf);
+  checksum = login_metacrc(filebuf);
 
   fp = fopen(filebuf, "rbe");
   if (!fp) {
@@ -330,7 +330,7 @@ int send_metafile(int fd, char *file) {
   retval = compress(cbuf, &clen, ubuf, size_read);
 
   if (retval != 0) {
-    printf("[login] [send_metafile_error] retval=%d\n", retval);
+    printf("[login] [login_send_metafile_error] retval=%d\n", retval);
   }
 
   WFIFOHEAD(fd, 65535 * 2);
@@ -359,18 +359,18 @@ int send_metafile(int fd, char *file) {
   return 0;
 }
 
-int send_meta(int fd) {
+int login_send_meta(int fd) {
   char temp[255];
 
   memset(temp, 0, 255);
   memcpy(temp, RFIFOP(fd, 7), RFIFOB(fd, 6));
 
-  send_metafile(fd, temp);
+  login_send_metafile(fd, temp);
 
   return 0;
 }
 
-int send_metalist(int fd) {
+int login_send_metalist(int fd) {
   int len = 0;
   unsigned int checksum = 0;
   char filebuf[6000];
@@ -387,7 +387,7 @@ int send_metalist(int fd) {
     memcpy(WFIFOP(fd, len + 7), meta_file[x], strlen(meta_file[x]));
     len += strlen(meta_file[x]) + 1;
     sprintf(filebuf, "%s%s", meta_dir, meta_file[x]);
-    checksum = metacrc(filebuf);
+    checksum = login_metacrc(filebuf);
     WFIFOL(fd, len + 6) = SWAP32(checksum);
     len += 4;
   }
@@ -400,7 +400,7 @@ int send_metalist(int fd) {
   return 0;
 }
 
-int clif_debug(unsigned char *stringthing, int len) {
+int login_clif_debug(unsigned char *stringthing, int len) {
   int i = 0;
 
   for (i = 0; i < len; i++) {
@@ -421,7 +421,7 @@ int clif_debug(unsigned char *stringthing, int len) {
   return 0;
 }
 
-int clif_parse(int fd) {
+int login_clif_parse(int fd) {
   unsigned short len = 0;
   unsigned short ver = 0;
   unsigned short deep = 0;
@@ -724,10 +724,10 @@ int clif_parse(int fd) {
     case 0x7B:  // Request Item Information!
       switch (RFIFOB(fd, 5)) {
         case 0:  // Request the file asking for
-          send_meta(fd);
+          login_send_meta(fd);
           break;
         case 1:  // Requqest the list to use
-          send_metalist(fd);
+          login_send_metalist(fd);
 
           break;
       }
@@ -740,7 +740,7 @@ int clif_parse(int fd) {
     default:
       printf("[login] [packet_unknown] id=%02X ip=%s:\n", RFIFOB(fd, 3),
              inet_ntoa(session[fd]->client_addr.sin_addr));
-      clif_debug(RFIFOP(fd, 0), SWAP16(RFIFOW(fd, 1)));
+      login_clif_debug(RFIFOP(fd, 0), SWAP16(RFIFOW(fd, 1)));
       break;
   }
 

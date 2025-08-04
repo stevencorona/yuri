@@ -1,10 +1,14 @@
 #include "login_server.h"
 
 #include <ctype.h>
+#include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/time.h>
+#include <time.h>
 #include <zlib.h>
 
 #include "config.h"
@@ -16,8 +20,8 @@
 #include "session.h"
 #include "timer.h"
 
-int login_fd;
-int char_fd;
+int login_fd = 0;
+int char_fd = 0;
 char login_msg[MSG_MAX][256];
 Sql *sql_handle = NULL;
 DBMap *bf_lockout = NULL;
@@ -60,7 +64,7 @@ int string_check(const char *p, int len) {
   return Valid(buf, mask2);
 }
 
-int lang_read(const char *cfg_file) {
+int login_lang_read(const char *cfg_file) {
   char line[1024];
   char r1[1024];
   char r2[1024];
@@ -122,9 +126,9 @@ int lang_read(const char *cfg_file) {
   return 0;
 }
 
-void do_term(void) { printf("[login] [shutdown]\n"); }
+void login_do_term(void) { printf("[login] [shutdown]\n"); }
 
-void help_screen() {
+void login_help_screen() {
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
@@ -132,7 +136,7 @@ void help_screen() {
   exit(0);
 }
 
-int do_init(int argc, char **argv) {
+int login_do_init(int argc, char **argv) {
   int i = 0;
   char *CONF_FILE = "conf/server.yaml";
   char *LANG_FILE = "conf/lang.yaml";
@@ -142,7 +146,7 @@ int do_init(int argc, char **argv) {
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
         strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
-      help_screen();
+      login_help_screen();
     } else if (strcmp(argv[i], "--conf") == 0) {
       CONF_FILE = argv[i + 1];
     } else if (strcmp(argv[i], "--lang") == 0) {
@@ -165,12 +169,12 @@ int do_init(int argc, char **argv) {
   }
 
   // sql_init();
-  lang_read(LANG_FILE);
-  set_termfunc(do_term);
+  login_lang_read(LANG_FILE);
+  set_termfunc(login_do_term);
   printf("[login] [started] Login Server Started\n");
 
   set_defaultaccept(clif_accept);
-  set_defaultparse(clif_parse);
+  set_defaultparse(login_clif_parse);
   login_fd = make_listen_port(login_port);
   timer_insert(10 * 60 * 1000, 10 * 60 * 1000, Remove_Throttle, 0, 0);
   // Lockout DB
@@ -201,4 +205,67 @@ int setInvalidCount(unsigned int ip) {
   uidb_put(bf_lockout, ip, (void *)(uintptr_t)(c + 1));
 
   return c + 1;
+}
+
+static term_func_t term_func;
+
+void handle_signal(int signal) {
+  switch (signal) {
+    case SIGINT:
+    case SIGTERM:
+      printf("[login] [signal] signal=SIGTERM\n");
+      if (term_func != NULL) {
+        term_func();
+      }
+      timer_clear();
+      for (int i = 0; i < fd_max; i++) {
+        if (!session[i]) {
+          continue;
+        }
+        session_eof(i);
+      }
+      exit(0);
+      break;
+    case SIGPIPE:
+    default:
+      break;
+  }
+}
+
+void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
+
+int main(int argc, char **argv) {
+  struct timeval start;
+  int tick = 0;
+  bool run = true;
+
+  gettimeofday(&start, NULL);
+
+  server_shutdown = 0;
+
+  do_socket();
+
+  signal(SIGPIPE, handle_signal);
+  signal(SIGTERM, handle_signal);
+  signal(SIGINT, handle_signal);
+  db_init();
+  timer_init();
+
+  login_do_init(argc, argv);
+
+  while (run) {
+    tick = gettick_nocache();
+
+    timer_do(tick);
+    do_sendrecv();
+    do_parsepacket();
+
+    if (server_shutdown == 1) {
+      run = false;
+    }
+
+    nanosleep((struct timespec[]){{0, SERVER_TICK_RATE_NS}}, NULL);
+  }
+
+  return 0;
 }

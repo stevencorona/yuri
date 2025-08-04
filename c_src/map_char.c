@@ -268,7 +268,7 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
   WFIFOB(sd->fd,5)=0x6D;
   WFIFOSET(sd->fd,6);
   */
-  mmo_setonline(sd->status.id, 1);
+  map_mmo_setonline(sd->status.id, 1);
 
   if (sd->status.gm_level) {
     // sd->optFlags|=optFlag_stealth;

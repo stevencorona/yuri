@@ -12,7 +12,7 @@ int char_db_setpass(const char *, const char *, const char *);
 int char_db_mapfifofromlogin(const char *, const char *, unsigned int *);
 int mmo_char_fromdb(unsigned int, struct mmo_charstatus *, char *);
 int mmo_char_todb(struct mmo_charstatus *);
-void mmo_setonline(unsigned int, int);
+void char_mmo_setonline(unsigned int, int);
 void mmo_setallonline(int);
 int logindata_add(unsigned int, int, char *);
 int logindata_del(unsigned int);

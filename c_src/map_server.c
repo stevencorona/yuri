@@ -1,9 +1,12 @@
+#include <signal.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <sys/timeb.h>
 #include <time.h>
 #ifdef _WIN32
@@ -1538,7 +1541,7 @@ int lang_read(const char* cfg_file) {
   return 0;
 }
 
-void do_term(void) {
+void map_do_term(void) {
   int i;
   map_savechars(0, 0);
   map_clritem();
@@ -1566,7 +1569,7 @@ void do_term(void) {
   printf("[map] Map Server Shutdown\n");
 }
 
-void help_screen() {
+void map_help_screen() {
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
@@ -1710,7 +1713,7 @@ int object_flag_init(void) {
   free(path);
   return 0;
 }
-int do_init(int argc, char** argv) {
+int map_do_init(int argc, char** argv) {
   int i;
   char* CONF_FILE = "conf/server.yaml";
   char* LANG_FILE = "conf/lang.yaml";
@@ -1719,7 +1722,7 @@ int do_init(int argc, char** argv) {
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
         strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
-      help_screen();
+      map_help_screen();
     } else if (strcmp(argv[i], "--conf") == 0) {
       CONF_FILE = argv[i + 1];
     } else if (strcmp(argv[i], "--lang") == 0) {
@@ -1729,7 +1732,7 @@ int do_init(int argc, char** argv) {
 
   config_read(CONF_FILE);
   lang_read(LANG_FILE);
-  set_termfunc(do_term);
+  set_termfunc(map_do_term);
   // CALLOC(userlist,struct userlist_data,1);
   // gcFixPrematureFrees();
   printf("[map] Map Server Started.\n");
@@ -2363,7 +2366,7 @@ char* map_id2name(unsigned int id) {
   return owner;
 }
 
-void mmo_setonline(unsigned int id, int val) {
+void map_mmo_setonline(unsigned int id, int val) {
   int a, b, c, d, regid;
   char addr[255];
   USER* sd = map_id2sd(id);
@@ -2972,5 +2975,68 @@ int map_savechars(int none, int nonetoo) {
       intif_save(sd);
     }
   }
+  return 0;
+}
+
+static term_func_t term_func;
+
+void handle_signal(int signal) {
+  switch (signal) {
+    case SIGINT:
+    case SIGTERM:
+      printf("[map] [signal] signal=SIGTERM\n");
+      if (term_func != NULL) {
+        term_func();
+      }
+      timer_clear();
+      for (int i = 0; i < fd_max; i++) {
+        if (!session[i]) {
+          continue;
+        }
+        session_eof(i);
+      }
+      exit(0);
+      break;
+    case SIGPIPE:
+    default:
+      break;
+  }
+}
+
+void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
+
+int main(int argc, char **argv) {
+  struct timeval start;
+  int tick = 0;
+  bool run = true;
+
+  gettimeofday(&start, NULL);
+
+  server_shutdown = 0;
+
+  do_socket();
+
+  signal(SIGPIPE, handle_signal);
+  signal(SIGTERM, handle_signal);
+  signal(SIGINT, handle_signal);
+  db_init();
+  timer_init();
+
+  map_do_init(argc, argv);
+
+  while (run) {
+    tick = gettick_nocache();
+
+    timer_do(tick);
+    do_sendrecv();
+    do_parsepacket();
+
+    if (server_shutdown == 1) {
+      run = false;
+    }
+
+    nanosleep((struct timespec[]){{0, SERVER_TICK_RATE_NS}}, NULL);
+  }
+
   return 0;
 }

@@ -2005,7 +2005,7 @@ int mmo_char_todb(struct mmo_charstatus* p) {
 
 /// Function to set a specific Characters to a Online status of VAL
 
-void mmo_setonline(unsigned int id, int val) {
+void char_mmo_setonline(unsigned int id, int val) {
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Character` SET `ChaOnline`='%u' WHERE `ChaId`='%u'",

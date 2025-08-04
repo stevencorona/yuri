@@ -68,7 +68,7 @@ deep: 0
 // after creating their character. If this is set as 1 (true), you must create a mechanism to attach
 // the character to a row in the Accounts table before they will be able to login. Setting it to 0 (false)
 // allows characters to login immediately after being created.
-require_reg: 1
+require_reg: 0
 
 // Metadata files to send to the client upon login.
 // These files cache various bits of game information on the client, such as the item stats that
