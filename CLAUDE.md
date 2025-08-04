@@ -47,8 +47,7 @@ Yuri is a MMORPG server emulator with three main components:
 - **Rust** - Gradual migration target, currently provides utility functions
 - **LuaJIT** - Game logic scripting (2-20x faster than standard Lua)
 - **MySQL** - Game state persistence
-- **CMake** - C build system
-- **Cargo** - Rust build system
+- **Cargo** - Build system (handles both Rust and C compilation)
 
 ### Key Directories
 - `c_src/` - C source files

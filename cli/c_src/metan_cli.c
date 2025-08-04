@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "class_db.h"
+#include "databases/class_db.h"
 #include "config.h"
 #include "core.h"
 #include "db_mysql.h"
-#include "item_db.h"
+#include "databases/item_db.h"
 
 char scheme[32];
 int filecount;
@@ -195,7 +195,7 @@ int output_meta(char *filename, int num, unsigned int list[], int max) {
   return 0;
 }
 
-int main(int argc, char **argv) {
+int metan_main(int argc, char **argv) {
   char filename[128];
   int x = 0;
   unsigned int id;

@@ -1,0 +1,17 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "yuri-cli"
+path = "src/main.rs"
+
+[dependencies]
+libc = { workspace = true }
+clap = { version = "4.0", features = ["derive"] }
+common = { path = "../common" }
+
+[build-dependencies]
+cc = { workspace = true }
+pkg-config = { workspace = true }
