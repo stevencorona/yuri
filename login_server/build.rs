@@ -4,7 +4,7 @@ use std::path::PathBuf;
 fn main() {
     let root_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let common_dir = root_dir.parent().unwrap().join("common/c_src");
-    let deps_dir = root_dir.parent().unwrap().join("c_deps");
+    let deps_dir = root_dir.parent().unwrap().join("common/c_deps");
 
     // Build login server C code
     cc::Build::new()

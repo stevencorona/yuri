@@ -4,7 +4,7 @@ use std::path::PathBuf;
 fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let root_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let deps_dir = root_dir.parent().unwrap().join("c_deps");
+    let deps_dir = root_dir.join("c_deps");
     
     // Find MySQL using pkg-config
     let mysql_lib = pkg_config::Config::new()
@@ -21,6 +21,7 @@ fn main() {
         ])
         .include("c_src")
         .include(&deps_dir)
+        .include("c_deps")
         .includes(&mysql_lib.include_paths)
         .flag("-std=gnu17")
         .flag("-DFD_SETSIZE=1024")
