@@ -572,7 +572,7 @@ int intif_parse_showpostresponse(int fd) {
   }
 
   WFIFOW(header.fd, 1) = SWAP16(len + 7);
-  WFIFOSET(header.fd, encrypt(header.fd));
+  WFIFOSET(header.fd, tk_encrypt(header.fd));
   sd->bcount++;
   StringBuf_Destroy(&buf);
   return 0;
@@ -672,7 +672,7 @@ int intif_parse_userlist(int fd) {
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -795,7 +795,7 @@ int intif_parse_readpost(int fd) {
   strcpy(WFIFOP(sd->fd, len + 12), h.msg);
   len += strlen(h.msg) + 2;
   WFIFOW(sd->fd, 1) = SWAP16(len + 7);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 

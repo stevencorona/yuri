@@ -1187,7 +1187,7 @@ int sl_throw(struct block_list *bl, va_list ap) {
 
   WFIFOHEAD(sd->fd, len);
   memcpy(WFIFOP(sd->fd, 0), buf, len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -3539,7 +3539,7 @@ void sl_init() {
   lua_register(sl_gstate, "_async", sl_async);
   lua_register(sl_gstate, "_asyncDone", sl_async_done);
   lua_register(sl_gstate, "getXPforLevel", sl_getXPforLevel);
-  lua_register(sl_gstate, "processKanDonations", sl_processKanDonations);
+  // lua_register(sl_gstate, "processKanDonations", sl_processKanDonations);
   lua_register(sl_gstate, "guitext", sl_guitext);
   lua_register(sl_gstate, "addToBoard", sl_addtoboard);
   lua_register(sl_gstate, "selectBulletinBoard", sl_selectBulletinBoard);
@@ -12938,7 +12938,7 @@ int pcl_testpacket(lua_State *state, void *self) {
   printf("\n");
   printf("end test packet\n");
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 1;
 }
 

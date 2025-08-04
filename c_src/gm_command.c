@@ -628,7 +628,7 @@ int command_debug(USER *sd, char *line, lua_State *state) {
   WFIFOB(sd->fd, 3) = packnum;
   WFIFOB(sd->fd, 4) = 0x03;
   for (i = 0; i < strnum; i++) WFIFOB(sd->fd, 5 + i) = atoi(str[i]);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -895,7 +895,7 @@ int command_val(USER *sd, char *line, lua_State *state) {
   WFIFOW(sd->fd,7)=0;
   WFIFOB(sd->fd,8)=0;
   WFIFOB(sd->fd,9)=1;
-  encrypt(WFIFOP(sd->fd,0));
+  tk_encrypt(WFIFOP(sd->fd,0));
   WFIFOSET(sd->fd,10);*/
 
   // clif_sendstatus3(sd);

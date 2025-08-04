@@ -162,7 +162,7 @@ int clif_sendurl(USER *sd, int type, const char *url) {
   memcpy(WFIFOP(sd->fd, 8), url, strlen(url));
 
   WFIFOW(sd->fd, 1) = SWAP16(strlen(url) + 8);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -184,7 +184,7 @@ int clif_sendprofile(USER *sd) {
   len += strlen(url) + 7;
 
   WFIFOW(sd->fd, 1) = SWAP16(len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -218,7 +218,7 @@ int clif_sendboard(USER *sd) {
   len += strlen(url3) + 1;
 
   WFIFOW(sd->fd, 1) = SWAP16(len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -354,7 +354,7 @@ int clif_popup(USER *sd, const char *buf) {
   WFIFOB(sd->fd, 5) = 0x08;
   WFIFOW(sd->fd, 6) = SWAP16(strlen(buf));
   strcpy(WFIFOP(sd->fd, 8), buf);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -374,7 +374,7 @@ int clif_paperpopup(USER *sd, const char *buf, int width, int height) {
   WFIFOB(sd->fd, 8) = 0;                    // dunno
   WFIFOW(sd->fd, 9) = SWAP16(strlen(buf));  // length of message
   strcpy(WFIFOP(sd->fd, 11), buf);          // message
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -395,7 +395,7 @@ int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
   WFIFOB(sd->fd, 8) = height;               // height of paper
   WFIFOW(sd->fd, 9) = SWAP16(strlen(buf));  // length of message
   strcpy(WFIFOP(sd->fd, 11), buf);          // message
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -539,7 +539,7 @@ int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
   }
   printf("\n");*/
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -649,7 +649,7 @@ int clif_addtokillreg(USER *sd, int mob) {
                 WFIFOB(sd->fd,6)=0x02;
                 WFIFOW(sd->fd,7)=sd->status.guide[x];
                 WFIFOB(sd->fd,9)=0;
-                WFIFOSET(sd->fd,encrypt(sd->fd));
+                WFIFOSET(sd->fd,tk_encrypt(sd->fd));
                 }
         }
         return 0;
@@ -671,7 +671,7 @@ int clif_sendheartbeat(int id, int none) {
 
   WFIFOB(sd->fd, 5) = 0x5F;
   WFIFOB(sd->fd, 6) = 0x0A;  // 0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -697,7 +697,7 @@ int pc_sendpong(int id, int none) {
     WFIFOL(sd->fd, 5) = SWAP32(gettick());
     WFIFOB(sd->fd, 9) = 0x00;
 
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
     sd->LastPingTick = gettick();  // For measuring their arrival of response
   }
@@ -721,7 +721,7 @@ int clif_sendguidespecific(USER *sd, int guide) {
   WFIFOW(sd->fd, 7) = guide;
   WFIFOB(sd->fd, 8) = 0;
   WFIFOB(sd->fd, 9) = 1;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -751,7 +751,7 @@ int clif_broadcast_sub(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd, 6) = SWAP16(len);
   strcpy(WFIFOP(sd->fd, 8), msg);
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -778,7 +778,7 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd, 6) = SWAP16(len);
   strcpy(WFIFOP(sd->fd, 8), msg);
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -807,7 +807,7 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
     WFIFOW(sd->fd, 6) = SWAP16(len);
     strcpy(WFIFOP(sd->fd, 8), msg);
     WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
   return 0;
 }
@@ -999,7 +999,7 @@ int clif_sendtowns(USER *sd) {
   }
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 9);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -1301,7 +1301,7 @@ void clif_send_selfbar(USER *sd) {
   WFIFOB(sd->fd, 9) = 0;
   WFIFOB(sd->fd, 10) = (int)percentage;
   WFIFOL(sd->fd, 11) = SWAP32(0);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 }
 
 void clif_send_groupbars(USER *sd, USER *tsd) {
@@ -1333,7 +1333,7 @@ void clif_send_groupbars(USER *sd, USER *tsd) {
   WFIFOB(sd->fd, 9) = 0;
   WFIFOB(sd->fd, 10) = (int)percentage;
   WFIFOL(sd->fd, 11) = SWAP32(0);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 }
 
 int clif_send_mobbars(struct block_list *bl, va_list ap) {
@@ -1370,7 +1370,7 @@ int clif_send_mobbars(struct block_list *bl, va_list ap) {
   WFIFOB(sd->fd, 9) = 0;
   WFIFOB(sd->fd, 10) = (int)percentage;
   WFIFOL(sd->fd, 11) = SWAP32(0);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -1478,7 +1478,7 @@ int clif_mob_look_close_func(struct block_list *bl, va_list ap) {
   WFIFOHEADER(sd->fd, 0x07, sd->mob_len + 4);
   WFIFOW(sd->fd, 5) = SWAP16(sd->mob_count);
   // WFIFOB(sd->fd,(sd->mob_len*13)+7)=0;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   // printf("Mob len: %d\n",sd->mob_len);
   sd->mob_len = 0;
   sd->mob_count = 0;
@@ -1726,7 +1726,7 @@ int clif_object_look_sub2(struct block_list *bl, va_list ap) {
       break;
   }
   WFIFOW(sd->fd, 1) = SWAP16(20 + nlen);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   // sd->mob_count++;
   return 0;
 }
@@ -1817,13 +1817,13 @@ int clif_object_look_specific(USER *sd, unsigned int id) {
       WFIFOW(sd->fd, 20) = 0;
       WFIFOB(sd->fd, 22) = 0;
       WFIFOB(sd->fd, 2) = 0x13;
-      WFIFOSET(sd->fd, encrypt(sd->fd));
+      WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       return 0;
       // sd->mob_=15;
       break;
   }
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   // sd->mob_count++;
   return 0;
 }
@@ -1863,7 +1863,7 @@ int clif_mob_look_close(USER *sd) {
     WFIFOW(sd->fd, 5) = SWAP16(sd->mob_count);
     // WFIFOB(sd->fd,count[1]+7)=0;
     // WFIFOB(sd->fd,count[1]+7)=0;
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
     // printf("Mob count: %d\n",count[0]);
     // printf("Len count: %d\n",count[1]);
   }
@@ -1909,7 +1909,7 @@ int clif_send_duration(USER *sd, int id, int time, USER *tsd) {
   WFIFOL(sd->fd, len + 6) = SWAP32(time);
 
   WFIFOHEADER(sd->fd, 0x3A, len + 7);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -1930,7 +1930,7 @@ int clif_send_aether(USER *sd, int id, int time) {
   WFIFOHEADER(sd->fd, 63, 8);
   WFIFOW(sd->fd, 5) = SWAP16(pos + 1);
   WFIFOL(sd->fd, 7) = SWAP32(time);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -1964,7 +1964,7 @@ int clif_npc_move(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd,9) = SWAP16(cnd->bl.bx);
   WFIFOW(sd->fd,11) = SWAP16(cnd->bl.by);
   WFIFOB(sd->fd,13) = cnd->side;
-  encrypt(sd->fd);
+  tk_encrypt(sd->fd);
   WFIFOSET(sd->fd,14);*/
   return 0;
 }
@@ -1996,7 +1996,7 @@ int clif_mob_move(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd, 9) = SWAP16(mob->bx);
   WFIFOW(sd->fd, 11) = SWAP16(mob->by);
   WFIFOB(sd->fd, 13) = mob->side;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   // printf("Moved\n");
   return 0;
 }
@@ -2099,7 +2099,7 @@ int clif_send_mob_health_sub(struct block_list *bl, va_list ap) {
   WFIFOB(tsd->fd, 9) = critical;
   WFIFOB(tsd->fd, 10) = (int)percentage;
   WFIFOL(tsd->fd, 11) = SWAP32((unsigned int)damage);
-  WFIFOSET(tsd->fd, encrypt(tsd->fd));
+  WFIFOSET(tsd->fd, tk_encrypt(tsd->fd));
   return 0;
 }
 int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap) {
@@ -2126,7 +2126,7 @@ int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap) {
   WFIFOB(sd->fd, 9) = critical;
   WFIFOB(sd->fd, 10) = (int)percentage;
   WFIFOL(sd->fd, 11) = SWAP32((unsigned int)damage);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -2445,7 +2445,7 @@ int clif_send_destroy(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 3) = 0x0E;
     WFIFOB(sd->fd, 4) = 0x03;
     WFIFOL(sd->fd, 5) = SWAP32(mob->bl.id);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   } else {
     WFIFOHEAD(sd->fd, 9);
     WFIFOB(sd->fd, 0) = 0xAA;
@@ -2453,7 +2453,7 @@ int clif_send_destroy(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 3) = 0x5F;
     WFIFOB(sd->fd, 4) = 0x03;
     WFIFOL(sd->fd, 5) = SWAP32(mob->bl.id);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
   return 0;
 }
@@ -2470,7 +2470,7 @@ void clif_send_timer(USER *sd, char type, unsigned int length) {
   WFIFOB(sd->fd, 3) = 0x67;
   WFIFOB(sd->fd, 5) = type;
   WFIFOL(sd->fd, 6) = SWAP32(length);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 }
 
 int clif_parsenpcdialog(USER *sd) {
@@ -2561,49 +2561,49 @@ int clif_send_sub(struct block_list *bl, va_list ap) {
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+      if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       WBUFB(buf, 5) = 10;
     } else if (pc_readglobalreg(sd, "chann_es") >= 1 && RBUFB(buf, 5) == 11) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+      if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       WBUFB(buf, 5) = 11;
     } else if (pc_readglobalreg(sd, "chann_fr") >= 1 && RBUFB(buf, 5) == 12) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+      if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       WBUFB(buf, 5) = 12;
     } else if (pc_readglobalreg(sd, "chann_cn") >= 1 && RBUFB(buf, 5) == 13) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+      if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       WBUFB(buf, 5) = 13;
     } else if (pc_readglobalreg(sd, "chann_pt") >= 1 && RBUFB(buf, 5) == 14) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+      if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       WBUFB(buf, 5) = 14;
     } else if (pc_readglobalreg(sd, "chann_id") >= 1 && RBUFB(buf, 5) == 15) {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+      if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       WBUFB(buf, 5) = 15;
     }
   } else {
     WFIFOHEAD(sd->fd, len + 3);
     if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
       memcpy(WFIFOP(sd->fd, 0), buf, len);
-    if (sd) WFIFOSET(sd->fd, encrypt(sd->fd));
+    if (sd) WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
 
   return 0;
@@ -2628,7 +2628,7 @@ int clif_send(const unsigned char *buf, int len, struct block_list *bl,
 
           WFIFOHEAD(i, len + 3);
           memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, encrypt(i));
+          WFIFOSET(i, tk_encrypt(i));
         }
       }
       break;
@@ -2642,7 +2642,7 @@ int clif_send(const unsigned char *buf, int len, struct block_list *bl,
 
           WFIFOHEAD(i, len + 3);
           memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, encrypt(i));
+          WFIFOSET(i, tk_encrypt(i));
         }
       }
       break;
@@ -2657,7 +2657,7 @@ int clif_send(const unsigned char *buf, int len, struct block_list *bl,
 
           WFIFOHEAD(i, len + 3);
           memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, encrypt(i));
+          WFIFOSET(i, tk_encrypt(i));
         }
       }
       break;
@@ -2680,7 +2680,7 @@ int clif_send(const unsigned char *buf, int len, struct block_list *bl,
 
       WFIFOHEAD(sd->fd, len + 3);
       memcpy(WFIFOP(sd->fd, 0), buf, len);
-      WFIFOSET(sd->fd, encrypt(sd->fd));
+      WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       break;
   }
   return 0;
@@ -2700,7 +2700,7 @@ int clif_sendtogm(unsigned char *buf, int len, struct block_list *bl,
         if (p && (sd = p->session_data)) {
           WFIFOHEAD(i, len + 3);
           memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, encrypt(i));
+          WFIFOSET(i, tk_encrypt(i));
         }
       }
       break;
@@ -2710,7 +2710,7 @@ int clif_sendtogm(unsigned char *buf, int len, struct block_list *bl,
         if (p && (sd = p->session_data) && sd->bl.m == bl->m) {
           WFIFOHEAD(i, len + 3);
           memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, encrypt(i));
+          WFIFOSET(i, tk_encrypt(i));
         }
       }
       break;
@@ -2721,7 +2721,7 @@ int clif_sendtogm(unsigned char *buf, int len, struct block_list *bl,
             sd != (USER *)bl) {
           WFIFOHEAD(i, len + 3);
           memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, encrypt(i));
+          WFIFOSET(i, tk_encrypt(i));
         }
       }
       break;
@@ -2744,7 +2744,7 @@ int clif_sendtogm(unsigned char *buf, int len, struct block_list *bl,
 
       WFIFOHEAD(sd->fd, len + 3);
       memcpy(WFIFOP(sd->fd, 0), buf, len);
-      WFIFOSET(sd->fd, encrypt(sd->fd));
+      WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       break;
   }
   return 0;
@@ -2964,7 +2964,7 @@ int clif_mystaytus(USER *sd) {
   }
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -3233,7 +3233,7 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
   // WFIFOW(sd->fd, len + 59) = SWAP16(5);
   // WFIFOW(sd->fd, len + 61) = SWAP16(10);
   WFIFOW(sd->fd, 1) = SWAP16(len + 60);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -3475,7 +3475,7 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
   }
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 60);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -3889,7 +3889,7 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
 
   WFIFOW(src_sd->fd, 1) = SWAP16(len + 60 + 3);
 
-  WFIFOSET(src_sd->fd, encrypt(src_sd->fd));
+  WFIFOSET(src_sd->fd, tk_encrypt(src_sd->fd));
 
   clif_sendanimations(src_sd, sd);
 
@@ -3909,7 +3909,7 @@ int clif_blockmovement(USER *sd, int flag) {
   WFIFOB(sd->fd, 5) = flag;
   WFIFOB(sd->fd, 6) = 0;
   WFIFOB(sd->fd, 7) = 0;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 int clif_getchararea(USER *sd) {
@@ -4286,7 +4286,7 @@ int clif_charspecific(int sender, int id) {
   }
 
   WFIFOW(src_sd->fd, 1) = SWAP16(len + 55);
-  WFIFOSET(src_sd->fd, encrypt(src_sd->fd));
+  WFIFOSET(src_sd->fd, tk_encrypt(src_sd->fd));
 
   return 0;
 }
@@ -4309,7 +4309,7 @@ int clif_sendack(USER *sd) {
   WFIFOW(sd->fd, 1) = SWAP16(0x06);
   // WFIFOB(sd->fd, 6) = 0x65;
   // WFIFOB(sd->fd, 7) = 0x78;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -4322,7 +4322,7 @@ int clif_retrieveprofile(USER *sd) {
   WFIFOB(sd->fd, 3) = 0x49;
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOW(sd->fd, 5) = 0;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -4340,7 +4340,7 @@ int clif_screensaver(USER *sd, int screen) {
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = 0x00;
   WFIFOB(sd->fd, 6) = screen;  // screensaver
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -4359,7 +4359,7 @@ int clif_sendtime(USER *sd) {
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = cur_time;  // current time
   WFIFOB(sd->fd, 6) = cur_year;  // current year
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -4381,7 +4381,7 @@ int clif_sendid(USER *sd) {
   WFIFOB(sd->fd, 12) = 2;
   WFIFOB(sd->fd, 13) = 3;
   WFIFOW(sd->fd, 14) = SWAP16(0);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 int clif_sendweather(USER *sd) {
@@ -4395,7 +4395,7 @@ int clif_sendweather(USER *sd) {
   WFIFOB(sd->fd, 5) = 0;
   if (sd->status.settingFlags & FLAG_WEATHER)
     WFIFOB(sd->fd, 5) = map[sd->bl.m].weather;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -4440,7 +4440,7 @@ int clif_sendmapinfo(USER *sd) {
   // if(!map[sd->bl.m].light) WFIFOW(sd->fd,len+14)=SWAP16(232);
 
   WFIFOW(sd->fd, 1) = SWAP16(18 + len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   // Map BGM
   /*WFIFOHEAD(sd->fd,100);
@@ -4463,7 +4463,7 @@ int clif_sendmapinfo(USER *sd) {
   WFIFOB(sd->fd, 20) = 0;//0
   WFIFOB(sd->fd, 21) = 4;//4
   WFIFOB(sd->fd, 22) = 0;//0
-  WFIFOSET(sd->fd, encrypt(sd->fd));*/
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));*/
 
   clif_sendweather(sd);
 
@@ -4483,7 +4483,7 @@ int clif_sendmapinfo(USER *sd) {
   WFIFOL(sd->fd, 12) = SWAP32(sd->status.settingFlags);
   WFIFOB(sd->fd, 16) = 0;  // 1
   WFIFOB(sd->fd, 17) = 0;  // 0
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -4526,7 +4526,7 @@ int clif_sendxy(USER *sd) {
     WFIFOW(sd->fd, 11) = SWAP16((int)((14 - map[sd->bl.m].ys) / 2) + sd->bl.y);
 
   WFIFOB(sd->fd, 13) = 0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   pc_runfloor_sub(sd);
 
@@ -4568,7 +4568,7 @@ int clif_sendxynoclick(USER *sd) {
     WFIFOW(sd->fd, 11) = SWAP16((int)((14 - map[sd->bl.m].ys) / 2) + sd->bl.y);
 
   WFIFOB(sd->fd, 13) = 0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   pc_runfloor_sub(sd);
 
@@ -4607,7 +4607,7 @@ int clif_sendxychange(USER *sd, int dx, int dy) {
   WFIFOW(sd->fd, 11) = SWAP16(dy);
   sd->viewy = dy;
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -4688,7 +4688,7 @@ int clif_sendstatus(USER *sd, int flags) {
   len += 11;
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   if (sd->group_count > 0) {
     clif_grouphealth_update(sd);
@@ -4722,7 +4722,7 @@ int clif_sendoptions(USER *sd) {
   if (sd->status.settingFlags & FLAG_HELM) WFIFOB(sd->fd, 10) = 1;  // Helm
   WFIFOB(sd->fd, 11) = 0;
   if (sd->status.settingFlags & FLAG_REALM) WFIFOB(sd->fd, 11) = 1;  // realm?
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -4891,7 +4891,7 @@ int clif_parsewalk(USER *sd) {
     }*/
 
     WFIFOB(sd->fd, 14) = 0x00;
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
 
   if (dx == sd->bl.x && dy == sd->bl.y) return 0;
@@ -5171,7 +5171,7 @@ int clif_noparsewalk(USER *sd, char speed) {
   WFIFOW(sd->fd, 10) = SWAP16(sd->viewx);
   WFIFOW(sd->fd, 12) = SWAP16(sd->viewy);
   WFIFOB(sd->fd, 14) = 0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   if (flag == 1) {
     sd->status.settingFlags ^= FLAG_FASTMOVE;
@@ -5307,7 +5307,7 @@ int clif_guitextsd(const char *msg, USER *sd) {
 
   WFIFOW(sd->fd, 1) = SWAP16(8 + strlen(msg) + 3);
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -5340,7 +5340,7 @@ int clif_guitext(struct block_list *bl, va_list ap) {
 
   WFIFOW(sd->fd, 1) = SWAP16(8 + strlen(msg) + 3);
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -6121,7 +6121,7 @@ int clif_sendRewardInfo(USER *sd, int fd) {
   WFIFOB(fd, 2) =
       pos - 3;  // packetsize data packet. The -3 is because the encryption
                 // algorithm appends 3 bytes onto the data stream
-  WFIFOSET(fd, encrypt(fd));
+  WFIFOSET(fd, tk_encrypt(fd));
 
 end:
   return 0;
@@ -6595,7 +6595,7 @@ int clif_parseranking(USER *sd, int fd) {
 
   WFIFOB(fd, 2) = pos - 3;  // packetsize packet. The -3 is because the
                             // encryption algorithm ends 3 bytes onto the end
-  WFIFOSET(fd, encrypt(fd));
+  WFIFOSET(fd, tk_encrypt(fd));
 
   return 0;
 }
@@ -6714,7 +6714,7 @@ int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
 
   WBUFW(buf2, 1) = SWAP16(pos - 3);
   memcpy(WFIFOP(sd->fd, 0), buf2, pos);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -6834,7 +6834,7 @@ int clif_sendmsg(USER *sd, int type, const char *buf) {
   WFIFOW(sd->fd, 5) = type;
   WFIFOB(sd->fd, 7) = len;
   memcpy(WFIFOP(sd->fd, 8), buf, len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -7406,7 +7406,7 @@ int clif_senddelitem(USER *sd, int num, int type) {
   WFIFOB(sd->fd, 6) = type;
   WFIFOB(sd->fd, 7) = 0x00;
   WFIFOB(sd->fd, 8) = 0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -7538,7 +7538,7 @@ int clif_sendadditem(USER *sd, int num) {
 
   // WFIFOW(sd->fd, len + 9) = SWAP16(0);
   WFIFOW(sd->fd, 1) = SWAP16(len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -7582,7 +7582,7 @@ int clif_equipit(USER *sd, int id) {
   WFIFOW(sd->fd, len + 9) = 0x0000;
   len += 2;
   WFIFOHEADER(sd->fd, 0x37, len + 6);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 int clif_sendequip(USER *sd, int id) {
@@ -8461,7 +8461,7 @@ int clif_speak(struct block_list *bl, va_list ap) {
   strcpy(WFIFOP(sd->fd, 11), msg);
 
   WFIFOHEADER(sd->fd, 0x0D, len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -8544,7 +8544,7 @@ int clif_destroyold(USER *sd) {
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = 0x00;
   // WFIFOB(sd->fd,6)=0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -8663,7 +8663,7 @@ int clif_sendupdatestatus(USER *sd) {
   WFIFOB(sd->fd, 30) = 0x00;
   WFIFOB(sd->fd, 31) = 0x73;
   WFIFOB(sd->fd, 32) = 0x35;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -8690,7 +8690,7 @@ int clif_sendupdatestatus2(USER *sd) {
   WFIFOB(sd->fd, 20) = sd->flags;
   WFIFOB(sd->fd, 21) = 0x01;
   WFIFOL(sd->fd, 22) = SWAP32(sd->status.settingFlags);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -8729,7 +8729,7 @@ int clif_sendupdatestatus_onkill(USER *sd) {
   WFIFOB(sd->fd, 30) = sd->armor;
   WFIFOB(sd->fd, 31) = sd->dam;
   WFIFOB(sd->fd, 32) = sd->hit;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -8838,7 +8838,7 @@ int clif_sendupdatestatus_onequip(USER *sd) {
   WFIFOB(sd->fd, 60) = sd->dam;
   WFIFOB(sd->fd, 61) = sd->hit;
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -8895,7 +8895,7 @@ int clif_sendupdatestatus_onunequip(USER *sd) {
   WFIFOB(sd->fd, 49) = sd->flags;
   WFIFOL(sd->fd, 50) = tnl;
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -8914,7 +8914,7 @@ int clif_sendbluemessage(USER *sd, char *msg) {
   WFIFOB(sd->fd, 7) = strlen(msg);
   strcpy(WFIFOP(sd->fd, 8), msg);
   WFIFOW(sd->fd, 1) = SWAP16(strlen(msg) + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -9025,7 +9025,7 @@ int clif_sendanimation_xy(struct block_list *bl, va_list ap) {
   WFIFOW(src->fd, 11) = SWAP16(times);
   WFIFOW(src->fd, 13) = SWAP16(x);
   WFIFOW(src->fd, 15) = SWAP16(y);
-  WFIFOSET(src->fd, encrypt(src->fd));
+  WFIFOSET(src->fd, tk_encrypt(src->fd));
   return 0;
 }
 
@@ -9052,7 +9052,7 @@ int clif_sendanimation(struct block_list *bl, va_list ap) {
     WFIFOL(sd->fd, 5) = SWAP32(t->id);
     WFIFOW(sd->fd, 9) = SWAP16(anim);
     WFIFOW(sd->fd, 11) = SWAP16(times);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
 
   return 0;
@@ -9073,7 +9073,7 @@ int clif_animation(USER *src, USER *sd, int animation, int duration) {
     WFIFOL(src->fd, 5) = SWAP32(sd->bl.id);
     WFIFOW(src->fd, 9) = SWAP16(animation);
     WFIFOW(src->fd, 11) = SWAP16(duration / 1000);
-    WFIFOSET(src->fd, encrypt(src->fd));
+    WFIFOSET(src->fd, tk_encrypt(src->fd));
   }
   return 0;
 }
@@ -9121,7 +9121,7 @@ int clif_sendmagic(USER *sd, int pos) {
   len = len + strlen(question) + 1;
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -9579,7 +9579,7 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
     WFIFOW(sd->fd, 1) = SWAP16(strlen(msg) + 63);
   }
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 int clif_scriptmenu(
@@ -9856,7 +9856,7 @@ int clif_scriptmenu(
     WFIFOW(sd->fd, 1) = SWAP16(len + 58);
   }
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -10140,7 +10140,7 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
     WFIFOW(sd->fd, 1) = SWAP16(len + 68);
   }
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -10205,7 +10205,7 @@ int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
 
   WFIFOW(sd->fd, 1) = SWAP16(len);
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -10266,7 +10266,7 @@ int clif_unequipit(USER *sd, int spot) {
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = spot;
   WFIFOB(sd->fd, 6) = 0x00;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 int clif_parseunequip(USER *sd) {
@@ -10632,7 +10632,7 @@ int clif_parsechangepos(USER *sd) {
         //WFIFOB(sd->fd,9)=0;
         WFIFOW(sd->fd,1)=SWAP16(len+5);
         //WFIFOW(sd->fd,8)=SWAP16(1);
-        WFIFOSET(sd->fd,encrypt(sd->fd));
+        WFIFOSET(sd->fd,tk_encrypt(sd->fd));
 
         return 0;
 }*/
@@ -10651,7 +10651,7 @@ int clif_parsechangepos(USER *sd) {
         WFIFOL(sd->fd,22)=0;
         WFIFOB(sd->fd,26)=0;
 
-        encrypt(WFIFOP(sd->fd,0));
+        tk_encrypt(WFIFOP(sd->fd,0));
         WFIFOSET(sd->fd,27);
 
         sl_doscript_blargs(guidedb_yname(SWAP16(RFIFOW(sd->fd,7))),"run",1,&sd->bl);
@@ -10858,7 +10858,7 @@ int clif_removespell(USER *sd, int pos) {
   WFIFOB(sd->fd, 3) = 0x18;
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = pos + 1;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 int clif_throwitem_sub(USER *sd, int id, int type, int x, int y) {
@@ -10997,7 +10997,7 @@ int clif_throwconfirm(USER *sd) {
   WFIFOB(sd->fd, 3) = 0x4E;
   WFIFOB(sd->fd, 5) = RFIFOB(sd->fd, 6);
   WFIFOB(sd->fd, 6) = 0;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -11466,10 +11466,10 @@ int clif_sendminimap(USER *sd) {
   WFIFOB(sd->fd, 4) = SWAP16(sd->bl.m);  // 0x1D
   WFIFOB(sd->fd, 5) = 0x00;
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   // official packet[] = { 0xAA, 0x00, 0x06, 0x70, 0x1E, 0x00};
-  // WFIFOSET(sd->fd, encrypt(fd));
+  // WFIFOSET(sd->fd, tk_encrypt(fd));
 
   return 0;
 }
@@ -11678,7 +11678,7 @@ int clif_parse(int fd) {
   }
 
   // Incoming Packet Decryption
-  decrypt(fd);
+  tk_decrypt(fd);
 
   // printf("packet id: %i\n",RFIFOB(fd,3));
 
@@ -12242,7 +12242,7 @@ int clif_sendtest(USER *sd) {
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = number;
   WFIFOB(sd->fd, 6) = 0;
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   number++;
 
   return 0;
@@ -12292,7 +12292,7 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
     strcpy(WFIFOP(src_sd->fd, 17), buf);
 
     WFIFOW(src_sd->fd, 1) = SWAP16(len + 13);
-    WFIFOSET(src_sd->fd, encrypt(src_sd->fd));
+    WFIFOSET(src_sd->fd, tk_encrypt(src_sd->fd));
   } else {
     WFIFOW(src_sd->fd, 9) = SWAP16(sd->status.sex);
 
@@ -12605,7 +12605,7 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
     }
 
     WFIFOW(src_sd->fd, 1) = SWAP16(len + 55 + 3);
-    WFIFOSET(src_sd->fd, encrypt(src_sd->fd));
+    WFIFOSET(src_sd->fd, tk_encrypt(src_sd->fd));
   }
 
   if (map[sd->bl.m].show_ghosts) {
@@ -12617,7 +12617,7 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
         WFIFOB(src_sd->fd, 3) = 0x0E;
         WFIFOB(src_sd->fd, 4) = 0x03;
         WFIFOL(src_sd->fd, 5) = SWAP32(sd->bl.id);
-        WFIFOSET(src_sd->fd, encrypt(src_sd->fd));
+        WFIFOSET(src_sd->fd, tk_encrypt(src_sd->fd));
 
         return 0;
       } else {
@@ -12632,7 +12632,7 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
                       WFIFOB(sd->fd, 3) = 0x5F;
                       WFIFOB(sd->fd, 4) = 0x03;
                       WFIFOL(sd->fd, 5) = SWAP32(src_sd->bl.id);
-                      encrypt(WFIFOP(sd->fd,0));
+                      tk_encrypt(WFIFOP(sd->fd,0));
                       WFIFOSET(sd->fd,9);
               } */
     }
@@ -12679,7 +12679,7 @@ int clif_showboards(USER *sd) {
   }
   WFIFOB(sd->fd, 20) = b_count;
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -12777,7 +12777,7 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
     }
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 19);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   } else {
     nd = map_id2npc(id);
     WFIFOB(sd->fd, 11) = 1;
@@ -12951,7 +12951,7 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
       len += strlen(buff) + 1;
     }
     WFIFOW(sd->fd, 1) = SWAP16(len + 63);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
 
   FREE(item);
@@ -13027,7 +13027,7 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
       len += 1;
     }
     WFIFOW(sd->fd, 1) = SWAP16(len + 17);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   } else {
     nd = map_id2npc(id);
     WFIFOB(sd->fd, 11) = 1;
@@ -13163,7 +13163,7 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
     }
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 62);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
   return 0;
 }
@@ -13295,7 +13295,7 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
     len += 2;
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 19);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   } else if (type == 1) {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
@@ -13426,7 +13426,7 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
     len += 2;
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 57);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   } else if (type == 2) {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
@@ -13506,7 +13506,7 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
     len += 2;
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 57);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   }
 
   return 0;
@@ -13935,7 +13935,7 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   len += 5;
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   sl_doscript_blargs("onClick", NULL, 2, &sd->bl, &tsd->bl);
   return 0;
 }
@@ -14158,7 +14158,7 @@ int clif_groupstatus(USER *sd) {
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -14227,7 +14227,7 @@ int clif_grouphealth_update(USER *sd) {
     printf("\n\n\n");*/
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
     clif_groupstatus(sd);
   }
@@ -14905,7 +14905,7 @@ int clif_handitem(USER *sd) {
         strcpy(WFIFOP(sd->fd, 11), msg);
 
         WFIFOHEADER(sd->fd, 0x0D, strlen(msg) + 11);
-        WFIFOSET(sd->fd, encrypt(sd->fd));
+        WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       }
     }
   }
@@ -15007,7 +15007,7 @@ int clif_exchange_message(USER *sd, char *message, int type, int extra) {
   strcpy(WFIFOP(sd->fd, 8), message);
   // len+=strlen(message)+2;
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -15071,7 +15071,7 @@ int clif_parse_exchange(USER *sd) {
         WFIFOB(sd->fd, 4) = 0x03;
         WFIFOB(sd->fd, 5) = 0x01;
         WFIFOB(sd->fd, 6) = id + 1;
-        WFIFOSET(sd->fd, encrypt(sd->fd));
+        WFIFOSET(sd->fd, tk_encrypt(sd->fd));
       } else if (sd->status.inventory[id].id) {
         tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
         clif_exchange_additem(sd, tsd, id, 1);
@@ -15188,7 +15188,7 @@ int clif_startexchange(USER *sd, unsigned int target) {
     len += 2;
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-    WFIFOSET(sd->fd, encrypt(sd->fd));
+    WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
     if (!session[sd->fd]) {
       session[sd->fd]->eof = 8;
@@ -15217,7 +15217,7 @@ int clif_startexchange(USER *sd, unsigned int target) {
     len += 2;
 
     WFIFOW(tsd->fd, 1) = SWAP16(len + 3);
-    WFIFOSET(tsd->fd, encrypt(tsd->fd));
+    WFIFOSET(tsd->fd, tk_encrypt(tsd->fd));
     sd->status.settingFlags ^= FLAG_EXCHANGE;
     tsd->status.settingFlags ^= FLAG_EXCHANGE;
 
@@ -15265,7 +15265,7 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   len += strlen(buff) + 5;
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   len = 0;
 
   if (!session[sd->fd]) {
@@ -15288,7 +15288,7 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   strcpy(WFIFOP(tsd->fd, 12), buff);
   len += strlen(buff) + 1;
   WFIFOW(tsd->fd, 1) = SWAP16(len + 8);
-  WFIFOSET(tsd->fd, encrypt(tsd->fd));
+  WFIFOSET(tsd->fd, tk_encrypt(tsd->fd));
 
   return 0;
 }
@@ -15384,7 +15384,7 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   len += strlen(buff) + 5;
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   len = 0;
 
   if (!session[sd->fd]) {
@@ -15439,7 +15439,7 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   strcpy(WFIFOP(tsd->fd, 12), buff);
   len += strlen(buff) + 1;
   WFIFOW(tsd->fd, 1) = SWAP16(len + 8);
-  WFIFOSET(tsd->fd, encrypt(tsd->fd));
+  WFIFOSET(tsd->fd, tk_encrypt(tsd->fd));
 
   sd->exchange.item_count++;
   if (strlen(sd->exchange.item[i].real_name)) {
@@ -15489,7 +15489,7 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   WFIFOB(sd->fd, 5) = 0x03;
   WFIFOB(sd->fd, 6) = 0x00;
   WFIFOL(sd->fd, 7) = SWAP32(sd->exchange.gold);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   WFIFOB(tsd->fd, 0) = 0xAA;
   WFIFOW(tsd->fd, 1) = SWAP16(8);
@@ -15498,7 +15498,7 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   WFIFOB(tsd->fd, 5) = 0x03;
   WFIFOB(tsd->fd, 6) = 0x01;
   WFIFOL(tsd->fd, 7) = SWAP32(sd->exchange.gold);
-  WFIFOSET(tsd->fd, encrypt(tsd->fd));
+  WFIFOSET(tsd->fd, tk_encrypt(tsd->fd));
 
   return 0;
 }
@@ -15673,7 +15673,7 @@ limit at a time?  number is always 100 or 255
         }
 
         WFIFOW(sd->fd,1)=SWAP16(len+3);
-        WFIFOSET(sd->fd,encrypt(sd->fd));
+        WFIFOSET(sd->fd,tk_encrypt(sd->fd));
 
         FREE(items);
         // /lua Player(2):clanBankWithdraw()
@@ -15734,7 +15734,7 @@ int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0,
   }
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -15794,7 +15794,7 @@ int clif_sendpowerboard(USER *sd) {
                     sd, len);
   WFIFOW(sd->fd, 6) = SWAP16(len[1]);
   WFIFOW(sd->fd, 1) = SWAP16(len[0] + 5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
   return 0;
 }
 
@@ -15849,7 +15849,7 @@ int clif_huntertoggle(USER *sd) {
   WFIFOB(sd->fd, 3) = 0x83;
   WFIFOB(sd->fd, 5) = sd->hunter;
   WFIFOW(sd->fd, 1) = SWAP16(5);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }
@@ -15911,7 +15911,7 @@ int clif_sendhunternote(USER *sd) {
   len += strlen(hunternote);
 
   WFIFOW(sd->fd, 1) = SWAP16(len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, tk_encrypt(sd->fd));
 
   return 0;
 }

@@ -33,7 +33,7 @@ bool is_key_server(int opcode) {
   return true;
 }
 
-int encrypt(int fd) {
+int tk_encrypt(int fd) {
   USER *sd = NULL;
   char key[16];
   sd = session[fd]->session_data;
@@ -51,7 +51,7 @@ int encrypt(int fd) {
   return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
 }
 
-int decrypt(int fd) {
+int tk_decrypt(int fd) {
   USER *sd = NULL;
   char key[16];
   sd = (USER *)session[fd]->session_data;
