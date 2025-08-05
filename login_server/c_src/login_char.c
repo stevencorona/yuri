@@ -12,8 +12,17 @@
 #include "net_crypt.h"
 #include "session.h"
 
+//
+// Packet length table for inter-server communication
+//
 static int packet_len_table[] = {69, 5, 5, 27, 5, 0};
 
+/**
+ * Dumps a packet to the console for debugging purposes.
+ * @param fd The file descriptor of the connection.
+ * @param len The length of the packet.
+ * @return 0.
+ */
 int intif_debug(int fd, int len) {
   int x = 0;
   for (x = 0; x < len; x++) {
@@ -22,6 +31,12 @@ int intif_debug(int fd, int len) {
   printf("\n");
   return 0;
 }
+
+/**
+ * Authenticates the character server.
+ * @param fd The file descriptor of the character server.
+ * @return 0 on success, 1 on failure.
+ */
 int intif_auth(int fd) {
   if (char_fd > 0) {
     session_eof(fd);
@@ -55,6 +70,12 @@ int intif_auth(int fd) {
       "[login] [char_server_connect] Connection from Char Server accepted.\n");
   return 0;
 }
+
+/**
+ * Parses a new account response from the character server.
+ * @param fd The file descriptor of the character server.
+ * @return 0 on success, 1 on failure.
+ */
 int login_intif_parse_2001(int fd) {
   if (!session[RFIFOW(fd, 2)]) {
     return 0;
@@ -70,6 +91,12 @@ int login_intif_parse_2001(int fd) {
 
   return 0;
 }
+
+/**
+ * Parses a new character response from the character server.
+ * @param fd The file descriptor of the character server.
+ * @return 0 on success, 1 on failure.
+ */
 int login_intif_parse_2002(int fd) {
   if (!session[RFIFOW(fd, 2)]) {
     return 0;
@@ -85,6 +112,12 @@ int login_intif_parse_2002(int fd) {
 
   return 0;
 }
+
+/**
+ * Parses a login response from the character server.
+ * @param fd The file descriptor of the character server.
+ * @return 0 on success, 1 on failure.
+ */
 int login_intif_parse_connectconfirm(int fd) {
   if (!session[RFIFOW(fd, 2)]) {
     return 0;
@@ -169,7 +202,8 @@ int login_intif_parse_connectconfirm(int fd) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_BANNED]);
   } else if (RFIFOB(fd, 4) == 0x05) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRSERVER]);
-  } else if (RFIFOB(fd, 4) == 0x06) {
+  }
+  else if (RFIFOB(fd, 4) == 0x06) {
     clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_DBLLOGIN]);
   } else {
     printf("[login] [internal_error] login_intif_parse_connectconfirm failure\n");
@@ -178,6 +212,11 @@ int login_intif_parse_connectconfirm(int fd) {
   return 0;
 }
 
+/**
+ * Parses a change password response from the character server.
+ * @param fd The file descriptor of the character server.
+ * @return 0 on success, 1 on failure.
+ */
 int login_intif_parse_changepass(int fd) {
   if (!session[RFIFOW(fd, 2)]) {
     {
@@ -206,6 +245,12 @@ int login_intif_parse_changepass(int fd) {
   }
   return 0;
 }
+
+/**
+ * Parses incoming packets from the character server.
+ * @param fd The file descriptor of the character server.
+ * @return 0 on success, 1 on failure.
+ */
 int login_intif_parse(int fd) {
   int cmd = 0;
   int packet_len = 0;

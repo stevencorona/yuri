@@ -23,16 +23,28 @@
 // Forward declarations
 void set_termfunc(term_func_t new_term_func);
 
+//
+// Global variables
+//
 int login_fd = 0;
 int char_fd = 0;
 char login_msg[MSG_MAX][256];
 Sql *sql_handle = NULL;
 DBMap *bf_lockout = NULL;
 
+//
+// Masks for username and password validation
+//
 const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] =
     "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
 
+/**
+ * Validates a string against a mask.
+ * @param buf The string to validate.
+ * @param mask The mask to validate against.
+ * @return 0 if the string is valid, 1 otherwise.
+ */
 int Valid(const char *buf, const char *mask) {
   int x = 0;
   int n = 0;
@@ -53,6 +65,12 @@ int Valid(const char *buf, const char *mask) {
   return 0;
 }
 
+/**
+ * Checks if a string contains only alphabetic characters.
+ * @param p The string to check.
+ * @param len The length of the string.
+ * @return 0 if the string is valid, 1 otherwise.
+ */
 int string_check_allchars(const char *p, int len) {
   char buf[255];
   memset(buf, 0, 255);
@@ -60,6 +78,12 @@ int string_check_allchars(const char *p, int len) {
   return Valid(buf, mask1);
 }
 
+/**
+ * Checks if a string contains only alphanumeric characters.
+ * @param p The string to check.
+ * @param len The length of the string.
+ * @return 0 if the string is valid, 1 otherwise.
+ */
 int string_check(const char *p, int len) {
   char buf[255];
   memset(buf, 0, 255);
@@ -67,6 +91,11 @@ int string_check(const char *p, int len) {
   return Valid(buf, mask2);
 }
 
+/**
+ * Reads the language file and loads the messages into memory.
+ * @param cfg_file The path to the language file.
+ * @return 0 on success, 1 on failure.
+ */
 int login_lang_read(const char *cfg_file) {
   char line[1024];
   char r1[1024];
@@ -87,7 +116,8 @@ int login_lang_read(const char *cfg_file) {
       continue;
     }
 
-    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
+    if (sscanf(line, "%[^\]: %[^
+]", r1, r2) == 2) {
       if (strcasecmp(r1, "LGN_ERRSERVER") == 0) {
         strncpy(login_msg[LGN_ERRSERVER], r2, 256);
         login_msg[LGN_ERRSERVER][255] = '\0';
@@ -129,16 +159,28 @@ int login_lang_read(const char *cfg_file) {
   return 0;
 }
 
+/**
+ * Called when the server is shutting down.
+ */
 void login_do_term(void) { printf("[login] [shutdown]\n"); }
 
+/**
+ * Displays the help screen and exits.
+ */
 void login_help_screen() {
   printf("HELP LIST\n");
-  printf("---------\n");
+  printf("----------\n");
   printf(" --conf [FILENAME]  : set config file\n");
   printf(" --lang [FILENAME]  : set lang file\n");
   exit(0);
 }
 
+/**
+ * Initializes the login server.
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line arguments.
+ * @return 0 on success, 1 on failure.
+ */
 int login_do_init(int argc, char **argv) {
   int i = 0;
   char *CONF_FILE = "conf/server.yaml";
@@ -187,17 +229,32 @@ int login_do_init(int argc, char **argv) {
   return 0;
 }
 
-// These are all unsafe and weird -  uidb expects pointer value, but we're
-// trying to give it a uint.
+/**
+ * Gets the number of invalid login attempts for an IP address.
+ * @param ip The IP address to check.
+ * @return The number of invalid login attempts.
+ */
 int getInvalidCount(unsigned int ip) {
   unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
   return c;
 }
 
+/**
+ * Clears the lockout for an IP address.
+ * @param i The IP address to clear.
+ * @param d Unused.
+ * @return 1 on success.
+ */
 int login_clear_lockout(int i, int d) {
   uidb_remove(bf_lockout, (uintptr_t)i);
   return 1;
 }
+
+/**
+ * Increments the invalid login attempt count for an IP address.
+ * @param ip The IP address to increment.
+ * @return The new invalid login attempt count.
+ */
 int setInvalidCount(unsigned int ip) {
   unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
 
@@ -212,6 +269,10 @@ int setInvalidCount(unsigned int ip) {
 
 static term_func_t term_func;
 
+/**
+ * Handles signals.
+ * @param signal The signal to handle.
+ */
 void handle_signal(int signal) {
   switch (signal) {
     case SIGINT:
@@ -235,8 +296,18 @@ void handle_signal(int signal) {
   }
 }
 
+/**
+ * Sets the termination function.
+ * @param new_term_func The new termination function.
+ */
 void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
 
+/**
+ * The main entry point of the login server.
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line arguments.
+ * @return 0 on success, 1 on failure.
+ */
 int start_login_server(int argc, char **argv) {
   struct timeval start;
   int tick = 0;

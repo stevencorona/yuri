@@ -20,6 +20,11 @@
 extern int Check_Throttle(struct sockaddr_in S);
 extern void Add_Throttle(struct sockaddr_in S);
 
+/**
+ * Checks if an IP address is banned.
+ * @param ip The IP address to check.
+ * @return True if the IP address is banned, false otherwise.
+ */
 bool bannedIPCheck(char *ip) {
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
@@ -46,6 +51,11 @@ bool bannedIPCheck(char *ip) {
   return false;
 }
 
+/**
+ * Accepts a new client connection.
+ * @param fd The file descriptor of the new connection.
+ * @return 0 on success, 1 on failure.
+ */
 int clif_accept(int fd) {
   int P = 0;
   bool DDOS = false;
@@ -110,6 +120,13 @@ int clif_accept(int fd) {
   return 0;
 }
 
+/**
+ * Sends a message to the client.
+ * @param fd The file descriptor of the client.
+ * @param code The message code.
+ * @param buff The message to send.
+ * @return 0 on success, 1 on failure.
+ */
 int clif_message(int fd, char code, char *buff) {
   int packet_len = strlen(buff) + 6;
   WFIFOHEAD(fd, packet_len + 3);
@@ -128,6 +145,13 @@ int clif_message(int fd, char code, char *buff) {
   return 0;
 }
 
+/**
+ * Sends a URL to the client.
+ * @param fd The file descriptor of the client.
+ * @param type The type of URL.
+ * @param url The URL to send.
+ * @return 0 on success, 1 on failure.
+ */
 int login_clif_sendurl(int fd, int type, const char *url) {
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 3) = 0x66;
@@ -144,6 +168,12 @@ int login_clif_sendurl(int fd, int type, const char *url) {
   return 0;
 }
 
+/**
+ * Checks if a character is registered to an account.
+ * @param n The name of the character.
+ * @param len The length of the character name.
+ * @return The account ID if the character is registered, 0 otherwise.
+ */
 int reg_check(const char *n, int len) {
   char buf[255];
 
@@ -207,6 +237,10 @@ int reg_check(const char *n, int len) {
   return accountid;
 }
 
+/**
+ * Checks if the server is in maintenance mode.
+ * @return 1 if the server is in maintenance mode, 0 otherwise.
+ */
 int maintenance_mode() {
   int flag = 0;
   int nFlag = 0;
@@ -238,6 +272,12 @@ int maintenance_mode() {
   return flag;
 }
 
+/**
+ * Checks if a character has maintenance override.
+ * @param n The name of the character.
+ * @param len The length of the character name.
+ * @return The GM level of the character if they have override, 0 otherwise.
+ */
 int maintenance_override(const char *n, int len) {
   char buf[255];
   int flag = 0;
@@ -276,6 +316,11 @@ int maintenance_override(const char *n, int len) {
   return flag;
 }
 
+/**
+ * Calculates the CRC32 checksum of a file.
+ * @param file The path to the file.
+ * @return The CRC32 checksum of the file.
+ */
 unsigned int login_metacrc(char *file) {
   FILE *fp = NULL;
 
@@ -296,6 +341,12 @@ unsigned int login_metacrc(char *file) {
   return checksum;
 }
 
+/**
+ * Sends a meta file to the client.
+ * @param fd The file descriptor of the client.
+ * @param file The name of the meta file to send.
+ * @return 0 on success, 1 on failure.
+ */
 int login_send_metafile(int fd, char *file) {
   int len = 0;
   unsigned int checksum = 0;
@@ -359,6 +410,11 @@ int login_send_metafile(int fd, char *file) {
   return 0;
 }
 
+/**
+ * Sends a meta file to the client.
+ * @param fd The file descriptor of the client.
+ * @return 0 on success, 1 on failure.
+ */
 int login_send_meta(int fd) {
   char temp[255];
 
@@ -370,6 +426,11 @@ int login_send_meta(int fd) {
   return 0;
 }
 
+/**
+ * Sends the meta file list to the client.
+ * @param fd The file descriptor of the client.
+ * @return 0 on success, 1 on failure.
+ */
 int login_send_metalist(int fd) {
   int len = 0;
   unsigned int checksum = 0;
@@ -400,6 +461,12 @@ int login_send_metalist(int fd) {
   return 0;
 }
 
+/**
+ * Dumps a packet to the console for debugging purposes.
+ * @param stringthing The packet to dump.
+ * @param len The length of the packet.
+ * @return 0.
+ */
 int login_clif_debug(unsigned char *stringthing, int len) {
   int i = 0;
 
@@ -421,6 +488,11 @@ int login_clif_debug(unsigned char *stringthing, int len) {
   return 0;
 }
 
+/**
+ * Parses incoming packets from the client.
+ * @param fd The file descriptor of the client.
+ * @return 0 on success, 1 on failure.
+ */
 int login_clif_parse(int fd) {
   unsigned short len = 0;
   unsigned short ver = 0;
