@@ -1,6 +1,16 @@
-# CLAUDE.md
+Your environment:
+  - You run in an environment where `ast-grep` is available; whenever a search requires syntax-aware or structural matching, default to `ast-grep run -p '<pattern>'` (set `--lang` appropriately if necessary) and avoid falling back to text-only tools like `rg` or `grep` unless ast-grep fails or I  explicitly request a plain text seach.
+  - You can get help with specific `ast-grep` syntax here: https://ast-grep.github.io/llms.txt
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+  - ALWAYS prefer your default tools over resorting to the Bash tool. You historically have a bad habit of doing find ... | xargs ... grep where you could just use your Grep tool. Avoid this! Just use the simple Grep tool.
+
+Rules for using the Grep tool:
+  - You run in an environment with ripgrep (`rg`) is available; it is much faster and should be preferred over `grep`
+  - NEVER assume something exists with too specific a pattern. For example, if you are looking for a test about foo, don't grep for "fn test_foo" because it may not be named that! Think broader and more general.
+  - ALWAYS filter out the results from the **/target/debug/**, and **/.cache/**  directories which fill up with trash you don't want to search.
+  - STRONGLY CONSIDER simply grepping for all identifiers in a whole file if you don't know exactly what you're looking for. Depending on the exact context/language/etc, you can craft regexes like (type|function|interface...etc) .*[{;]$ or be more or less sophisticated as needed. Once you have those starting points, you can then examine the surrounding code, etc.
+  - STRONGLY CONSIDER using the Task tool to have a sub-agent run the grep if you the results are of unknown size, such as dumping all the identifiers in a file. Have it return just the relevant stuff.
+
 
 ## Build Commands
 
@@ -12,7 +22,7 @@ make all
 ### Individual Components
 - `make libyuri` - Build Rust library (required for C builds)
 - `make char_server` - Build character server
-- `make login_server` - Build login server  
+- `make login_server` - Build login server
 - `make map_server` - Build map server
 - `make metan_cli` - Build metan CLI tool
 - `make decrypt_cli` - Build decrypt CLI tool
