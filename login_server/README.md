@@ -51,6 +51,49 @@ Communication between the client and login server follows a custom packet protoc
 | `0x03` | Login Response   | Sent in response to a login request. Contains a status code indicating success/failure; on success it also includes the character-server IP, port, and a session token. |
 | `0x6F` | Meta File        | Sent in response to a meta-file request. Contains the (compressed) file data.                                                                                           |
 
+## 2.4
+```mermaid
+stateDiagram-v2
+    [*] --> ServerHello: Client connects (0xAA packet)
+
+    ServerHello --> ClientVersion: Send "CONNECTED SERVER"
+
+    ClientVersion --> PatchRequired: Version mismatch
+    ClientVersion --> ServerAccept: Version OK (0x00)
+
+    PatchRequired --> [*]: Disconnect
+
+    ServerAccept --> Authenticated: Ready for operations
+
+    state Authenticated {
+        [*] --> WaitingForRequest
+
+        WaitingForRequest --> CheckAccount: 0x02 (Create Account)
+        CheckAccount --> WaitingForRequest: Response
+
+        WaitingForRequest --> CheckLogin: 0x03 (Login)
+        CheckLogin --> ServerTransfer: Success (0x01)
+        CheckLogin --> WaitingForRequest: Error
+
+        WaitingForRequest --> CreateCharacter: 0x04 (New Character)
+        CreateCharacter --> WaitingForRequest: Response
+
+        WaitingForRequest --> ChangePassword: 0x26 (Change Pass)
+        ChangePassword --> WaitingForRequest: Response
+
+        WaitingForRequest --> MetaRequest: 0x7B (Meta files)
+        MetaRequest --> WaitingForRequest: Send meta
+
+        WaitingForRequest --> Heartbeat: 0x10 (Ping)
+        Heartbeat --> WaitingForRequest: Pong
+
+        WaitingForRequest --> Disconnect: 0xFF (intif_auth)
+    }
+
+    ServerTransfer --> [*]: Transfer to game server
+    Disconnect --> [*]: Close connection
+```
+
 ## 3. Encryption
 
 Communication between the client and login server is protected by a two-layer XOR scheme.
