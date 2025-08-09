@@ -39,6 +39,8 @@
 #include "strlib.h"
 #include "timer.h"
 
+lua_State *sl_gstate = NULL;
+
 #define sl_redtext(text) "\033[31;1m" text "\033[0m"
 #define sl_err(text) printf(sl_redtext("Lua error:") " %s\n", text)
 #define sl_err_print(state) sl_err(lua_tostring(state, -1))
@@ -797,7 +799,6 @@ int gettile(lua_State *state) {
 
   return 1;
 }
-
 int setpass(lua_State *state) {
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, 1);
@@ -1581,7 +1582,6 @@ int setwarps(lua_State *state) {
 
   return 1;
 }
-
 int getwarps(lua_State *state) {
   int m = lua_tonumber(state, 1);
 
@@ -2373,7 +2373,6 @@ int sl_getFreeMapModifierId(lua_State *state) {
 
   return 1;
 }
-
 int sl_getWisdomStarMultiplier(lua_State *state) {
   float wisdomStarMultiplier = 0;
 
@@ -3082,7 +3081,6 @@ int sl_getXPforLevel(lua_State *state) {
 
   return 1;
 }
-
 int sl_processKanDonations(lua_State *state) {
   struct character {
     char name[32];
@@ -3864,7 +3862,6 @@ void sl_resumemenuseq(unsigned int selection, int choice, USER *sd) {
     sl_async_resume(sd, 1);
   }
 }
-
 void sl_resumedialog(unsigned int choice, USER *sd) {
   /*if(sd->coroutine) {
               if(lua_status(sd->coroutine)==LUA_YIELD) {
@@ -4665,7 +4662,6 @@ int bll_delete(lua_State *state, void *self) {
 
   return 0;
 }
-
 int bll_addnpc(lua_State *state, void *self) {
   sl_checkargs(state, "snnn");
   struct npc_data *nd = NULL;
@@ -5461,7 +5457,6 @@ int fll_getTrapSpotters(lua_State *state, void *self) {
 
   return 1;
 }
-
 void npcl_staticinit() {
   npcl_type = typel_new("NPC", npcl_ctor);
   npcl_type.init = npcl_init;
@@ -5873,28 +5868,6 @@ int mobl_durationamount(lua_State *state, void *self) {
 }
 
 int mobl_ctor(lua_State *state) {
-  /*MOB *mob = NULL;
-      unsigned int id = 0;
-
-      if(lua_isstring(state, 2)) id = mobdb_id(lua_tostring(state, 2));
-      else if (lua_isnumber(state, 2)) id = lua_tonumber(state, 2);
-      else {
-              luaL_argerror(state, 1, "expected number");
-              return 1;
-      }
-
-      mob = map_id2mob(id);
-
-      if(!mob) {
-              lua_pushnil(state);
-              return 1; //luaL_error(state, "invalid mob id (%d)", id);
-      } else {
-              mobl_pushinst(state, mob);
-              return 1;
-      }
-
-return 1;*/
-
   MOB *mob = NULL;
   if (lua_isnumber(state, 2)) {
     unsigned int id = lua_tonumber(state, 2);
@@ -6007,29 +5980,15 @@ int mobl_setduration(lua_State *state, void *self) {
       return 0;
     } else if (mob->da[x].id == 0 && mob->da[x].duration == 0 && time != 0 &&
                alreadycast != 1) {
-      // if (mob->da[x].caster_id != caster_id && caster_id > 0) {
-      //	mob->da[x].id = id;
-      //	mob->da[x].duration=time;
-      //	mob->da[x].caster_id=caster_id; //for specific caster
-      //} else if (caster_id == 0) {
       mob->da[x].id = id;
       mob->da[x].duration = time;
       mob->da[x].caster_id = caster_id;
-      //}
-
       return 0;
     }
   }
 
-  // printf("I didn't set duration... id: %u, time: %u, caster: %u, recast: %u,
-  // alreadycast: %u\n", id, time, caster_id, recast, alreadycast);
   return 0;
 }
-
-/*int mobl_flushduration(lua_State *state, void *self) {
-  MOB *mob = (MOB *)self;        mob_flushmagic(mob);
-        return 0;
-}*/
 
 int mobl_flushduration(lua_State *state, void *self) {
   MOB *mob = (MOB *)self;
@@ -6238,7 +6197,6 @@ int mobl_sendhealth(lua_State *state, void *self) {
   clif_send_mob_healthscript(mob, damage, critical);
   return 0;
 }
-
 int mobl_init(lua_State *state, void *self, int dataref, void *param) {
   MOB *mob = (MOB *)self;
 
@@ -6994,7 +6952,6 @@ int mobregl_setattr(lua_State *state, void *self, const char *attrname) {
   mob_setglobalreg(mob, attrname, lua_tonumber(state, -1));
   return 0;
 }
-
 void pcl_staticinit() {
   pcl_type = typel_new("Player", pcl_ctor);
   pcl_type.getattr = pcl_getattr;
@@ -7789,7 +7746,6 @@ int pcl_flushkills(lua_State *state, void *self) {
 
   return 0;
 }
-
 int pcl_showhealth(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
@@ -8559,7 +8515,6 @@ int pcl_updateMail(lua_State *state, void *self) {
 
   return 1;
 }
-
 int pcl_addKan(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
@@ -9359,7 +9314,6 @@ int pcl_resurrect(lua_State *state, void *self) {
   pc_res(sd);
   return 0;
 }
-
 int pcl_setMiniMapToggle(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
@@ -10148,7 +10102,6 @@ int pcl_removelegendbycolor(lua_State *state, void *self) {
   }
   return 0;
 }
-
 int pcl_removeinventoryitem(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   unsigned int id = 0, amount = 0, owner = 0;
@@ -10934,7 +10887,6 @@ int pcl_getspellname(lua_State *state, void *self) {
 
   return 1;
 }
-
 int pcl_getspellyname(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   int i, x;
@@ -11690,7 +11642,6 @@ int pcl_subpathbankdeposit(lua_State *state, void *self) {
   lua_pushboolean(state, 0);
   return 0;
 }
-
 int pcl_subpathbankwithdraw(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
@@ -12485,7 +12436,6 @@ int pcl_removeparcel(lua_State *state, void *self) {
   lua_pushboolean(state, 1);
   return 1;
 }
-
 int pcl_expireitem(lua_State *state, void *self) {
   USER *sd = (USER *)self;
   int x, eqdel;

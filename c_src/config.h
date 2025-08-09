@@ -1,3 +1,4 @@
+#pragma once
 // Centralized global configuration and variables used across the entire
 // application Globals are not thread-safe
 
@@ -6,7 +7,7 @@
 // Maximum number of meta files
 #define META_MAX 20
 
-char xor_key[9];
+extern char xor_key[9];
 
 extern struct point start_pos;
 
