@@ -131,8 +131,6 @@ struct {
                 { command_reloadwarps, "reloadwarps", 99 },
                 { command_transfer, "transfer", 99 } };
 
-struct userlist_data userlist;
-
 int command_report(USER *sd, char *line, lua_State *state) {
     USER *tsd = NULL;
     int   x;
@@ -382,7 +380,7 @@ int command_luasize(USER *sd, char *line, lua_State *state) {
     return 0;
 }
 
-int command_luafix(USER *sd, char *line, lua_State *state) {
+int command_luafix(USER *sd, char *_line, lua_State *state) {
     sl_fixmem();
     return 0;
 }

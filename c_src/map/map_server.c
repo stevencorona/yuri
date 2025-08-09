@@ -1,16 +1,5 @@
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/timeb.h>
-#include <time.h>
-#ifdef _WIN32
-#include <winsock.h>
-#else
-#include <arpa/inet.h>
-#endif
+#include "map_server.h"
+
 #include "board_db.h"
 #include "clan_db.h"
 #include "class_db.h"
@@ -23,7 +12,6 @@
 #include "magic_db.h"
 #include "map_char.h"
 #include "map_parse.h"
-#include "map_server.h"
 #include "mmo.h"
 #include "mob.h"
 #include "net_crypt.h"
@@ -35,7 +23,21 @@
 #include "strlib.h"
 #include "timer.h"
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 #include <netdb.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/timeb.h>
+#include <time.h>
 
 #ifndef _MAP_SERVER_
 #define _MAP_SERVER_
