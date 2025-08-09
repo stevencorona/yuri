@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 project(yuri)
 
@@ -17,7 +17,7 @@ find_package(ZLIB)
 # find_package(Lua5.1)
 
 # For LuaJIT
-find_package(PkgConfig REQUIRED) 
+find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED IMPORTED_TARGET luajit)
 
 include_directories(${LUA_INCLUDE_DIR})
