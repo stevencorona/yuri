@@ -43,12 +43,7 @@
 
 Sql* sql_handle = NULL;
 
-DBMap* item_db;
 DBMap* id_db;
-DBMap* class_db;
-DBMap* magic_db;
-DBMap* board_db;
-DBMap* clan_db;
 DBMap* mobsearch_db;
 DBMap* mobid_db = NULL;
 struct map_msg_data map_msg[MSG_MAX];
@@ -87,6 +82,12 @@ int map_n = 0;
 int oldHour;
 int oldMinute;
 int cronjobtimer;
+
+// Time globals declared extern in map_server.h
+int old_time, cur_time, cur_year, cur_day, cur_season;
+
+// Global NPC id counter
+unsigned int npc_id;
 
 #define BL_LIST_MAX 32768
 
@@ -735,7 +736,6 @@ int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
 
   // map_freeblock_lock();	//
   // ����������̉�����֎~����
-  // - Prohibit release from memory
 
   for (int i = 0; i < blockcount; i++)
     if (bl_list[i]->prev)  // �L?���ǂ����`�F�b�N - Check if there is
@@ -746,8 +746,7 @@ int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
       va_end(ap);
     }
 
-  // map_freeblock_unlock();	// ����������� - Allow
-  // release
+  // map_freeblock_unlock();	// �����������
 
   // bl_list_count = blockcount;
   return returnCount;
@@ -2974,3 +2973,7 @@ int map_savechars(int none, int nonetoo) {
   }
   return 0;
 }
+
+// Define globals that are declared as extern in headers
+unsigned char *objectFlags;
+int val[32];
