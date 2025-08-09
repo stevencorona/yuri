@@ -64,7 +64,7 @@ target_link_libraries(char_server deps)
 target_link_libraries(char_server ZLIB::ZLIB)
 target_link_libraries(char_server ${PROJECT_SOURCE_DIR}/target/debug/libyuri.a)
 
-add_executable(login_server c_src/login_server.c c_src/login_char.c c_src/login_parse.c)
+add_executable(login_server c_src/login/login_server.c c_src/login/login_char.c c_src/login/login_parse.c)
 target_link_libraries(login_server common)
 target_link_libraries(login_server deps)
 target_link_libraries(login_server ZLIB::ZLIB)
