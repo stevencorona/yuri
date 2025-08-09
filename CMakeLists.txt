@@ -13,6 +13,36 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -DDEBUG -DFD_SETSIZE=1024")
 # Eventually disable this
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
+find_package(PkgConfig REQUIRED)
+
+# Find mysqlclient with pkg-config
+pkg_check_modules(PC_MYSQL QUIET mysqlclient)
+
+if(NOT PC_MYSQL_FOUND)
+  # Fallback to mysql_config if pkg-config fails
+  find_program(MYSQL_CONFIG_EXECUTABLE mysql_config
+    PATHS
+    /opt/homebrew/opt/mysql/bin
+    /usr/local/opt/mysql/bin
+    /usr/bin
+    /usr/local/bin
+  )
+
+  if(MYSQL_CONFIG_EXECUTABLE)
+    execute_process(COMMAND ${MYSQL_CONFIG_EXECUTABLE} --cflags OUTPUT_VARIABLE MYSQL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND ${MYSQL_CONFIG_EXECUTABLE} --libs OUTPUT_VARIABLE MYSQL_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    # Parse include dir
+    string(REGEX MATCH "-I[^ ]+" MYSQL_INCLUDE_DIR "${MYSQL_CFLAGS}")
+    string(REPLACE "-I" "" MYSQL_INCLUDE_DIR "${MYSQL_INCLUDE_DIR}")
+  else()
+    message(FATAL_ERROR "Cannot find MySQL")
+  endif()
+else()
+  set(MYSQL_LIBS ${PC_MYSQL_LINK_LIBRARIES})
+  set(MYSQL_INCLUDE_DIR ${PC_MYSQL_INCLUDE_DIRS})
+endif()
+
 find_package(ZLIB)
 # find_package(Lua5.1)
 
@@ -54,6 +84,9 @@ target_link_libraries(decrypt_cli deps)
 target_link_libraries(decrypt_cli ${PROJECT_SOURCE_DIR}/target/debug/libyuri.a)
 
 add_executable(metan_cli c_src/metan_cli.c c_src/item_db.c c_src/class_db.c)
+target_include_directories(metan_cli PRIVATE ${MYSQL_INCLUDE_DIR})
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MYSQL_LIBS}")
+
 target_link_libraries(metan_cli common)
 target_link_libraries(metan_cli deps)
 target_link_libraries(metan_cli ${PROJECT_SOURCE_DIR}/target/debug/libyuri.a)
