@@ -39,6 +39,8 @@
 #include "strlib.h"
 #include "timer.h"
 
+lua_State *sl_gstate = NULL;
+
 #define sl_redtext(text) "\033[31;1m" text "\033[0m"
 #define sl_err(text) printf(sl_redtext("Lua error:") " %s\n", text)
 #define sl_err_print(state) sl_err(lua_tostring(state, -1))
@@ -4285,7 +4287,6 @@ void sl_resumemenuseq(unsigned int selection, int choice, USER *sd)
     sl_async_resume(sd, 1);
   }
 }
-
 void sl_resumedialog(unsigned int choice, USER *sd)
 {
   /*if(sd->coroutine) {
@@ -6504,30 +6505,7 @@ int mobl_durationamount(lua_State *state, void *self)
   return 1;
 }
 
-int mobl_ctor(lua_State *state)
-{
-  /*MOB *mob = NULL;
-      unsigned int id = 0;
-
-      if(lua_isstring(state, 2)) id = mobdb_id(lua_tostring(state, 2));
-      else if (lua_isnumber(state, 2)) id = lua_tonumber(state, 2);
-      else {
-              luaL_argerror(state, 1, "expected number");
-              return 1;
-      }
-
-      mob = map_id2mob(id);
-
-      if(!mob) {
-              lua_pushnil(state);
-              return 1; //luaL_error(state, "invalid mob id (%d)", id);
-      } else {
-              mobl_pushinst(state, mob);
-              return 1;
-      }
-
-return 1;*/
-
+int mobl_ctor(lua_State *state) {
   MOB *mob = NULL;
   if (lua_isnumber(state, 2))
   {
@@ -6666,36 +6644,19 @@ int mobl_setduration(lua_State *state, void *self)
     {
       mob->da[x].duration = time;
       return 0;
-    }
-    else if (mob->da[x].id == 0 && mob->da[x].duration == 0 && time != 0 &&
-             alreadycast != 1)
-    {
-      // if (mob->da[x].caster_id != caster_id && caster_id > 0) {
-      //	mob->da[x].id = id;
-      //	mob->da[x].duration=time;
-      //	mob->da[x].caster_id=caster_id; //for specific caster
-      //} else if (caster_id == 0) {
+    } else if (mob->da[x].id == 0 && mob->da[x].duration == 0 && time != 0 &&
+               alreadycast != 1) {
       mob->da[x].id = id;
       mob->da[x].duration = time;
       mob->da[x].caster_id = caster_id;
-      //}
-
       return 0;
     }
   }
 
-  // printf("I didn't set duration... id: %u, time: %u, caster: %u, recast: %u,
-  // alreadycast: %u\n", id, time, caster_id, recast, alreadycast);
   return 0;
 }
 
-/*int mobl_flushduration(lua_State *state, void *self) {
-  MOB *mob = (MOB *)self;        mob_flushmagic(mob);
-        return 0;
-}*/
-
-int mobl_flushduration(lua_State *state, void *self)
-{
+int mobl_flushduration(lua_State *state, void *self) {
   MOB *mob = (MOB *)self;
   struct block_list *bl = NULL;
   int x;
@@ -6957,8 +6918,7 @@ int mobl_sendhealth(lua_State *state, void *self)
   clif_send_mob_healthscript(mob, damage, critical);
   return 0;
 }
-
-int mobl_init(lua_State *state, void *self, int dataref, void *param)
+int mobl_init(lua_State *state, void *self, int dataref, void *param) 
 {
   MOB *mob = (MOB *)self;
 

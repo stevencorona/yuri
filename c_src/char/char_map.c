@@ -1003,8 +1003,7 @@ int mapif_parse_nmailwritecopy(int fd)
     return 0;
   }
 
-  if (SQL_SUCCESS == result)
-    Sql_GetData(sql_handle, 0, &data, 0);
+  if (result == SQL_SUCCESS) { Sql_GetData(sql_handle, 0, &data, 0); }
 
   if (data)
   {
