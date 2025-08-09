@@ -1,3 +1,4 @@
+#pragma once
 // Centralized global configuration and variables used across the entire
 // application Globals are not thread-safe
 
