@@ -58,7 +58,7 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/c_deps")
 
 add_library(common STATIC c_src/config.c c_src/core.c c_src/net_crypt.c c_src/session.c)
 
-add_executable(char_server c_src/char_db.c c_src/char_server.c c_src/char_login.c c_src/char_map.c)
+add_executable(char_server c_src/char/char_db.c c_src/char/char_server.c c_src/char/char_login.c c_src/char/char_map.c)
 target_link_libraries(char_server common)
 target_link_libraries(char_server deps)
 target_link_libraries(char_server ZLIB::ZLIB)
@@ -70,7 +70,7 @@ target_link_libraries(login_server deps)
 target_link_libraries(login_server ZLIB::ZLIB)
 target_link_libraries(login_server ${PROJECT_SOURCE_DIR}/target/debug/libyuri.a)
 
-add_executable(map_server c_src/board_db.c c_src/clan_db.c c_src/class_db.c c_src/map_char.c c_src/gm_command.c c_src/creation_db.c c_src/map_parse.c c_src/item_db.c c_src/magic_db.c c_src/map_server.c c_src/mob.c c_src/npc.c c_src/pc.c c_src/recipe_db.c c_src/scripting.c)
+add_executable(map_server c_src/map/board_db.c c_src/map/clan_db.c c_src/map/class_db.c c_src/map/map_char.c c_src/map/gm_command.c c_src/map/creation_db.c c_src/map/map_parse.c c_src/map/item_db.c c_src/map/magic_db.c c_src/map/map_server.c c_src/map/mob.c c_src/map/npc.c c_src/map/pc.c c_src/map/recipe_db.c c_src/map/scripting.c)
 target_link_libraries(map_server common)
 target_link_libraries(map_server deps)
 target_link_libraries(map_server ZLIB::ZLIB)
@@ -83,7 +83,7 @@ target_link_libraries(decrypt_cli common)
 target_link_libraries(decrypt_cli deps)
 target_link_libraries(decrypt_cli ${PROJECT_SOURCE_DIR}/target/debug/libyuri.a)
 
-add_executable(metan_cli c_src/metan_cli.c c_src/item_db.c c_src/class_db.c)
+add_executable(metan_cli c_src/metan_cli.c c_src/map/item_db.c c_src/map/class_db.c)
 target_include_directories(metan_cli PRIVATE ${MYSQL_INCLUDE_DIR})
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MYSQL_LIBS}")
 
