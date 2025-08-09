@@ -380,7 +380,7 @@ int command_luasize(USER *sd, char *line, lua_State *state) {
     return 0;
 }
 
-int command_luafix(USER *sd, char *_line, lua_State *state) {
+int command_luafix(USER *sd, char *line, lua_State *state) {
     sl_fixmem();
     return 0;
 }
