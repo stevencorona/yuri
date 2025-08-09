@@ -1187,7 +1187,7 @@ int sl_throw(struct block_list *bl, va_list ap) {
 
   WFIFOHEAD(sd->fd, len);
   memcpy(WFIFOP(sd->fd, 0), buf, len);
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 
@@ -12938,7 +12938,7 @@ int pcl_testpacket(lua_State *state, void *self) {
   printf("\n");
   printf("end test packet\n");
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 1;
 }
 

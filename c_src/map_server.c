@@ -144,7 +144,7 @@ int nmail_sendmessage(USER* sd, char* message, int other, int type) {
   WFIFOB(sd->fd, len + 7) = 7;
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
 
-  WFIFOSET(sd->fd, encrypt(sd->fd));
+  WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 

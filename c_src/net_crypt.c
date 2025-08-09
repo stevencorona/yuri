@@ -33,7 +33,7 @@ bool is_key_server(int opcode) {
   return true;
 }
 
-int encrypt(int fd) {
+int yuri_encrypt(int fd) {
   USER *sd = NULL;
   char key[16];
   sd = session[fd]->session_data;
