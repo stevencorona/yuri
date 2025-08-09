@@ -3,7 +3,6 @@
 #include <luajit.h>
 
 #include "map_server.h"
-#include "mmo.h"
 
 int is_command(USER *, const char *, int);
 int at_command(USER *, const char *, int);
@@ -35,7 +34,6 @@ int command_givespell(USER *, char *, lua_State *);
 int command_side(USER *, char *, lua_State *);
 int command_state(USER *, char *, lua_State *);
 int command_armorcolor(USER *, char *, lua_State *);
-int command_makegm(USER *, char *, lua_State *);
 int command_who(USER *, char *, lua_State *);
 int command_legend(USER *, char *, lua_State *);
 int command_luareload(USER *, char *, lua_State *);

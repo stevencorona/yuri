@@ -18,7 +18,7 @@ static const int packet_len_table[] = { 3, 20, 43, 40, 52, 0, 0 };
 int check_connect_login(int ip, int port) {
     if (login_fd <= 0 || session[login_fd] == NULL) {
         printf("[char] [logif] Connecting to login-server\n");
-        login_fd = make_connection(ip, port);
+        login_fd                      = make_connection(ip, port);
         session[login_fd]->func_parse = logif_parse;
         realloc_rfifo(login_fd, FIFOSIZE_SERVER, FIFOSIZE_SERVER);
         WFIFOHEAD(login_fd, 69);
@@ -28,8 +28,8 @@ int check_connect_login(int ip, int port) {
         WFIFOB(login_fd, 4) = RAND_INC;
         memcpy(WFIFOP(login_fd, 5), login_id, 32);
         memcpy(WFIFOP(login_fd, 37), login_pw, 32);
-        set_packet_indexes((unsigned char*)WFIFOP(login_fd, 0));
-        tk_crypt_static((unsigned char*)WFIFOP(login_fd, 0));
+        set_packet_indexes((unsigned char *)WFIFOP(login_fd, 0));
+        tk_crypt_static((unsigned char *)WFIFOP(login_fd, 0));
         WFIFOSET(login_fd, 69 + 3);
     }
     return 0;
@@ -43,7 +43,7 @@ int logif_parse_accept(int fd) {
     return 0;
 }
 int logif_parse_usedname(int fd) {
-    int res;
+    int  res;
     char name[16];
     memset(name, 0, 16);
     memcpy(name, RFIFOP(fd, 4), 16);
@@ -58,8 +58,8 @@ int logif_parse_usedname(int fd) {
 int logif_parse_newchar(int fd) {
     int res;
     res = char_db_newchar(
-      (char*)RFIFOP(fd, 4),
-      (char*)RFIFOP(fd, 20),
+      (char *)RFIFOP(fd, 4),
+      (char *)RFIFOP(fd, 20),
       RFIFOB(fd, 39),
       RFIFOB(fd, 37) % 2,
       RFIFOB(fd, 38),
@@ -76,10 +76,10 @@ int logif_parse_newchar(int fd) {
     return 0;
 }
 int logif_parse_login(int fd) {
-    int res = 0;
-    unsigned int id = 0;
+    int          res = 0;
+    unsigned int id  = 0;
 
-    res = char_db_mapfifofromlogin((char*)RFIFOP(fd, 4), (char*)RFIFOP(fd, 20), &id);
+    res = char_db_mapfifofromlogin((char *)RFIFOP(fd, 4), (char *)RFIFOP(fd, 20), &id);
 
     // printf("Res: %i\n",res);
 
@@ -92,7 +92,7 @@ int logif_parse_login(int fd) {
         WFIFOSET(fd, 27);
         return 0;
     }
-    if (logindata_add(id, res, (char*)RFIFOP(fd, 4))) {
+    if (logindata_add(id, res, (char *)RFIFOP(fd, 4))) {
         // printf("Error2\n");
         // character is online, force disconnected
         WFIFOW(fd, 0) = 0x2003;
@@ -120,7 +120,7 @@ int logif_parse_login(int fd) {
 }
 int logif_parse_setpass(int fd) {
     int res;
-    res = char_db_setpass((char*)RFIFOP(fd, 4), (char*)RFIFOP(fd, 20), (char*)RFIFOP(fd, 36));
+    res = char_db_setpass((char *)RFIFOP(fd, 4), (char *)RFIFOP(fd, 20), (char *)RFIFOP(fd, 36));
     WFIFOHEAD(fd, 5);
     WFIFOW(fd, 0) = 0x2004;
     WFIFOW(fd, 2) = RFIFOW(fd, 2);
@@ -155,8 +155,8 @@ int logif_parse(int fd) {
 
     cmd = RFIFOW(fd, 0);
 
-    if (cmd < 0x1000 || cmd >= 0x1000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-        packet_len_table[cmd - 0x1000] == 0) {
+    if (cmd < 0x1000 || cmd >= 0x1000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0]))
+        || packet_len_table[cmd - 0x1000] == 0) {
         return 0;
     }
 

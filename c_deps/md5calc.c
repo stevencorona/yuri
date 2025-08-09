@@ -22,7 +22,7 @@
 #endif
 #endif
 // Global variable
-static unsigned int* pX;
+static unsigned int *pX;
 
 // String Table
 static const unsigned int T[] = {
@@ -74,60 +74,60 @@ static unsigned int Round(
 }
 
 static void Round1(
-  unsigned int* a,
-  unsigned int b,
-  unsigned int c,
-  unsigned int d,
-  unsigned int k,
-  unsigned int s,
-  unsigned int i
+  unsigned int *a,
+  unsigned int  b,
+  unsigned int  c,
+  unsigned int  d,
+  unsigned int  k,
+  unsigned int  s,
+  unsigned int  i
 ) {
     *a = Round(*a, b, F(b, c, d), k, s, i);
 }
 static void Round2(
-  unsigned int* a,
-  unsigned int b,
-  unsigned int c,
-  unsigned int d,
-  unsigned int k,
-  unsigned int s,
-  unsigned int i
+  unsigned int *a,
+  unsigned int  b,
+  unsigned int  c,
+  unsigned int  d,
+  unsigned int  k,
+  unsigned int  s,
+  unsigned int  i
 ) {
     *a = Round(*a, b, G(b, c, d), k, s, i);
 }
 static void Round3(
-  unsigned int* a,
-  unsigned int b,
-  unsigned int c,
-  unsigned int d,
-  unsigned int k,
-  unsigned int s,
-  unsigned int i
+  unsigned int *a,
+  unsigned int  b,
+  unsigned int  c,
+  unsigned int  d,
+  unsigned int  k,
+  unsigned int  s,
+  unsigned int  i
 ) {
     *a = Round(*a, b, H(b, c, d), k, s, i);
 }
 static void Round4(
-  unsigned int* a,
-  unsigned int b,
-  unsigned int c,
-  unsigned int d,
-  unsigned int k,
-  unsigned int s,
-  unsigned int i
+  unsigned int *a,
+  unsigned int  b,
+  unsigned int  c,
+  unsigned int  d,
+  unsigned int  k,
+  unsigned int  s,
+  unsigned int  i
 ) {
     *a = Round(*a, b, I(b, c, d), k, s, i);
 }
 
 static void MD5_Round_Calculate(
-  const unsigned char* block,
-  unsigned int* A2,
-  unsigned int* B2,
-  unsigned int* C2,
-  unsigned int* D2
+  const unsigned char *block,
+  unsigned int        *A2,
+  unsigned int        *B2,
+  unsigned int        *C2,
+  unsigned int        *D2
 ) {
     // create X It is since it is required.
     unsigned int X[16]; // 512bit 64byte
-    int j, k;
+    int          j, k;
 
     // Save A as AA, B as BB, C as CC, and and D as DD (saving of A, B, C, and D)
     unsigned int A = *A2, B = *B2, C = *C2, D = *D2;
@@ -227,11 +227,11 @@ static void MD5_Round_Calculate(
     memset(pX, 0, sizeof(X));
 }
 
-static void MD5_String2binary(const char* string, unsigned char* output) {
+static void MD5_String2binary(const char *string, unsigned char *output) {
     // var
     /*8bit*/
-    unsigned char padding_message[64]; // Extended message   512bit 64byte
-    unsigned char* pstring; // The position of string in the present scanning notes is held.
+    unsigned char  padding_message[64]; // Extended message   512bit 64byte
+    unsigned char *pstring; // The position of string in the present scanning notes is held.
 
     /*32bit*/
     unsigned int string_byte_len,     // The byte chief of string is held.
@@ -255,7 +255,7 @@ static void MD5_String2binary(const char* string, unsigned char* output) {
     // 1-1
     string_byte_len = (unsigned int)strlen(string); // The byte chief of a character sequence is
                                                     // acquired.
-    pstring = (unsigned char*)string; // The position of the present character sequence is set.
+    pstring = (unsigned char *)string; // The position of the present character sequence is set.
 
     // 1-2  Repeat calculation until length becomes less than 64 bytes.
     for (i = string_byte_len; 64 <= i; i -= 64, pstring += 64) {
@@ -265,8 +265,8 @@ static void MD5_String2binary(const char* string, unsigned char* output) {
     // 1-3
     copy_len = string_byte_len % 64; // The number of bytes which remained is computed.
     strncpy(
-      (char*)padding_message,
-      (char*)pstring,
+      (char *)padding_message,
+      (char *)pstring,
       copy_len
     ); // A message is copied to an extended bit sequence.
     memset(
@@ -312,13 +312,13 @@ static void MD5_String2binary(const char* string, unsigned char* output) {
 
 /** output is the coded binary in the character sequence which wants to code
  * string. */
-void MD5_Binary(const char* string, unsigned char* output) {
+void MD5_Binary(const char *string, unsigned char *output) {
     MD5_String2binary(string, output);
 }
 
 /** output is the coded character sequence in the character sequence which wants
  * to code string. */
-void MD5_String(const char* string, char* output) {
+void MD5_String(const char *string, char *output) {
     unsigned char digest[16] = { 0 };
     MD5_String2binary(string, digest);
     sprintf(
@@ -342,11 +342,11 @@ void MD5_String(const char* string, char* output) {
       digest[15]
     );
 }
-static cvs_uint32 getu32(const unsigned char* addr) {
+static cvs_uint32 getu32(const unsigned char *addr) {
     return (((((unsigned long)addr[3] << 8) | addr[2]) << 8) | addr[1]) << 8 | addr[0];
 }
 
-static void putu32(cvs_uint32 data, unsigned char* addr) {
+static void putu32(cvs_uint32 data, unsigned char *addr) {
     addr[0] = (unsigned char)data;
     addr[1] = (unsigned char)(data >> 8);
     addr[2] = (unsigned char)(data >> 16);
@@ -357,7 +357,7 @@ static void putu32(cvs_uint32 data, unsigned char* addr) {
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  * initialization constants.
  */
-void cvs_MD5Init(struct cvs_MD5Context* ctx) {
+void cvs_MD5Init(struct cvs_MD5Context *ctx) {
     ctx->buf[0] = 0x67452301;
     ctx->buf[1] = 0xefcdab89;
     ctx->buf[2] = 0x98badcfe;
@@ -371,7 +371,7 @@ void cvs_MD5Init(struct cvs_MD5Context* ctx) {
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void cvs_MD5Update(struct cvs_MD5Context* ctx, unsigned char const* buf, unsigned len) {
+void cvs_MD5Update(struct cvs_MD5Context *ctx, unsigned char const *buf, unsigned len) {
     cvs_uint32 t;
 
     /* Update bitcount */
@@ -387,7 +387,7 @@ void cvs_MD5Update(struct cvs_MD5Context* ctx, unsigned char const* buf, unsigne
     /* Handle any leading odd-sized chunks */
 
     if (t) {
-        unsigned char* p = ctx->in + t;
+        unsigned char *p = ctx->in + t;
 
         t = 64 - t;
         if (len < t) {
@@ -418,16 +418,16 @@ void cvs_MD5Update(struct cvs_MD5Context* ctx, unsigned char const* buf, unsigne
  * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
-void cvs_MD5Final(unsigned char digest[16], struct cvs_MD5Context* ctx) {
-    unsigned count;
-    unsigned char* p;
+void cvs_MD5Final(unsigned char digest[16], struct cvs_MD5Context *ctx) {
+    unsigned       count;
+    unsigned char *p;
 
     /* Compute number of bytes mod 64 */
     count = (ctx->bits[0] >> 3) & 0x3F;
 
     /* Set the first char of padding to 0x80.  This is safe since there is
        always at least one byte free */
-    p = ctx->in + count;
+    p    = ctx->in + count;
     *p++ = 0x80;
 
     /* Bytes of padding needed to make 64 bytes */
@@ -479,8 +479,8 @@ void cvs_MD5Final(unsigned char digest[16], struct cvs_MD5Context* ctx) {
  */
 void cvs_MD5Transform(cvs_uint32 buf[4], const unsigned char inraw[64]) {
     register cvs_uint32 a, b, c, d;
-    cvs_uint32 in[16];
-    int i;
+    cvs_uint32          in[16];
+    int                 i;
 
     for (i = 0; i < 16; ++i) {
         in[i] = getu32(inraw + 4 * i);

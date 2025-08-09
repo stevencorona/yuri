@@ -48,7 +48,7 @@ unsigned char refpacket[] = { 0xAA, 0x00, 0x07, 0x3B, 0xBC, 0xB1, 0x87, 0xAD, 0x
 // char refname[] = "Ouned";
 char refname[] = "invicta";
 
-int debug(unsigned char* stringthing, int len) {
+int debug(unsigned char *stringthing, int len) {
     int i;
 
     printf("Decrypted Packet\n");
@@ -104,7 +104,7 @@ int debug(unsigned char* stringthing, int len) {
     return 0;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     char table[255];
     /*if (argc < 2 || argc > 3)
     {

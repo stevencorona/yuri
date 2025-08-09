@@ -13,15 +13,15 @@
 #include <sys/time.h>
 #include <time.h>
 
-extern int do_init(int, char**);
+extern int         do_init(int, char **);
 static term_func_t term_func;
 
 // Main server entry point that runs the networking/logic loop for the
 // map/login/char servers
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     struct timeval start;
-    int tick = 0;
-    bool run = true;
+    int            tick = 0;
+    bool           run  = true;
 
     gettimeofday(&start, NULL);
 

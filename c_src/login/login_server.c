@@ -5,7 +5,6 @@
 #include "db.h"
 #include "db_mysql.h"
 #include "login_parse.h"
-#include "net_crypt.h"
 #include "session.h"
 #include "timer.h"
 
@@ -16,18 +15,18 @@
 #include <strings.h>
 #include <zlib.h>
 
-int login_fd;
-int char_fd;
-char login_msg[MSG_MAX][256];
-Sql* sql_handle = NULL;
-DBMap* bf_lockout = NULL;
+int    login_fd;
+int    char_fd;
+char   login_msg[MSG_MAX][256];
+Sql   *sql_handle = NULL;
+DBMap *bf_lockout = NULL;
 
 const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
 
-int Valid(const char* buf, const char* mask) {
-    int x = 0;
-    int n = 0;
+int Valid(const char *buf, const char *mask) {
+    int x     = 0;
+    int n     = 0;
     int found = 0;
 
     for (x = 0; x < strlen(buf); x++) {
@@ -45,26 +44,26 @@ int Valid(const char* buf, const char* mask) {
     return 0;
 }
 
-int string_check_allchars(const char* p, int len) {
+int string_check_allchars(const char *p, int len) {
     char buf[255];
     memset(buf, 0, 255);
     memcpy(buf, p, len);
     return Valid(buf, mask1);
 }
 
-int string_check(const char* p, int len) {
+int string_check(const char *p, int len) {
     char buf[255];
     memset(buf, 0, 255);
     memcpy(buf, p, len);
     return Valid(buf, mask2);
 }
 
-int lang_read(const char* cfg_file) {
+int lang_read(const char *cfg_file) {
     char line[1024];
     char r1[1024];
     char r2[1024];
     /* int line_num = 0; */
-    FILE* fp = NULL;
+    FILE *fp = NULL;
 
     fp = fopen(cfg_file, "re");
     if (fp == NULL) {
@@ -132,16 +131,16 @@ void help_screen() {
     exit(0);
 }
 
-int do_init(int argc, char** argv) {
-    int i = 0;
-    char* CONF_FILE = "conf/server.yaml";
-    char* LANG_FILE = "conf/lang.yaml";
+int do_init(int argc, char **argv) {
+    int   i         = 0;
+    char *CONF_FILE = "conf/server.yaml";
+    char *LANG_FILE = "conf/lang.yaml";
 
     srand(gettick());
 
     for (i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
-            strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0
+            || strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
             help_screen();
         } else if (strcmp(argv[i], "--conf") == 0) {
             CONF_FILE = argv[i + 1];
@@ -197,7 +196,7 @@ int setInvalidCount(unsigned int ip) {
         timer_insert(10 * 60 * 1000, 10 * 60 * 1000, login_clear_lockout, ip, 0);
     }
 
-    uidb_put(bf_lockout, ip, (void*)(uintptr_t)(c + 1));
+    uidb_put(bf_lockout, ip, (void *)(uintptr_t)(c + 1));
 
     return c + 1;
 }

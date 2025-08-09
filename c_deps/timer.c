@@ -14,19 +14,19 @@
 #define cap_value(a, min, max) ((a >= max) ? max : (a <= min) ? min : a)
 
 // timers (array)
-static struct TimerData* timer_data = NULL;
-static int timer_data_max = 0;
-static int timer_data_num = 0;
+static struct TimerData *timer_data     = NULL;
+static int               timer_data_max = 0;
+static int               timer_data_num = 0;
 
 // free timers (array)
-static int* free_timer_list = NULL;
-static int free_timer_list_max = 0;
-static int free_timer_list_pos = 0;
+static int *free_timer_list     = NULL;
+static int  free_timer_list_max = 0;
+static int  free_timer_list_pos = 0;
 
 // timer heap (ordered array of tid's)
-static int timer_heap_num = 0;
-static int timer_heap_max = 0;
-static int* timer_heap = NULL;
+static int  timer_heap_num = 0;
+static int  timer_heap_max = 0;
+static int *timer_heap     = NULL;
 
 /*----------------------------
  * 	Get tick time
@@ -42,22 +42,22 @@ int getDay(void) {
     }
 }
 int getHour(void) {
-    time_t t;
-    struct tm* d;
+    time_t     t;
+    struct tm *d;
     t = time(NULL);
     d = localtime(&t);
     return d->tm_hour;
 }
 int getMinute(void) {
-    time_t t;
-    struct tm* d;
+    time_t     t;
+    struct tm *d;
     t = time(NULL);
     d = localtime(&t);
     return d->tm_min;
 }
 int getSecond(void) {
-    time_t t;
-    struct tm* d;
+    time_t     t;
+    struct tm *d;
     t = time(NULL);
     d = localtime(&t);
     return d->tm_sec;
@@ -71,8 +71,7 @@ static unsigned int tick(void) {
 #elif (                                                                                            \
   defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0 && defined(_POSIX_MONOTONIC_CLOCK) /* posix          \
                                                                                     compliant */   \
-) ||                                                                                               \
-  (defined(__FreeBSD_cc_version) && __FreeBSD_cc_version >= 500005 /* FreeBSD >= 5.1.0 */)
+) || (defined(__FreeBSD_cc_version) && __FreeBSD_cc_version >= 500005 /* FreeBSD >= 5.1.0 */)
     struct timespec tval;
     clock_gettime(CLOCK_MONOTONIC, &tval);
     return tval.tv_sec * 1000 + tval.tv_nsec / 1000000;
@@ -87,7 +86,7 @@ static unsigned int tick(void) {
 //////////////////////////////////////////////////////////////////////////
 // tick is cached for TICK_CACHE calls
 static unsigned int gettick_cache;
-static int gettick_count = 1;
+static int          gettick_count = 1;
 
 unsigned int gettick_nocache(void) {
     gettick_count = TICK_CACHE;
@@ -148,8 +147,8 @@ static void push_timer_heap(int tid) {
     }
 
     // do a sorting from higher to lower
-    if (timer_heap_num == 0 ||
-        DIFF_TICK(timer_data[tid].tick, timer_data[timer_heap[timer_heap_num - 1]].tick) < 0) {
+    if (timer_heap_num == 0
+        || DIFF_TICK(timer_data[tid].tick, timer_data[timer_heap[timer_heap_num - 1]].tick) < 0) {
         timer_heap[timer_heap_num] = tid; // if lower actual item is higher than new
     } else {
         // searching position
@@ -214,13 +213,13 @@ int timer_insert(
 ) {
     int tid;
 
-    tid = acquire_timer();
-    timer_data[tid].tick = gettick() + tick;
-    timer_data[tid].func = func;
-    timer_data[tid].id = tid;
-    timer_data[tid].data1 = data1;
-    timer_data[tid].data2 = data2;
-    timer_data[tid].type = TIMER_INTERVAL;
+    tid                      = acquire_timer();
+    timer_data[tid].tick     = gettick() + tick;
+    timer_data[tid].func     = func;
+    timer_data[tid].id       = tid;
+    timer_data[tid].data1    = data1;
+    timer_data[tid].data2    = data2;
+    timer_data[tid].type     = TIMER_INTERVAL;
     timer_data[tid].interval = interval;
     push_timer_heap(tid);
     // printf("Added: %u\n",(int)func);
@@ -228,7 +227,7 @@ int timer_insert(
 }
 
 /// Retrieves internal timer data
-const struct TimerData* get_timer(int tid) {
+const struct TimerData *get_timer(int tid) {
     return (tid >= 0 && tid < timer_data_num) ? &timer_data[tid] : NULL;
 }
 
@@ -255,13 +254,13 @@ int timer_remove(int tid) {
 /// Returns the value of the smallest non-expired timer (or 1 second if there
 /// aren't any).
 int timer_do(unsigned int tick) {
-    int diff = 1000; // return value
+    int diff  = 1000; // return value
     int toDel = 0;
     // process all timers one by one
     while (timer_heap_num) {
         int tid = timer_heap[timer_heap_num - 1]; // last element in heap (smallest tick)
-        toDel = 0;
-        diff = DIFF_TICK(timer_data[tid].tick, tick);
+        toDel   = 0;
+        diff    = DIFF_TICK(timer_data[tid].tick, tick);
         if (diff > 0) {
             break; // no more expired timers to process
         }

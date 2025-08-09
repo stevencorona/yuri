@@ -1,11 +1,5 @@
 #pragma once
 
-#include "board_db.h"
-#include "clan_db.h"
-#include "class_db.h"
-#include "item_db.h"
-#include "magic_db.h"
-
 #define FIFOSIZE_SERVER (512 * 1024)
 #define MAX_MAP_SERVER 5
 #define MAX_MAP_PER_SERVER 65535

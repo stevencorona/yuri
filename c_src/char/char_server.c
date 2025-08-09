@@ -16,24 +16,24 @@
 #include <string.h>
 #include <zlib.h>
 
-struct DBMap* login_data;
-struct mmo_charstatus* char_dat;
-struct char_login_data* clogin_dat;
-struct map_fifo_data map_fifo[MAX_MAP_SERVER];
+struct DBMap           *login_data;
+struct mmo_charstatus  *char_dat;
+struct char_login_data *clogin_dat;
+struct map_fifo_data    map_fifo[MAX_MAP_SERVER];
 
-int map_fifo_n = 0;
-int map_fifo_max = 0;
-struct Sql* sql_handle;
-int char_fd;
-int login_fd;
+int         map_fifo_n   = 0;
+int         map_fifo_max = 0;
+struct Sql *sql_handle;
+int         char_fd;
+int         login_fd;
 
 int zlib_init(void) {
     z_stream strm;
-    int ret;
+    int      ret;
     strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
+    strm.zfree  = Z_NULL;
     strm.opaque = Z_NULL;
-    ret = deflateInit(&strm, Z_DEFAULT_COMPRESSION);
+    ret         = deflateInit(&strm, Z_DEFAULT_COMPRESSION);
     return ret;
 }
 int mapfifo_from_mapid(int map) {
@@ -63,8 +63,8 @@ int logindata_init() {
     return 0;
 }
 
-int logindata_final(void* key, void* data, va_list ap) {
-    struct item_data* dat;
+int logindata_final(void *key, void *data, va_list ap) {
+    struct item_data *dat;
     nullpo_ret(0, dat = data);
     FREE(dat);
     return 0;
@@ -79,9 +79,9 @@ int logindata_term() {
     return 0;
 }
 
-struct char_login_data* logindata_search(unsigned int id) {
-    struct char_login_data* dat;
-    dat = (struct char_login_data*)uidb_get(login_data, id);
+struct char_login_data *logindata_search(unsigned int id) {
+    struct char_login_data *dat;
+    dat = (struct char_login_data *)uidb_get(login_data, id);
     if (!dat) {
         return NULL;
     }
@@ -104,8 +104,8 @@ struct char_login_data* logindata_search(unsigned int id) {
 }*/
 
 int logindata_change(unsigned int id, int map_server) {
-    struct char_login_data* dat;
-    dat = (struct char_login_data*)uidb_get(login_data, id);
+    struct char_login_data *dat;
+    dat = (struct char_login_data *)uidb_get(login_data, id);
     if (!dat) {
         return -1;
     }
@@ -135,15 +135,15 @@ int keep_login_alive(int n, int a) {
     }
     return 0;
 }
-int do_init(int argc, char** argv) {
-    int i;
-    char* CONF_FILE = "conf/server.yaml";
+int do_init(int argc, char **argv) {
+    int   i;
+    char *CONF_FILE = "conf/server.yaml";
 
     srand(gettick());
 
     for (i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
-            strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0
+            || strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
             help_screen();
         } else if (strcmp(argv[i], "--conf") == 0) {
             CONF_FILE = argv[i + 1];

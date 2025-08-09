@@ -41,7 +41,6 @@ int mobdb_dropitem(unsigned int, unsigned int, int, int, int, int, int, int,
                    int, USER*);
 // int move_mob_intent(MOB*,USER*);
 int mob_timer_spawns(int, int);
-int move_mob(MOB*);
 int move_mob_ignore_object(MOB*);
 int moveghost_mob(MOB*);
 int mob_flushmagic(MOB*);

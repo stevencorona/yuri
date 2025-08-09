@@ -8,7 +8,6 @@
 #include "net_crypt.h"
 #include "session.h"
 #include "strlib.h"
-#include "timer.h"
 
 #include <arpa/inet.h>
 #include <stdbool.h>
@@ -17,20 +16,20 @@
 #include <string.h>
 #include <zlib.h>
 
-extern int Check_Throttle(struct sockaddr_in S);
+extern int  Check_Throttle(struct sockaddr_in S);
 extern void Add_Throttle(struct sockaddr_in S);
 
-bool bannedIPCheck(char* ip) {
-    SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+bool bannedIPCheck(char *ip) {
+    SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
     if (stmt == NULL) {
         SqlStmt_ShowDebug(stmt);
         return false;
     }
 
-    if (SQL_ERROR ==
-          SqlStmt_Prepare(stmt, "SELECT `BndId` FROM `BannedIP` WHERE `BndIP` = '%s'", ip) ||
-        SQL_ERROR == SqlStmt_Execute(stmt)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(stmt, "SELECT `BndId` FROM `BannedIP` WHERE `BndIP` = '%s'", ip)
+        || SQL_ERROR == SqlStmt_Execute(stmt)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return false;
@@ -45,8 +44,8 @@ bool bannedIPCheck(char* ip) {
 }
 
 int clif_accept(int fd) {
-    int P = 0;
-    bool DDOS = false;
+    int  P      = 0;
+    bool DDOS   = false;
     bool banned = false;
 
     char ip[30];
@@ -71,8 +70,8 @@ int clif_accept(int fd) {
             if (P == fd) {
                 continue;
             }
-            if (session[fd]->client_addr.sin_addr.s_addr ==
-                session[P]->client_addr.sin_addr.s_addr) {
+            if (session[fd]->client_addr.sin_addr.s_addr
+                == session[P]->client_addr.sin_addr.s_addr) {
                 session[P]->eof = 1;
                 session_eof(P);
             }
@@ -90,8 +89,8 @@ int clif_accept(int fd) {
             if (P == fd) {
                 continue;
             }
-            if (session[fd]->client_addr.sin_addr.s_addr ==
-                session[P]->client_addr.sin_addr.s_addr) {
+            if (session[fd]->client_addr.sin_addr.s_addr
+                == session[P]->client_addr.sin_addr.s_addr) {
                 session[P]->eof = 1;
                 session_eof(P);
             }
@@ -112,7 +111,7 @@ int clif_accept(int fd) {
     return 0;
 }
 
-int clif_message(int fd, char code, char* buff) {
+int clif_message(int fd, char code, char *buff) {
     int packet_len = strlen(buff) + 6;
     WFIFOHEAD(fd, packet_len + 3);
     WFIFOB(fd, 0) = 0xAA;
@@ -123,14 +122,14 @@ int clif_message(int fd, char code, char* buff) {
     WFIFOB(fd, 6) = strlen(buff);
     strcpy(WFIFOP(fd, 7), buff);
     WFIFOW(fd, packet_len + 8) = 0x00;
-    set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
-    tk_crypt_static((unsigned char*)WFIFOP(fd, 0));
+    set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
     WFIFOSET(fd, packet_len + 6);
 
     return 0;
 }
 
-int clif_sendurl(int fd, int type, const char* url) {
+int clif_sendurl(int fd, int type, const char *url) {
     WFIFOB(fd, 0) = 0xAA;
     WFIFOB(fd, 3) = 0x66;
     WFIFOB(fd, 4) = 0x03;
@@ -139,20 +138,20 @@ int clif_sendurl(int fd, int type, const char* url) {
     WFIFOW(fd, 6) = SWAP16(strlen(url));
     memcpy(WFIFOP(fd, 8), url, strlen(url));
     WFIFOW(fd, 1) = SWAP16(strlen(url) + 8);
-    set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
-    tk_crypt_static((unsigned char*)WFIFOP(fd, 0));
+    set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
     WFIFOSET(fd, strlen(url) + 8);
 
     return 0;
 }
 
-int reg_check(const char* n, int len) {
+int reg_check(const char *n, int len) {
     char buf[255];
 
-    unsigned int id = 0;
+    unsigned int id        = 0;
     unsigned int accountid = 0;
 
-    SqlStmt* stmt = NULL;
+    SqlStmt *stmt = NULL;
 
     memset(buf, 0, 255);
     memcpy(buf, n, len);
@@ -163,10 +162,10 @@ int reg_check(const char* n, int len) {
         return 0;
     }
 
-    if (SQL_ERROR ==
-          SqlStmt_Prepare(stmt, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", buf) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(stmt, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", buf)
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -181,21 +180,22 @@ int reg_check(const char* n, int len) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `AccountId` FROM `Accounts` WHERE "
-                       "`AccountCharId1` = '%u' OR `AccountCharId2` = '%u' OR "
-                       "`AccountCharId3` = '%u' OR `AccountCharId4` = '%u' OR "
-                       "`AccountCharId5` = '%u' OR `AccountCharId6` = '%u'",
-                       id,
-                       id,
-                       id,
-                       id,
-                       id,
-                       id
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &accountid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `AccountId` FROM `Accounts` WHERE "
+            "`AccountCharId1` = '%u' OR `AccountCharId2` = '%u' OR "
+            "`AccountCharId3` = '%u' OR `AccountCharId4` = '%u' OR "
+            "`AccountCharId5` = '%u' OR `AccountCharId6` = '%u'",
+            id,
+            id,
+            id,
+            id,
+            id,
+            id
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &accountid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -212,10 +212,10 @@ int reg_check(const char* n, int len) {
 }
 
 int maintenance_mode() {
-    int flag = 0;
+    int flag  = 0;
     int nFlag = 0;
 
-    SqlStmt* stmt = NULL;
+    SqlStmt *stmt = NULL;
 
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
@@ -223,9 +223,9 @@ int maintenance_mode() {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT `MaintenanceMode` FROM `Maintenance`") ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &nFlag, 0, NULL, NULL)) {
+    if (SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT `MaintenanceMode` FROM `Maintenance`")
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &nFlag, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -240,12 +240,12 @@ int maintenance_mode() {
     return flag;
 }
 
-int maintenance_override(const char* n, int len) {
+int maintenance_override(const char *n, int len) {
     char buf[255];
-    int flag = 0;
-    int nFlag = 0;
+    int  flag  = 0;
+    int  nFlag = 0;
 
-    SqlStmt* stmt = NULL;
+    SqlStmt *stmt = NULL;
 
     memset(buf, 0, 255);
     memcpy(buf, n, len);
@@ -256,11 +256,12 @@ int maintenance_override(const char* n, int len) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt, "SELECT `ChaGMLevel` FROM `Character` WHERE `ChaName` = '%s'", buf
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &nFlag, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt, "SELECT `ChaGMLevel` FROM `Character` WHERE `ChaName` = '%s'", buf
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &nFlag, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -275,12 +276,12 @@ int maintenance_override(const char* n, int len) {
     return flag;
 }
 
-unsigned int metacrc(char* file) {
-    FILE* fp = NULL;
+unsigned int metacrc(char *file) {
+    FILE *fp = NULL;
 
     unsigned int checksum = 0;
-    unsigned int size = 0;
-    Bytef fileinf[196608];
+    unsigned int size     = 0;
+    Bytef        fileinf[196608];
     fp = fopen(file, "rbe");
     if (!fp) {
         return 0;
@@ -295,16 +296,16 @@ unsigned int metacrc(char* file) {
     return checksum;
 }
 
-int send_metafile(int fd, char* file) {
-    int len = 0;
+int send_metafile(int fd, char *file) {
+    int          len      = 0;
     unsigned int checksum = 0;
-    uLongf clen = 0;
-    Bytef* ubuf = NULL;
-    Bytef* cbuf = NULL;
-    unsigned int ulen = 0;
-    char filebuf[255];
+    uLongf       clen     = 0;
+    Bytef       *ubuf     = NULL;
+    Bytef       *cbuf     = NULL;
+    unsigned int ulen     = 0;
+    char         filebuf[255];
     unsigned int retval = 0;
-    FILE* fp = NULL;
+    FILE        *fp     = NULL;
 
     sprintf(filebuf, "%s%s", meta_dir, file);
 
@@ -319,9 +320,9 @@ int send_metafile(int fd, char* file) {
     ulen = ftell(fp);
     fseek(fp, 0, SEEK_SET);
     // CALLOC(ubuf,0,ulen);
-    ubuf = calloc(ulen + 1, sizeof(Bytef));
-    clen = compressBound(ulen);
-    cbuf = calloc(clen + 1, sizeof(Bytef));
+    ubuf             = calloc(ulen + 1, sizeof(Bytef));
+    clen             = compressBound(ulen);
+    cbuf             = calloc(clen + 1, sizeof(Bytef));
     size_t size_read = fread(ubuf, 1, ulen, fp);
 
     fclose(fp);
@@ -349,8 +350,8 @@ int send_metafile(int fd, char* file) {
     len += 1;
 
     WFIFOW(fd, 1) = SWAP16(len + 3);
-    set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
-    tk_crypt_static((unsigned char*)WFIFOP(fd, 0));
+    set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
     WFIFOSET(fd, len + 6 + 3);
 
     free(cbuf);
@@ -370,10 +371,10 @@ int send_meta(int fd) {
 }
 
 int send_metalist(int fd) {
-    int len = 0;
+    int          len      = 0;
     unsigned int checksum = 0;
-    char filebuf[6000];
-    int x = 0;
+    char         filebuf[6000];
+    int          x = 0;
 
     WFIFOHEAD(fd, 65535 * 2);
     WFIFOB(fd, 0) = 0xAA;
@@ -386,20 +387,20 @@ int send_metalist(int fd) {
         memcpy(WFIFOP(fd, len + 7), meta_file[x], strlen(meta_file[x]));
         len += strlen(meta_file[x]) + 1;
         sprintf(filebuf, "%s%s", meta_dir, meta_file[x]);
-        checksum = metacrc(filebuf);
+        checksum            = metacrc(filebuf);
         WFIFOL(fd, len + 6) = SWAP32(checksum);
         len += 4;
     }
 
     WFIFOW(fd, 1) = SWAP16(len + 4);
-    set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
-    tk_crypt_static((unsigned char*)WFIFOP(fd, 0));
+    set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
+    tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
     WFIFOSET(fd, len + 7 + 3);
 
     return 0;
 }
 
-int clif_debug(unsigned char* stringthing, int len) {
+int clif_debug(unsigned char *stringthing, int len) {
     int i = 0;
 
     for (i = 0; i < len; i++) {
@@ -421,8 +422,8 @@ int clif_debug(unsigned char* stringthing, int len) {
 }
 
 int clif_parse(int fd) {
-    unsigned short len = 0;
-    unsigned short ver = 0;
+    unsigned short len  = 0;
+    unsigned short ver  = 0;
     unsigned short deep = 0;
     if (session[fd]->eof) {
         session_eof(fd);
@@ -433,7 +434,7 @@ int clif_parse(int fd) {
         CALLOC(session[fd]->session_data, struct login_session_data, 1);
     }
 
-    struct login_session_data* sd = session[fd]->session_data;
+    struct login_session_data *sd = session[fd]->session_data;
 
     if (RFIFOB(fd, 0) != 0xAA) {
         int head_err = 0;
@@ -450,7 +451,7 @@ int clif_parse(int fd) {
         return 0;
     }
 
-    len = SWAP16(RFIFOW(fd, 1)) + 3;
+    len   = SWAP16(RFIFOW(fd, 1)) + 3;
     int L = 0;
 
     char OutStr[1024] = "";
@@ -483,7 +484,7 @@ int clif_parse(int fd) {
     switch (RFIFOB(fd, 3)) {
     case 0x00:
         tk_crypt_static(RFIFOP(fd, 0)); // reverse the encryption
-        ver = SWAP16(RFIFOW(fd, 4));
+        ver  = SWAP16(RFIFOW(fd, 4));
         deep = SWAP16(RFIFOW(fd, 7));
 
         printf("[login] [clif] [0x00] client_version=%d patch=%d\n", ver, deep);
@@ -514,7 +515,7 @@ int clif_parse(int fd) {
             WFIFOB(fd, 7) = 1;
             WFIFOB(fd, 8) = 0x23;
             strcpy(WFIFOP(fd, 9), "http://www.google.com");
-            set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
+            set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
             WFIFOSET(fd, 44 + 3);
             // session[fd]->eof=1;
         }
@@ -524,14 +525,14 @@ int clif_parse(int fd) {
         memset(sd->name, 0, 16);
         memset(sd->pass, 0, 16);
 
-        if ((RFIFOB(fd, 5) > 12) || (RFIFOB(fd, 5) < 3) ||
-            string_check_allchars((char*)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+        if ((RFIFOB(fd, 5) > 12) || (RFIFOB(fd, 5) < 3)
+            || string_check_allchars((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
             clif_message(fd, 0x03, login_msg[LGN_ERRUSER]);
             break;
         }
 
-        if ((RFIFOB(fd, 6 + RFIFOB(fd, 5)) > 8) || (RFIFOB(fd, 6 + RFIFOB(fd, 5)) < 3) ||
-            string_check((char*)RFIFOP(fd, 7 + RFIFOB(fd, 5)), RFIFOB(fd, 6 + RFIFOB(fd, 5)))) {
+        if ((RFIFOB(fd, 6 + RFIFOB(fd, 5)) > 8) || (RFIFOB(fd, 6 + RFIFOB(fd, 5)) < 3)
+            || string_check((char *)RFIFOP(fd, 7 + RFIFOB(fd, 5)), RFIFOB(fd, 6 + RFIFOB(fd, 5)))) {
             clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);
             break;
         }
@@ -556,18 +557,18 @@ int clif_parse(int fd) {
         break;
     case 0x03:
 
-        if (string_check((char*)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+        if (string_check((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
             clif_message(fd, 0x03, login_msg[LGN_ERRUSER]);
             break;
         }
 
-        if (string_check((char*)RFIFOP(fd, 7 + RFIFOB(fd, 5)), RFIFOB(fd, 6 + RFIFOB(fd, 5)))) {
+        if (string_check((char *)RFIFOP(fd, 7 + RFIFOB(fd, 5)), RFIFOB(fd, 6 + RFIFOB(fd, 5)))) {
             clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);
             break;
         }
 
         if (maintenance_mode()) {
-            if (maintenance_override((char*)RFIFOP(fd, 6), RFIFOB(fd, 5)) == 0) {
+            if (maintenance_override((char *)RFIFOP(fd, 6), RFIFOB(fd, 5)) == 0) {
                 clif_message(
                   fd,
                   0x03,
@@ -580,9 +581,9 @@ int clif_parse(int fd) {
         }
 
         if (require_reg) {
-            if (!reg_check((char*)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+            if (!reg_check((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
                 char name[16];
-                strncpy(name, (char*)RFIFOP(fd, 6), RFIFOB(fd, 5));
+                strncpy(name, (char *)RFIFOP(fd, 6), RFIFOB(fd, 5));
 
                 printf("[login] [require_reg] name=%s ip=%s\n", name, ip);
 
@@ -629,14 +630,14 @@ int clif_parse(int fd) {
         }
 
         sd->face = RFIFOB(fd, 6);
-        sd->sex = RFIFOB(fd, 10);
+        sd->sex  = RFIFOB(fd, 10);
 
         int startCountry = rand() % 2;
 
         sd->country = startCountry;
 
-        sd->totem = RFIFOB(fd, 12);
-        sd->hair = RFIFOB(fd, 7);
+        sd->totem      = RFIFOB(fd, 12);
+        sd->hair       = RFIFOB(fd, 7);
         sd->face_color = RFIFOB(fd, 8);
         sd->hair_color = RFIFOB(fd, 9);
 
@@ -669,18 +670,18 @@ int clif_parse(int fd) {
         WFIFOB(fd, 7) = 0xD8;
         WFIFOB(fd, 8) = 0xA2;
         WFIFOB(fd, 9) = 0xA0;
-        set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
+        set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
         WFIFOSET(fd, 13);
         break;
     case 0x26:
 
-        if (string_check((char*)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
+        if (string_check((char *)RFIFOP(fd, 6), RFIFOB(fd, 5))) {
             clif_message(fd, 0x03, login_msg[LGN_ERRUSER]);
             break;
         }
 
-        if (RFIFOB(fd, 7 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))) > 8 ||
-            RFIFOB(fd, 7 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))) < 3) {
+        if (RFIFOB(fd, 7 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))) > 8
+            || RFIFOB(fd, 7 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))) < 3) {
             clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);
             break;
         }
@@ -696,9 +697,9 @@ int clif_parse(int fd) {
             }
         }
 
-        if (string_check((char*)RFIFOP(fd, 7 + RFIFOB(fd, 5)), RFIFOB(fd, 6 + RFIFOB(fd, 5))) ||
-            string_check(
-              (char*)RFIFOP(fd, 8 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))),
+        if (string_check((char *)RFIFOP(fd, 7 + RFIFOB(fd, 5)), RFIFOB(fd, 6 + RFIFOB(fd, 5)))
+            || string_check(
+              (char *)RFIFOP(fd, 8 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5))),
               RFIFOB(fd, 7 + RFIFOB(fd, 5) + RFIFOB(fd, 6 + RFIFOB(fd, 5)))
             )) {
             clif_message(fd, 0x05, login_msg[LGN_ERRPASS]);

@@ -24,41 +24,41 @@ char login_pw[32] = "";
 int login_ip;
 int login_port = 2010;
 
-int require_reg = 1;
-int nex_version;
-int nex_deep;
+int  require_reg = 1;
+int  nex_version;
+int  nex_deep;
 char meta_file[META_MAX][256];
-int metamax;
+int  metamax;
 
 unsigned int map_ip;
 unsigned int map_port;
 
-int serverid;
-int save_time = 60000;
-int xp_rate;
-int d_rate;
+int              serverid;
+int              save_time = 60000;
+int              xp_rate;
+int              d_rate;
 struct town_data towns[255];
-int town_n = 0;
+int              town_n = 0;
 
 char sql_id[32] = "";
 char sql_pw[32] = "";
 char sql_db[32] = "";
 char sql_ip[32] = "";
-int sql_port = 3306;
+int  sql_port   = 3306;
 
-char* data_dir = "./data/";
-char* lua_dir = "./data/lua/";
-char* maps_dir = "./data/maps/";
-char* meta_dir = "./data/meta/";
+char *data_dir = "./data/";
+char *lua_dir  = "./data/lua/";
+char *maps_dir = "./data/maps/";
+char *meta_dir = "./data/meta/";
 
-int get_actual_ip(const char* addr, char* buffer) {
-    struct hostent* he;
-    struct in_addr a;
+int get_actual_ip(const char *addr, char *buffer) {
+    struct hostent *he;
+    struct in_addr  a;
 
     he = gethostbyname(addr);
     if (he) {
         while (*he->h_addr_list) {
-            bcopy(*he->h_addr_list++, (char*)&a, sizeof(a));
+            bcopy(*he->h_addr_list++, (char *)&a, sizeof(a));
             strncpy(buffer, inet_ntoa(a), 16);
         }
     }
@@ -66,13 +66,13 @@ int get_actual_ip(const char* addr, char* buffer) {
     return 0;
 }
 
-int add_meta(const char* file) {
+int add_meta(const char *file) {
     strcpy(meta_file[metamax], file);
     metamax++;
     return 0;
 }
 
-int add_town(const char* line) {
+int add_town(const char *line) {
     char town_name[1024];
 
     printf("[config] [add_town] name=%s\n", line);
@@ -86,14 +86,14 @@ int add_town(const char* line) {
     return 0;
 }
 
-int config_read(const char* cfg_file) {
+int config_read(const char *cfg_file) {
     char line[1024], r1[1024], r2[1024];
     char login_ip_s[16];
     char char_ip_s[16];
     char map_ip_s[16];
 
-    int line_num = 0;
-    FILE* fp;
+    int   line_num = 0;
+    FILE *fp;
 
     fp = fopen(cfg_file, "r");
     if (fp == NULL) {
@@ -111,7 +111,7 @@ int config_read(const char* cfg_file) {
             if (strcasecmp(r1, "char_ip") == 0) {
                 strncpy(char_ip_s, r2, 16);
                 char_ip_s[15] = '\0';
-                char_ip = inet_addr(char_ip_s);
+                char_ip       = inet_addr(char_ip_s);
             } else if (strcasecmp(r1, "char_port") == 0) {
                 char_port = atoi(r2);
             } else if (strcasecmp(r1, "char_id") == 0) {
@@ -123,7 +123,7 @@ int config_read(const char* cfg_file) {
             } else if (strcasecmp(r1, "login_ip") == 0) {
                 strncpy(login_ip_s, r2, 16);
                 login_ip_s[15] = '\0';
-                login_ip = inet_addr(login_ip_s);
+                login_ip       = inet_addr(login_ip_s);
             } else if (strcasecmp(r1, "login_port") == 0) {
                 login_port = atoi(r2);
             } else if (strcasecmp(r1, "login_id") == 0) {
@@ -135,7 +135,7 @@ int config_read(const char* cfg_file) {
             } else if (strcasecmp(r1, "map_ip") == 0) {
                 get_actual_ip(r2, map_ip_s);
                 map_ip_s[15] = '\0';
-                map_ip = inet_addr(map_ip_s);
+                map_ip       = inet_addr(map_ip_s);
             } else if (strcasecmp(r1, "map_port") == 0) {
                 map_port = atoi(r2);
             } else if (strcasecmp(r1, "sql_ip") == 0) {

@@ -38,7 +38,7 @@ static const int packet_len_table[] = { 72,
                                         255, // 0x3000 - 0x3015
                                         0 }; // NULL terminator
 
-int mapif_send(int fd, unsigned char* buf, int len, int type) {
+int mapif_send(int fd, unsigned char *buf, int len, int type) {
     int i;
 
     switch (type) {
@@ -87,8 +87,8 @@ int mapif_parse_auth(int fd) {
 
     cmd = RFIFOW(fd, 0);
 
-    if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-        packet_len_table[cmd - 0x3000] == 0) {
+    if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0]))
+        || packet_len_table[cmd - 0x3000] == 0) {
         return 0;
     }
 
@@ -105,7 +105,7 @@ int mapif_parse_auth(int fd) {
     }
 
     if (cmd == 0x3000) {
-        if ((strcmp((char*)RFIFOP(fd, 2), char_id)) && (strcmp((char*)RFIFOP(fd, 34), char_pw))) {
+        if ((strcmp((char *)RFIFOP(fd, 2), char_id)) && (strcmp((char *)RFIFOP(fd, 34), char_pw))) {
             WFIFOHEAD(fd, 4);
             WFIFOW(fd, 0) = 0x3800;
             WFIFOB(fd, 2) = 0x01;
@@ -129,9 +129,9 @@ int mapif_parse_auth(int fd) {
         }
 
         map_fifo_n++;
-        map_fifo[i].fd = fd;
-        map_fifo[i].ip = RFIFOL(fd, 66);
-        map_fifo[i].port = RFIFOW(fd, 70);
+        map_fifo[i].fd          = fd;
+        map_fifo[i].ip          = RFIFOL(fd, 66);
+        map_fifo[i].port        = RFIFOW(fd, 70);
         session[fd]->func_parse = mapif_parse;
         realloc_rfifo(fd, FIFOSIZE_SERVER, FIFOSIZE_SERVER);
 
@@ -141,8 +141,8 @@ int mapif_parse_auth(int fd) {
         WFIFOB(fd, 3) = i; // map-server #
         WFIFOSET(fd, 4);
 
-        unsigned char* p;
-        p = (unsigned char*)&map_fifo[i].ip;
+        unsigned char *p;
+        p = (unsigned char *)&map_fifo[i].ip;
         printf(
           "[char] [mapif] Map Server Connected id=%d ip=%u.%u.%u.%u port=%d\n",
           i,
@@ -215,16 +215,16 @@ int mapif_parse_login(int fd, int id) {
 
 /// Parse Request of Character to Map Server
 int mapif_parse_requestchar(int fd) {
-    unsigned int ulen, retval;
-    unsigned char* cbuf;
-    uLongf clen;
+    unsigned int   ulen, retval;
+    unsigned char *cbuf;
+    uLongf         clen;
     ulen = sizeof(struct mmo_charstatus);
     clen = compressBound((uLong)ulen);
     memset(char_dat, 0, sizeof(struct mmo_charstatus));
-    mmo_char_fromdb(RFIFOL(fd, 4), char_dat, (char*)RFIFOP(fd, 8));
+    mmo_char_fromdb(RFIFOL(fd, 4), char_dat, (char *)RFIFOP(fd, 8));
 
     CALLOC(cbuf, unsigned char, clen);
-    retval = compress(cbuf, &clen, (unsigned char*)char_dat, ulen);
+    retval = compress(cbuf, &clen, (unsigned char *)char_dat, ulen);
 
     if (retval) {
         FREE(cbuf);
@@ -243,9 +243,9 @@ int mapif_parse_requestchar(int fd) {
     return 0;
 }
 int mapif_parse_savechar(int fd) {
-    unsigned char* cbuf;
-    unsigned int ulen, retval;
-    uLongf clen;
+    unsigned char *cbuf;
+    unsigned int   ulen, retval;
+    uLongf         clen;
 
     ulen = RFIFOL(fd, 1) - 6;
     clen = sizeof(struct mmo_charstatus);
@@ -255,7 +255,7 @@ int mapif_parse_savechar(int fd) {
     retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
     if (!retval) {
-        mmo_char_todb((struct mmo_charstatus*)cbuf);
+        mmo_char_todb((struct mmo_charstatus *)cbuf);
     }
 
     FREE(cbuf);
@@ -269,10 +269,10 @@ int mapif_parse_logout(int fd) {
 
 /// Save and Logout character
 int mapif_parse_savecharlog(int fd) {
-    unsigned char* cbuf;
-    struct mmo_charstatus* c = NULL;
-    unsigned int ulen, retval;
-    uLongf clen;
+    unsigned char         *cbuf;
+    struct mmo_charstatus *c = NULL;
+    unsigned int           ulen, retval;
+    uLongf                 clen;
 
     ulen = RFIFOL(fd, 1) - 6;
     clen = sizeof(struct mmo_charstatus);
@@ -281,10 +281,10 @@ int mapif_parse_savecharlog(int fd) {
 
     retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
-    c = (struct mmo_charstatus*)cbuf;
+    c = (struct mmo_charstatus *)cbuf;
 
     if (!retval) {
-        mmo_char_todb((struct mmo_charstatus*)cbuf);
+        mmo_char_todb((struct mmo_charstatus *)cbuf);
     }
     if (c) {
         logindata_del(c->id);
@@ -295,14 +295,15 @@ int mapif_parse_savecharlog(int fd) {
     return 0;
 }
 /// Delete From Nmail
-int mapif_nmail_delete(int fd, char* name, int post) {
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "UPDATE `Mail` SET `MalDeleted` = '1', `MalNew` = '0' WHERE "
-                       "`MalChaNameDestination` = '%s' AND `MalPosition` = '%d'",
-                       name,
-                       post
-                     )) {
+int mapif_nmail_delete(int fd, char *name, int post) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "UPDATE `Mail` SET `MalDeleted` = '1', `MalNew` = '0' WHERE "
+          "`MalChaNameDestination` = '%s' AND `MalPosition` = '%d'",
+          name,
+          post
+        )) {
         WFIFOB(fd, 4) = 0x02;
         WFIFOSET(fd, 5);
         Sql_ShowDebug(sql_handle);
@@ -314,11 +315,11 @@ int mapif_nmail_delete(int fd, char* name, int post) {
     return 0;
 }
 int mapif_parse_deletepost(int fd) {
-    int sfd = RFIFOW(fd, 2);
-    int gmLevel = RFIFOW(fd, 4);
-    int canDelete = RFIFOW(fd, 6);
-    int board = RFIFOW(fd, 8);
-    int post = RFIFOW(fd, 10);
+    int  sfd       = RFIFOW(fd, 2);
+    int  gmLevel   = RFIFOW(fd, 4);
+    int  canDelete = RFIFOW(fd, 6);
+    int  board     = RFIFOW(fd, 8);
+    int  post      = RFIFOW(fd, 10);
     char name[16];
 
     memcpy(name, RFIFOP(fd, 12), 16);
@@ -333,26 +334,28 @@ int mapif_parse_deletepost(int fd) {
     } // Handling NMAIL
 
     if (gmLevel >= 50 || canDelete) {
-        if (SQL_ERROR == Sql_Query(
-                           sql_handle,
-                           "DELETE FROM `Boards` WHERE `BrdBnmId` = %d AND `BrdPosition` = %d",
-                           board,
-                           post
-                         )) {
+        if (SQL_ERROR
+            == Sql_Query(
+              sql_handle,
+              "DELETE FROM `Boards` WHERE `BrdBnmId` = %d AND `BrdPosition` = %d",
+              board,
+              post
+            )) {
             Sql_ShowDebug(sql_handle);
             WFIFOB(fd, 4) = 0x02;
         } else {
             WFIFOB(fd, 4) = 0x00;
         }
     } else {
-        if (SQL_ERROR == Sql_Query(
-                           sql_handle,
-                           "SELECT * FROM `Boards` WHERE `BrdBnmId` = %d "
-                           "AND `BrdPosition` = %d AND `BrdChaName` = '%s'",
-                           board,
-                           post,
-                           name
-                         )) {
+        if (SQL_ERROR
+            == Sql_Query(
+              sql_handle,
+              "SELECT * FROM `Boards` WHERE `BrdBnmId` = %d "
+              "AND `BrdPosition` = %d AND `BrdChaName` = '%s'",
+              board,
+              post,
+              name
+            )) {
             Sql_ShowDebug(sql_handle);
             WFIFOB(fd, 4) = 0x02;
             WFIFOSET(fd, 5);
@@ -362,13 +365,14 @@ int mapif_parse_deletepost(int fd) {
         if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
             WFIFOB(fd, 4) = 0x01;
         } else {
-            if (SQL_ERROR == Sql_Query(
-                               sql_handle,
-                               "DELETE FROM `Boards` WHERE `BrdBnmId` = %d "
-                               "AND `BrdPosition` = %d",
-                               board,
-                               post
-                             )) {
+            if (SQL_ERROR
+                == Sql_Query(
+                  sql_handle,
+                  "DELETE FROM `Boards` WHERE `BrdBnmId` = %d "
+                  "AND `BrdPosition` = %d",
+                  board,
+                  post
+                )) {
                 Sql_ShowDebug(sql_handle);
                 WFIFOB(fd, 4) = 0x02;
             } else {
@@ -383,14 +387,14 @@ int mapif_parse_deletepost(int fd) {
 }
 
 int mapif_parse_showposts(int fd) {
-    struct board_show_0 a;
+    struct board_show_0         a;
     struct boards_show_header_1 board_header;
-    struct boards_show_array_1 post;
-    int x;
-    int numRows = 0;
-    int len = 0;
-    SqlStmt* stmt;
-    StringBuf buf;
+    struct boards_show_array_1  post;
+    int                         x;
+    int                         numRows = 0;
+    int                         len     = 0;
+    SqlStmt                    *stmt;
+    StringBuf                   buf;
 
     // Set all Variables to 0
     memset(&a, 0, sizeof(struct board_show_0));
@@ -402,7 +406,7 @@ int mapif_parse_showposts(int fd) {
 
     // Copy Name and Variables to Header
     memcpy(board_header.name, a.name, 16);
-    board_header.fd = a.fd;
+    board_header.fd    = a.fd;
     board_header.array = 0;
     board_header.board = a.board;
     // printf("BCount %s (%d)\n",a.name,a.bcount);
@@ -476,17 +480,19 @@ int mapif_parse_showposts(int fd) {
     }
 
     // Make SQL Statement
-    if (SQL_ERROR == SqlStmt_Prepare(stmt, StringBuf_Value(&buf)) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &post.color, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &post.user, sizeof(post.user), NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 2, SQLDT_STRING, &post.topic, sizeof(post.topic), NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &post.post_id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &post.month, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &post.day, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_INT, &post.board_name, 0, NULL, NULL)) {
+    if (SQL_ERROR == SqlStmt_Prepare(stmt, StringBuf_Value(&buf))
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &post.color, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &post.user, sizeof(post.user), NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 2, SQLDT_STRING, &post.topic, sizeof(post.topic), NULL, NULL
+             )
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &post.post_id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &post.month, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &post.day, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_INT, &post.board_name, 0, NULL, NULL)) {
         // There was an Error, Destroy and send Header ONLY
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
@@ -533,14 +539,14 @@ int mapif_parse_showposts(int fd) {
 }
 
 int mapif_parse_userlist(int fd) {
-    int sfd = RFIFOW(fd, 2);
-    int class, mark, clan, x, hunter;
+    int          sfd = RFIFOW(fd, 2);
+    int          class, mark, clan, x, hunter;
     unsigned int nation = 0;
-    char name[32];
+    char         name[32];
 
     memset(name, 0, 32);
 
-    SqlStmt* stmt;
+    SqlStmt *stmt;
 
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
@@ -553,21 +559,22 @@ int mapif_parse_userlist(int fd) {
     WFIFOW(fd, 6) = sfd;
     WFIFOW(fd, 8) = 0; // This is where the User count goes.
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `ChaPthId`, `ChaMark`, `ChaClnId`, `ChaName`, "
-                       "`ChaHunter`, `ChaNation` FROM `Character` WHERE `ChaOnline` = 1 "
-                       "AND `ChaHeroes` = 1  GROUP BY `ChaName`, `ChaId` ORDER BY "
-                       "`ChaMark` DESC, `ChaLevel` DESC, SUM((`ChaBaseMana`*2) + "
-                       "`ChaBaseVita`) DESC, `ChaId` ASC"
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &class, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &mark, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &clan, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_STRING, &name, sizeof(name), NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &hunter, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &nation, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `ChaPthId`, `ChaMark`, `ChaClnId`, `ChaName`, "
+            "`ChaHunter`, `ChaNation` FROM `Character` WHERE `ChaOnline` = 1 "
+            "AND `ChaHeroes` = 1  GROUP BY `ChaName`, `ChaId` ORDER BY "
+            "`ChaMark` DESC, `ChaLevel` DESC, SUM((`ChaBaseMana`*2) + "
+            "`ChaBaseVita`) DESC, `ChaId` ASC"
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &class, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &mark, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &clan, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_STRING, &name, sizeof(name), NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &hunter, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &nation, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         WFIFOSET(fd, 10);
@@ -594,10 +601,10 @@ int mapif_parse_userlist(int fd) {
 }
 
 int mapif_parse_readpost(int fd) {
-    char* data = NULL;
+    char                     *data = NULL;
     struct boards_read_post_0 header;
     struct boards_read_post_1 post;
-    StringBuf buf;
+    StringBuf                 buf;
 
     int max = 0;
 
@@ -606,7 +613,7 @@ int mapif_parse_readpost(int fd) {
 
     memcpy(&header, RFIFOP(fd, 2), sizeof(header));
 
-    post.fd = header.fd;
+    post.fd    = header.fd;
     post.board = header.board;
 
     size_t len;
@@ -620,7 +627,7 @@ int mapif_parse_readpost(int fd) {
 
     if (!header.board) {
         post.buttons = 3;
-        post.type = 5;
+        post.type    = 5;
     }
 
     memcpy(post.name, header.name, 16);
@@ -758,11 +765,11 @@ int mapif_parse_readpost(int fd) {
 }
 int mapif_parse_boardpost(int fd) {
     struct boards_post_0 header;
-    int result = -1;
-    int newPostID = 1;
-    char* data = NULL;
-    char topic[104];
-    char post[8000];
+    int                  result    = -1;
+    int                  newPostID = 1;
+    char                *data      = NULL;
+    char                 topic[104];
+    char                 post[8000];
 
     memset(&header, 0, sizeof(header));
     memcpy(&header, RFIFOP(fd, 2), sizeof(header));
@@ -778,11 +785,12 @@ int mapif_parse_boardpost(int fd) {
 
     WFIFOW(fd, 2) = header.fd;
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "SELECT MAX(`BrdPosition`) FROM `Boards` WHERE `BrdBnmId` = '%d'",
-                       header.board
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "SELECT MAX(`BrdPosition`) FROM `Boards` WHERE `BrdBnmId` = '%d'",
+          header.board
+        )) {
         Sql_ShowDebug(sql_handle);
         WFIFOW(fd, 4) = 1; // 1 == SQL_ERROR
         WFIFOSET(fd, 6);
@@ -803,21 +811,22 @@ int mapif_parse_boardpost(int fd) {
         Sql_FreeResult(sql_handle);
     }
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "INSERT INTO `Boards`"
-                       "(`BrdBnmId`, `BrdHighlighted`, `BrdChaName`, `BrdTopic`, "
-                       "`BrdPost`, `BrdPosition`, `BrdMonth`, `BrdDay`, `BrdBtlId`)"
-                       "VALUES('%d','%d','%s','%s','%s','%d',DATE_FORMAT(CURDATE(),'%%"
-                       "m'),DATE_FORMAT(CURDATE(),'%%d'),'%d')",
-                       header.board,
-                       0,
-                       header.name,
-                       topic,
-                       post,
-                       newPostID,
-                       header.nval
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "INSERT INTO `Boards`"
+          "(`BrdBnmId`, `BrdHighlighted`, `BrdChaName`, `BrdTopic`, "
+          "`BrdPost`, `BrdPosition`, `BrdMonth`, `BrdDay`, `BrdBtlId`)"
+          "VALUES('%d','%d','%s','%s','%s','%d',DATE_FORMAT(CURDATE(),'%%"
+          "m'),DATE_FORMAT(CURDATE(),'%%d'),'%d')",
+          header.board,
+          0,
+          header.name,
+          topic,
+          post,
+          newPostID,
+          header.nval
+        )) {
         Sql_ShowDebug(sql_handle);
         WFIFOW(fd, 4) = 1;
         WFIFOSET(fd, 6);
@@ -830,26 +839,26 @@ int mapif_parse_boardpost(int fd) {
     return 0;
 }
 int mapif_parse_nmailwrite(int fd) {
-    int sfd = RFIFOW(fd, 2);
-    char from[32];
-    char to[104];
-    char topic[104];
-    char msg[8000];
-    int newMailID = 1;
-    unsigned int toID = 0;
-    char* data;
-    int result;
+    int          sfd = RFIFOW(fd, 2);
+    char         from[32];
+    char         to[104];
+    char         topic[104];
+    char         msg[8000];
+    int          newMailID = 1;
+    unsigned int toID      = 0;
+    char        *data;
+    int          result;
 
-    Sql_EscapeString(sql_handle, from, (char*)RFIFOP(fd, 4));
-    Sql_EscapeString(sql_handle, to, (char*)RFIFOP(fd, 20));
-    Sql_EscapeString(sql_handle, topic, (char*)RFIFOP(fd, 72));
-    Sql_EscapeString(sql_handle, msg, (char*)RFIFOP(fd, 124));
+    Sql_EscapeString(sql_handle, from, (char *)RFIFOP(fd, 4));
+    Sql_EscapeString(sql_handle, to, (char *)RFIFOP(fd, 20));
+    Sql_EscapeString(sql_handle, topic, (char *)RFIFOP(fd, 72));
+    Sql_EscapeString(sql_handle, msg, (char *)RFIFOP(fd, 124));
 
     WFIFOHEAD(fd, 6);
     WFIFOW(fd, 0) = 0x380C;
     WFIFOW(fd, 2) = sfd;
-    if (SQL_ERROR ==
-        Sql_Query(sql_handle, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", to)) {
+    if (SQL_ERROR
+        == Sql_Query(sql_handle, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", to)) {
         Sql_ShowDebug(sql_handle);
         WFIFOW(fd, 6) = 1;
         WFIFOSET(fd, 6);
@@ -868,12 +877,13 @@ int mapif_parse_nmailwrite(int fd) {
 
     Sql_FreeResult(sql_handle);
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
-                       "`MalChaNameDestination` = '%s'",
-                       to
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
+          "`MalChaNameDestination` = '%s'",
+          to
+        )) {
         Sql_ShowDebug(sql_handle);
         WFIFOW(fd, 6) = 1; // Sql_Error
         WFIFOSET(fd, 6);
@@ -897,18 +907,19 @@ int mapif_parse_nmailwrite(int fd) {
     }
 
     Sql_FreeResult(sql_handle);
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "INSERT INTO `Mail` (`MalChaName`, `MalChaNameDestination`, "
-                       "`MalPosition`, `MalSubject`, `MalBody`, `MalMonth`, `MalDay`, "
-                       "`MalNew`) VALUES('%s', '%s', %d, '%s', '%s', "
-                       "DATE_FORMAT(CURDATE(),'%%m'), DATE_FORMAT(CURDATE(), '%%d'), 1)",
-                       from,
-                       to,
-                       newMailID,
-                       topic,
-                       msg
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "INSERT INTO `Mail` (`MalChaName`, `MalChaNameDestination`, "
+          "`MalPosition`, `MalSubject`, `MalBody`, `MalMonth`, `MalDay`, "
+          "`MalNew`) VALUES('%s', '%s', %d, '%s', '%s', "
+          "DATE_FORMAT(CURDATE(),'%%m'), DATE_FORMAT(CURDATE(), '%%d'), 1)",
+          from,
+          to,
+          newMailID,
+          topic,
+          msg
+        )) {
         Sql_ShowDebug(sql_handle);
         WFIFOW(fd, 6) = 1;
         WFIFOSET(fd, 6);
@@ -922,25 +933,26 @@ int mapif_parse_nmailwrite(int fd) {
 }
 
 int mapif_parse_nmailwritecopy(int fd) {
-    char from[32];
-    char to[104];
-    char topic[104];
-    char msg[8000];
-    int newMailID = 1;
-    char* data;
-    int result;
+    char  from[32];
+    char  to[104];
+    char  topic[104];
+    char  msg[8000];
+    int   newMailID = 1;
+    char *data;
+    int   result;
 
-    Sql_EscapeString(sql_handle, from, (char*)RFIFOP(fd, 4));
-    Sql_EscapeString(sql_handle, to, (char*)RFIFOP(fd, 20));
-    Sql_EscapeString(sql_handle, topic, (char*)RFIFOP(fd, 72));
-    Sql_EscapeString(sql_handle, msg, (char*)RFIFOP(fd, 124));
+    Sql_EscapeString(sql_handle, from, (char *)RFIFOP(fd, 4));
+    Sql_EscapeString(sql_handle, to, (char *)RFIFOP(fd, 20));
+    Sql_EscapeString(sql_handle, topic, (char *)RFIFOP(fd, 72));
+    Sql_EscapeString(sql_handle, msg, (char *)RFIFOP(fd, 124));
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
-                       "`MalChaNameDestination` = '%s'",
-                       to
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
+          "`MalChaNameDestination` = '%s'",
+          to
+        )) {
         Sql_ShowDebug(sql_handle);
         return 0;
     }
@@ -961,18 +973,19 @@ int mapif_parse_nmailwritecopy(int fd) {
     }
 
     Sql_FreeResult(sql_handle);
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "INSERT INTO `Mail` (`MalChaName`, `MalChaNameDestination`, "
-                       "`MalPosition`, `MalSubject`, `MalBody`, `MalMonth`, `MalDay`, "
-                       "`MalNew`) VALUES('%s', '%s', %d, '%s', '%s', "
-                       "DATE_FORMAT(CURDATE(),'%%m'), DATE_FORMAT(CURDATE(), '%%d'), 1)",
-                       from,
-                       to,
-                       newMailID,
-                       topic,
-                       msg
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "INSERT INTO `Mail` (`MalChaName`, `MalChaNameDestination`, "
+          "`MalPosition`, `MalSubject`, `MalBody`, `MalMonth`, `MalDay`, "
+          "`MalNew`) VALUES('%s', '%s', %d, '%s', '%s', "
+          "DATE_FORMAT(CURDATE(),'%%m'), DATE_FORMAT(CURDATE(), '%%d'), 1)",
+          from,
+          to,
+          newMailID,
+          topic,
+          msg
+        )) {
         Sql_ShowDebug(sql_handle);
         return 0;
     }
@@ -1051,8 +1064,8 @@ int mapif_parse(int fd) {
 
     cmd = RFIFOW(fd, 0);
 
-    if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-        packet_len_table[cmd - 0x3000] == 0) {
+    if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0]))
+        || packet_len_table[cmd - 0x3000] == 0) {
         return 0;
     }
 

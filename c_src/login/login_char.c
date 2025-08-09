@@ -32,8 +32,8 @@ int intif_auth(int fd) {
         return 0;
     }
 
-    if ((strcmp((char*)RFIFOP(fd, 5), login_id) != 0) &&
-        (strcmp((char*)RFIFOP(fd, 37), login_pw))) {
+    if ((strcmp((char *)RFIFOP(fd, 5), login_id) != 0)
+        && (strcmp((char *)RFIFOP(fd, 37), login_pw))) {
         WFIFOHEAD(fd, 3);
         WFIFOW(fd, 0) = 0x1000;
         WFIFOB(fd, 2) = 0x01;
@@ -89,7 +89,7 @@ int intif_parse_connectconfirm(int fd) {
         return 0;
     }
 
-    struct login_session_data* sd = session[RFIFOW(fd, 2)]->session_data;
+    struct login_session_data *sd = session[RFIFOW(fd, 2)]->session_data;
 
     if (RFIFOB(fd, 4) == 0) {
         printf(
@@ -104,19 +104,20 @@ int intif_parse_connectconfirm(int fd) {
           ipaddress, "%u.%u.%u.%u", CONVIP(session[RFIFOW(fd, 2)]->client_addr.sin_addr.s_addr)
         );
 
-        SqlStmt* stmt = NULL;
-        stmt = SqlStmt_Malloc(sql_handle);
+        SqlStmt *stmt = NULL;
+        stmt          = SqlStmt_Malloc(sql_handle);
         if (stmt == NULL) {
             SqlStmt_ShowDebug(stmt);
             return 0;
         }
 
-        if (SQL_ERROR == Sql_Query(
-                           sql_handle,
-                           "UPDATE `Character` SET `ChaLastIP` = '%s' WHERE `ChaName` = '%s'",
-                           ipaddress,
-                           sd->name
-                         )) {
+        if (SQL_ERROR
+            == Sql_Query(
+              sql_handle,
+              "UPDATE `Character` SET `ChaLastIP` = '%s' WHERE `ChaName` = '%s'",
+              ipaddress,
+              sd->name
+            )) {
             Sql_ShowDebug(sql_handle);
             return 0;
         }
@@ -130,11 +131,11 @@ int intif_parse_connectconfirm(int fd) {
         WFIFOB(RFIFOW(fd, 2), 5) = '\x00';
         WFIFOB(RFIFOW(fd, 2), 6) = '\x00';
         WFIFOB(RFIFOW(fd, 2), 7) = '\x00';
-        set_packet_indexes((unsigned char*)WFIFOP(RFIFOW(fd, 2), 0));
-        tk_crypt_static((unsigned char*)WFIFOP(RFIFOW(fd, 2), 0));
+        set_packet_indexes((unsigned char *)WFIFOP(RFIFOW(fd, 2), 0));
+        tk_crypt_static((unsigned char *)WFIFOP(RFIFOW(fd, 2), 0));
         WFIFOSET(RFIFOW(fd, 2), 8 + 3);
-        int len = 0;
-        char* thing = NULL;
+        int   len   = 0;
+        char *thing = NULL;
 
         WFIFOHEAD(RFIFOW(fd, 2), 23 + 255);
         WFIFOB(RFIFOW(fd, 2), 0) = '\xAA';
@@ -142,8 +143,8 @@ int intif_parse_connectconfirm(int fd) {
         WFIFOL(RFIFOW(fd, 2), 4) = SWAP32(RFIFOL(fd, 21));
         WFIFOW(RFIFOW(fd, 2), 8) = SWAP16(RFIFOW(fd, 25));
 
-        len = strlen((char*)RFIFOP(fd, 5)) + 16;
-        thing = (char*)RFIFOP(fd, 5);
+        len                       = strlen((char *)RFIFOP(fd, 5)) + 16;
+        thing                     = (char *)RFIFOP(fd, 5);
         WFIFOB(RFIFOW(fd, 2), 10) = len;
 
         WFIFOW(RFIFOW(fd, 2), 11) = SWAP16(9);
@@ -154,7 +155,7 @@ int intif_parse_connectconfirm(int fd) {
         WFIFOL(RFIFOW(fd, 2), 23 + strlen(thing)) = SWAP32(RFIFOW(fd, 2));
 
         WFIFOW(RFIFOW(fd, 2), 1) = SWAP16(len + 8);
-        set_packet_indexes((unsigned char*)WFIFOP(RFIFOW(fd, 2), 0));
+        set_packet_indexes((unsigned char *)WFIFOP(RFIFOW(fd, 2), 0));
         WFIFOSET(RFIFOW(fd, 2), 11 + len + 3);
     } else if (RFIFOB(fd, 4) == 0x01) {
         clif_message(RFIFOW(fd, 2), 0x03, login_msg[LGN_ERRDB]);
@@ -216,7 +217,7 @@ int intif_parse_changepass(int fd) {
     return 0;
 }
 int intif_parse(int fd) {
-    int cmd = 0;
+    int cmd        = 0;
     int packet_len = 0;
 
     if (session[fd]->eof) {
@@ -238,8 +239,8 @@ int intif_parse(int fd) {
 
     cmd = RFIFOW(fd, 0);
 
-    if (cmd < 0x2000 || cmd >= 0x2000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-        packet_len_table[cmd - 0x2000] == 0) {
+    if (cmd < 0x2000 || cmd >= 0x2000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0]))
+        || packet_len_table[cmd - 0x2000] == 0) {
         return 0;
     }
 

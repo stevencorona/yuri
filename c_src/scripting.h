@@ -3,7 +3,6 @@
 #include <lua.h>
 #include <luajit.h>
 
-#include "class_db.h"
 #include "map_server.h"
 
 extern lua_State *sl_gstate;

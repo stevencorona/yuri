@@ -4,7 +4,6 @@
 
 #include "map_server.h"
 #include "mmo.h"
-#include "config.h"
 
 extern unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
 extern int val[32];

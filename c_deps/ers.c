@@ -77,8 +77,8 @@
  * @see ERS_impl#reuse
  */
 typedef struct ers_ll {
-    struct ers_ll* next;
-}* ERLinkedList;
+    struct ers_ll *next;
+} *ERLinkedList;
 
 /**
  * Class of the object that manages entries of a certain size.
@@ -111,7 +111,7 @@ typedef struct ers_impl {
     /**
      * Array with blocks of entries.
      */
-    uint8_t** blocks;
+    uint8_t **blocks;
 
     /**
      * Number of unused entries in the last block.
@@ -138,7 +138,7 @@ typedef struct ers_impl {
      */
     size_t size;
 
-}* ERS_impl;
+} *ERS_impl;
 
 /**
  * Root array with entry managers.
@@ -175,9 +175,9 @@ static uint32_t ers_num = 0;
  * @see #ERLinkedList
  * @see ERS_impl::vtable#alloc
  */
-static void* ers_obj_alloc_entry(ERS self) {
+static void *ers_obj_alloc_entry(ERS self) {
     ERS_impl obj = (ERS_impl)self;
-    void* ret;
+    void    *ret;
 
     if (obj == NULL) {
         ShowError("ers::alloc : NULL object, aborting entry allocation.\n");
@@ -185,7 +185,7 @@ static void* ers_obj_alloc_entry(ERS self) {
     }
 
     if (obj->reuse) { // Reusable entry
-        ret = obj->reuse;
+        ret        = obj->reuse;
         obj->reuse = obj->reuse->next;
     } else if (obj->free) { // Unused entry
         obj->free--;
@@ -201,11 +201,11 @@ static void* ers_obj_alloc_entry(ERS self) {
                 exit(EXIT_FAILURE);
             }
             obj->max = (obj->max * 4) + 3; // left shift bits '11' - overflow won't happen
-            REALLOC(obj->blocks, uint8_t*, obj->max);
+            REALLOC(obj->blocks, uint8_t *, obj->max);
         }
-        CALLOC(obj->blocks[obj->num], uint8_t, obj->size* ERS_BLOCK_ENTRIES);
+        CALLOC(obj->blocks[obj->num], uint8_t, obj->size *ERS_BLOCK_ENTRIES);
         obj->free = ERS_BLOCK_ENTRIES - 1;
-        ret = &obj->blocks[obj->num][obj->free * obj->size];
+        ret       = &obj->blocks[obj->num][obj->free * obj->size];
         obj->num++;
     }
     return ret;
@@ -221,8 +221,8 @@ static void* ers_obj_alloc_entry(ERS self) {
  * @see ERS_impl#reuse
  * @see ERS_impl::vtable#free
  */
-static void ers_obj_free_entry(ERS self, void* entry) {
-    ERS_impl obj = (ERS_impl)self;
+static void ers_obj_free_entry(ERS self, void *entry) {
+    ERS_impl     obj = (ERS_impl)self;
     ERLinkedList reuse;
 
     if (obj == NULL) {
@@ -233,9 +233,9 @@ static void ers_obj_free_entry(ERS self, void* entry) {
         return;
     }
 
-    reuse = (ERLinkedList)entry;
+    reuse       = (ERLinkedList)entry;
     reuse->next = obj->reuse;
-    obj->reuse = reuse;
+    obj->reuse  = reuse;
 }
 
 /**
@@ -266,10 +266,10 @@ static size_t ers_obj_entry_size(ERS self) {
  * @see ERS_impl::vtable#destroy
  */
 static void ers_obj_destroy(ERS self) {
-    ERS_impl obj = (ERS_impl)self;
+    ERS_impl     obj = (ERS_impl)self;
     ERLinkedList reuse, old;
-    uint32_t i;
-    uint32_t count;
+    uint32_t     i;
+    uint32_t     count;
 
     if (obj == NULL) {
         ShowError("ers::destroy: NULL object, aborting instance destruction.\n");
@@ -305,8 +305,8 @@ static void ers_obj_destroy(ERS self) {
         }
         while (reuse && count) {
             count--;
-            old = reuse;
-            reuse = reuse->next;
+            old       = reuse;
+            reuse     = reuse->next;
             old->next = NULL; // this makes duplicate frees report as missing entries
         }
     }
@@ -393,19 +393,19 @@ ERS ers_new(uint32_t size) {
     }
     obj = (ERS_impl)malloc(sizeof(struct ers_impl));
     // Public interface
-    obj->vtable.alloc = ers_obj_alloc_entry;
-    obj->vtable.free = ers_obj_free_entry;
+    obj->vtable.alloc      = ers_obj_alloc_entry;
+    obj->vtable.free       = ers_obj_free_entry;
     obj->vtable.entry_size = ers_obj_entry_size;
-    obj->vtable.destroy = ers_obj_destroy;
+    obj->vtable.destroy    = ers_obj_destroy;
     // Block reusage system
-    obj->reuse = NULL;
-    obj->blocks = NULL;
-    obj->free = 0;
-    obj->num = 0;
-    obj->max = 0;
+    obj->reuse   = NULL;
+    obj->blocks  = NULL;
+    obj->free    = 0;
+    obj->num     = 0;
+    obj->max     = 0;
     obj->destroy = 1;
     // Properties
-    obj->size = size;
+    obj->size           = size;
     ers_root[ers_num++] = obj;
     return &obj->vtable;
 }
@@ -422,13 +422,13 @@ ERS ers_new(uint32_t size) {
  * @see #ers_num
  */
 void ers_report(void) {
-    uint32_t i;
-    uint32_t j;
-    uint32_t used;
-    uint32_t reusable;
-    uint32_t extra;
+    uint32_t     i;
+    uint32_t     j;
+    uint32_t     used;
+    uint32_t     reusable;
+    uint32_t     extra;
     ERLinkedList reuse;
-    ERS_impl obj;
+    ERS_impl     obj;
 
     // Root system report
     ShowMessage(CL_BOLD "Entry Reusage System report:\n" CL_NORMAL);
@@ -436,9 +436,9 @@ void ers_report(void) {
     ShowMessage("root entry managers : %u\n", ers_num);
     ShowMessage("entries per block   : %u\n", ERS_BLOCK_ENTRIES);
     for (i = 0; i < ers_num; i++) {
-        obj = ers_root[i];
-        reuse = obj->reuse;
-        used = 0;
+        obj      = ers_root[i];
+        reuse    = obj->reuse;
+        used     = 0;
         reusable = 0;
         // Count used and reusable entries
         for (j = 0; j < obj->num; j++) {

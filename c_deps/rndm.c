@@ -12,13 +12,13 @@
 #define loBits(u) ((u) & 0x7FFFFFFFU)
 #define mixBits(u, v) (hiBit(u) | loBits(v))
 
-static unsigned int state[N + 1];
-static unsigned int* next;
-static int left = -1;
+static unsigned int  state[N + 1];
+static unsigned int *next;
+static int           left = -1;
 
 void seedMT(unsigned int seed) {
     register unsigned int x = (seed | 1U) & 0xFFFFFFFFU, *s = state;
-    register int j;
+    register int          j;
     for (left = 0, *s++ = x, j = N; --j; *s++ = (x *= 69069U) & 0xFFFFFFFFU) {
         ;
     }
@@ -26,7 +26,7 @@ void seedMT(unsigned int seed) {
 
 unsigned int reloadMT(void) {
     register unsigned int *p0 = state, *p2 = state + 2, *pM = state + M, s0, s1;
-    register int j;
+    register int           j;
     if (left < -1) {
         seedMT(time(NULL));
     }
@@ -69,11 +69,11 @@ unsigned int xor128(void) {
     static unsigned int y = 362436069;
     static unsigned int z = 521288629;
     static unsigned int w = 88675123;
-    unsigned int t;
+    unsigned int        t;
 
-    t = x ^ (x << 11);
-    x = y;
-    y = z;
-    z = w;
+    t        = x ^ (x << 11);
+    x        = y;
+    y        = z;
+    z        = w;
     return w = w ^ (w >> 19) ^ t ^ (t >> 8);
 }

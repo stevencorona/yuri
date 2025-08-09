@@ -11,11 +11,11 @@
 #include <string.h>
 
 char scheme[32];
-int filecount;
-Sql* sql_handle = NULL;
+int  filecount;
+Sql *sql_handle = NULL;
 
 unsigned short swap16(unsigned short val) {
-    int hi, lo;
+    int            hi, lo;
     unsigned short y;
 
     hi = val / 256;
@@ -26,12 +26,12 @@ unsigned short swap16(unsigned short val) {
     return y;
 }
 
-int output_meta(char* filename, int num, unsigned int list[], int max) {
-    FILE* fp;
-    int offset;
-    int x;
-    char buf[64];
-    char buf1;
+int output_meta(char *filename, int num, unsigned int list[], int max) {
+    FILE          *fp;
+    int            offset;
+    int            x;
+    char           buf[64];
+    char           buf1;
     unsigned short buf2;
 
     if (max < ((num + 1) * 1000)) {
@@ -195,17 +195,17 @@ int output_meta(char* filename, int num, unsigned int list[], int max) {
     return 0;
 }
 
-int main(int argc, char** argv) {
-    char filename[128];
-    int x = 0;
+int main(int argc, char **argv) {
+    char         filename[128];
+    int          x = 0;
     unsigned int id;
     unsigned int charicinfo[100000];
     unsigned int iteminfo[100000];
-    int ci_max = 0;
-    int ii_max = 0;
-    int ci_count = 0;
-    int ii_count = 0;
-    int a, c;
+    int          ci_max   = 0;
+    int          ii_max   = 0;
+    int          ci_count = 0;
+    int          ii_count = 0;
+    int          a, c;
 
     config_read("conf/server.yaml");
     // sql_init();
@@ -222,20 +222,21 @@ int main(int argc, char** argv) {
     itemdb_init();  // Load itemdb
     classdb_init(); // Load classdb
 
-    SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+    SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
     if (stmt == NULL) {
         SqlStmt_ShowDebug(stmt);
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `ItmId` FROM `Items` WHERE `ItmType` > 2 AND "
-                       "`ItmType` < 17 ORDER BY `ItmId`"
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `ItmId` FROM `Items` WHERE `ItmType` > 2 AND "
+            "`ItmType` < 17 ORDER BY `ItmId`"
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -249,19 +250,20 @@ int main(int argc, char** argv) {
         ci_count++;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `ItmId` FROM `Items` WHERE `ItmType` < 3 OR "
-                       "`ItmType` > 16 ORDER BY `ItmId`"
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `ItmId` FROM `Items` WHERE `ItmType` < 3 OR "
+            "`ItmType` > 16 ORDER BY `ItmId`"
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
     }
 
-    x = SqlStmt_NumRows(stmt);
+    x      = SqlStmt_NumRows(stmt);
     ii_max = x;
     for (c = 0; c < ii_max && SQL_SUCCESS == SqlStmt_NextRow(stmt); c++) {
         iteminfo[ii_count] = id;

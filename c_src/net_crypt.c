@@ -36,54 +36,54 @@ bool is_key_server(int opcode) {
 }
 
 int yuri_encrypt(int fd) {
-    USER* sd = NULL;
-    char key[16];
+    USER *sd = NULL;
+    char  key[16];
     sd = session[fd]->session_data;
 
     if (sd == NULL) {
         return 1;
     }
 
-    set_packet_indexes((unsigned char*)WFIFOP(fd, 0));
+    set_packet_indexes((unsigned char *)WFIFOP(fd, 0));
 
     if (is_key_server(WFIFOB(fd, 3))) {
-        generate_key2((unsigned char*)WFIFOP(fd, 0), sd->EncHash, key, 0);
-        tk_crypt_dynamic((unsigned char*)WFIFOP(fd, 0), key);
+        generate_key2((unsigned char *)WFIFOP(fd, 0), sd->EncHash, key, 0);
+        tk_crypt_dynamic((unsigned char *)WFIFOP(fd, 0), key);
     } else {
-        tk_crypt_static((unsigned char*)WFIFOP(fd, 0));
+        tk_crypt_static((unsigned char *)WFIFOP(fd, 0));
     }
-    return (int)SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
+    return (int)SWAP16(*(unsigned short *)WFIFOP(fd, 1)) + 3;
 }
 
 int decrypt(int fd) {
-    USER* sd = NULL;
-    char key[16];
-    sd = (USER*)session[fd]->session_data;
+    USER *sd = NULL;
+    char  key[16];
+    sd = (USER *)session[fd]->session_data;
 
     if (sd == NULL) {
         return 1;
     }
 
     if (is_key_client(RFIFOB(fd, 3))) {
-        generate_key2((unsigned char*)RFIFOP(fd, 0), sd->EncHash, key, 1);
-        tk_crypt_dynamic((unsigned char*)RFIFOP(fd, 0), key);
+        generate_key2((unsigned char *)RFIFOP(fd, 0), sd->EncHash, key, 1);
+        tk_crypt_dynamic((unsigned char *)RFIFOP(fd, 0), key);
     } else {
-        tk_crypt_static((unsigned char*)RFIFOP(fd, 0));
+        tk_crypt_static((unsigned char *)RFIFOP(fd, 0));
     }
     return 0;
 }
 
-char* generate_hashvalues(const char* name, char* outbuffer, int buflen) {
+char *generate_hashvalues(const char *name, char *outbuffer, int buflen) {
     struct cvs_MD5Context context;
-    unsigned char checksum[16];
-    int i;
+    unsigned char         checksum[16];
+    int                   i;
 
     if (buflen < 33) {
         return 0;
     }
 
     cvs_MD5Init(&context);
-    cvs_MD5Update(&context, (unsigned char*)name, strlen(name));
+    cvs_MD5Update(&context, (unsigned char *)name, strlen(name));
     cvs_MD5Final(checksum, &context);
 
     for (i = 0; i < 16; i++) {
@@ -94,9 +94,9 @@ char* generate_hashvalues(const char* name, char* outbuffer, int buflen) {
     return outbuffer;
 }
 
-char* populate_table(const char* name, char* table, int tablelen) {
+char *populate_table(const char *name, char *table, int tablelen) {
     char hash[64];
-    int i;
+    int  i;
 
     if (tablelen < 0x401) {
         return 0;
@@ -126,27 +126,27 @@ char* populate_table(const char* name, char* table, int tablelen) {
 #define rnd() (0x1337)
 #endif
 
-int set_packet_indexes(unsigned char* packet) {
-    unsigned char k1 = ((rnd() & 0x7FFF) % 0x9B + 0x64) ^ 0x21;
-    unsigned short k2 = ((rnd() & 0x7FFF) + 0x100) ^ 0x7424;
+int set_packet_indexes(unsigned char *packet) {
+    unsigned char  k1    = ((rnd() & 0x7FFF) % 0x9B + 0x64) ^ 0x21;
+    unsigned short k2    = ((rnd() & 0x7FFF) + 0x100) ^ 0x7424;
     unsigned short psize = (unsigned short)(packet[1] << 8) + (packet[2] & 0xFF);
 
     psize += 3;
-    packet[psize] = (unsigned char)k2 & 0xFF;
+    packet[psize]     = (unsigned char)k2 & 0xFF;
     packet[psize + 1] = k1;
     packet[psize + 2] = (unsigned char)(k2 >> 8) & 0xFF;
-    packet[1] = (unsigned char)(psize >> 8) & 0xFF;
-    packet[2] = (unsigned char)psize & 0xFF;
+    packet[1]         = (unsigned char)(psize >> 8) & 0xFF;
+    packet[2]         = (unsigned char)psize & 0xFF;
 
     return psize + 3;
 }
 #undef rnd
 
-char* generate_key2(unsigned char* packet, char* table, char* keyout, int fromclient) {
+char *generate_key2(unsigned char *packet, char *table, char *keyout, int fromclient) {
     unsigned short psize = (unsigned short)(packet[1] << 8) + (packet[2] & 0xFF);
-    unsigned int k1 = packet[psize + 1];
-    unsigned int k2 = (unsigned int)(packet[psize + 2] << 8) + (packet[psize] & 0xFF);
-    int i;
+    unsigned int   k1    = packet[psize + 1];
+    unsigned int   k2    = (unsigned int)(packet[psize + 2] << 8) + (packet[psize] & 0xFF);
+    int            i;
 
     if (fromclient) {
         k1 ^= 0x25;
@@ -167,19 +167,19 @@ char* generate_key2(unsigned char* packet, char* table, char* keyout, int fromcl
     return keyout;
 }
 
-void tk_crypt_static(unsigned char* buff) {
+void tk_crypt_static(unsigned char *buff) {
     tk_crypt_dynamic(buff, xor_key);
 }
 
-void tk_crypt_dynamic(unsigned char* buff, const char* key) {
-    unsigned int group = 0;
+void tk_crypt_dynamic(unsigned char *buff, const char *key) {
+    unsigned int group      = 0;
     unsigned int groupCount = 0;
-    unsigned int packetLen = 0;
-    uint8_t packetInc = 0;
-    uint8_t keyVal = 0;
+    unsigned int packetLen  = 0;
+    uint8_t      packetInc  = 0;
+    uint8_t      keyVal     = 0;
 
     buff++;
-    packetLen = SWAP16(*(unsigned short*)buff) - 5;
+    packetLen = SWAP16(*(unsigned short *)buff) - 5;
     buff += 3;
     packetInc = *buff;
     buff++;

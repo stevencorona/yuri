@@ -58,10 +58,10 @@ int msg_silent = 0; // Specifies how silent the console is.
 
 #define NEWBUF(buf)                                                                                \
     struct {                                                                                       \
-        char s_[SBUF_SIZE];                                                                        \
-        StringBuf* d_;                                                                             \
-        char* v_;                                                                                  \
-        int l_;                                                                                    \
+        char       s_[SBUF_SIZE];                                                                  \
+        StringBuf *d_;                                                                             \
+        char      *v_;                                                                             \
+        int        l_;                                                                             \
     } buf = { "", NULL, NULL, 0 };                                                                 \
     // define NEWBUF
 
@@ -209,7 +209,7 @@ Escape sequences for Select Character Set
 #define is_console(handle) (FILE_TYPE_CHAR == GetFileType(handle))
 
 ///////////////////////////////////////////////////////////////////////////////
-int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
+int VFPRINTF(HANDLE handle, const char *fmt, va_list argptr) {
     /////////////////////////////////////////////////////////////////
     /* XXX Two streams are being used. Disabled to avoid inconsistency [flaviojs]
     static COORD saveposition = {0,0};
@@ -248,7 +248,7 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
         } else {       // from here, we will skip the '\033['
             // we break at the first unprocessible position
             // assuming regular text is starting there
-            uint8 numbers[16], numpoint = 0;
+            uint8                      numbers[16], numpoint = 0;
             CONSOLE_SCREEN_BUFFER_INFO info;
 
             // initialize
@@ -288,9 +288,9 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                             } else if (5 == numbers[i]) { // set background intensity
                                 info.wAttributes |= BACKGROUND_INTENSITY;
                             } else if (7 == numbers[i]) { // reverse colors (just xor them)
-                                info.wAttributes ^= FOREGROUND_RED | FOREGROUND_GREEN |
-                                                    FOREGROUND_BLUE | BACKGROUND_RED |
-                                                    BACKGROUND_GREEN | BACKGROUND_BLUE;
+                                info.wAttributes ^= FOREGROUND_RED | FOREGROUND_GREEN
+                                                    | FOREGROUND_BLUE | BACKGROUND_RED
+                                                    | BACKGROUND_GREEN | BACKGROUND_BLUE;
                             }
                             // case '2': // not existing
                             // case '3':	// blinking (not implemented)
@@ -305,9 +305,9 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                             } else if (5 == numbers[i]) { // set background intensity off
                                 info.wAttributes &= ~BACKGROUND_INTENSITY;
                             } else if (7 == numbers[i]) { // reverse colors (just xor them)
-                                info.wAttributes ^= FOREGROUND_RED | FOREGROUND_GREEN |
-                                                    FOREGROUND_BLUE | BACKGROUND_RED |
-                                                    BACKGROUND_GREEN | BACKGROUND_BLUE;
+                                info.wAttributes ^= FOREGROUND_RED | FOREGROUND_GREEN
+                                                    | FOREGROUND_BLUE | BACKGROUND_RED
+                                                    | BACKGROUND_GREEN | BACKGROUND_BLUE;
                             }
                         } else if (0x30 == (0xF0 & numbers[i])) { // foreground
                             uint8 num = numbers[i] & 0x0F;
@@ -358,7 +358,7 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     //    Clears the screen and moves the cursor to the home position
                     //    (line 1, column 1).
                     uint8 num = (numbers[numpoint] >> 4) * 10 + (numbers[numpoint] & 0x0F);
-                    int cnt;
+                    int   cnt;
                     DWORD tmp;
                     COORD origin = { 0, 0 };
                     if (num == 1) { // chars from start up to and including cursor
@@ -369,8 +369,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     } else // 0 and default
                     {      // number of chars from cursor to end
                         origin = info.dwCursorPosition;
-                        cnt = info.dwSize.X * (info.dwSize.Y - info.dwCursorPosition.Y) -
-                              info.dwCursorPosition.X;
+                        cnt    = info.dwSize.X * (info.dwSize.Y - info.dwCursorPosition.Y)
+                              - info.dwCursorPosition.X;
                     }
                     FillConsoleOutputAttribute(handle, info.wAttributes, cnt, origin, &tmp);
                     FillConsoleOutputCharacter(handle, ' ', cnt, origin, &tmp);
@@ -381,7 +381,7 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     //    line to the cursor position. \033[2K - Clears all characters of
                     //    the whole line.
 
-                    uint8 num = (numbers[numpoint] >> 4) * 10 + (numbers[numpoint] & 0x0F);
+                    uint8 num    = (numbers[numpoint] >> 4) * 10 + (numbers[numpoint] & 0x0F);
                     COORD origin = { 0, info.dwCursorPosition.Y }; // warning C4204
                     SHORT cnt;
                     DWORD tmp;
@@ -429,8 +429,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     */
                 } else if (*q == 'A') { // \033[#A - Cursor Up (CUU)
                     // Moves the cursor UP # number of lines
-                    info.dwCursorPosition.Y -= (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10 +
-                                                                       (numbers[numpoint] & 0x0F)
+                    info.dwCursorPosition.Y -= (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10
+                                                                       + (numbers[numpoint] & 0x0F)
                                                                    : 1;
 
                     if (info.dwCursorPosition.Y < 0) {
@@ -439,8 +439,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     SetConsoleCursorPosition(handle, info.dwCursorPosition);
                 } else if (*q == 'B') { // \033[#B - Cursor Down (CUD)
                     // Moves the cursor DOWN # number of lines
-                    info.dwCursorPosition.Y += (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10 +
-                                                                       (numbers[numpoint] & 0x0F)
+                    info.dwCursorPosition.Y += (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10
+                                                                       + (numbers[numpoint] & 0x0F)
                                                                    : 1;
 
                     if (info.dwCursorPosition.Y >= info.dwSize.Y) {
@@ -449,8 +449,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     SetConsoleCursorPosition(handle, info.dwCursorPosition);
                 } else if (*q == 'C') { // \033[#C - Cursor Forward (CUF)
                     // Moves the cursor RIGHT # number of columns
-                    info.dwCursorPosition.X += (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10 +
-                                                                       (numbers[numpoint] & 0x0F)
+                    info.dwCursorPosition.X += (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10
+                                                                       + (numbers[numpoint] & 0x0F)
                                                                    : 1;
 
                     if (info.dwCursorPosition.X >= info.dwSize.X) {
@@ -459,8 +459,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     SetConsoleCursorPosition(handle, info.dwCursorPosition);
                 } else if (*q == 'D') { // \033[#D - Cursor Backward (CUB)
                     // Moves the cursor LEFT # number of columns
-                    info.dwCursorPosition.X -= (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10 +
-                                                                       (numbers[numpoint] & 0x0F)
+                    info.dwCursorPosition.X -= (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10
+                                                                       + (numbers[numpoint] & 0x0F)
                                                                    : 1;
 
                     if (info.dwCursorPosition.X < 0) {
@@ -469,8 +469,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     SetConsoleCursorPosition(handle, info.dwCursorPosition);
                 } else if (*q == 'E') { // \033[#E - Cursor Next Line (CNL)
                     // Moves the cursor down the indicated # of rows, to column 1
-                    info.dwCursorPosition.Y += (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10 +
-                                                                       (numbers[numpoint] & 0x0F)
+                    info.dwCursorPosition.Y += (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10
+                                                                       + (numbers[numpoint] & 0x0F)
                                                                    : 1;
                     info.dwCursorPosition.X = 0;
 
@@ -480,8 +480,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
                     SetConsoleCursorPosition(handle, info.dwCursorPosition);
                 } else if (*q == 'F') { // \033[#F - Cursor Preceding Line (CPL)
                     // Moves the cursor up the indicated # of rows, to column 1.
-                    info.dwCursorPosition.Y -= (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10 +
-                                                                       (numbers[numpoint] & 0x0F)
+                    info.dwCursorPosition.Y -= (numbers[numpoint]) ? (numbers[numpoint] >> 4) * 10
+                                                                       + (numbers[numpoint] & 0x0F)
                                                                    : 1;
                     info.dwCursorPosition.X = 0;
 
@@ -521,8 +521,8 @@ int VFPRINTF(HANDLE handle, const char* fmt, va_list argptr) {
     return 0;
 }
 
-int FPRINTF(HANDLE handle, const char* fmt, ...) {
-    int ret;
+int FPRINTF(HANDLE handle, const char *fmt, ...) {
+    int     ret;
     va_list argptr;
     va_start(argptr, fmt);
     ret = VFPRINTF(handle, fmt, argptr);
@@ -540,7 +540,7 @@ int FPRINTF(HANDLE handle, const char* fmt, ...) {
 #define is_console(file) (0 != isatty(fileno(file)))
 
 // vprintf_without_ansiformats
-int VFPRINTF(FILE* file, const char* fmt, va_list argptr) {
+int VFPRINTF(FILE *file, const char *fmt, va_list argptr) {
     char *p, *q;
     NEWBUF(tempbuf); // temporary buffer
 
@@ -622,8 +622,8 @@ int VFPRINTF(FILE* file, const char* fmt, va_list argptr) {
     FREEBUF(tempbuf);
     return 0;
 }
-int FPRINTF(FILE* file, const char* fmt, ...) {
-    int ret;
+int FPRINTF(FILE *file, const char *fmt, ...) {
+    int     ret;
     va_list argptr;
     va_start(argptr, fmt);
     ret = VFPRINTF(file, fmt, argptr);
@@ -640,21 +640,21 @@ int FPRINTF(FILE* file, const char* fmt, ...) {
 
 char timestamp_format[20] = ""; // For displaying Timestamps
 
-int _vShowMessage(enum msg_type flag, const char* string, va_list ap) {
+int _vShowMessage(enum msg_type flag, const char *string, va_list ap) {
     va_list apcopy;
-    char prefix[100];
+    char    prefix[100];
 #if defined(DEBUGLOGMAP) || defined(DEBUGLOGCHAR) || defined(DEBUGLOGLOGIN)
-    FILE* fp;
+    FILE *fp;
 #endif
 
     if (!string || *string == '\0') {
         ShowError("Empty string passed to _vShowMessage().\n");
         return 1;
     }
-    if ((flag == MSG_INFORMATION && msg_silent & 1) || (flag == MSG_STATUS && msg_silent & 2) ||
-        (flag == MSG_NOTICE && msg_silent & 4) || (flag == MSG_WARNING && msg_silent & 8) ||
-        (flag == MSG_ERROR && msg_silent & 16) || (flag == MSG_SQL && msg_silent & 16) ||
-        (flag == MSG_DEBUG && msg_silent & 32)) {
+    if ((flag == MSG_INFORMATION && msg_silent & 1) || (flag == MSG_STATUS && msg_silent & 2)
+        || (flag == MSG_NOTICE && msg_silent & 4) || (flag == MSG_WARNING && msg_silent & 8)
+        || (flag == MSG_ERROR && msg_silent & 16) || (flag == MSG_SQL && msg_silent & 16)
+        || (flag == MSG_DEBUG && msg_silent & 32)) {
         return 0; // Do not print it.
     }
 
@@ -749,8 +749,8 @@ void ClearScreen(void) {
     ShowMessage(CL_CLS); // to prevent empty string passed messages
 #endif
 }
-int _ShowMessage(enum msg_type flag, const char* string, ...) {
-    int ret;
+int _ShowMessage(enum msg_type flag, const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(flag, string, ap);
@@ -759,72 +759,72 @@ int _ShowMessage(enum msg_type flag, const char* string, ...) {
 }
 
 // direct printf replacement
-int ShowMessage(const char* string, ...) {
-    int ret;
+int ShowMessage(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_NONE, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowStatus(const char* string, ...) {
-    int ret;
+int ShowStatus(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_STATUS, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowSQL(const char* string, ...) {
-    int ret;
+int ShowSQL(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_SQL, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowInfo(const char* string, ...) {
-    int ret;
+int ShowInfo(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_INFORMATION, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowNotice(const char* string, ...) {
-    int ret;
+int ShowNotice(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_NOTICE, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowWarning(const char* string, ...) {
-    int ret;
+int ShowWarning(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_WARNING, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowDebug(const char* string, ...) {
-    int ret;
+int ShowDebug(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_DEBUG, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowError(const char* string, ...) {
-    int ret;
+int ShowError(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_ERROR, string, ap);
     va_end(ap);
     return ret;
 }
-int ShowFatalError(const char* string, ...) {
-    int ret;
+int ShowFatalError(const char *string, ...) {
+    int     ret;
     va_list ap;
     va_start(ap, string);
     ret = _vShowMessage(MSG_FATALERROR, string, ap);

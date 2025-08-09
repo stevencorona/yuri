@@ -31,9 +31,9 @@ void char_db_term() {
     Sql_Free(sql_handle);
     // sql_close();
 }
-char* lcase(char* input) {
-    int i = 0;
-    char* ret;
+char *lcase(char *input) {
+    int   i = 0;
+    char *ret;
 
     CALLOC(ret, char, strlen(input));
     memset(ret, 0, strlen(input));
@@ -54,10 +54,10 @@ char* lcase(char* input) {
 }
 
 /// Determines if the Password given matches the one in DB
-int ispass(const char* name, const char* pass, char* md5) {
+int ispass(const char *name, const char *pass, char *md5) {
     char md52[255] = "";
     char md53[255] = "";
-    char buf[255] = "";
+    char buf[255]  = "";
     char buf2[255] = "";
 
     char name2[32] = "";
@@ -82,7 +82,7 @@ int ispass(const char* name, const char* pass, char* md5) {
 }
 
 /// Determines if the Password given matches the Master in DB
-int ismastpass(const char* pass3, const char* mastmd5, int expire) {
+int ismastpass(const char *pass3, const char *mastmd5, int expire) {
     char mastmd52[32] = "";
 
     time_t nowtime = time(NULL);
@@ -102,15 +102,15 @@ int ismastpass(const char* pass3, const char* mastmd5, int expire) {
 
 /// Create New Character with given arguments.
 int char_db_newchar(
-  const char* name,
-  const char* pass,
-  int totem,
-  int sex,
-  int country,
-  int face,
-  int hair,
-  int face_color,
-  int hair_color
+  const char *name,
+  const char *pass,
+  int         totem,
+  int         sex,
+  int         country,
+  int         face,
+  int         hair,
+  int         face_color,
+  int         hair_color
 ) {
     int result;
 
@@ -119,27 +119,28 @@ int char_db_newchar(
         return result;
     }
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "INSERT INTO `Character` (`ChaName`, `ChaPassword`, "
-                       "`ChaTotem`, `ChaSex`, `ChaNation`, `ChaFace`, `ChaMapID`, "
-                       "`ChaX`, `ChaY`, "
-                       "`ChaHair`, `ChaHairColor`, `ChaFaceColor`) VALUES ("
-                       "'%s', MD5('%s'), '%d', '%d', '%d', '%d', '%d', '%d', '%d', "
-                       "'%d', '%d', '%d')",
-                       name,
-                       pass,
-                       totem,
-                       sex,
-                       country,
-                       face,
-                       start_pos.m,
-                       start_pos.x,
-                       start_pos.y,
-                       hair,
-                       hair_color,
-                       face_color
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "INSERT INTO `Character` (`ChaName`, `ChaPassword`, "
+          "`ChaTotem`, `ChaSex`, `ChaNation`, `ChaFace`, `ChaMapID`, "
+          "`ChaX`, `ChaY`, "
+          "`ChaHair`, `ChaHairColor`, `ChaFaceColor`) VALUES ("
+          "'%s', MD5('%s'), '%d', '%d', '%d', '%d', '%d', '%d', '%d', "
+          "'%d', '%d', '%d')",
+          name,
+          pass,
+          totem,
+          sex,
+          country,
+          face,
+          start_pos.m,
+          start_pos.x,
+          start_pos.y,
+          hair,
+          hair_color,
+          face_color
+        )) {
         Sql_ShowDebug(sql_handle);
         return 2;
     }
@@ -148,9 +149,9 @@ int char_db_newchar(
 }
 
 /// Check to See if Character Name is used.
-int char_db_isnameused(const char* name) {
-    int newid = 0;
-    SqlStmt* stmt;
+int char_db_isnameused(const char *name) {
+    int      newid = 0;
+    SqlStmt *stmt;
 
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
@@ -158,10 +159,10 @@ int char_db_isnameused(const char* name) {
         return 0;
     }
 
-    if (SQL_ERROR ==
-          SqlStmt_Prepare(stmt, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", name) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &newid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(stmt, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", name)
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &newid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         // SqlStmt_Free(stmt);
         return 2;
@@ -187,10 +188,10 @@ int char_db_isnameused(const char* name) {
 }
 
 /// Retrieve ID from Character Name
-unsigned int char_db_idfromname(const char* name) {
+unsigned int char_db_idfromname(const char *name) {
     unsigned int result;
     unsigned int t_Result;
-    SqlStmt* stmt;
+    SqlStmt     *stmt;
 
     stmt = SqlStmt_Malloc(sql_handle);
 
@@ -199,10 +200,10 @@ unsigned int char_db_idfromname(const char* name) {
         return 0;
     }
 
-    if (SQL_ERROR ==
-          SqlStmt_Prepare(stmt, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", name) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &t_Result, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(stmt, "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", name)
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &t_Result, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0; // db error
@@ -219,9 +220,9 @@ unsigned int char_db_idfromname(const char* name) {
 }
 
 /// Change Character Password
-int char_db_setpass(const char* name, const char* pass, const char* newpass) {
-    SqlStmt* stmt;
-    char pass2[64] = "";
+int char_db_setpass(const char *name, const char *pass, const char *newpass) {
+    SqlStmt *stmt;
+    char     pass2[64] = "";
 
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
@@ -229,11 +230,13 @@ int char_db_setpass(const char* name, const char* pass, const char* newpass) {
         return -1;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt, "SELECT `ChaPassword` FROM `Character` WHERE `ChaName` = '%s'", name
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &pass2, sizeof(pass2), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt, "SELECT `ChaPassword` FROM `Character` WHERE `ChaName` = '%s'", name
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &pass2, sizeof(pass2), NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return -1; // db_error
@@ -250,13 +253,14 @@ int char_db_setpass(const char* name, const char* pass, const char* newpass) {
 
     SqlStmt_Free(stmt);
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "UPDATE `Character` SET `ChaPassword` = MD5('%s') "
-                       "WHERE `ChaName` = '%s'",
-                       newpass,
-                       name
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "UPDATE `Character` SET `ChaPassword` = MD5('%s') "
+          "WHERE `ChaName` = '%s'",
+          newpass,
+          name
+        )) {
         return -1; // db_error
     }
 
@@ -266,28 +270,29 @@ int char_db_setpass(const char* name, const char* pass, const char* newpass) {
 int checkAccountBan(unsigned int id) {
     int accountid = 0;
 
-    SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+    SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
     if (stmt == NULL) {
         SqlStmt_ShowDebug(stmt);
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `AccountId` FROM `Accounts` WHERE `AccountBanned` = '1' "
-                       "AND (`AccountCharId1` = '%u' OR `AccountCharId2` = '%u' OR "
-                       "`AccountCharId3` = '%u' OR `AccountCharId4` = '%u' OR "
-                       "`AccountCharId5` = '%u' OR `AccountCharId6` = '%u')",
-                       id,
-                       id,
-                       id,
-                       id,
-                       id,
-                       id
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &accountid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `AccountId` FROM `Accounts` WHERE `AccountBanned` = '1' "
+            "AND (`AccountCharId1` = '%u' OR `AccountCharId2` = '%u' OR "
+            "`AccountCharId3` = '%u' OR `AccountCharId4` = '%u' OR "
+            "`AccountCharId5` = '%u' OR `AccountCharId6` = '%u')",
+            id,
+            id,
+            id,
+            id,
+            id,
+            id
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &accountid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -300,16 +305,16 @@ int checkAccountBan(unsigned int id) {
 }
 
 /// Getting Char From Login and Access Map Pointings
-int char_db_mapfifofromlogin(const char* name, const char* pass, unsigned int* id) {
-    int result;
-    char md5[64] = "";
-    char mastmd5[64] = "";
-    char pass2[64] = "";
-    int expiration = 0;
-    int ban = 0;
-    int map = 0;
-    int nID = 0;
-    SqlStmt* stmt;
+int char_db_mapfifofromlogin(const char *name, const char *pass, unsigned int *id) {
+    int      result;
+    char     md5[64]     = "";
+    char     mastmd5[64] = "";
+    char     pass2[64]   = "";
+    int      expiration  = 0;
+    int      ban         = 0;
+    int      map         = 0;
+    int      nID         = 0;
+    SqlStmt *stmt;
 
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
@@ -318,11 +323,12 @@ int char_db_mapfifofromlogin(const char* name, const char* pass, unsigned int* i
     }
 
     // pull character password md5 hash OR error our;
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt, "SELECT `ChaPassword` FROM `Character` WHERE `ChaName` = '%s'", name
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &md5, sizeof(md5), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt, "SELECT `ChaPassword` FROM `Character` WHERE `ChaName` = '%s'", name
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &md5, sizeof(md5), NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return -1; // db_error
@@ -335,15 +341,16 @@ int char_db_mapfifofromlogin(const char* name, const char* pass, unsigned int* i
         return -2; // name doesn't exist
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `AdmPassword`,`AdmTimer` FROM "
-                       "`AdminPassword` WHERE `AdmId` = '1'"
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &mastmd5, sizeof(mastmd5), NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &expiration, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `AdmPassword`,`AdmTimer` FROM "
+            "`AdminPassword` WHERE `AdmId` = '1'"
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &mastmd5, sizeof(mastmd5), NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &expiration, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return -1; // db_error
@@ -360,17 +367,18 @@ int char_db_mapfifofromlogin(const char* name, const char* pass, unsigned int* i
     }
 
     // SqlStmt_FreeResult(stmt);
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `ChaId`, `ChaPassword`, `ChaBanned`, "
-                       "`ChaMapId` FROM `Character` WHERE `ChaName` = '%s'",
-                       name
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &nID, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &pass2, sizeof(pass2), NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UCHAR, &ban, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_USHORT, &map, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `ChaId`, `ChaPassword`, `ChaBanned`, "
+            "`ChaMapId` FROM `Character` WHERE `ChaName` = '%s'",
+            name
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &nID, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &pass2, sizeof(pass2), NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UCHAR, &ban, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_USHORT, &map, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return -1; // db_error
@@ -399,20 +407,20 @@ int char_db_mapfifofromlogin(const char* name, const char* pass, unsigned int* i
 }
 
 /// Retrieve Character from Database.
-int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name) {
-    SqlStmt* stmt;
-    int i = 0;
-    unsigned int pos = 0;
-    unsigned short magic_id = 0;
-    struct mmo_charstatus a;
-    struct item item;
-    struct skill_info skill;
-    struct global_reg reg;
+int mmo_char_fromdb(unsigned int id, struct mmo_charstatus *p, char *login_name) {
+    SqlStmt                *stmt;
+    int                     i        = 0;
+    unsigned int            pos      = 0;
+    unsigned short          magic_id = 0;
+    struct mmo_charstatus   a;
+    struct item             item;
+    struct skill_info       skill;
+    struct global_reg       reg;
     struct global_regstring regstr;
-    struct legend legend;
-    struct kill_reg killreg;
-    struct bank_data bank;
-    char escape1[16];
+    struct legend           legend;
+    struct kill_reg         killreg;
+    struct bank_data        bank;
+    char                    escape1[16];
 
     if (p == NULL) {
         printf("[char_db] pointer was null login_name=%s", login_name);
@@ -440,119 +448,123 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     );
 
     // Char status read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `ChaName`, `ChaClnId`, `ChaClanTitle`, `ChaTitle`, "
-                       "`ChaF1Name`, `ChaLevel`, `ChaPthId`, `ChaMark`, " // 0-7
-                       "`ChaTotem`, `ChaKarma`, `ChaCurrentVita`, `ChaBaseVita`, "
-                       "`ChaCurrentMana`, `ChaBaseMana`, `ChaExperience`, `ChaGold`, "
-                       "`ChaSex`, " // 8-16
-                       "`ChaNation`, `ChaFace`, `ChaHairColor`, `ChaArmorColor`, "
-                       "`ChaMapId`, `ChaX`, `ChaY`, `ChaSide`, `ChaState`, `ChaHair`, "
-                       "`ChaFaceColor`, " // 17-27
-                       "`ChaSkinColor`, `ChaPartner`,`ChaClanChat`,`ChaPathChat`, "
-                       "`ChaNoviceChat`, "
-                       "`ChaSettings`,`ChaGMLevel`,`ChaDisguise`,`ChaDisguiseColor`, "
-                       "`ChaMaximumBankSlots`, " // 28-36
-                       "`ChaBankGold`, `ChaMaximumInventory`, `ChaPK`, `ChaKilledBy`, "
-                       "`ChaKillsPK`, `ChaPKDuration`, `ChaMuted`, `ChaHeroes`, "
-                       "`ChaTier`, " // 37-46
-                       "`ChaExperienceSoldMagic`, `ChaExperienceSoldHealth`, "
-                       "`ChaExperienceSoldStats`, `ChaBaseMight`, `ChaBaseWill`, "
-                       "`ChaBaseGrace`, "
-                       "`ChaBaseArmor`, `ChaMiniMapToggle`, `ChaLastIP`, "
-                       "`ChaAFKMessage`, `ChaTutor`, `ChaAlignment`, "
-                       "`ChaProfileVitaStats`,`ChaProfileEquipList`, "
-                       "`ChaProfileLegends`, `ChaProfileSpells`, `ChaProfileInventory`, "
-                       "`ChaProfileBankItems`, `ChaPthRank`, `ChaClnRank` FROM "
-                       "`Character` WHERE `ChaId` = '%u' LIMIT 1",
-                       id
-                     ) // 47
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `ChaName`, `ChaClnId`, `ChaClanTitle`, `ChaTitle`, "
+            "`ChaF1Name`, `ChaLevel`, `ChaPthId`, `ChaMark`, " // 0-7
+            "`ChaTotem`, `ChaKarma`, `ChaCurrentVita`, `ChaBaseVita`, "
+            "`ChaCurrentMana`, `ChaBaseMana`, `ChaExperience`, `ChaGold`, "
+            "`ChaSex`, " // 8-16
+            "`ChaNation`, `ChaFace`, `ChaHairColor`, `ChaArmorColor`, "
+            "`ChaMapId`, `ChaX`, `ChaY`, `ChaSide`, `ChaState`, `ChaHair`, "
+            "`ChaFaceColor`, " // 17-27
+            "`ChaSkinColor`, `ChaPartner`,`ChaClanChat`,`ChaPathChat`, "
+            "`ChaNoviceChat`, "
+            "`ChaSettings`,`ChaGMLevel`,`ChaDisguise`,`ChaDisguiseColor`, "
+            "`ChaMaximumBankSlots`, " // 28-36
+            "`ChaBankGold`, `ChaMaximumInventory`, `ChaPK`, `ChaKilledBy`, "
+            "`ChaKillsPK`, `ChaPKDuration`, `ChaMuted`, `ChaHeroes`, "
+            "`ChaTier`, " // 37-46
+            "`ChaExperienceSoldMagic`, `ChaExperienceSoldHealth`, "
+            "`ChaExperienceSoldStats`, `ChaBaseMight`, `ChaBaseWill`, "
+            "`ChaBaseGrace`, "
+            "`ChaBaseArmor`, `ChaMiniMapToggle`, `ChaLastIP`, "
+            "`ChaAFKMessage`, `ChaTutor`, `ChaAlignment`, "
+            "`ChaProfileVitaStats`,`ChaProfileEquipList`, "
+            "`ChaProfileLegends`, `ChaProfileSpells`, `ChaProfileInventory`, "
+            "`ChaProfileBankItems`, `ChaPthRank`, `ChaClnRank` FROM "
+            "`Character` WHERE `ChaId` = '%u' LIMIT 1",
+            id
+          ) // 47
 
-        || SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &a.name, sizeof(a.name), NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &a.clan, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 2, SQLDT_STRING, &a.clan_title, sizeof(a.clan_title), NULL, NULL
-                     ) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 3, SQLDT_STRING, &a.title, sizeof(a.title), NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 4, SQLDT_STRING, &a.f1name, sizeof(a.f1name), NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UCHAR, &a.level, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &a.class, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UCHAR, &a.mark, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UCHAR, &a.totem, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 9, SQLDT_FLOAT, &a.karma, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &a.hp, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &a.basehp, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &a.mp, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 13, SQLDT_UINT, &a.basemp, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 14, SQLDT_UINT, &a.exp, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 15, SQLDT_UINT, &a.money, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 16, SQLDT_UCHAR, &a.sex, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 17, SQLDT_UCHAR, &a.country, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 18, SQLDT_USHORT, &a.face, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 19, SQLDT_USHORT, &a.hair_color, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 20, SQLDT_USHORT, &a.armor_color, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 21, SQLDT_USHORT, &a.last_pos.m, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 22, SQLDT_USHORT, &a.last_pos.x, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 23, SQLDT_USHORT, &a.last_pos.y, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 24, SQLDT_CHAR, &a.side, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 25, SQLDT_CHAR, &a.state, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 26, SQLDT_USHORT, &a.hair, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 27, SQLDT_USHORT, &a.face_color, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 28, SQLDT_USHORT, &a.skin_color, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 29, SQLDT_UINT, &a.partner, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 30, SQLDT_CHAR, &a.clan_chat, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 31, SQLDT_CHAR, &a.subpath_chat, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 32, SQLDT_CHAR, &a.novice_chat, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 33, SQLDT_USHORT, &a.settingFlags, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 34, SQLDT_CHAR, &a.gm_level, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 35, SQLDT_USHORT, &a.disguise, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 36, SQLDT_USHORT, &a.disguisecolor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_UINT, &a.maxslots, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UINT, &a.bankmoney, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_UCHAR, &a.maxinv, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_UCHAR, &a.pk, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 41, SQLDT_UINT, &a.killedby, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 42, SQLDT_UINT, &a.killspk, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 43, SQLDT_UINT, &a.pkduration, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 44, SQLDT_UCHAR, &a.mute, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 45, SQLDT_UINT, &a.heroes, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 46, SQLDT_UCHAR, &a.tier, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 47, SQLDT_ULONGLONG, &a.expsoldmagic, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 48, SQLDT_ULONGLONG, &a.expsoldhealth, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 49, SQLDT_ULONGLONG, &a.expsoldstats, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 50, SQLDT_UINT, &a.basemight, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 51, SQLDT_UINT, &a.basewill, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 52, SQLDT_UINT, &a.basegrace, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 53, SQLDT_INT, &a.basearmor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UINT, &a.miniMapToggle, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 55, SQLDT_STRING, &a.ipaddress, sizeof(a.ipaddress), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 56, SQLDT_STRING, &a.afkmessage, sizeof(a.afkmessage), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 57, SQLDT_UCHAR, &a.tutor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 58, SQLDT_CHAR, &a.alignment, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 59, SQLDT_UCHAR, &a.profile_vitastats, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 60, SQLDT_UCHAR, &a.profile_equiplist, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 61, SQLDT_UCHAR, &a.profile_legends, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 62, SQLDT_UCHAR, &a.profile_spells, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 63, SQLDT_UCHAR, &a.profile_inventory, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 64, SQLDT_UCHAR, &a.profile_bankitems, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 65, SQLDT_UCHAR, &a.classRank, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 66, SQLDT_UCHAR, &a.clanRank, 0, NULL, NULL))
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &a.name, sizeof(a.name), NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &a.clan, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 2, SQLDT_STRING, &a.clan_title, sizeof(a.clan_title), NULL, NULL
+             )
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 3, SQLDT_STRING, &a.title, sizeof(a.title), NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 4, SQLDT_STRING, &a.f1name, sizeof(a.f1name), NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UCHAR, &a.level, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &a.class, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UCHAR, &a.mark, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UCHAR, &a.totem, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 9, SQLDT_FLOAT, &a.karma, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &a.hp, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &a.basehp, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &a.mp, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 13, SQLDT_UINT, &a.basemp, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 14, SQLDT_UINT, &a.exp, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 15, SQLDT_UINT, &a.money, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 16, SQLDT_UCHAR, &a.sex, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 17, SQLDT_UCHAR, &a.country, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 18, SQLDT_USHORT, &a.face, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 19, SQLDT_USHORT, &a.hair_color, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 20, SQLDT_USHORT, &a.armor_color, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 21, SQLDT_USHORT, &a.last_pos.m, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 22, SQLDT_USHORT, &a.last_pos.x, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 23, SQLDT_USHORT, &a.last_pos.y, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 24, SQLDT_CHAR, &a.side, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 25, SQLDT_CHAR, &a.state, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 26, SQLDT_USHORT, &a.hair, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 27, SQLDT_USHORT, &a.face_color, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 28, SQLDT_USHORT, &a.skin_color, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 29, SQLDT_UINT, &a.partner, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 30, SQLDT_CHAR, &a.clan_chat, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 31, SQLDT_CHAR, &a.subpath_chat, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 32, SQLDT_CHAR, &a.novice_chat, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 33, SQLDT_USHORT, &a.settingFlags, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 34, SQLDT_CHAR, &a.gm_level, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 35, SQLDT_USHORT, &a.disguise, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 36, SQLDT_USHORT, &a.disguisecolor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_UINT, &a.maxslots, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UINT, &a.bankmoney, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_UCHAR, &a.maxinv, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_UCHAR, &a.pk, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 41, SQLDT_UINT, &a.killedby, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 42, SQLDT_UINT, &a.killspk, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 43, SQLDT_UINT, &a.pkduration, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 44, SQLDT_UCHAR, &a.mute, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 45, SQLDT_UINT, &a.heroes, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 46, SQLDT_UCHAR, &a.tier, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 47, SQLDT_ULONGLONG, &a.expsoldmagic, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 48, SQLDT_ULONGLONG, &a.expsoldhealth, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 49, SQLDT_ULONGLONG, &a.expsoldstats, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 50, SQLDT_UINT, &a.basemight, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 51, SQLDT_UINT, &a.basewill, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 52, SQLDT_UINT, &a.basegrace, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 53, SQLDT_INT, &a.basearmor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UINT, &a.miniMapToggle, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 55, SQLDT_STRING, &a.ipaddress, sizeof(a.ipaddress), NULL, NULL
+             )
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 56, SQLDT_STRING, &a.afkmessage, sizeof(a.afkmessage), NULL, NULL
+             )
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 57, SQLDT_UCHAR, &a.tutor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 58, SQLDT_CHAR, &a.alignment, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 59, SQLDT_UCHAR, &a.profile_vitastats, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 60, SQLDT_UCHAR, &a.profile_equiplist, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 61, SQLDT_UCHAR, &a.profile_legends, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 62, SQLDT_UCHAR, &a.profile_spells, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 63, SQLDT_UCHAR, &a.profile_inventory, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 64, SQLDT_UCHAR, &a.profile_bankitems, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 65, SQLDT_UCHAR, &a.classRank, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 66, SQLDT_UCHAR, &a.clanRank, 0, NULL, NULL))
 
     {
         SqlStmt_ShowDebug(stmt);
@@ -577,34 +589,37 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     memcpy(p->name, login_name, 16);
 
     // Read Bank
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `BnkEngrave`, `BnkItmId`,`BnkAmount`,`BnkChaIdOwner`, "
-                       "`BnkPosition`, `BnkCustomLook`, `BnkCustomLookColor`, "
-                       "`BnkCustomIcon`, `BnkCustomIconColor`, `BnkProtected`, "
-                       "`BnkNote` FROM `Banks` WHERE `BnkChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_BANK_SLOTS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 0, SQLDT_STRING, &bank.real_name, sizeof(bank.real_name), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &bank.item_id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &bank.amount, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT, &bank.owner, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UCHAR, &pos, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &bank.customLook, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 6, SQLDT_UINT, &bank.customLookColor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UINT, &bank.customIcon, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &bank.customIconColor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &bank.protected, 0, NULL, NULL)
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `BnkEngrave`, `BnkItmId`,`BnkAmount`,`BnkChaIdOwner`, "
+            "`BnkPosition`, `BnkCustomLook`, `BnkCustomLookColor`, "
+            "`BnkCustomIcon`, `BnkCustomIconColor`, `BnkProtected`, "
+            "`BnkNote` FROM `Banks` WHERE `BnkChaId` = '%u' LIMIT %d",
+            id,
+            MAX_BANK_SLOTS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 0, SQLDT_STRING, &bank.real_name, sizeof(bank.real_name), NULL, NULL
+             )
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &bank.item_id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &bank.amount, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT, &bank.owner, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UCHAR, &pos, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &bank.customLook, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 6, SQLDT_UINT, &bank.customLookColor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UINT, &bank.customIcon, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &bank.customIconColor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &bank.protected, 0, NULL, NULL)
 
-        ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 10, SQLDT_STRING, &bank.note, sizeof(bank.note), NULL, NULL)) {
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 10, SQLDT_STRING, &bank.note, sizeof(bank.note), NULL, NULL
+             )) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -618,36 +633,40 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // Read Inventory
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `InvEngrave`, `InvItmId`, `InvAmount`, `InvDurability`, "
-                       "`InvChaIdOwner`, `InvTimer`, `InvPosition`, `InvCustom`, "
-                       "`InvCustomLook`, `InvCustomLookColor`, `InvCustomIcon`, "
-                       "`InvCustomIconColor`, `InvProtected`, `InvNote` FROM "
-                       "`Inventory` WHERE `InvChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_INVENTORY
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 0, SQLDT_STRING, &item.real_name, sizeof(item.real_name), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &item.id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &item.amount, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT, &item.dura, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UINT, &item.owner, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &item.time, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &pos, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UINT, &item.custom, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &item.customLook, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &item.customLookColor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &item.customIcon, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &item.customIconColor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &item.protected, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 13, SQLDT_STRING, &item.note, sizeof(item.note), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `InvEngrave`, `InvItmId`, `InvAmount`, `InvDurability`, "
+            "`InvChaIdOwner`, `InvTimer`, `InvPosition`, `InvCustom`, "
+            "`InvCustomLook`, `InvCustomLookColor`, `InvCustomIcon`, "
+            "`InvCustomIconColor`, `InvProtected`, `InvNote` FROM "
+            "`Inventory` WHERE `InvChaId` = '%u' LIMIT %d",
+            id,
+            MAX_INVENTORY
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 0, SQLDT_STRING, &item.real_name, sizeof(item.real_name), NULL, NULL
+             )
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &item.id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &item.amount, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT, &item.dura, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UINT, &item.owner, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &item.time, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &pos, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UINT, &item.custom, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &item.customLook, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &item.customLookColor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &item.customIcon, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &item.customIconColor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &item.protected, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 13, SQLDT_STRING, &item.note, sizeof(item.note), NULL, NULL
+             )) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -661,36 +680,40 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // Equip Read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `EqpEngrave`, `EqpItmId`, '1', `EqpDurability`, "
-                       "`EqpChaIdOwner`, `EqpTimer`, `EqpSlot`, `EqpCustom`, "
-                       "`EqpCustomLook`, `EqpCustomLookColor`, `EqpCustomIcon`, "
-                       "`EqpCustomIconColor`, `EqpProtected`, `EqpNote` FROM "
-                       "`Equipment` WHERE `EqpChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_EQUIP
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 0, SQLDT_STRING, &item.real_name, sizeof(item.real_name), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &item.id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &item.amount, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT, &item.dura, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UINT, &item.owner, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &item.time, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &pos, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UINT, &item.custom, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &item.customLook, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &item.customLookColor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &item.customIcon, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &item.customIconColor, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &item.protected, 0, NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 13, SQLDT_STRING, &item.note, sizeof(item.note), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `EqpEngrave`, `EqpItmId`, '1', `EqpDurability`, "
+            "`EqpChaIdOwner`, `EqpTimer`, `EqpSlot`, `EqpCustom`, "
+            "`EqpCustomLook`, `EqpCustomLookColor`, `EqpCustomIcon`, "
+            "`EqpCustomIconColor`, `EqpProtected`, `EqpNote` FROM "
+            "`Equipment` WHERE `EqpChaId` = '%u' LIMIT %d",
+            id,
+            MAX_EQUIP
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 0, SQLDT_STRING, &item.real_name, sizeof(item.real_name), NULL, NULL
+             )
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &item.id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &item.amount, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT, &item.dura, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UINT, &item.owner, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &item.time, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &pos, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 7, SQLDT_UINT, &item.custom, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &item.customLook, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &item.customLookColor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &item.customIcon, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &item.customIconColor, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &item.protected, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 13, SQLDT_STRING, &item.note, sizeof(item.note), NULL, NULL
+             )) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -706,15 +729,16 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // Skill Read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `SbkSplId`, `SbkPosition` FROM "
-                       "`SpellBook` WHERE `SbkChaId` = '%u'",
-                       id
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_USHORT, &magic_id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &pos, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `SbkSplId`, `SbkPosition` FROM "
+            "`SpellBook` WHERE `SbkChaId` = '%u'",
+            id
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_USHORT, &magic_id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &pos, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -728,18 +752,19 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // Duration & Aether Information
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `AthAether`, `AthSplId`, `AthDuration`, `AthPosition` "
-                       "FROM `Aethers` WHERE `AthChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_MAGIC_TIMERS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &skill.aether, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &skill.id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &skill.duration, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UCHAR, &pos, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `AthAether`, `AthSplId`, `AthDuration`, `AthPosition` "
+            "FROM `Aethers` WHERE `AthChaId` = '%u' LIMIT %d",
+            id,
+            MAX_MAGIC_TIMERS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &skill.aether, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &skill.id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &skill.duration, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UCHAR, &pos, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -754,18 +779,19 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
 
     // Reg Read
     p->global_reg_num = 0;
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `RegIdentifier`, `RegValue` FROM `Registry` "
-                       "WHERE `RegChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALPLAYERREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str, sizeof(reg.str), NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &reg.val, sizeof(reg.val), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `RegIdentifier`, `RegValue` FROM `Registry` "
+            "WHERE `RegChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALPLAYERREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str, sizeof(reg.str), NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &reg.val, sizeof(reg.val), NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -781,18 +807,23 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
 
     // Reg Read
     p->global_regstring_num = 0;
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `RegIdentifier`, `RegValue` FROM "
-                       "`RegistryString` WHERE `RegChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALPLAYERREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &regstr.str, sizeof(regstr.str), NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &regstr.val, sizeof(regstr.val), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `RegIdentifier`, `RegValue` FROM "
+            "`RegistryString` WHERE `RegChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALPLAYERREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 0, SQLDT_STRING, &regstr.str, sizeof(regstr.str), NULL, NULL
+             )
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 1, SQLDT_STRING, &regstr.val, sizeof(regstr.val), NULL, NULL
+             )) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -807,18 +838,19 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // NPC Interaction Registry read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `NrgIdentifier`, `NrgValue` FROM "
-                       "`NPCRegistry` WHERE `NrgChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALNPCREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str, sizeof(reg.str), NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &reg.val, sizeof(reg.val), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `NrgIdentifier`, `NrgValue` FROM "
+            "`NPCRegistry` WHERE `NrgChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALNPCREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str, sizeof(reg.str), NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &reg.val, sizeof(reg.val), NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -830,18 +862,19 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // Quest Registry read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `QrgIdentifier`, `QrgValue` FROM "
-                       "`QuestRegistry` WHERE `QrgChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALQUESTREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str, sizeof(reg.str), NULL, NULL) ||
-        SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &reg.val, sizeof(reg.val), NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `QrgIdentifier`, `QrgValue` FROM "
+            "`QuestRegistry` WHERE `QrgChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALQUESTREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str, sizeof(reg.str), NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &reg.val, sizeof(reg.val), NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -869,26 +902,29 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }*/
 
     // Legend read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT "
-                       "`LegPosition`,`LegIcon`,`LegColor`,`LegDescription`,"
-                       "`LegIdentifier`, `LegTChaId` FROM `Legends` WHERE "
-                       "`LegChaId`= '%u' LIMIT %d",
-                       id,
-                       MAX_LEGENDS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_USHORT, &pos, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &legend.icon, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_USHORT, &legend.color, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 3, SQLDT_STRING, &legend.text, sizeof(legend.text), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(
-                       stmt, 4, SQLDT_STRING, &legend.name, sizeof(legend.name), NULL, NULL
-                     ) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &legend.tchaid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT "
+            "`LegPosition`,`LegIcon`,`LegColor`,`LegDescription`,"
+            "`LegIdentifier`, `LegTChaId` FROM `Legends` WHERE "
+            "`LegChaId`= '%u' LIMIT %d",
+            id,
+            MAX_LEGENDS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_USHORT, &pos, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &legend.icon, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_USHORT, &legend.color, 0, NULL, NULL)
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 3, SQLDT_STRING, &legend.text, sizeof(legend.text), NULL, NULL
+             )
+        || SQL_ERROR
+             == SqlStmt_BindColumn(
+               stmt, 4, SQLDT_STRING, &legend.name, sizeof(legend.name), NULL, NULL
+             )
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &legend.tchaid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -902,17 +938,18 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
     }
 
     // Kill Count Read
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `KilPosition`,`KilMobId`,`KilAmount` FROM "
-                       "`Kills` WHERE `KilChaId`= '%u' LIMIT %d",
-                       id,
-                       MAX_KILLREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &pos, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &killreg.mob_id, 0, NULL, NULL) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &killreg.amount, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `KilPosition`,`KilMobId`,`KilAmount` FROM "
+            "`Kills` WHERE `KilChaId`= '%u' LIMIT %d",
+            id,
+            MAX_KILLREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &pos, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &killreg.mob_id, 0, NULL, NULL)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &killreg.amount, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         p->id = 0;
@@ -943,12 +980,12 @@ int mmo_char_fromdb(unsigned int id, struct mmo_charstatus* p, char* login_name)
 
 // Save bank data to DB
 int membankdata_todb(struct bank_data bank[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int item_id = -1;
-    int i;
-    char escape[64];
-    char escape2[300];
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      item_id = -1;
+    int      i;
+    char     escape[64];
+    char     escape2[300];
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -958,15 +995,16 @@ int membankdata_todb(struct bank_data bank[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `BnkPosition` FROM `Banks` WHERE "
-                       "`BnkChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_BANK_SLOTS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `BnkPosition` FROM `Banks` WHERE "
+            "`BnkChaId` = '%u' LIMIT %d",
+            id,
+            MAX_BANK_SLOTS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -988,67 +1026,70 @@ int membankdata_todb(struct bank_data bank[], int max, int id) {
 
         if (save_id[i] == i) {
             if (bank[i].item_id == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Banks` WHERE `BnkChaId` = "
-                                   "'%u' AND `BnkPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Banks` WHERE `BnkChaId` = "
+                      "'%u' AND `BnkPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Banks` SET `BnkItmId` = '%u', `BnkAmount` = '%u', "
-                                   "`BnkChaIdOwner` = '%u', `BnkTimer` = '%u', `BnkEngrave` = "
-                                   "'%s', `BnkCustomLook` = '%u', `BnkCustomLookColor` = '%u', "
-                                   "`BnkCustomIcon` = '%u', `BnkCustomIconColor` = '%u', "
-                                   "`BnkProtected` = '%d', `BnkNote` = '%s' WHERE `BnkChaId` = "
-                                   "'%u' AND `BnkPosition` = '%d'",
-                                   bank[i].item_id,
-                                   bank[i].amount,
-                                   bank[i].owner,
-                                   bank[i].time,
-                                   escape,
-                                   bank[i].customLook,
-                                   bank[i].customLookColor,
-                                   bank[i].customIcon,
-                                   bank[i].customIconColor,
-                                   bank[i].protected,
-                                   escape2,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Banks` SET `BnkItmId` = '%u', `BnkAmount` = '%u', "
+                      "`BnkChaIdOwner` = '%u', `BnkTimer` = '%u', `BnkEngrave` = "
+                      "'%s', `BnkCustomLook` = '%u', `BnkCustomLookColor` = '%u', "
+                      "`BnkCustomIcon` = '%u', `BnkCustomIconColor` = '%u', "
+                      "`BnkProtected` = '%d', `BnkNote` = '%s' WHERE `BnkChaId` = "
+                      "'%u' AND `BnkPosition` = '%d'",
+                      bank[i].item_id,
+                      bank[i].amount,
+                      bank[i].owner,
+                      bank[i].time,
+                      escape,
+                      bank[i].customLook,
+                      bank[i].customLookColor,
+                      bank[i].customIcon,
+                      bank[i].customIconColor,
+                      bank[i].protected,
+                      escape2,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (bank[i].item_id > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Banks` (`BnkChaId`, `BnkItmId`, "
-                                   "`BnkAmount`, `BnkChaIdOwner`, `BnkTimer`, `BnkEngrave`, "
-                                   "`BnkCustomLook`, `BnkCustomLookColor`, `BnkCustomIcon`, "
-                                   "`BnkCustomIconColor`, `BnkProtected`, `BnkNote`, "
-                                   "`BnkPosition`) VALUES ('%u', '%u', '%u', '%u', '%u', "
-                                   "'%s', '%u', '%u', '%u', '%u', '%d', '%s', '%d')",
-                                   id,
-                                   bank[i].item_id,
-                                   bank[i].amount,
-                                   bank[i].owner,
-                                   bank[i].time,
-                                   escape,
-                                   bank[i].customLook,
-                                   bank[i].customLookColor,
-                                   bank[i].customIcon,
-                                   bank[i].customIconColor,
-                                   bank[i].protected,
-                                   escape2,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Banks` (`BnkChaId`, `BnkItmId`, "
+                      "`BnkAmount`, `BnkChaIdOwner`, `BnkTimer`, `BnkEngrave`, "
+                      "`BnkCustomLook`, `BnkCustomLookColor`, `BnkCustomIcon`, "
+                      "`BnkCustomIconColor`, `BnkProtected`, `BnkNote`, "
+                      "`BnkPosition`) VALUES ('%u', '%u', '%u', '%u', '%u', "
+                      "'%s', '%u', '%u', '%u', '%u', '%d', '%s', '%d')",
+                      id,
+                      bank[i].item_id,
+                      bank[i].amount,
+                      bank[i].owner,
+                      bank[i].time,
+                      escape,
+                      bank[i].customLook,
+                      bank[i].customLookColor,
+                      bank[i].customIcon,
+                      bank[i].customIconColor,
+                      bank[i].protected,
+                      escape2,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1061,11 +1102,11 @@ int membankdata_todb(struct bank_data bank[], int max, int id) {
 
 // Save item data to DB
 int meminvdata_todb(struct item items[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int item_id = -1;
-    int i;
-    char escape[255];
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      item_id = -1;
+    int      i;
+    char     escape[255];
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1075,15 +1116,16 @@ int meminvdata_todb(struct item items[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `InvPosition` FROM `Inventory` "
-                       "WHERE `InvChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_INVENTORY
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `InvPosition` FROM `Inventory` "
+            "WHERE `InvChaId` = '%u' LIMIT %d",
+            id,
+            MAX_INVENTORY
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1104,72 +1146,75 @@ int meminvdata_todb(struct item items[], int max, int id) {
 
         if (save_id[i] == i) {
             if (items[i].id == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Inventory` WHERE `InvChaId` = "
-                                   "'%u' AND `InvPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Inventory` WHERE `InvChaId` = "
+                      "'%u' AND `InvPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Inventory` SET `InvItmId` = '%u', `InvAmount` = '%u', "
-                                   "`InvDurability` = '%u', `InvChaIdOwner` = '%u', `InvCustom` = "
-                                   "'%u', `InvTimer` = '%u', `InvEngrave` = '%s', `InvCustomLook` "
-                                   "= '%u', `InvCustomLookColor` = '%u', `InvCustomIcon` = '%u', "
-                                   "`InvCustomIconColor` = '%u', `InvProtected` = '%d', `InvNote` "
-                                   "= '%s' WHERE `InvChaId` = '%u' AND `InvPosition` = '%d'",
-                                   items[i].id,
-                                   items[i].amount,
-                                   items[i].dura,
-                                   items[i].owner,
-                                   items[i].custom,
-                                   items[i].time,
-                                   escape,
-                                   items[i].customLook,
-                                   items[i].customLookColor,
-                                   items[i].customIcon,
-                                   items[i].customIconColor,
-                                   items[i].protected,
-                                   items[i].note,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Inventory` SET `InvItmId` = '%u', `InvAmount` = '%u', "
+                      "`InvDurability` = '%u', `InvChaIdOwner` = '%u', `InvCustom` = "
+                      "'%u', `InvTimer` = '%u', `InvEngrave` = '%s', `InvCustomLook` "
+                      "= '%u', `InvCustomLookColor` = '%u', `InvCustomIcon` = '%u', "
+                      "`InvCustomIconColor` = '%u', `InvProtected` = '%d', `InvNote` "
+                      "= '%s' WHERE `InvChaId` = '%u' AND `InvPosition` = '%d'",
+                      items[i].id,
+                      items[i].amount,
+                      items[i].dura,
+                      items[i].owner,
+                      items[i].custom,
+                      items[i].time,
+                      escape,
+                      items[i].customLook,
+                      items[i].customLookColor,
+                      items[i].customIcon,
+                      items[i].customIconColor,
+                      items[i].protected,
+                      items[i].note,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (items[i].id > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Inventory` (`InvChaId`, `InvItmId`, `InvAmount`, "
-                                   "`InvDurability`, `InvChaIdOwner`, `InvCustom`, `InvTimer`, "
-                                   "`InvEngrave`, `InvCustomLook`, `InvCustomLookColor`, "
-                                   "`InvCustomIcon`, `InvCustomIconColor`, `InvProtected`, "
-                                   "`InvNote`, `InvPosition`) VALUES ('%u', '%u', '%u', '%u', "
-                                   "'%u', '%u', '%u', '%s', '%u', '%u', '%u', '%u', '%d', '%s', "
-                                   "'%u')",
-                                   id,
-                                   items[i].id,
-                                   items[i].amount,
-                                   items[i].dura,
-                                   items[i].owner,
-                                   items[i].custom,
-                                   items[i].time,
-                                   escape,
-                                   items[i].customLook,
-                                   items[i].customLookColor,
-                                   items[i].customIcon,
-                                   items[i].customIconColor,
-                                   items[i].protected,
-                                   items[i].note,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Inventory` (`InvChaId`, `InvItmId`, `InvAmount`, "
+                      "`InvDurability`, `InvChaIdOwner`, `InvCustom`, `InvTimer`, "
+                      "`InvEngrave`, `InvCustomLook`, `InvCustomLookColor`, "
+                      "`InvCustomIcon`, `InvCustomIconColor`, `InvProtected`, "
+                      "`InvNote`, `InvPosition`) VALUES ('%u', '%u', '%u', '%u', "
+                      "'%u', '%u', '%u', '%s', '%u', '%u', '%u', '%u', '%d', '%s', "
+                      "'%u')",
+                      id,
+                      items[i].id,
+                      items[i].amount,
+                      items[i].dura,
+                      items[i].owner,
+                      items[i].custom,
+                      items[i].time,
+                      escape,
+                      items[i].customLook,
+                      items[i].customLookColor,
+                      items[i].customIcon,
+                      items[i].customIconColor,
+                      items[i].protected,
+                      items[i].note,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1182,11 +1227,11 @@ int meminvdata_todb(struct item items[], int max, int id) {
 
 // Save item data to DB
 int memeqpdata_todb(struct item items[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int item_id = -1;
-    int i;
-    char escape[255];
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      item_id = -1;
+    int      i;
+    char     escape[255];
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1196,15 +1241,16 @@ int memeqpdata_todb(struct item items[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `EqpSlot` FROM `Equipment` WHERE "
-                       "`EqpChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_EQUIP
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `EqpSlot` FROM `Equipment` WHERE "
+            "`EqpChaId` = '%u' LIMIT %d",
+            id,
+            MAX_EQUIP
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1225,67 +1271,70 @@ int memeqpdata_todb(struct item items[], int max, int id) {
 
         if (save_id[i] == i) {
             if (items[i].id == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Equipment` WHERE `EqpChaId` = "
-                                   "'%u' AND `EqpSlot` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Equipment` WHERE `EqpChaId` = "
+                      "'%u' AND `EqpSlot` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Equipment` SET `EqpItmId` = '%u', `EqpDurability` = "
-                                   "'%u', `EqpChaIdOwner` = '%u', `EqpTimer` = '%u', `EqpEngrave` "
-                                   "= '%s', `EqpCustomLook` = '%u', `EqpCustomLookColor` = '%u', "
-                                   "`EqpCustomIcon` = '%u', `EqpCustomIconColor` = '%u', "
-                                   "`EqpProtected` = '%d', `EqpNote` = '%s' WHERE `EqpChaId` = "
-                                   "'%u' AND `EqpSlot` = '%d'",
-                                   items[i].id,
-                                   items[i].dura,
-                                   items[i].owner,
-                                   items[i].time,
-                                   escape,
-                                   items[i].customLook,
-                                   items[i].customLookColor,
-                                   items[i].customIcon,
-                                   items[i].customIconColor,
-                                   items[i].protected,
-                                   items[i].note,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Equipment` SET `EqpItmId` = '%u', `EqpDurability` = "
+                      "'%u', `EqpChaIdOwner` = '%u', `EqpTimer` = '%u', `EqpEngrave` "
+                      "= '%s', `EqpCustomLook` = '%u', `EqpCustomLookColor` = '%u', "
+                      "`EqpCustomIcon` = '%u', `EqpCustomIconColor` = '%u', "
+                      "`EqpProtected` = '%d', `EqpNote` = '%s' WHERE `EqpChaId` = "
+                      "'%u' AND `EqpSlot` = '%d'",
+                      items[i].id,
+                      items[i].dura,
+                      items[i].owner,
+                      items[i].time,
+                      escape,
+                      items[i].customLook,
+                      items[i].customLookColor,
+                      items[i].customIcon,
+                      items[i].customIconColor,
+                      items[i].protected,
+                      items[i].note,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (items[i].id > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Equipment` (`EqpChaId`, `EqpItmId`, "
-                                   "`EqpDurability`, `EqpChaIdOwner`, `EqpTimer`, "
-                                   "`EqpEngrave`, `EqpCustomLook`, `EqpCustomLookColor`, "
-                                   "`EqpCustomIcon`, `EqpCustomIconColor`, `EqpProtected`, "
-                                   "`EqpNote`, `EqpSlot`) VALUES ('%u', '%u', '%u', '%u', "
-                                   "'%u', '%s', '%u', '%u', '%u', '%u', '%d', '%s', '%u')",
-                                   id,
-                                   items[i].id,
-                                   items[i].dura,
-                                   items[i].owner,
-                                   items[i].time,
-                                   escape,
-                                   items[i].customLook,
-                                   items[i].customLookColor,
-                                   items[i].customIcon,
-                                   items[i].customIconColor,
-                                   items[i].protected,
-                                   items[i].note,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Equipment` (`EqpChaId`, `EqpItmId`, "
+                      "`EqpDurability`, `EqpChaIdOwner`, `EqpTimer`, "
+                      "`EqpEngrave`, `EqpCustomLook`, `EqpCustomLookColor`, "
+                      "`EqpCustomIcon`, `EqpCustomIconColor`, `EqpProtected`, "
+                      "`EqpNote`, `EqpSlot`) VALUES ('%u', '%u', '%u', '%u', "
+                      "'%u', '%s', '%u', '%u', '%u', '%u', '%d', '%s', '%u')",
+                      id,
+                      items[i].id,
+                      items[i].dura,
+                      items[i].owner,
+                      items[i].time,
+                      escape,
+                      items[i].customLook,
+                      items[i].customLookColor,
+                      items[i].customIcon,
+                      items[i].customIconColor,
+                      items[i].protected,
+                      items[i].note,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1297,10 +1346,10 @@ int memeqpdata_todb(struct item items[], int max, int id) {
 }
 // Registry to Database
 int memreg_todb(struct global_reg regs[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int regid = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      regid = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1310,15 +1359,16 @@ int memreg_todb(struct global_reg regs[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `RegPosition` FROM `Registry` WHERE "
-                       "`RegChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALPLAYERREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `RegPosition` FROM `Registry` WHERE "
+            "`RegChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALPLAYERREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1337,41 +1387,44 @@ int memreg_todb(struct global_reg regs[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (regs[i].val == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Registry` WHERE `RegChaId` = "
-                                   "'%u' AND `RegPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Registry` WHERE `RegChaId` = "
+                      "'%u' AND `RegPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Registry` SET `RegIdentifier` = '%s', `RegValue` = "
-                                   "'%u' WHERE `RegChaId` = '%u' AND `RegPosition` = '%d'",
-                                   regs[i].str,
-                                   regs[i].val,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Registry` SET `RegIdentifier` = '%s', `RegValue` = "
+                      "'%u' WHERE `RegChaId` = '%u' AND `RegPosition` = '%d'",
+                      regs[i].str,
+                      regs[i].val,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (regs[i].val > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Registry` (`RegChaId`, `RegIdentifier`, "
-                                   "`RegValue`, `RegPosition`) VALUES ('%u', '%s', '%u', '%d')",
-                                   id,
-                                   regs[i].str,
-                                   regs[i].val,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Registry` (`RegChaId`, `RegIdentifier`, "
+                      "`RegValue`, `RegPosition`) VALUES ('%u', '%s', '%u', '%d')",
+                      id,
+                      regs[i].str,
+                      regs[i].val,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1384,10 +1437,10 @@ int memreg_todb(struct global_reg regs[], int max, int id) {
 
 // Registry to Database
 int memregstring_todb(struct global_regstring regs[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int regid = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      regid = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1397,15 +1450,16 @@ int memregstring_todb(struct global_regstring regs[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `RegPosition` FROM `RegistryString` "
-                       "WHERE `RegChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALPLAYERREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `RegPosition` FROM `RegistryString` "
+            "WHERE `RegChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALPLAYERREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1424,42 +1478,45 @@ int memregstring_todb(struct global_regstring regs[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (strcmp(regs[i].val, "") == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `RegistryString` WHERE "
-                                   "`RegChaId` = '%u' AND `RegPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `RegistryString` WHERE "
+                      "`RegChaId` = '%u' AND `RegPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `RegistryString` SET `RegIdentifier` = '%s', "
-                                   "`RegValue` = '%s' WHERE `RegChaId` = '%u' AND "
-                                   "`RegPosition` = '%d'",
-                                   regs[i].str,
-                                   regs[i].val,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `RegistryString` SET `RegIdentifier` = '%s', "
+                      "`RegValue` = '%s' WHERE `RegChaId` = '%u' AND "
+                      "`RegPosition` = '%d'",
+                      regs[i].str,
+                      regs[i].val,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (strcmp(regs[i].val, "") != 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `RegistryString` (`RegChaId`, `RegIdentifier`, "
-                                   "`RegValue`, `RegPosition`) VALUES ('%u', '%s', '%s', '%d')",
-                                   id,
-                                   regs[i].str,
-                                   regs[i].val,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `RegistryString` (`RegChaId`, `RegIdentifier`, "
+                      "`RegValue`, `RegPosition`) VALUES ('%u', '%s', '%s', '%d')",
+                      id,
+                      regs[i].str,
+                      regs[i].val,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1472,10 +1529,10 @@ int memregstring_todb(struct global_regstring regs[], int max, int id) {
 
 // Registry to Database
 int memnpcreg_todb(struct global_reg regs[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int regid = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      regid = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1485,15 +1542,16 @@ int memnpcreg_todb(struct global_reg regs[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `NrgPosition` FROM `NPCRegistry` "
-                       "WHERE `NrgChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALNPCREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `NrgPosition` FROM `NPCRegistry` "
+            "WHERE `NrgChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALNPCREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1512,41 +1570,44 @@ int memnpcreg_todb(struct global_reg regs[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (regs[i].val == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `NPCRegistry` WHERE `NrgChaId` "
-                                   "= '%u' AND `NrgPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `NPCRegistry` WHERE `NrgChaId` "
+                      "= '%u' AND `NrgPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `NPCRegistry` SET `NrgIdentifier` = '%s', `NrgValue` = "
-                                   "'%u' WHERE `NrgChaId` = '%u' AND `NrgPosition` = '%d'",
-                                   regs[i].str,
-                                   regs[i].val,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `NPCRegistry` SET `NrgIdentifier` = '%s', `NrgValue` = "
+                      "'%u' WHERE `NrgChaId` = '%u' AND `NrgPosition` = '%d'",
+                      regs[i].str,
+                      regs[i].val,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (regs[i].val > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `NPCRegistry` (`NrgChaId`, `NrgIdentifier`, "
-                                   "`NrgValue`, `NrgPosition`) VALUES ('%u', '%s', '%u', '%d')",
-                                   id,
-                                   regs[i].str,
-                                   regs[i].val,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `NPCRegistry` (`NrgChaId`, `NrgIdentifier`, "
+                      "`NrgValue`, `NrgPosition`) VALUES ('%u', '%s', '%u', '%d')",
+                      id,
+                      regs[i].str,
+                      regs[i].val,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1558,10 +1619,10 @@ int memnpcreg_todb(struct global_reg regs[], int max, int id) {
 }
 // Registry to Database
 int memquestreg_todb(struct global_reg regs[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int regid = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      regid = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1571,15 +1632,16 @@ int memquestreg_todb(struct global_reg regs[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `QrgPosition` FROM `QuestRegistry` "
-                       "WHERE `QrgChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_GLOBALQUESTREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `QrgPosition` FROM `QuestRegistry` "
+            "WHERE `QrgChaId` = '%u' LIMIT %d",
+            id,
+            MAX_GLOBALQUESTREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &regid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1598,41 +1660,44 @@ int memquestreg_todb(struct global_reg regs[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (regs[i].val == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `QuestRegistry` WHERE "
-                                   "`QrgChaId` = '%u' AND `QrgPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `QuestRegistry` WHERE "
+                      "`QrgChaId` = '%u' AND `QrgPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `QuestRegistry` SET `QrgIdentifier` = '%s', `QrgValue` "
-                                   "= '%u' WHERE `QrgChaId` = '%u' AND `QrgPosition` = '%d'",
-                                   regs[i].str,
-                                   regs[i].val,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `QuestRegistry` SET `QrgIdentifier` = '%s', `QrgValue` "
+                      "= '%u' WHERE `QrgChaId` = '%u' AND `QrgPosition` = '%d'",
+                      regs[i].str,
+                      regs[i].val,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (regs[i].val > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `QuestRegistry` (`QrgChaId`, `QrgIdentifier`, "
-                                   "`QrgValue`, `QrgPosition`) VALUES ('%u', '%s', '%u', '%d')",
-                                   id,
-                                   regs[i].str,
-                                   regs[i].val,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `QuestRegistry` (`QrgChaId`, `QrgIdentifier`, "
+                      "`QrgValue`, `QrgPosition`) VALUES ('%u', '%s', '%u', '%d')",
+                      id,
+                      regs[i].str,
+                      regs[i].val,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1644,10 +1709,10 @@ int memquestreg_todb(struct global_reg regs[], int max, int id) {
 }
 // save skills to db
 int memspells_todb(unsigned short skill[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int magic_id = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      magic_id = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1657,15 +1722,16 @@ int memspells_todb(unsigned short skill[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `SbkPosition` FROM `SpellBook` "
-                       "WHERE `SbkChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_SPELLS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &magic_id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `SbkPosition` FROM `SpellBook` "
+            "WHERE `SbkChaId` = '%u' LIMIT %d",
+            id,
+            MAX_SPELLS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &magic_id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1684,39 +1750,42 @@ int memspells_todb(unsigned short skill[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (skill[i] == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `SpellBook` WHERE `SbkChaId` = "
-                                   "'%u' AND `SbkPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `SpellBook` WHERE `SbkChaId` = "
+                      "'%u' AND `SbkPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `SpellBook` SET `SbkSplId` = '%u' WHERE "
-                                   "`SbkChaId` = '%u' AND `SbkPosition` = '%d'",
-                                   skill[i],
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `SpellBook` SET `SbkSplId` = '%u' WHERE "
+                      "`SbkChaId` = '%u' AND `SbkPosition` = '%d'",
+                      skill[i],
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (skill[i] > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `SpellBook` (`SbkChaId`, `SbkSplId`, "
-                                   "`SbkPosition`) VALUES ('%u', '%u', '%d')",
-                                   id,
-                                   skill[i],
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `SpellBook` (`SbkChaId`, `SbkSplId`, "
+                      "`SbkPosition`) VALUES ('%u', '%u', '%d')",
+                      id,
+                      skill[i],
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1728,10 +1797,10 @@ int memspells_todb(unsigned short skill[], int max, int id) {
 }
 // save aethers to db
 int memaethers_todb(struct skill_info dura_aether[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int magic_id = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      magic_id = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1741,15 +1810,16 @@ int memaethers_todb(struct skill_info dura_aether[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `AthPosition` FROM `Aethers` WHERE "
-                       "`AthChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_MAGIC_TIMERS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &magic_id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `AthPosition` FROM `Aethers` WHERE "
+            "`AthChaId` = '%u' LIMIT %d",
+            id,
+            MAX_MAGIC_TIMERS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &magic_id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1768,45 +1838,48 @@ int memaethers_todb(struct skill_info dura_aether[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (dura_aether[i].id == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Aethers` WHERE `AthChaId` = "
-                                   "'%u' AND `AthPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Aethers` WHERE `AthChaId` = "
+                      "'%u' AND `AthPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Aethers` SET `AthSplId` = '%u', `AthDuration` = "
-                                   "'%u', `AthAether` = '%d' WHERE `AthChaId` = '%u' AND "
-                                   "`AthPosition` = '%u'",
-                                   dura_aether[i].id,
-                                   dura_aether[i].duration,
-                                   dura_aether[i].aether,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Aethers` SET `AthSplId` = '%u', `AthDuration` = "
+                      "'%u', `AthAether` = '%d' WHERE `AthChaId` = '%u' AND "
+                      "`AthPosition` = '%u'",
+                      dura_aether[i].id,
+                      dura_aether[i].duration,
+                      dura_aether[i].aether,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (dura_aether[i].id > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Aethers` (`AthChaId`, `AthSplId`, "
-                                   "`AthDuration`, `AthAether`, `AthPosition`) VALUES "
-                                   "('%u', '%u', '%u', '%u', '%u')",
-                                   id,
-                                   dura_aether[i].id,
-                                   dura_aether[i].duration,
-                                   dura_aether[i].aether,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Aethers` (`AthChaId`, `AthSplId`, "
+                      "`AthDuration`, `AthAether`, `AthPosition`) VALUES "
+                      "('%u', '%u', '%u', '%u', '%u')",
+                      id,
+                      dura_aether[i].id,
+                      dura_aether[i].duration,
+                      dura_aether[i].aether,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1818,10 +1891,10 @@ int memaethers_todb(struct skill_info dura_aether[], int max, int id) {
 }
 // save killcount to db
 int memkillcount_todb(struct kill_reg killreg[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int kill_id = -1;
-    int i;
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      kill_id = -1;
+    int      i;
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1834,15 +1907,16 @@ int memkillcount_todb(struct kill_reg killreg[], int max, int id) {
     // if(SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT `KilPosition` FROM `Kills`
     // WHERE `KilChaId` = '%u' ORDER BY `KilPosition` ASC LIMIT %d", id,
     // MAX_GLOBALREG)
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `KilPosition` FROM `Kills` WHERE "
-                       "`KilChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_KILLREG
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &kill_id, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `KilPosition` FROM `Kills` WHERE "
+            "`KilChaId` = '%u' LIMIT %d",
+            id,
+            MAX_KILLREG
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &kill_id, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1861,41 +1935,44 @@ int memkillcount_todb(struct kill_reg killreg[], int max, int id) {
     for (i = 0; i < max; i++) {
         if (save_id[i] == i) {
             if (killreg[i].mob_id == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Kills` WHERE `KilChaId` = "
-                                   "'%u' AND `KilPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Kills` WHERE `KilChaId` = "
+                      "'%u' AND `KilPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Kills` SET `KilAmount` = '%u', `KilMobId` = "
-                                   "'%u' WHERE `KilChaId` = '%u' AND `KilPosition` = '%u'",
-                                   killreg[i].amount,
-                                   killreg[i].mob_id,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Kills` SET `KilAmount` = '%u', `KilMobId` = "
+                      "'%u' WHERE `KilChaId` = '%u' AND `KilPosition` = '%u'",
+                      killreg[i].amount,
+                      killreg[i].mob_id,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (killreg[i].mob_id > 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Kills` (`KilChaId`, `KilMobId`, `KilAmount`, "
-                                   "`KilPosition`) VALUES ('%u', '%u', '%d', '%d')",
-                                   id,
-                                   killreg[i].mob_id,
-                                   killreg[i].amount,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Kills` (`KilChaId`, `KilMobId`, `KilAmount`, "
+                      "`KilPosition`) VALUES ('%u', '%u', '%d', '%d')",
+                      id,
+                      killreg[i].mob_id,
+                      killreg[i].amount,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -1907,11 +1984,11 @@ int memkillcount_todb(struct kill_reg killreg[], int max, int id) {
 }
 // save legend to db
 int memlegend_todb(struct legend legends[], int max, int id) {
-    SqlStmt* stmt;
-    int save_id[max];
-    int legendid = -1;
-    int i;
-    char escape[255];
+    SqlStmt *stmt;
+    int      save_id[max];
+    int      legendid = -1;
+    int      i;
+    char     escape[255];
 
     memset(save_id, 0, max * sizeof(int));
     stmt = SqlStmt_Malloc(sql_handle);
@@ -1921,15 +1998,16 @@ int memlegend_todb(struct legend legends[], int max, int id) {
         return 0;
     }
 
-    if (SQL_ERROR == SqlStmt_Prepare(
-                       stmt,
-                       "SELECT `LegPosition` FROM `Legends` WHERE "
-                       "`LegChaId` = '%u' LIMIT %d",
-                       id,
-                       MAX_LEGENDS
-                     ) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &legendid, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(
+            stmt,
+            "SELECT `LegPosition` FROM `Legends` WHERE "
+            "`LegChaId` = '%u' LIMIT %d",
+            id,
+            MAX_LEGENDS
+          )
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &legendid, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1950,50 +2028,53 @@ int memlegend_todb(struct legend legends[], int max, int id) {
 
         if (save_id[i] == i) {
             if (strcasecmp(legends[i].name, "") == 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "DELETE FROM `Legends` WHERE `LegChaId` = "
-                                   "'%u' AND `LegPosition` = '%d'",
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "DELETE FROM `Legends` WHERE `LegChaId` = "
+                      "'%u' AND `LegPosition` = '%d'",
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             } else {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "UPDATE `Legends` SET `LegIcon` = '%u', `LegColor` = '%u', "
-                                   "`LegDescription` = '%s', `LegIdentifier` = '%s', `LegTChaId` "
-                                   "= '%u' WHERE `LegChaId` = '%u' AND `LegPosition` = '%d'",
-                                   legends[i].icon,
-                                   legends[i].color,
-                                   escape,
-                                   legends[i].name,
-                                   legends[i].tchaid,
-                                   id,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "UPDATE `Legends` SET `LegIcon` = '%u', `LegColor` = '%u', "
+                      "`LegDescription` = '%s', `LegIdentifier` = '%s', `LegTChaId` "
+                      "= '%u' WHERE `LegChaId` = '%u' AND `LegPosition` = '%d'",
+                      legends[i].icon,
+                      legends[i].color,
+                      escape,
+                      legends[i].name,
+                      legends[i].tchaid,
+                      id,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
             }
         } else {
             if (strcasecmp(legends[i].name, "") != 0) {
-                if (SQL_ERROR == Sql_Query(
-                                   sql_handle,
-                                   "INSERT INTO `Legends` (`LegChaId`, `LegIcon`, "
-                                   "`LegColor`, `LegDescription`, `LegIdentifier`, "
-                                   "`LegTChaId`, `LegPosition`) VALUES ('%u', '%u', '%u', "
-                                   "'%s', '%s', '%u', '%d')",
-                                   id,
-                                   legends[i].icon,
-                                   legends[i].color,
-                                   escape,
-                                   legends[i].name,
-                                   legends[i].tchaid,
-                                   i
-                                 )) {
+                if (SQL_ERROR
+                    == Sql_Query(
+                      sql_handle,
+                      "INSERT INTO `Legends` (`LegChaId`, `LegIcon`, "
+                      "`LegColor`, `LegDescription`, `LegIdentifier`, "
+                      "`LegTChaId`, `LegPosition`) VALUES ('%u', '%u', '%u', "
+                      "'%s', '%s', '%u', '%d')",
+                      id,
+                      legends[i].icon,
+                      legends[i].color,
+                      escape,
+                      legends[i].name,
+                      legends[i].tchaid,
+                      i
+                    )) {
                     Sql_ShowDebug(sql_handle);
                     return 0;
                 }
@@ -2004,7 +2085,7 @@ int memlegend_todb(struct legend legends[], int max, int id) {
     return 1;
 }
 /// Save Character TO database
-int mmo_char_todb(struct mmo_charstatus* p) {
+int mmo_char_todb(struct mmo_charstatus *p) {
     char escaped_name[16];
     char escaped_title[255];
     char escaped_clantitle[255];
@@ -2019,104 +2100,105 @@ int mmo_char_todb(struct mmo_charstatus* p) {
 
     printf("[char] [save_char] name=%s\n", p->name);
 
-    if (SQL_ERROR == Sql_Query(
-                       sql_handle,
-                       "UPDATE `Character` SET `ChaName` = '%s', `ChaClnId` = '%u', "
-                       "`ChaClanTitle` = '%s', `ChaTitle` = '%s', `ChaLevel` = '%u', "
-                       "`ChaPthId` = '%u', `ChaMark` = '%u', "
-                       "`ChaTotem` = '%u', `ChaKarma` = '%f', `ChaCurrentVita` = '%u', "
-                       "`ChaBaseVita` = '%u', `ChaCurrentMana` = '%u', `ChaBaseMana` = "
-                       "'%u', `ChaExperience` = '%u', `ChaGold` = '%u', "
-                       "`ChaSex` = '%d', `ChaNation` = '%d', `ChaFace` = '%u', "
-                       "`ChaHairColor` = '%u', `ChaArmorColor` = '%u', `ChaMapId` = '%u', "
-                       "`ChaX` = '%u', `ChaY` = '%u', `ChaSide` = '%d', `ChaState` = '%d', "
-                       "`ChaHair` = '%u', `ChaFaceColor` = '%u', `ChaSkinColor` = '%u', "
-                       "`ChaPartner` = '%u', `ChaClanChat` = '%d', `ChaPathChat` = '%d', "
-                       "`ChaNoviceChat` = '%d', `ChaSettings` = '%u', `ChaGMLevel` = '%d', "
-                       "`ChaDisguise` = '%u', `ChaDisguiseColor` = '%u', "
-                       "`ChaMaximumBankSlots` = '%u', `ChaBankGold` = '%u', `ChaF1Name` = "
-                       "'%s', `ChaMaximumInventory` = '%u', `ChaPK` = '%u', `ChaKilledBy` = "
-                       "'%u', "
-                       "`ChaKillsPK` = '%u', `ChaPKDuration` = '%u', `ChaMuted` = '%u', "
-                       "`ChaHeroes` = '%u', `ChaTier` = '%u', `ChaExperienceSoldMagic` = "
-                       "'%llu', `ChaExperienceSoldHealth` = '%llu', "
-                       "`ChaExperienceSoldStats` = '%llu', `ChaBaseMight` = '%u', "
-                       "`ChaBaseGrace` = '%u', "
-                       "`ChaBaseWill` = '%u', `ChaBaseArmor` = '%i', `ChaMiniMapToggle` = "
-                       "'%u', `ChaHunter` = 0, `ChaAFKMessage` = '%s', `ChaTutor` = '%d', "
-                       "`ChaAlignment` = '%d', `ChaProfileVitaStats` = '%d', "
-                       "`ChaProfileEquipList` = '%d', "
-                       "`ChaProfileLegends` = '%d', `ChaProfileSpells` = '%d', "
-                       "`ChaProfileInventory` = '%d', `ChaProfileBankItems` = '%d', "
-                       "`ChaPthRank` = '%u', `ChaClnRank` = '%u' WHERE `ChaId` = '%u'",
-                       escaped_name,
-                       p->clan,
-                       escaped_clantitle,
-                       escaped_title,
-                       p->level,
-                       p->class,
-                       p->mark,
-                       p->totem,
-                       p->karma,
-                       p->hp,
-                       p->basehp,
-                       p->mp,
-                       p->basemp,
-                       p->exp,
-                       p->money,
-                       p->sex,
-                       p->country,
-                       p->face,
-                       p->hair_color,
-                       p->armor_color,
-                       p->last_pos.m,
-                       p->last_pos.x,
-                       p->last_pos.y,
-                       p->side,
-                       p->state,
-                       p->hair,
-                       p->face_color,
-                       p->skin_color,
-                       p->partner,
-                       p->clan_chat,
-                       p->subpath_chat,
-                       p->novice_chat,
-                       p->settingFlags,
-                       p->gm_level,
-                       p->disguise,
-                       p->disguisecolor,
-                       p->maxslots,
-                       p->bankmoney,
-                       escaped_f1name,
-                       p->maxinv,
-                       p->pk,
-                       p->killedby,
-                       p->killspk,
-                       p->pkduration,
-                       p->mute,
-                       p->heroes,
-                       p->tier,
-                       p->expsoldmagic,
-                       p->expsoldhealth,
-                       p->expsoldstats,
-                       p->basemight,
-                       p->basegrace,
-                       p->basewill,
-                       p->basearmor,
-                       p->miniMapToggle,
-                       escaped_afkmessage,
-                       p->tutor,
-                       p->alignment,
-                       p->profile_vitastats,
-                       p->profile_equiplist,
-                       p->profile_legends,
-                       p->profile_spells,
-                       p->profile_inventory,
-                       p->profile_bankitems,
-                       p->classRank,
-                       p->clanRank,
-                       p->id
-                     )) {
+    if (SQL_ERROR
+        == Sql_Query(
+          sql_handle,
+          "UPDATE `Character` SET `ChaName` = '%s', `ChaClnId` = '%u', "
+          "`ChaClanTitle` = '%s', `ChaTitle` = '%s', `ChaLevel` = '%u', "
+          "`ChaPthId` = '%u', `ChaMark` = '%u', "
+          "`ChaTotem` = '%u', `ChaKarma` = '%f', `ChaCurrentVita` = '%u', "
+          "`ChaBaseVita` = '%u', `ChaCurrentMana` = '%u', `ChaBaseMana` = "
+          "'%u', `ChaExperience` = '%u', `ChaGold` = '%u', "
+          "`ChaSex` = '%d', `ChaNation` = '%d', `ChaFace` = '%u', "
+          "`ChaHairColor` = '%u', `ChaArmorColor` = '%u', `ChaMapId` = '%u', "
+          "`ChaX` = '%u', `ChaY` = '%u', `ChaSide` = '%d', `ChaState` = '%d', "
+          "`ChaHair` = '%u', `ChaFaceColor` = '%u', `ChaSkinColor` = '%u', "
+          "`ChaPartner` = '%u', `ChaClanChat` = '%d', `ChaPathChat` = '%d', "
+          "`ChaNoviceChat` = '%d', `ChaSettings` = '%u', `ChaGMLevel` = '%d', "
+          "`ChaDisguise` = '%u', `ChaDisguiseColor` = '%u', "
+          "`ChaMaximumBankSlots` = '%u', `ChaBankGold` = '%u', `ChaF1Name` = "
+          "'%s', `ChaMaximumInventory` = '%u', `ChaPK` = '%u', `ChaKilledBy` = "
+          "'%u', "
+          "`ChaKillsPK` = '%u', `ChaPKDuration` = '%u', `ChaMuted` = '%u', "
+          "`ChaHeroes` = '%u', `ChaTier` = '%u', `ChaExperienceSoldMagic` = "
+          "'%llu', `ChaExperienceSoldHealth` = '%llu', "
+          "`ChaExperienceSoldStats` = '%llu', `ChaBaseMight` = '%u', "
+          "`ChaBaseGrace` = '%u', "
+          "`ChaBaseWill` = '%u', `ChaBaseArmor` = '%i', `ChaMiniMapToggle` = "
+          "'%u', `ChaHunter` = 0, `ChaAFKMessage` = '%s', `ChaTutor` = '%d', "
+          "`ChaAlignment` = '%d', `ChaProfileVitaStats` = '%d', "
+          "`ChaProfileEquipList` = '%d', "
+          "`ChaProfileLegends` = '%d', `ChaProfileSpells` = '%d', "
+          "`ChaProfileInventory` = '%d', `ChaProfileBankItems` = '%d', "
+          "`ChaPthRank` = '%u', `ChaClnRank` = '%u' WHERE `ChaId` = '%u'",
+          escaped_name,
+          p->clan,
+          escaped_clantitle,
+          escaped_title,
+          p->level,
+          p->class,
+          p->mark,
+          p->totem,
+          p->karma,
+          p->hp,
+          p->basehp,
+          p->mp,
+          p->basemp,
+          p->exp,
+          p->money,
+          p->sex,
+          p->country,
+          p->face,
+          p->hair_color,
+          p->armor_color,
+          p->last_pos.m,
+          p->last_pos.x,
+          p->last_pos.y,
+          p->side,
+          p->state,
+          p->hair,
+          p->face_color,
+          p->skin_color,
+          p->partner,
+          p->clan_chat,
+          p->subpath_chat,
+          p->novice_chat,
+          p->settingFlags,
+          p->gm_level,
+          p->disguise,
+          p->disguisecolor,
+          p->maxslots,
+          p->bankmoney,
+          escaped_f1name,
+          p->maxinv,
+          p->pk,
+          p->killedby,
+          p->killspk,
+          p->pkduration,
+          p->mute,
+          p->heroes,
+          p->tier,
+          p->expsoldmagic,
+          p->expsoldhealth,
+          p->expsoldstats,
+          p->basemight,
+          p->basegrace,
+          p->basewill,
+          p->basearmor,
+          p->miniMapToggle,
+          escaped_afkmessage,
+          p->tutor,
+          p->alignment,
+          p->profile_vitastats,
+          p->profile_equiplist,
+          p->profile_legends,
+          p->profile_spells,
+          p->profile_inventory,
+          p->profile_bankitems,
+          p->classRank,
+          p->clanRank,
+          p->id
+        )) {
         Sql_ShowDebug(sql_handle);
         Sql_FreeResult(sql_handle);
         return 0;
@@ -2161,8 +2243,8 @@ int mmo_char_todb(struct mmo_charstatus* p) {
 /// Function to set a specific Characters to a Online status of VAL
 
 void mmo_setonline(unsigned int id, int val) {
-    if (SQL_ERROR ==
-        Sql_Query(
+    if (SQL_ERROR
+        == Sql_Query(
           sql_handle, "UPDATE `Character` SET `ChaOnline`='%u' WHERE `ChaId`='%u'", val, id
         )) {
         Sql_ShowDebug(sql_handle);
@@ -2177,10 +2259,10 @@ void mmo_setallonline(int val) {
 }
 
 /// Function -> Add Login Data
-int logindata_add(unsigned int id, int mapserver, char* name) {
-    SqlStmt* stmt;
-    int onl;
-    int onl2;
+int logindata_add(unsigned int id, int mapserver, char *name) {
+    SqlStmt *stmt;
+    int      onl;
+    int      onl2;
 
     stmt = SqlStmt_Malloc(sql_handle);
     if (stmt == NULL) {
@@ -2190,10 +2272,10 @@ int logindata_add(unsigned int id, int mapserver, char* name) {
 
     // printf("mapserver: %i\n",mapserver);
 
-    if (SQL_ERROR ==
-          SqlStmt_Prepare(stmt, "SELECT `ChaOnline` FROM `Character` WHERE `ChaName`='%s'", name) ||
-        SQL_ERROR == SqlStmt_Execute(stmt) ||
-        SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &onl, 0, NULL, NULL)) {
+    if (SQL_ERROR
+          == SqlStmt_Prepare(stmt, "SELECT `ChaOnline` FROM `Character` WHERE `ChaName`='%s'", name)
+        || SQL_ERROR == SqlStmt_Execute(stmt)
+        || SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &onl, 0, NULL, NULL)) {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return -1;
@@ -2218,8 +2300,8 @@ int logindata_add(unsigned int id, int mapserver, char* name) {
 
 /// Function -> Remove Login Data
 int logindata_del(unsigned int id) {
-    if (SQL_ERROR ==
-        Sql_Query(sql_handle, "UPDATE `Character` SET `ChaOnline`=0 WHERE `ChaId`='%u'", id)) {
+    if (SQL_ERROR
+        == Sql_Query(sql_handle, "UPDATE `Character` SET `ChaOnline`=0 WHERE `ChaId`='%u'", id)) {
         Sql_ShowDebug(sql_handle);
     }
 
