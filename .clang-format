@@ -8,7 +8,7 @@ BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-PointerAlignment: Left
+PointerAlignment: Right
 DerivePointerAlignment: false
 SpaceAfterCStyleCast: false
 IndentCaseLabels: false
@@ -17,7 +17,10 @@ AllowShortCaseLabelsOnASingleLine: false
 BinPackParameters: false
 BinPackArguments: false
 AlignAfterOpenBracket: BlockIndent
-
+BreakBeforeBinaryOperators: NonAssignment
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+SpaceBeforeParens: ControlStatements
 SortIncludes: CaseSensitive
 IncludeBlocks: Regroup
 

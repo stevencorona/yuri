@@ -1,2 +1,21 @@
 CompileFlags:
   Add: [-xc]
+
+Diagnostics:
+  ClangTidy:
+    Add: [
+      'bugprone-*',
+      'cert-*',
+      'clang-analyzer-*',
+      'readability-*',
+      'performance-*',
+      'misc-*'
+    ]
+    Remove: [
+    'readability-magic-numbers',
+    'readability-identifier-length'
+    ]
+    CheckOptions:
+      readability-identifier-naming.FunctionCase: lower_case
+      readability-identifier-naming.VariableCase: lower_case
+      misc-unused-parameters.IgnoreParametersRegexp: '^_.*'
