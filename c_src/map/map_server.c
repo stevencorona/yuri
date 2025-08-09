@@ -41,7 +41,7 @@
 #define _MAP_SERVER_
 #endif
 
-Sql* sql_handle = NULL;
+Sql *sql_handle = NULL;
 
 DBMap* id_db;
 DBMap* mobsearch_db;
@@ -50,20 +50,21 @@ struct map_msg_data map_msg[MSG_MAX];
 int map_loadgameregistry();
 
 // item id pool
-char* object;
+char *object;
 int object_n = 0;
 
-struct map_src_list {
-  struct map_src_list* next;
+struct map_src_list
+{
+  struct map_src_list *next;
   int id, pvp, spell;
   unsigned int sweeptime;
   char title[64];
   unsigned char cantalk, show_ghosts, region, indoor, warpout, bind;
   unsigned short bgm, bgmtype, light, weather;
-  char* mapfile;
+  char *mapfile;
 };
-struct map_src_list* map_src_first = NULL;
-struct map_src_list* map_src_last = NULL;
+struct map_src_list *map_src_first = NULL;
+struct map_src_list *map_src_last = NULL;
 
 char map_ip_s[16];
 char log_ip_s[16];
@@ -76,7 +77,7 @@ int map_max = 0;
 // unsigned int blcount_t=0;
 int auth_n = 0;
 struct userlist_data userlist;
-struct map_data* map;
+struct map_data *map;
 struct game_data gamereg;
 int map_n = 0;
 int oldHour;
@@ -91,23 +92,27 @@ unsigned int npc_id;
 
 #define BL_LIST_MAX 32768
 
-struct block_list* bl_list[BL_LIST_MAX];
+struct block_list *bl_list[BL_LIST_MAX];
 
 static struct block_list bl_head;
 int bl_list_count = 0;
 
 time_t gettickthing(void) { return time(NULL); }
-int command_input(char* val) { return 0; }
+int command_input(char *val) { return 0; }
 
-int map_moveblock(struct block_list* bl, int x1, int y1) {
+int map_moveblock(struct block_list *bl, int x1, int y1)
+{
   int x0 = bl->x, y0 = bl->y;
   // struct status_change *sc = NULL;
-  if (x1 >= map[bl->m].xs) x1 = map[bl->m].xs - 1;
-  if (y1 >= map[bl->m].ys) y1 = map[bl->m].ys - 1;
+  if (x1 >= map[bl->m].xs)
+    x1 = map[bl->m].xs - 1;
+  if (y1 >= map[bl->m].ys)
+    y1 = map[bl->m].ys - 1;
   int moveblock = (x0 / BLOCK_SIZE != x1 / BLOCK_SIZE ||
                    y0 / BLOCK_SIZE != y1 / BLOCK_SIZE);
   // int moveblock=1;
-  if (!bl->prev) {
+  if (!bl->prev)
+  {
     // Block not in map, just update coordinates, but do naught else.
     bl->x = x1;
     bl->y = y1;
@@ -115,19 +120,23 @@ int map_moveblock(struct block_list* bl, int x1, int y1) {
   }
 
   // TODO: Perhaps some outs of bounds checking should be placed here?
-  if (moveblock) map_delblock(bl);
+  if (moveblock)
+    map_delblock(bl);
   bl->x = x1;
   bl->y = y1;
-  if (moveblock) map_addblock(bl);
+  if (moveblock)
+    map_addblock(bl);
   return 0;
 }
 
 int map_timerthing(int x, int b) { return 0; }
-int nmail_sendmessage(USER* sd, char* message, int other, int type) {
+int nmail_sendmessage(USER *sd, char *message, int other, int type)
+{
   int len = 0;
   isactive(sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -149,91 +158,111 @@ int nmail_sendmessage(USER* sd, char* message, int other, int type) {
   return 0;
 }
 
-struct block_list* map_id2bl(unsigned int id) {
-  struct block_list* bl = NULL;
+struct block_list *map_id2bl(unsigned int id)
+{
+  struct block_list *bl = NULL;
   bl = uidb_get(id_db, id);
   return bl;
 }
 
-void map_deliddb(struct block_list* bl) { uidb_remove(id_db, bl->id); }
+void map_deliddb(struct block_list *bl) { uidb_remove(id_db, bl->id); }
 
-void map_addiddb(struct block_list* bl) {
+void map_addiddb(struct block_list *bl)
+{
   // if(bl->type==BL_MOB)
   // uidb_put(mobid_db,bl->id,bl);
 
   uidb_put(id_db, bl->id, bl);
 }
 
-void map_initiddb() {
+void map_initiddb()
+{
   id_db = uidb_alloc(DB_OPT_BASE);
   mobid_db = uidb_alloc(DB_OPT_BASE);
   // mobsearch_db=numdb_init();
 }
 
-int map_finaliddb(void* key, void* data, va_list ap) {
-  struct block_list* db;
+int map_finaliddb(void *key, void *data, va_list ap)
+{
+  struct block_list *db;
   // struct npc_data* nd;
   nullpo_ret(0, db = data);
 
   map_delblock(db);
-  switch (db->id) {
-    case BL_NPC:
-      // nd = data;
-      switch (db->subtype) {
-        case FLOOR:
-        case SCRIPT:
-          // FREE(nd->script);
-          break;
-      }
-    case BL_PC:
-    case BL_ITEM:
-      FREE(db);
+  switch (db->id)
+  {
+  case BL_NPC:
+    // nd = data;
+    switch (db->subtype)
+    {
+    case FLOOR:
+    case SCRIPT:
+      // FREE(nd->script);
       break;
+    }
+  case BL_PC:
+  case BL_ITEM:
+    FREE(db);
+    break;
   }
   return 0;
 }
 
-void map_termiddb() {
-  if (id_db) {
+void map_termiddb()
+{
+  if (id_db)
+  {
     // uidb_final(id_db,map_finaliddb);
     id_db = NULL;
   }
 }
 
-void map_clritem() {
+void map_clritem()
+{
   FREE(object);
   object_n = 0;
 }
 
-void map_delitem(unsigned int id) {
-  struct block_list* bl;
+void map_delitem(unsigned int id)
+{
+  struct block_list *bl;
   bl = map_id2bl(id);
-  if (!bl) return;
+  if (!bl)
+    return;
 
   map_deliddb(bl);
   map_delblock(bl);
   FREE(bl);
 
   id -= FLOORITEM_START_NUM;
-  if (id >= object_n || id < 0) return;
+  if (id >= object_n || id < 0)
+    return;
 
   object[id] = 0;
 }
 
-void map_additem(struct block_list* bl) {
+void map_additem(struct block_list *bl)
+{
   unsigned int i;
-  for (i = 0; i < object_n; i++) {
-    if (!object[i]) break;
+  for (i = 0; i < object_n; i++)
+  {
+    if (!object[i])
+      break;
   }
-  if (i >= MAX_FLOORITEM) {
+  if (i >= MAX_FLOORITEM)
+  {
     printf("MAP_ERR: Item reached max item capacity.\n");
     return;
   }
 
-  if (i >= object_n) {
-    if (object_n) {
+  if (i >= object_n)
+  {
+    if (object_n)
+    {
       REALLOC(object, char, i + 256);
-    } else {
+    }
+    else
+    {
       CALLOC(object, char, 256);
     }
     object_n = i + 256;
@@ -249,11 +278,13 @@ void map_additem(struct block_list* bl) {
   map_addblock(bl);
 }
 
-int map_src_clear() {
-  struct map_src_list* p = map_src_first;
+int map_src_clear()
+{
+  struct map_src_list *p = map_src_first;
 
-  while (p) {
-    struct map_src_list* p2 = p;
+  while (p)
+  {
+    struct map_src_list *p2 = p;
     p = p->next;
     FREE(p2->mapfile);
     FREE(p2);
@@ -264,17 +295,19 @@ int map_src_clear() {
   return 0;
 }
 
-int map_src_add(const char* r1) {
+int map_src_add(const char *r1)
+{
   int map_id, pvp, spell;
   unsigned int sweeptime;
   unsigned short map_bgm, light, weather;
   unsigned char cantalk, showghosts, region, indoor, warpout, bind;
-  struct map_src_list* new;
+  struct map_src_list *new;
   char map_title[1024], map_file[1024];
   if (sscanf(r1, "%d,%[^,],%hi,%d,%d,%hu,%hu,%u,%c,%c,%c,%c,%c, %c,%s", &map_id,
              map_title, &map_bgm, &pvp, &spell, &light, &weather, &sweeptime,
              &cantalk, &showghosts, &region, &indoor, &warpout, &bind,
-             map_file) < 13) {
+             map_file) < 13)
+  {
     return -1;
   }
   //[^,],[^\r\n]
@@ -299,24 +332,31 @@ int map_src_add(const char* r1) {
   strncpy(new->title, map_title, 64);
   strncpy(new->mapfile, map_file, strlen(map_file));
 
-  if (map_src_first == NULL) map_src_first = new;
-  if (map_src_last) map_src_last->next = new;
+  if (map_src_first == NULL)
+    map_src_first = new;
+  if (map_src_last)
+    map_src_last->next = new;
 
   map_src_last = new;
   return 0;
 }
 
-USER* map_id2sd(unsigned int id) {
-  USER* sd = NULL;
+USER *map_id2sd(unsigned int id)
+{
+  USER *sd = NULL;
 
-  sd = (USER*)uidb_get(id_db, id);
+  sd = (USER *)uidb_get(id_db, id);
   // nullpo_ret(0,sd=(USER*)uidb_get(id_db,id));
   return sd;
 }
-int isPlayerActive(USER* sd) {
-  if (!sd) return 0;
-  if (!sd->fd) return 0;
-  if (!session[sd->fd]) {  // This is an anomally, save, and exit.
+int isPlayerActive(USER *sd)
+{
+  if (!sd)
+    return 0;
+  if (!sd->fd)
+    return 0;
+  if (!session[sd->fd])
+  { // This is an anomally, save, and exit.
     printf(
         "Abnormal, Player exists but session does not(%s).  Attempting to "
         "recreate.\n",
@@ -332,44 +372,55 @@ int isPlayerActive(USER* sd) {
   }
   return 1;
 }
-MOB* map_id2mob(unsigned int id) {
-  MOB* mob;
-  struct block_list* bl;
+MOB *map_id2mob(unsigned int id)
+{
+  MOB *mob;
+  struct block_list *bl;
 
-  if (id < MOB_START_NUM) id += MOB_START_NUM - 1;
+  if (id < MOB_START_NUM)
+    id += MOB_START_NUM - 1;
   bl = map_id2bl(id);
-  if (bl) {
-    if (bl->type == BL_MOB) {
-      mob = (MOB*)bl;
+  if (bl)
+  {
+    if (bl->type == BL_MOB)
+    {
+      mob = (MOB *)bl;
       return mob;
     }
   }
   return NULL;
 }
 
-NPC* map_id2npc(unsigned int id) {
-  NPC* npc;
-  struct block_list* bl;
+NPC *map_id2npc(unsigned int id)
+{
+  NPC *npc;
+  struct block_list *bl;
 
-  if (id < NPC_START_NUM) id += NPC_START_NUM - 2;
+  if (id < NPC_START_NUM)
+    id += NPC_START_NUM - 2;
   bl = map_id2bl(id);
-  if (bl) {
-    if (bl->type == BL_NPC) {
-      npc = (NPC*)bl;
+  if (bl)
+  {
+    if (bl->type == BL_NPC)
+    {
+      npc = (NPC *)bl;
       return npc;
     }
   }
   return NULL;
 }
 
-NPC* map_name2npc(const char* name) {
+NPC *map_name2npc(const char *name)
+{
   unsigned int i;
-  NPC* nd = NULL;
+  NPC *nd = NULL;
 
-  for (i = NPC_START_NUM; i <= npc_id; i++) {
+  for (i = NPC_START_NUM; i <= npc_id; i++)
+  {
     nd = map_id2npc(i);
 
-    if (nd && !strcasecmp(nd->npc_name, name)) {
+    if (nd && !strcasecmp(nd->npc_name, name))
+    {
       return nd;
     }
   }
@@ -377,37 +428,46 @@ NPC* map_name2npc(const char* name) {
   return NULL;
 }
 
-FLOORITEM* map_id2fl(unsigned int id) {
-  FLOORITEM* fl;
-  struct block_list* bl;
+FLOORITEM *map_id2fl(unsigned int id)
+{
+  FLOORITEM *fl;
+  struct block_list *bl;
 
   bl = map_id2bl(id);
-  if (bl) {
-    if (bl->type == BL_ITEM) {
-      fl = (FLOORITEM*)bl;
+  if (bl)
+  {
+    if (bl->type == BL_ITEM)
+    {
+      fl = (FLOORITEM *)bl;
       return fl;
     }
   }
   return NULL;
 }
 
-USER* map_name2sd(const char* name) {
+USER *map_name2sd(const char *name)
+{
   int i;
-  USER* sd = NULL;
+  USER *sd = NULL;
 
-  for (i = 0; i < fd_max; i++) {
-    if (session[i] && (sd = session[i]->session_data)) {
-      if (strcasecmp(name, sd->status.name) == 0) return sd;
+  for (i = 0; i < fd_max; i++)
+  {
+    if (session[i] && (sd = session[i]->session_data))
+    {
+      if (strcasecmp(name, sd->status.name) == 0)
+        return sd;
     }
   }
   return NULL;
 }
 
-void map_termblock() {
+void map_termblock()
+{
   // FREE(bl_head);
 }
 
-void map_initblock() {
+void map_initblock()
+{
   // CALLOC(bl_head, struct block_list, 1);
 }
 
@@ -436,11 +496,13 @@ int map_freeblock_unlock() {
         return bl_free_lock;
 }
 */
-int map_addblock(struct block_list* bl) {
+int map_addblock(struct block_list *bl)
+{
   int m, x, y, pos;
 
   nullpo_ret(0, bl);
-  if (bl->prev != NULL) {
+  if (bl->prev != NULL)
+  {
     ShowError("map_addblock: bl->prev != NULL\n");
     return 1;
   }
@@ -448,11 +510,13 @@ int map_addblock(struct block_list* bl) {
   m = bl->m;
   x = bl->x;
   y = bl->y;
-  if (!map_isloaded(m)) {
+  if (!map_isloaded(m))
+  {
     printf("[map_addblock] [error] invalid map id id=%d\n", m);
     return 1;
   }
-  if (x < 0 || x >= map[m].xs || y < 0 || y >= map[m].ys) {
+  if (x < 0 || x >= map[m].xs || y < 0 || y >= map[m].ys)
+  {
     ShowError(
         "map_addblock: out-of-bounds coordinates map: %d -> (%d,%d) id: %u\n",
         m, x, y, bl->id);
@@ -464,19 +528,25 @@ int map_addblock(struct block_list* bl) {
 
   pos = x / BLOCK_SIZE + (y / BLOCK_SIZE) * map[m].bxs;
 
-  if (bl->type == BL_MOB) {
+  if (bl->type == BL_MOB)
+  {
     bl->next = map[m].block_mob[pos];
     bl->prev = &bl_head;
-    if (bl->next) bl->next->prev = bl;
+    if (bl->next)
+      bl->next->prev = bl;
     map[m].block_mob[pos] = bl;
-  } else {
+  }
+  else
+  {
     bl->next = map[m].block[pos];
     bl->prev = &bl_head;
-    if (bl->next) bl->next->prev = bl;
+    if (bl->next)
+      bl->next->prev = bl;
     map[m].block[pos] = bl;
   }
 
-  if (bl->type == BL_PC) map[m].user++;
+  if (bl->type == BL_PC)
+    map[m].user++;
 
   // if (bl->prev < 0x100 || bl->next < 0x100) {
   //   if (bl->next) {
@@ -486,12 +556,15 @@ int map_addblock(struct block_list* bl) {
   return 0;
 }
 
-int map_delblock(struct block_list* bl) {
+int map_delblock(struct block_list *bl)
+{
   int pos;
   nullpo_ret(0, bl);
 
-  if (bl->prev == NULL) {
-    if (bl->next != NULL) {
+  if (bl->prev == NULL)
+  {
+    if (bl->next != NULL)
+    {
       ShowError("map_delblock error : bl->next!=NULL\n");
     }
     return 0;
@@ -499,19 +572,27 @@ int map_delblock(struct block_list* bl) {
 
   pos = bl->x / BLOCK_SIZE + (bl->y / BLOCK_SIZE) * map[bl->m].bxs;
 
-  if (bl->next) bl->next->prev = bl->prev;
-  if (bl->prev == &bl_head) {
+  if (bl->next)
+    bl->next->prev = bl->prev;
+  if (bl->prev == &bl_head)
+  {
     // ���X�g�̓��Ȃ̂ŁAmap[]��block_list���X�V����
-    if (bl->type == BL_MOB) {
+    if (bl->type == BL_MOB)
+    {
       map[bl->m].block_mob[pos] = bl->next;
-    } else {
+    }
+    else
+    {
       map[bl->m].block[pos] = bl->next;
     }
-  } else {
+  }
+  else
+  {
     bl->prev->next = bl->next;
   }
 
-  if (bl->type == BL_PC) map[bl->m].user--;
+  if (bl->type == BL_PC)
+    map[bl->m].user--;
 
   bl->next = NULL;
   bl->prev = NULL;
@@ -519,8 +600,9 @@ int map_delblock(struct block_list* bl) {
   return 0;
 }
 
-int map_foreachinarea(int (*func)(struct block_list*, va_list), int m, int x,
-                      int y, int area, int type, ...) {
+int map_foreachinarea(int (*func)(struct block_list *, va_list), int m, int x,
+                      int y, int area, int type, ...)
+{
   int nAreaSizeX = AREAX_SIZE, nAreaSizeY = AREAY_SIZE;
   va_list ap;
   va_start(ap, type);
@@ -530,119 +612,139 @@ int map_foreachinarea(int (*func)(struct block_list*, va_list), int m, int x,
   int x1 = x + 9;
   int y1 = y + 8;
 
-  if (x0 < 0) {
+  if (x0 < 0)
+  {
     x1 += -x0;
     x0 = 0;
-    if (x1 >= map[m].xs) x1 = map[m].xs - 1;
+    if (x1 >= map[m].xs)
+      x1 = map[m].xs - 1;
   }
-  if (y0 < 0) {
+  if (y0 < 0)
+  {
     y1 += -y0;
     y0 = 0;
-    if (y1 >= map[m].ys) y1 = map[m].ys - 1;
+    if (y1 >= map[m].ys)
+      y1 = map[m].ys - 1;
   }
-  if (x1 >= map[m].xs) {
+  if (x1 >= map[m].xs)
+  {
     x0 -= x1 - map[m].xs + 1;
     x1 = map[m].xs - 1;
-    if (x0 < 0) x0 = 0;
+    if (x0 < 0)
+      x0 = 0;
   }
-  if (y1 >= map[m].ys) {
+  if (y1 >= map[m].ys)
+  {
     y0 -= y1 - map[m].ys + 1;
     y1 = map[m].ys - 1;
-    if (y0 < 0) y0 = 0;
+    if (y0 < 0)
+      y0 = 0;
   }
 
-  switch (area) {
-    case AREA:
+  switch (area)
+  {
+  case AREA:
 
-      map_foreachinblockva(func, m, x - (nAreaSizeX + 1), y - (nAreaSizeY + 1),
-                           x + (nAreaSizeX + 1), y + (nAreaSizeY + 1), type,
-                           ap);
-      break;
-    case CORNER:
-      if (map[m].xs > (nAreaSizeX * 2 + 1) &&
-          map[m].ys > (nAreaSizeY * 2 + 1)) {
+    map_foreachinblockva(func, m, x - (nAreaSizeX + 1), y - (nAreaSizeY + 1),
+                         x + (nAreaSizeX + 1), y + (nAreaSizeY + 1), type,
+                         ap);
+    break;
+  case CORNER:
+    if (map[m].xs > (nAreaSizeX * 2 + 1) &&
+        map[m].ys > (nAreaSizeY * 2 + 1))
+    {
+      if (x < (nAreaSizeX * 2 + 2) && x > nAreaSizeX)
+        map_foreachinblockva(func, m, 0, y - (nAreaSizeY + 1),
+                             x - (nAreaSizeX + 2), y + (nAreaSizeY + 1), type,
+                             ap);
+      if (y < (nAreaSizeY * 2 + 2) && y > nAreaSizeY)
+      {
+        map_foreachinblockva(func, m, x - (nAreaSizeX + 1), 0,
+                             x + (nAreaSizeX + 1), y - (nAreaSizeY + 2), type,
+                             ap);
         if (x < (nAreaSizeX * 2 + 2) && x > nAreaSizeX)
-          map_foreachinblockva(func, m, 0, y - (nAreaSizeY + 1),
-                               x - (nAreaSizeX + 2), y + (nAreaSizeY + 1), type,
-                               ap);
-        if (y < (nAreaSizeY * 2 + 2) && y > nAreaSizeY) {
-          map_foreachinblockva(func, m, x - (nAreaSizeX + 1), 0,
-                               x + (nAreaSizeX + 1), y - (nAreaSizeY + 2), type,
-                               ap);
-          if (x < (nAreaSizeX * 2 + 2) && x > nAreaSizeX)
-            map_foreachinblockva(func, m, 0, 0, x - (nAreaSizeX + 2),
-                                 y - (nAreaSizeY + 2), type, ap);
-          else if (x > map[m].xs - (nAreaSizeX * 2 + 3) &&
-                   x < map[m].xs - (nAreaSizeX + 1))
-            map_foreachinblockva(func, m, x + (nAreaSizeX + 2), 0,
-                                 map[m].xs - 1, y + (nAreaSizeY + 2), type, ap);
-        }
-        if (x > map[m].xs - (nAreaSizeX * 2 + 3) &&
-            x < map[m].xs - (nAreaSizeX + 1))
-          map_foreachinblockva(func, m, x + (nAreaSizeX + 2),
-                               y - (nAreaSizeY + 1), map[m].xs - 1,
-                               y + (nAreaSizeY + 1), type, ap);
-        if (y > map[m].ys - (nAreaSizeY * 2 + 3) &&
-            y < map[m].ys - (nAreaSizeY + 1)) {
-          map_foreachinblockva(func, m, x - (nAreaSizeX + 1),
-                               y + (nAreaSizeY + 2), x + (nAreaSizeX + 1),
-                               map[m].ys - 1, type, ap);
-          if (x < (nAreaSizeX * 2 + 2) && x > nAreaSizeX)
-            map_foreachinblockva(func, m, 0, y + (nAreaSizeY + 2),
-                                 x - (nAreaSizeX + 2), map[m].ys - 1, type, ap);
-          else if (x > map[m].xs - (nAreaSizeX * 2 + 3) &&
-                   x < map[m].xs - (nAreaSizeX + 1))
-            map_foreachinblockva(func, m, x + (nAreaSizeX + 2),
-                                 y + (nAreaSizeY + 2), map[m].xs - 1,
-                                 map[m].ys - 1, type, ap);
-        }
+          map_foreachinblockva(func, m, 0, 0, x - (nAreaSizeX + 2),
+                               y - (nAreaSizeY + 2), type, ap);
+        else if (x > map[m].xs - (nAreaSizeX * 2 + 3) &&
+                 x < map[m].xs - (nAreaSizeX + 1))
+          map_foreachinblockva(func, m, x + (nAreaSizeX + 2), 0,
+                               map[m].xs - 1, y + (nAreaSizeY + 2), type, ap);
       }
-      break;
-    case SAMEAREA:
-      /*if (x <= nAreaSizeX && y <= nAreaSizeY)
-              map_foreachinblockva(func,m,0,0,(nAreaSizeX*2+2),(nAreaSizeY*2+2),type,ap);
-      else if (x <= nAreaSizeX && y >= map[m].ys-(nAreaSizeY+1))
-              map_foreachinblockva(func,m,0,map[m].ys-(nAreaSizeY*2+3),(nAreaSizeX*2+2),map[m].ys-1,type,ap);
-      else if (x >= map[m].xs-(nAreaSizeX+1) && y <= nAreaSizeY)
-              map_foreachinblockva(func,m,map[m].xs-(nAreaSizeX*2+3),0,map[m].xs-1,(nAreaSizeY*2+2),type,ap);
-      else if (x >= map[m].xs-(nAreaSizeX+1) && y >= map[m].ys-(nAreaSizeY+1))
-              map_foreachinblockva(func,m,map[m].xs-(nAreaSizeX*2+3),map[m].ys-(nAreaSizeY*2+3),map[m].xs-1,map[m].ys-1,type,ap);
-      else
-              map_foreachinblockva(func,m,x-(nAreaSizeX+1),y-(nAreaSizeY+1),x+(nAreaSizeX+1),y+(nAreaSizeY+1),type,ap);*/
-      map_foreachinblockva(func, m, x0, y0, x1, y1, type, ap);
-      break;
-    case SAMEMAP:
-      map_foreachinblockva(func, m, 0, 0, map[m].xs - 1, map[m].ys - 1, type,
-                           ap);
-      break;
+      if (x > map[m].xs - (nAreaSizeX * 2 + 3) &&
+          x < map[m].xs - (nAreaSizeX + 1))
+        map_foreachinblockva(func, m, x + (nAreaSizeX + 2),
+                             y - (nAreaSizeY + 1), map[m].xs - 1,
+                             y + (nAreaSizeY + 1), type, ap);
+      if (y > map[m].ys - (nAreaSizeY * 2 + 3) &&
+          y < map[m].ys - (nAreaSizeY + 1))
+      {
+        map_foreachinblockva(func, m, x - (nAreaSizeX + 1),
+                             y + (nAreaSizeY + 2), x + (nAreaSizeX + 1),
+                             map[m].ys - 1, type, ap);
+        if (x < (nAreaSizeX * 2 + 2) && x > nAreaSizeX)
+          map_foreachinblockva(func, m, 0, y + (nAreaSizeY + 2),
+                               x - (nAreaSizeX + 2), map[m].ys - 1, type, ap);
+        else if (x > map[m].xs - (nAreaSizeX * 2 + 3) &&
+                 x < map[m].xs - (nAreaSizeX + 1))
+          map_foreachinblockva(func, m, x + (nAreaSizeX + 2),
+                               y + (nAreaSizeY + 2), map[m].xs - 1,
+                               map[m].ys - 1, type, ap);
+      }
+    }
+    break;
+  case SAMEAREA:
+    /*if (x <= nAreaSizeX && y <= nAreaSizeY)
+            map_foreachinblockva(func,m,0,0,(nAreaSizeX*2+2),(nAreaSizeY*2+2),type,ap);
+    else if (x <= nAreaSizeX && y >= map[m].ys-(nAreaSizeY+1))
+            map_foreachinblockva(func,m,0,map[m].ys-(nAreaSizeY*2+3),(nAreaSizeX*2+2),map[m].ys-1,type,ap);
+    else if (x >= map[m].xs-(nAreaSizeX+1) && y <= nAreaSizeY)
+            map_foreachinblockva(func,m,map[m].xs-(nAreaSizeX*2+3),0,map[m].xs-1,(nAreaSizeY*2+2),type,ap);
+    else if (x >= map[m].xs-(nAreaSizeX+1) && y >= map[m].ys-(nAreaSizeY+1))
+            map_foreachinblockva(func,m,map[m].xs-(nAreaSizeX*2+3),map[m].ys-(nAreaSizeY*2+3),map[m].xs-1,map[m].ys-1,type,ap);
+    else
+            map_foreachinblockva(func,m,x-(nAreaSizeX+1),y-(nAreaSizeY+1),x+(nAreaSizeX+1),y+(nAreaSizeY+1),type,ap);*/
+    map_foreachinblockva(func, m, x0, y0, x1, y1, type, ap);
+    break;
+  case SAMEMAP:
+    map_foreachinblockva(func, m, 0, 0, map[m].xs - 1, map[m].ys - 1, type,
+                         ap);
+    break;
   }
 
   va_end(ap);
   return 0;
 }
 
-int map_foreachinblockva(int (*func)(struct block_list*, va_list), int m,
-                         int x0, int y0, int x1, int y1, int type, va_list ap) {
+int map_foreachinblockva(int (*func)(struct block_list *, va_list), int m,
+                         int x0, int y0, int x1, int y1, int type, va_list ap)
+{
   int bx, by;
-  int returnCount = 0;  // total sum of returned values of func() [Skotlex]
-  struct block_list* bl = NULL;
+  int returnCount = 0; // total sum of returned values of func() [Skotlex]
+  struct block_list *bl = NULL;
   int blockcount = 0;
   int i;
 
-  if (m < 0) return 0;
+  if (m < 0)
+    return 0;
 
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
-  if (x0 < 0) x0 = 0;
-  if (y0 < 0) y0 = 0;
-  if (x1 >= map[m].xs) x1 = map[m].xs - 1;
-  if (y1 >= map[m].ys) y1 = map[m].ys - 1;
+  if (x0 < 0)
+    x0 = 0;
+  if (y0 < 0)
+    y0 = 0;
+  if (x1 >= map[m].xs)
+    x1 = map[m].xs - 1;
+  if (y1 >= map[m].ys)
+    y1 = map[m].ys - 1;
 
   if ((type & ~BL_MOB))
     for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++)
       for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++)
         for (bl = map[m].block[bx + by * map[m].bxs];
-             bl && blockcount < BL_LIST_MAX; bl = bl->next) {
+             bl && blockcount < BL_LIST_MAX; bl = bl->next)
+        {
           if ((bl->type & type) && bl->x >= x0 && bl->x <= x1 && bl->y >= y0 &&
               bl->y <= y1 && blockcount < BL_LIST_MAX)
             bl_list[blockcount++] = bl;
@@ -652,8 +754,9 @@ int map_foreachinblockva(int (*func)(struct block_list*, va_list), int m,
     for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++)
       for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++)
         for (bl = map[m].block_mob[bx + by * map[m].bxs];
-             bl && blockcount < BL_LIST_MAX; bl = bl->next) {
-          MOB* mob = (MOB*)bl;
+             bl && blockcount < BL_LIST_MAX; bl = bl->next)
+        {
+          MOB *mob = (MOB *)bl;
           if (mob->state != MOB_DEAD && bl->x >= x0 && bl->x <= x1 &&
               bl->y >= y0 && bl->y <= y1 && blockcount < BL_LIST_MAX)
             bl_list[blockcount++] = bl;
@@ -662,8 +765,10 @@ int map_foreachinblockva(int (*func)(struct block_list*, va_list), int m,
   if (blockcount >= BL_LIST_MAX)
     printf("map_foreachinarea: block count too many!\n");
 
-  for (i = 0; i < blockcount; i++) {
-    if (bl_list[i]->prev) {  // �L?���ǂ����`�F�b�N
+  for (i = 0; i < blockcount; i++)
+  {
+    if (bl_list[i]->prev)
+    { // �L?���ǂ����`�F�b�N
 
       va_list ap_copy;
       va_copy(ap_copy, ap);
@@ -680,14 +785,19 @@ int map_foreachinblockva(int (*func)(struct block_list*, va_list), int m,
   return returnCount;
 }
 
-int map_foreachinblock(int (*func)(struct block_list*, va_list), int m, int x0,
-                       int y0, int x1, int y1, int type, ...) {
+int map_foreachinblock(int (*func)(struct block_list *, va_list), int m, int x0,
+                       int y0, int x1, int y1, int type, ...)
+{
   va_list ap;
   va_start(ap, type);
-  if (x0 < 0) x0 = 0;
-  if (y0 < 0) y0 = 0;
-  if (x1 >= map[m].xs) x1 = map[m].xs - 1;
-  if (y1 >= map[m].ys) y1 = map[m].ys - 1;
+  if (x0 < 0)
+    x0 = 0;
+  if (y0 < 0)
+    y0 = 0;
+  if (x1 >= map[m].xs)
+    x1 = map[m].xs - 1;
+  if (y1 >= map[m].ys)
+    y1 = map[m].ys - 1;
 
   map_foreachinblockva(func, m, x0, y0, x1, y1, type, ap);
 
@@ -695,36 +805,43 @@ int map_foreachinblock(int (*func)(struct block_list*, va_list), int m, int x0,
   return 0;
 }
 
-int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
-                      int y, int type, ...) {
+int map_foreachincell(int (*func)(struct block_list *, va_list), int m, int x,
+                      int y, int type, ...)
+{
   int bx, by;
-  int returnCount = 0;  // total sum of returned values of func() [Skotlex]
-  struct block_list* bl = NULL;
+  int returnCount = 0; // total sum of returned values of func() [Skotlex]
+  struct block_list *bl = NULL;
   int blockcount = 0;
 
-  if (x < 0 || y < 0 || x >= map[m].xs || y >= map[m].ys) return 0;
+  if (x < 0 || y < 0 || x >= map[m].xs || y >= map[m].ys)
+    return 0;
 
   by = y / BLOCK_SIZE;
   bx = x / BLOCK_SIZE;
 
   if ((type & ~BL_MOB))
     for (bl = map[m].block[bx + by * map[m].bxs];
-         bl && blockcount < BL_LIST_MAX; bl = bl->next) {
+         bl && blockcount < BL_LIST_MAX; bl = bl->next)
+    {
       if ((bl->type & type) && bl->x == x && bl->y == y &&
-          blockcount < BL_LIST_MAX) {
+          blockcount < BL_LIST_MAX)
+      {
         if (bl->type != BL_ITEM)
           bl_list[blockcount++] = bl;
-        else {
-          FLOORITEM* fl = (FLOORITEM*)bl;
-          if (itemdb_type(fl->data.id) != ITM_TRAPS) bl_list[blockcount++] = bl;
+        else
+        {
+          FLOORITEM *fl = (FLOORITEM *)bl;
+          if (itemdb_type(fl->data.id) != ITM_TRAPS)
+            bl_list[blockcount++] = bl;
         }
       }
     }
 
   if ((type & BL_MOB))
     for (bl = map[m].block_mob[bx + by * map[m].bxs];
-         bl && blockcount < BL_LIST_MAX; bl = bl->next) {
-      MOB* mob = (MOB*)bl;
+         bl && blockcount < BL_LIST_MAX; bl = bl->next)
+    {
+      MOB *mob = (MOB *)bl;
       if (mob->state != MOB_DEAD && bl->x == x && bl->y == y &&
           blockcount < BL_LIST_MAX)
         bl_list[blockcount++] = bl;
@@ -738,7 +855,7 @@ int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
   // ����������̉�����֎~����
 
   for (int i = 0; i < blockcount; i++)
-    if (bl_list[i]->prev)  // �L?���ǂ����`�F�b�N - Check if there is
+    if (bl_list[i]->prev) // �L?���ǂ����`�F�b�N - Check if there is
     {
       va_list ap;
       va_start(ap, type);
@@ -752,32 +869,37 @@ int map_foreachincell(int (*func)(struct block_list*, va_list), int m, int x,
   return returnCount;
 }
 
-int map_foreachincellwithtraps(int (*func)(struct block_list*, va_list), int m,
-                               int x, int y, int type, ...) {
+int map_foreachincellwithtraps(int (*func)(struct block_list *, va_list), int m,
+                               int x, int y, int type, ...)
+{
   int bx, by;
-  int returnCount = 0;  // total sum of returned values of func() [Skotlex]
-  struct block_list* bl = NULL;
+  int returnCount = 0; // total sum of returned values of func() [Skotlex]
+  struct block_list *bl = NULL;
   int blockcount = 0;
   int i;
 
-  if (x < 0 || y < 0 || x >= map[m].xs || y >= map[m].ys) return 0;
+  if (x < 0 || y < 0 || x >= map[m].xs || y >= map[m].ys)
+    return 0;
 
   by = y / BLOCK_SIZE;
   bx = x / BLOCK_SIZE;
 
   if ((type & ~BL_MOB))
     for (bl = map[m].block[bx + by * map[m].bxs];
-         bl && blockcount < BL_LIST_MAX; bl = bl->next) {
+         bl && blockcount < BL_LIST_MAX; bl = bl->next)
+    {
       if ((bl->type & type) && bl->x == x && bl->y == y &&
-          blockcount < BL_LIST_MAX) {
+          blockcount < BL_LIST_MAX)
+      {
         bl_list[blockcount++] = bl;
       }
     }
 
   if ((type & BL_MOB))
     for (bl = map[m].block_mob[bx + by * map[m].bxs];
-         bl && blockcount < BL_LIST_MAX; bl = bl->next) {
-      MOB* mob = (MOB*)bl;
+         bl && blockcount < BL_LIST_MAX; bl = bl->next)
+    {
+      MOB *mob = (MOB *)bl;
       if (mob->state != MOB_DEAD && bl->x == x && bl->y == y &&
           blockcount < BL_LIST_MAX)
         bl_list[blockcount++] = bl;
@@ -791,7 +913,7 @@ int map_foreachincellwithtraps(int (*func)(struct block_list*, va_list), int m,
   // ����������̉�����֎~����
 
   for (i = 0; i < blockcount; i++)
-    if (bl_list[i]->prev)  // �L?���ǂ����`�F�b�N
+    if (bl_list[i]->prev) // �L?���ǂ����`�F�b�N
     {
       va_list ap;
       va_start(ap, type);
@@ -805,16 +927,23 @@ int map_foreachincellwithtraps(int (*func)(struct block_list*, va_list), int m,
   return returnCount;
 }
 
-struct block_list* map_firstincell(int m, int x, int y, int type) {
+struct block_list *map_firstincell(int m, int x, int y, int type)
+{
   int bx, by;
-  struct block_list* bl = NULL;
+  struct block_list *bl = NULL;
 
-  if (m < 0) return 0;
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
-  if (x >= map[m].xs) x = map[m].xs - 1;
-  if (y >= map[m].ys) y = map[m].ys - 1;
-  if (!map_isloaded(m)) return 0;
+  if (m < 0)
+    return 0;
+  if (x < 0)
+    x = 0;
+  if (y < 0)
+    y = 0;
+  if (x >= map[m].xs)
+    x = map[m].xs - 1;
+  if (y >= map[m].ys)
+    y = map[m].ys - 1;
+  if (!map_isloaded(m))
+    return 0;
 
   by = y / BLOCK_SIZE;
   bx = x / BLOCK_SIZE;
@@ -822,34 +951,45 @@ struct block_list* map_firstincell(int m, int x, int y, int type) {
   if ((type & ~BL_MOB))
     for (bl = map[m].block[bx + by * map[m].bxs];
          bl /*&& bl_list_count<BL_LIST_MAX*/; bl = bl->next)
-      if ((bl->type & type) && bl->x == x && bl->y == y) {
+      if ((bl->type & type) && bl->x == x && bl->y == y)
+      {
         if (bl->type != BL_ITEM)
           return bl;
-        else {
-          FLOORITEM* fl = (FLOORITEM*)bl;
-          if (itemdb_type(fl->data.id) != ITM_TRAPS) return bl;
+        else
+        {
+          FLOORITEM *fl = (FLOORITEM *)bl;
+          if (itemdb_type(fl->data.id) != ITM_TRAPS)
+            return bl;
         }
       }
 
   if ((type & BL_MOB))
     for (bl = map[m].block_mob[bx + by * map[m].bxs];
-         bl /*&& bl_list_count<BL_LIST_MAX*/; bl = bl->next) {
-      MOB* mob = (MOB*)bl;
-      if (mob->state != MOB_DEAD && bl->x == x && bl->y == y) return bl;
+         bl /*&& bl_list_count<BL_LIST_MAX*/; bl = bl->next)
+    {
+      MOB *mob = (MOB *)bl;
+      if (mob->state != MOB_DEAD && bl->x == x && bl->y == y)
+        return bl;
     }
 
   return 0;
 }
 
-struct block_list* map_firstincellwithtraps(int m, int x, int y, int type) {
+struct block_list *map_firstincellwithtraps(int m, int x, int y, int type)
+{
   int bx, by;
-  struct block_list* bl = NULL;
+  struct block_list *bl = NULL;
 
-  if (m < 0) return 0;
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
-  if (x >= map[m].xs) x = map[m].xs - 1;
-  if (y >= map[m].ys) y = map[m].ys - 1;
+  if (m < 0)
+    return 0;
+  if (x < 0)
+    x = 0;
+  if (y < 0)
+    y = 0;
+  if (x >= map[m].xs)
+    x = map[m].xs - 1;
+  if (y >= map[m].ys)
+    y = map[m].ys - 1;
 
   by = y / BLOCK_SIZE;
   bx = x / BLOCK_SIZE;
@@ -857,22 +997,26 @@ struct block_list* map_firstincellwithtraps(int m, int x, int y, int type) {
   if ((type & ~BL_MOB))
     for (bl = map[m].block[bx + by * map[m].bxs];
          bl /*&& bl_list_count<BL_LIST_MAX*/; bl = bl->next)
-      if ((bl->type & type) && bl->x == x && bl->y == y) {
+      if ((bl->type & type) && bl->x == x && bl->y == y)
+      {
         return bl;
       }
 
   if ((type & BL_MOB))
     for (bl = map[m].block_mob[bx + by * map[m].bxs];
-         bl /*&& bl_list_count<BL_LIST_MAX*/; bl = bl->next) {
-      MOB* mob = (MOB*)bl;
-      if (mob->state != MOB_DEAD && bl->x == x && bl->y == y) return bl;
+         bl /*&& bl_list_count<BL_LIST_MAX*/; bl = bl->next)
+    {
+      MOB *mob = (MOB *)bl;
+      if (mob->state != MOB_DEAD && bl->x == x && bl->y == y)
+        return bl;
     }
 
   return 0;
 }
 
-int map_respawn(int (*func)(struct block_list*, va_list), int m, int type,
-                ...) {
+int map_respawn(int (*func)(struct block_list *, va_list), int m, int type,
+                ...)
+{
   va_list ap;
 
   va_start(ap, type);
@@ -881,17 +1025,20 @@ int map_respawn(int (*func)(struct block_list*, va_list), int m, int type,
   return 0;
 }
 
-int map_respawnmobs(int (*func)(struct block_list*, va_list), int m, int type,
-                    va_list ap) {
+int map_respawnmobs(int (*func)(struct block_list *, va_list), int m, int type,
+                    va_list ap)
+{
   int x0, x1, y0, y1, bx, by;
-  int returnCount = 0;  // total sum of returned values of func() [Skotlex]
-  struct block_list* bl = NULL;
+  int returnCount = 0; // total sum of returned values of func() [Skotlex]
+  struct block_list *bl = NULL;
   int blockcount = 0;
   int i;
 
-  if (m < 0) return 0;
+  if (m < 0)
+    return 0;
 
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
   x0 = 0;
   y0 = 0;
@@ -902,7 +1049,8 @@ int map_respawnmobs(int (*func)(struct block_list*, va_list), int m, int type,
     for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++)
       for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++)
         for (bl = map[m].block_mob[bx + by * map[m].bxs];
-             bl && blockcount < BL_LIST_MAX; bl = bl->next) {
+             bl && blockcount < BL_LIST_MAX; bl = bl->next)
+        {
           if (bl->x >= x0 && bl->x <= x1 && bl->y >= y0 && bl->y <= y1 &&
               blockcount < BL_LIST_MAX)
             bl_list[blockcount++] = bl;
@@ -912,21 +1060,23 @@ int map_respawnmobs(int (*func)(struct block_list*, va_list), int m, int type,
     printf("map_foreachinarea: block count too many!\n");
 
   for (i = 0; i < blockcount; i++)
-    if (bl_list[i]->prev)  // �L?���ǂ����`�F�b�N
+    if (bl_list[i]->prev) // �L?���ǂ����`�F�b�N
       returnCount += func(bl_list[i], ap);
 
   return returnCount;
 }
 
-int map_loadregistry(int id) {
+int map_loadregistry(int id)
+{
   int i;
 
   struct global_reg reg;
 
   memset(&reg, 0, sizeof(reg));
 
-  SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -940,7 +1090,8 @@ int map_loadregistry(int id) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str,
                                       sizeof(reg.str), NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &reg.val, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &reg.val, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -958,27 +1109,31 @@ int map_loadregistry(int id) {
 
   return 0;
 }
-int map_lastdeath_mob(MOB* p) {
+int map_lastdeath_mob(MOB *p)
+{
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Spawns%i` SET `SpnLastDeath`='%u' WHERE `SpnX`='%u' "
                 "AND `SpnY`='%u' AND `SpnMapId`='%u' AND `SpnId`='%u'",
                 serverid, p->last_death, p->startx, p->starty, p->bl.m,
-                p->id)) {
+                p->id))
+  {
     Sql_ShowDebug(sql_handle);
   }
 
   return 0;
 }
 
-int map_registrysave(int m, int i) {
-  struct global_reg* p = &map[m].registry[i];
+int map_registrysave(int m, int i)
+{
+  struct global_reg *p = &map[m].registry[i];
   long long save_id = -1;
-  SqlStmt* stmt;
+  SqlStmt *stmt;
   unsigned int reg_id;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -989,45 +1144,57 @@ int map_registrysave(int m, int i) {
                           m, p->str) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &reg_id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &reg_id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     save_id = reg_id;
   }
   SqlStmt_Free(stmt);
 
-  if (save_id != -1) {
-    if (p->val == 0) {
+  if (save_id != -1)
+  {
+    if (p->val == 0)
+    {
       if (SQL_ERROR == Sql_Query(sql_handle,
                                  "DELETE FROM `MapRegistry` WHERE `MrgMapId` = "
                                  "'%u' AND `MrgIdentifier` = '%s'",
-                                 m, p->str)) {
+                                 m, p->str))
+      {
         Sql_ShowDebug(sql_handle);
         return 0;
       }
-    } else {
+    }
+    else
+    {
       if (SQL_ERROR ==
           Sql_Query(
               sql_handle,
               "UPDATE `MapRegistry` SET `MrgIdentifier` = '%s', `MrgValue` = "
               "'%d' WHERE `MrgMapId` = '%u' AND `MrgPosition`='%d'",
-              p->str, p->val, m, save_id)) {
+              p->str, p->val, m, save_id))
+      {
         Sql_ShowDebug(sql_handle);
         return 0;
       }
     }
-  } else {
-    if (p->val > 0) {
+  }
+  else
+  {
+    if (p->val > 0)
+    {
       if (SQL_ERROR ==
           Sql_Query(
               sql_handle,
               "INSERT INTO `MapRegistry` (`MrgMapId`, `MrgIdentifier`, "
               "`MrgValue`, `MrgPosition`) VALUES ('%d', '%s', '%d', '%u')",
-              m, p->str, p->val, i)) {
+              m, p->str, p->val, i))
+      {
         Sql_ShowDebug(sql_handle);
         return 0;
       }
@@ -1046,11 +1213,12 @@ int map_registrysave(int m, int i) {
 }*/
 
 // map data (title,id,and sound) is readed from configuration file
-int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
-                  // unsigned short light, unsigned short weather, unsigned int
-                  // sweeptime, unsigned char cantalk, unsigned char showghosts,
-                  // unsigned char region, unsigned char indoor, unsigned char
-                  // warpout, const char *map_file) {
+int map_read()
+{ // int id, const char *title, char bgm, int pvp, int spell,
+  // unsigned short light, unsigned short weather, unsigned int
+  // sweeptime, unsigned char cantalk, unsigned char showghosts,
+  // unsigned char region, unsigned char indoor, unsigned char
+  // warpout, const char *map_file) {
   unsigned short buff;
   unsigned int pos = 0;
   unsigned int i, id, sweeptime;
@@ -1064,10 +1232,11 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
   char title[64], mapfile[1024], mappath[1024];
   char maprejectmsg[64];
 
-  SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
-  FILE* fp;
+  SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
+  FILE *fp;
   // struct map_src_list *i = NULL;
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -1149,7 +1318,8 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 30, SQLDT_UCHAR, &canGroup, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 31, SQLDT_UCHAR, &canEquip, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 31, SQLDT_UCHAR, &canEquip, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -1158,11 +1328,13 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
   map_n = SqlStmt_NumRows(stmt);
   CALLOC(map, struct map_data, 65535);
 
-  for (i = 0; i < map_n && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+  for (i = 0; i < map_n && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++)
+  {
     sprintf(mappath, "%s%s", maps_dir, mapfile);
     fp = fopen(mappath, "rb");
 
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
       printf("[map] [not_found] Map file not found id=%u path=%s\n", id,
              mappath);
       return -1;
@@ -1204,26 +1376,27 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
     map[id].xs = SWAP16(buff);
     fread(&buff, 2, 1, fp);
     map[id].ys = SWAP16(buff);
-    CALLOC(map[id].tile, unsigned short, map[id].xs* map[id].ys);
-    CALLOC(map[id].obj, unsigned short, map[id].xs* map[id].ys);
-    CALLOC(map[id].map, unsigned char, map[id].xs* map[id].ys);
-    CALLOC(map[id].pass, unsigned short, map[id].xs* map[id].ys);
+    CALLOC(map[id].tile, unsigned short, map[id].xs *map[id].ys);
+    CALLOC(map[id].obj, unsigned short, map[id].xs *map[id].ys);
+    CALLOC(map[id].map, unsigned char, map[id].xs *map[id].ys);
+    CALLOC(map[id].pass, unsigned short, map[id].xs *map[id].ys);
 
     map[id].bxs = (map[id].xs + BLOCK_SIZE - 1) / BLOCK_SIZE;
     map[id].bys = (map[id].ys + BLOCK_SIZE - 1) / BLOCK_SIZE;
-    CALLOC(map[id].warp, struct warp_list*, map[id].bxs * map[id].bys);
-    CALLOC(map[id].block, struct block_list*, map[id].bxs * map[id].bys);
+    CALLOC(map[id].warp, struct warp_list *, map[id].bxs * map[id].bys);
+    CALLOC(map[id].block, struct block_list *, map[id].bxs * map[id].bys);
     // CALLOC(map[id].block_npc, struct block_list*, map[id].bxs*map[id].bys);
     // CALLOC(map[id].block_count, int, map[id].bxs*map[id].bys);
     // CALLOC(map[id].block_npc_count, int, map[id].bxs*map[id].bys);
-    CALLOC(map[id].block_mob, struct block_list*, map[id].bxs * map[id].bys);
+    CALLOC(map[id].block_mob, struct block_list *, map[id].bxs * map[id].bys);
     // CALLOC(map[id].item_sweep,FLOORITEM*,10000);
     // CALLOC(map[id].block_mob_count, int, map[id].bxs*map[id].bys);
     CALLOC(map[id].registry, struct global_reg, MAX_MAPREG);
     // map[id].block_mob_count=0;
     // map[id].item_sweep_count=0;
     // map[id].max_sweep_count=10000;
-    while (!feof(fp)) {
+    while (!feof(fp))
+    {
       fread(&buff, 2, 1, fp);
       map[id].tile[pos] = SWAP16(buff);
       fread(&buff, 2, 1, fp);
@@ -1234,7 +1407,8 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
       // all map section is walkable
       // map[id].map[pos] = 0;
       pos++;
-      if (pos >= map[id].xs * map[id].ys) break;
+      if (pos >= map[id].xs * map[id].ys)
+        break;
     }
     pos = 0;
     fclose(fp);
@@ -1248,7 +1422,8 @@ int map_read() {  // int id, const char *title, char bgm, int pvp, int spell,
   return 0;
 }
 
-int map_reload() {
+int map_reload()
+{
   unsigned short buff;
   unsigned int pos = 0;
   unsigned int i, x, id, sweeptime, blockcount;
@@ -1261,10 +1436,11 @@ int map_reload() {
   char maprejectmsg[64];
   unsigned char canUse, canEat, canSmoke, canMount, canGroup, canEquip;
 
-  SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
-  FILE* fp;
+  SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
+  FILE *fp;
   // struct map_src_list *i = NULL;
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -1345,7 +1521,8 @@ int map_reload() {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 30, SQLDT_UCHAR, &canGroup, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 31, SQLDT_UCHAR, &canEquip, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 31, SQLDT_UCHAR, &canEquip, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -1353,89 +1530,128 @@ int map_reload() {
 
   map_n = SqlStmt_NumRows(stmt);
 
-  for (i = 0; i < map_n && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+  for (i = 0; i < map_n && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++)
+  {
     sprintf(mappath, "%s%s", maps_dir, mapfile);
     fp = fopen(mappath, "rb");
     blockcount = map[id].bxs * map[id].bys;
 
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
       printf("MAP_ERR: Map file not found (%s).\n", mappath);
       return -1;
     }
 
     memcpy(map[id].mapfile, mapfile, sizeof(mapfile));
     memcpy(map[id].title, title, sizeof(title));
-    if (map[id].bgm != bgm) map[id].bgm = bgm;
-    if (map[id].bgmtype != bgmtype) map[id].bgmtype = bgmtype;
-    if (map[id].spell != spell) map[id].spell = spell;
-    if (map[id].light != light) map[id].light = light;
-    if (map[id].weather != weather) map[id].weather = weather;
-    if (map[id].pvp != pvp) map[id].pvp = pvp;
-    if (map[id].sweeptime != sweeptime) map[id].sweeptime = sweeptime;
-    if (map[id].cantalk != cantalk) map[id].cantalk = cantalk;
-    if (map[id].show_ghosts != show_ghosts) map[id].show_ghosts = show_ghosts;
-    if (map[id].region != region) map[id].region = region;
-    if (map[id].indoor != indoor) map[id].indoor = indoor;
-    if (map[id].warpout != warpout) map[id].warpout = warpout;
-    if (map[id].bind != bind) map[id].bind = bind;
-    if (map[id].reqlvl != reqlvl) map[id].reqlvl = reqlvl;
-    if (map[id].reqmana != reqmana) map[id].reqmana = reqmana;
-    if (map[id].reqvita != reqvita) map[id].reqvita = reqvita;
-    if (map[id].lvlmax != lvlmax) map[id].lvlmax = lvlmax;
-    if (map[id].vitamax != vitamax) map[id].vitamax = vitamax;
-    if (map[id].manamax != manamax) map[id].manamax = manamax;
-    if (map[id].reqpath != reqpath) map[id].reqpath = reqpath;
-    if (map[id].reqmark != reqmark) map[id].reqmark = reqmark;
-    if (map[id].summon != summon) map[id].summon = summon;
+    if (map[id].bgm != bgm)
+      map[id].bgm = bgm;
+    if (map[id].bgmtype != bgmtype)
+      map[id].bgmtype = bgmtype;
+    if (map[id].spell != spell)
+      map[id].spell = spell;
+    if (map[id].light != light)
+      map[id].light = light;
+    if (map[id].weather != weather)
+      map[id].weather = weather;
+    if (map[id].pvp != pvp)
+      map[id].pvp = pvp;
+    if (map[id].sweeptime != sweeptime)
+      map[id].sweeptime = sweeptime;
+    if (map[id].cantalk != cantalk)
+      map[id].cantalk = cantalk;
+    if (map[id].show_ghosts != show_ghosts)
+      map[id].show_ghosts = show_ghosts;
+    if (map[id].region != region)
+      map[id].region = region;
+    if (map[id].indoor != indoor)
+      map[id].indoor = indoor;
+    if (map[id].warpout != warpout)
+      map[id].warpout = warpout;
+    if (map[id].bind != bind)
+      map[id].bind = bind;
+    if (map[id].reqlvl != reqlvl)
+      map[id].reqlvl = reqlvl;
+    if (map[id].reqmana != reqmana)
+      map[id].reqmana = reqmana;
+    if (map[id].reqvita != reqvita)
+      map[id].reqvita = reqvita;
+    if (map[id].lvlmax != lvlmax)
+      map[id].lvlmax = lvlmax;
+    if (map[id].vitamax != vitamax)
+      map[id].vitamax = vitamax;
+    if (map[id].manamax != manamax)
+      map[id].manamax = manamax;
+    if (map[id].reqpath != reqpath)
+      map[id].reqpath = reqpath;
+    if (map[id].reqmark != reqmark)
+      map[id].reqmark = reqmark;
+    if (map[id].summon != summon)
+      map[id].summon = summon;
 
     memcpy(map[id].maprejectmsg, maprejectmsg, sizeof(maprejectmsg));
-    if (map[id].canUse != canUse) map[id].canUse = canUse;
-    if (map[id].canEat != canEat) map[id].canEat = canEat;
-    if (map[id].canSmoke != canSmoke) map[id].canSmoke = canSmoke;
-    if (map[id].canMount != canMount) map[id].canMount = canMount;
-    if (map[id].canGroup != canGroup) map[id].canGroup = canGroup;
-    if (map[id].canEquip != canEquip) map[id].canEquip = canEquip;
+    if (map[id].canUse != canUse)
+      map[id].canUse = canUse;
+    if (map[id].canEat != canEat)
+      map[id].canEat = canEat;
+    if (map[id].canSmoke != canSmoke)
+      map[id].canSmoke = canSmoke;
+    if (map[id].canMount != canMount)
+      map[id].canMount = canMount;
+    if (map[id].canGroup != canGroup)
+      map[id].canGroup = canGroup;
+    if (map[id].canEquip != canEquip)
+      map[id].canEquip = canEquip;
 
     fread(&buff, 2, 1, fp);
     map[id].xs = SWAP16(buff);
     fread(&buff, 2, 1, fp);
     map[id].ys = SWAP16(buff);
 
-    if (map_isloaded(id)) {
-      REALLOC(map[id].tile, unsigned short, map[id].xs* map[id].ys);
-      REALLOC(map[id].obj, unsigned short, map[id].xs* map[id].ys);
-      REALLOC(map[id].map, unsigned char, map[id].xs* map[id].ys);
-      REALLOC(map[id].pass, unsigned short, map[id].xs* map[id].ys);
-    } else {
-      CALLOC(map[id].tile, unsigned short, map[id].xs* map[id].ys);
-      CALLOC(map[id].obj, unsigned short, map[id].xs* map[id].ys);
-      CALLOC(map[id].map, unsigned char, map[id].xs* map[id].ys);
-      CALLOC(map[id].pass, unsigned short, map[id].xs* map[id].ys);
+    if (map_isloaded(id))
+    {
+      REALLOC(map[id].tile, unsigned short, map[id].xs *map[id].ys);
+      REALLOC(map[id].obj, unsigned short, map[id].xs *map[id].ys);
+      REALLOC(map[id].map, unsigned char, map[id].xs *map[id].ys);
+      REALLOC(map[id].pass, unsigned short, map[id].xs *map[id].ys);
+    }
+    else
+    {
+      CALLOC(map[id].tile, unsigned short, map[id].xs *map[id].ys);
+      CALLOC(map[id].obj, unsigned short, map[id].xs *map[id].ys);
+      CALLOC(map[id].map, unsigned char, map[id].xs *map[id].ys);
+      CALLOC(map[id].pass, unsigned short, map[id].xs *map[id].ys);
     }
 
     map[id].bxs = (map[id].xs + BLOCK_SIZE - 1) / BLOCK_SIZE;
     map[id].bys = (map[id].ys + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-    if (map_isloaded(id)) {
+    if (map_isloaded(id))
+    {
       FREE(map[id].warp);
-      CALLOC(map[id].warp, struct warp_list*, map[id].bxs * map[id].bys);
-      REALLOC(map[id].block, struct block_list*, map[id].bxs * map[id].bys);
-      REALLOC(map[id].block_mob, struct block_list*, map[id].bxs * map[id].bys);
+      CALLOC(map[id].warp, struct warp_list *, map[id].bxs * map[id].bys);
+      REALLOC(map[id].block, struct block_list *, map[id].bxs * map[id].bys);
+      REALLOC(map[id].block_mob, struct block_list *, map[id].bxs * map[id].bys);
 
-      if (map[id].bxs * map[id].bys > blockcount) {
-        for (x = blockcount; x < map[id].bxs * map[id].bys; x++) {
+      if (map[id].bxs * map[id].bys > blockcount)
+      {
+        for (x = blockcount; x < map[id].bxs * map[id].bys; x++)
+        {
           map[id].block[x] = NULL;
           map[id].block_mob[x] = NULL;
         }
       }
-    } else {
-      CALLOC(map[id].warp, struct warp_list*, map[id].bxs * map[id].bys);
-      CALLOC(map[id].block, struct block_list*, map[id].bxs * map[id].bys);
-      CALLOC(map[id].block_mob, struct block_list*, map[id].bxs * map[id].bys);
+    }
+    else
+    {
+      CALLOC(map[id].warp, struct warp_list *, map[id].bxs * map[id].bys);
+      CALLOC(map[id].block, struct block_list *, map[id].bxs * map[id].bys);
+      CALLOC(map[id].block_mob, struct block_list *, map[id].bxs * map[id].bys);
       CALLOC(map[id].registry, struct global_reg, MAX_MAPREG);
     }
 
-    while (!feof(fp)) {
+    while (!feof(fp))
+    {
       fread(&buff, 2, 1, fp);
       map[id].tile[pos] = SWAP16(buff);
       fread(&buff, 2, 1, fp);
@@ -1446,7 +1662,8 @@ int map_reload() {
       // all map section is walkable
       // map[id].map[pos] = 0;
       pos++;
-      if (pos >= map[id].xs * map[id].ys) break;
+      if (pos >= map[id].xs * map[id].ys)
+        break;
     }
 
     pos = 0;
@@ -1462,20 +1679,25 @@ int map_reload() {
   return 0;
 }
 
-int map_setmapip(int id, unsigned int ip, unsigned short port) {
-  if (id > MAX_MAP_PER_SERVER) return 1;
+int map_setmapip(int id, unsigned int ip, unsigned short port)
+{
+  if (id > MAX_MAP_PER_SERVER)
+    return 1;
 
   map[id].ip = ip;
   map[id].port = port;
   return 0;
 }
 
-int lang_read(const char* cfg_file) {
+int lang_read(const char *cfg_file)
+{
   char line[1024], r1[1024], r2[1024];
-  int line_num = 0, i;
-  FILE* fp;
-  struct {
-    char* name;
+  /* int line_num = 0; */
+  int i;
+  FILE *fp;
+  struct
+  {
+    char *name;
     int number;
   } map_msg_db[] = {{"MAP_WHISPFAIL", MAP_WHISPFAIL},
                     {"MAP_ERRGHOST", MAP_ERRGHOST},
@@ -1510,18 +1732,24 @@ int lang_read(const char* cfg_file) {
                     {NULL, 0}};
 
   fp = fopen(cfg_file, "r");
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     printf("CFG_ERR: Language file (%s) not found.\n", cfg_file);
     return 1;
   }
 
-  while (fgets(line, sizeof(line), fp)) {
-    line_num++;
-    if (line[0] == '/' && line[1] == '/') continue;
+  while (fgets(line, sizeof(line), fp))
+  {
+    /* line_num++; */
+    if (line[0] == '/' && line[1] == '/')
+      continue;
 
-    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
-      for (i = 0; map_msg_db[i].name; i++) {
-        if (strcasecmp(map_msg_db[i].name, r1) == 0) {
+    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2)
+    {
+      for (i = 0; map_msg_db[i].name; i++)
+      {
+        if (strcasecmp(map_msg_db[i].name, r1) == 0)
+        {
           strncpy(map_msg[map_msg_db[i].number].message, r2, 256);
           map_msg[map_msg_db[i].number].message[255] = '\0';
           map_msg[map_msg_db[i].number].len = strlen(r2);
@@ -1537,12 +1765,14 @@ int lang_read(const char* cfg_file) {
   return 0;
 }
 
-void do_term(void) {
+void do_term(void)
+{
   int i;
   map_savechars(0, 0);
   map_clritem();
   map_termiddb();
-  for (i = 0; i < MAX_MAP_PER_SERVER; i++) {
+  for (i = 0; i < MAX_MAP_PER_SERVER; i++)
+  {
     FREE(map[i].tile);
     FREE(map[i].obj);
     FREE(map[i].map);
@@ -1565,34 +1795,41 @@ void do_term(void) {
   printf("[map] Map Server Shutdown\n");
 }
 
-void help_screen() {
+void help_screen()
+{
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
   printf(" --lang [FILENAME]  : set lang file\n");
   exit(0);
 }
-int change_time_char(int none, int none2) {
+int change_time_char(int none, int none2)
+{
   int i;
-  USER* sd;
+  USER *sd;
   cur_time++;
 
-  if (cur_time == 24) {
+  if (cur_time == 24)
+  {
     cur_time = 0;
     cur_day++;
-    if (cur_day == 92) {
+    if (cur_day == 92)
+    {
       cur_day = 1;
       cur_season++;
 
-      if (cur_season == 5) {
+      if (cur_season == 5)
+      {
         cur_season = 1;
         cur_year++;
       }
     }
   }
 
-  for (i = 0; i < fd_max; i++) {
-    if (session[i] && (sd = session[i]->session_data)) {
+  for (i = 0; i < fd_max; i++)
+  {
+    if (session[i] && (sd = session[i]->session_data))
+    {
       clif_sendtime(sd);
     }
   }
@@ -1605,11 +1842,13 @@ int change_time_char(int none, int none2) {
 
   return 0;
 }
-int get_time_thing(void) {
-  SqlStmt* stmt;
+int get_time_thing(void)
+{
+  SqlStmt *stmt;
   int time, day, season, year;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -1625,13 +1864,15 @@ int get_time_thing(void) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &season, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &year, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &year, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     old_time = time;
     cur_time = time;
     cur_day = day;
@@ -1643,7 +1884,8 @@ int get_time_thing(void) {
 
   return 0;
 }
-int uptime(void) {
+int uptime(void)
+{
   if (SQL_ERROR ==
       Sql_Query(sql_handle, "DELETE FROM `UpTime` WHERE `UtmId` = '3'"))
     Sql_ShowDebug(sql_handle);
@@ -1656,8 +1898,10 @@ int uptime(void) {
 
   return 0;
 }
-int keep_char_alive(int n, int a) {
-  if (char_fd) {
+int keep_char_alive(int n, int a)
+{
+  if (char_fd)
+  {
     WFIFOHEAD(char_fd, 3);
     WFIFOB(char_fd, 0) = 0xFF;
     WFIFOB(char_fd, 1) = 1;
@@ -1665,26 +1909,28 @@ int keep_char_alive(int n, int a) {
   }
   return 0;
 }
-int object_flag_init(void) {
+int object_flag_init(void)
+{
   int num = 0;
   char nothing[8] = "";
   short tile = 0;
   char flag = 0;
   char count = 0;
-  int z = 1;
+  int z = 1; /* tracking loop iterations during file parsing */
 
-  char* filename = "static_objects.tbl";
+  char *filename = "static_objects.tbl";
   size_t path_size = strlen(data_dir) + strlen(filename);
-  char* path = malloc(path_size);
+  char *path = malloc(path_size);
 
   strncpy(path, data_dir, path_size);
   strncat(path, filename, path_size);
 
-  FILE* fi = fopen(path, "rb");
+  FILE *fi = fopen(path, "rb");
 
   printf("[map] [object_flag_init] reading static obj table path=%s\n", path);
 
-  if (fi == NULL) {
+  if (fi == NULL)
+  {
     printf("[map] [error] cannot read static object table path=%s\n", path);
     exit(1);
   }
@@ -1693,9 +1939,11 @@ int object_flag_init(void) {
   CALLOC(objectFlags, unsigned char, num + 1);
   fread(&flag, 1, 1, fi);
 
-  while (!feof(fi)) {
+  while (!feof(fi))
+  {
     fread(&count, 1, 1, fi);
-    for (; count != 0; count--) {
+    for (; count != 0; count--)
+    {
       fread(&tile, 2, 1, fi);
     }
 
@@ -1709,19 +1957,26 @@ int object_flag_init(void) {
   free(path);
   return 0;
 }
-int do_init(int argc, char** argv) {
+int do_init(int argc, char **argv)
+{
   int i;
-  char* CONF_FILE = "conf/server.yaml";
-  char* LANG_FILE = "conf/lang.yaml";
+  char *CONF_FILE = "conf/server.yaml";
+  char *LANG_FILE = "conf/lang.yaml";
   srand(gettick());
 
-  for (i = 1; i < argc; i++) {
+  for (i = 1; i < argc; i++)
+  {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
-        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
+        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0)
+    {
       help_screen();
-    } else if (strcmp(argv[i], "--conf") == 0) {
+    }
+    else if (strcmp(argv[i], "--conf") == 0)
+    {
       CONF_FILE = argv[i + 1];
-    } else if (strcmp(argv[i], "--lang") == 0) {
+    }
+    else if (strcmp(argv[i], "--lang") == 0)
+    {
       LANG_FILE = argv[i + 1];
     }
   }
@@ -1733,12 +1988,14 @@ int do_init(int argc, char** argv) {
   // gcFixPrematureFrees();
   printf("[map] Map Server Started.\n");
   sql_handle = Sql_Malloc();
-  if (sql_handle == NULL) {
+  if (sql_handle == NULL)
+  {
     Sql_ShowDebug(sql_handle);
     exit(EXIT_FAILURE);
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
-                               (uint16_t)sql_port, sql_db)) {
+                               (uint16_t)sql_port, sql_db))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
     exit(EXIT_FAILURE);
@@ -1747,7 +2004,8 @@ int do_init(int argc, char** argv) {
   if (SQL_ERROR ==
       Sql_Query(
           sql_handle,
-          "UPDATE `Character` SET `ChaOnline` = 0 WHERE `ChaOnline` = 1")) {
+          "UPDATE `Character` SET `ChaOnline` = 0 WHERE `ChaOnline` = 1"))
+  {
     Sql_ShowDebug(sql_handle);
   }
 
@@ -1790,7 +2048,8 @@ int do_init(int argc, char** argv) {
   // timer_insert(save_time, save_time, map_savechars, 0, 0);
   sl_doscript_blargs("startup", NULL, 0);
 
-  for (i = 0; i < MAX_GROUPS; i++) {
+  for (i = 0; i < MAX_GROUPS; i++)
+  {
     memset(groups[i], 0, sizeof(unsigned int) * MAX_GROUP_MEMBERS);
   }
 
@@ -1798,32 +2057,37 @@ int do_init(int argc, char** argv) {
   return 0;
 }
 
-int map_canmove(int m, int x, int y) {
+int map_canmove(int m, int x, int y)
+{
   // int obj;
   int pass;
   // obj = read_obj(m, x, y);
   pass = read_pass(m, x, y);
 
-  if (pass) {
-    USER* sd = map_id2sd(pass);
-    if (!sd || !(sd->uFlags & uFlag_unphysical)) return 1;
+  if (pass)
+  {
+    USER *sd = map_id2sd(pass);
+    if (!sd || !(sd->uFlags & uFlag_unphysical))
+      return 1;
   }
 
   return 0;
 }
 
-int boards_delete(USER* sd, int board) {
-  if (!sd) return 0;
+int boards_delete(USER *sd, int board)
+{
+  if (!sd)
+    return 0;
 
   int post = SWAP16(RFIFOW(sd->fd, 8));
 
   // Board(0) == NMail
   WFIFOHEAD(char_fd, 28);
   WFIFOW(char_fd, 0) = 0x3008;
-  WFIFOW(char_fd, 2) = sd->fd;  // FD Descriptor to send to when sending back.
-  WFIFOW(char_fd, 4) = sd->status.gm_level;  // GM level
-  WFIFOW(char_fd, 6) = sd->board_candel;     // Has ability to DELETE from here.
-  WFIFOW(char_fd, 8) = board;                // Board deleting from(0 for NMail)
+  WFIFOW(char_fd, 2) = sd->fd;              // FD Descriptor to send to when sending back.
+  WFIFOW(char_fd, 4) = sd->status.gm_level; // GM level
+  WFIFOW(char_fd, 6) = sd->board_candel;    // Has ability to DELETE from here.
+  WFIFOW(char_fd, 8) = board;               // Board deleting from(0 for NMail)
   WFIFOW(char_fd, 10) = post;
   memcpy(WFIFOP(char_fd, 12), sd->status.name, 16);
   WFIFOSET(char_fd, 28);
@@ -1831,42 +2095,53 @@ int boards_delete(USER* sd, int board) {
   return 0;
 }
 
-int boards_showposts(USER* sd, int board) {
+int boards_showposts(USER *sd, int board)
+{
   struct board_show_0 a;
 
   memset(&a, 0, sizeof(struct board_show_0));
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   sd->board_canwrite = 0;
   sd->board_candel = 0;
   sd->boardnameval = 0;
 
-  if (board == 0) {
+  if (board == 0)
+  {
     sd->board_canwrite = 1;
     sd->board_candel = 1;
-  } else {
+  }
+  else
+  {
     sd->board = board;
-    if (boarddb_script(board)) {
+    if (boarddb_script(board))
+    {
       sl_doscript_blargs(boarddb_yname(board), "check", 1, &sd->bl);
-    } else {
+    }
+    else
+    {
       sd->board_canwrite = 1;
     }
-    if (sd->status.gm_level == 99) {
+    if (sd->status.gm_level == 99)
+    {
       sd->board_canwrite = 1;
       sd->board_candel = 1;
     }
   }
 
-  if (sd->board_canwrite) {
+  if (sd->board_canwrite)
+  {
     if (sd->board_canwrite == 6)
-      a.flags = sd->board_canwrite;  // special write flag added (to make client
-                                     // send packet when clicking "write")
+      a.flags = sd->board_canwrite; // special write flag added (to make client
+                                    // send packet when clicking "write")
     else
       a.flags |= BOARD_CAN_WRITE;
   }
 
-  if (sd->board_candel) a.flags |= BOARD_CAN_DEL;
+  if (sd->board_candel)
+    a.flags |= BOARD_CAN_DEL;
 
   // Board(0) == NMail
   a.fd = sd->fd;
@@ -1877,32 +2152,40 @@ int boards_showposts(USER* sd, int board) {
 
   /// Need to add Level Check...Also must add "Hide Flag" for boards.
   WFIFOHEAD(char_fd, sizeof(struct board_show_0) + 2);
-  WFIFOW(char_fd, 0) = 0x3009;  // NMail/Board Show
+  WFIFOW(char_fd, 0) = 0x3009; // NMail/Board Show
   memcpy(WFIFOP(char_fd, 2), &a, sizeof(struct board_show_0));
   WFIFOSET(char_fd, sizeof(struct board_show_0) + 2);
   return 0;
 }
 
-int boards_readpost(USER* sd, int board, int post) {
+int boards_readpost(USER *sd, int board, int post)
+{
   struct boards_read_post_0 header;
 
   memset(&header, 0, sizeof(header));
 
-  if (board) {
+  if (board)
+  {
     sd->board = board;
-    if (boarddb_script(board)) {
+    if (boarddb_script(board))
+    {
       sl_doscript_blargs(boarddb_yname(board), "check", 1, &sd->bl);
-    } else {
+    }
+    else
+    {
       sd->board_canwrite = 1;
     }
-    if (sd->status.gm_level == 99) {
+    if (sd->status.gm_level == 99)
+    {
       sd->board_canwrite = 1;
       sd->board_candel = 1;
     }
   }
 
-  if (sd->board_canwrite) header.flags |= BOARD_CAN_WRITE;
-  if (sd->board_candel) header.flags |= BOARD_CAN_DEL;
+  if (sd->board_canwrite)
+    header.flags |= BOARD_CAN_WRITE;
+  if (sd->board_candel)
+    header.flags |= BOARD_CAN_DEL;
 
   header.board = board;
   header.fd = sd->fd;
@@ -1917,7 +2200,8 @@ int boards_readpost(USER* sd, int board, int post) {
   return 0;
 }
 
-int boards_post(USER* sd, int board) {
+int boards_post(USER *sd, int board)
+{
   struct boards_post_0 header;
   // char post[4000]; //Max of Post is 4000
   // char topic[52];
@@ -1927,7 +2211,8 @@ int boards_post(USER* sd, int board) {
 
   StringBuf buf;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   // memset(topic,0,52);
   // memset(post,0,4000);
@@ -1935,7 +2220,8 @@ int boards_post(USER* sd, int board) {
   header.board = board;
   memcpy(header.name, sd->status.name, 16);
   topiclen = RFIFOB(sd->fd, 8);
-  if (topiclen > 52) {
+  if (topiclen > 52)
+  {
     clif_Hacker(sd->status.name, "Board hacking: TOPIC HACK");
     return 0;
   }
@@ -1944,7 +2230,8 @@ int boards_post(USER* sd, int board) {
 
   postlen = SWAP16(RFIFOW(sd->fd, topiclen + 9));
 
-  if (postlen > 4000) {
+  if (postlen > 4000)
+  {
     clif_Hacker(sd->status.name, "Board hacking: POST(BODY) HACK");
 
     return 0;
@@ -1952,12 +2239,14 @@ int boards_post(USER* sd, int board) {
 
   memcpy(header.post, RFIFOP(sd->fd, topiclen + 11), postlen);
 
-  if (!topiclen) {
+  if (!topiclen)
+  {
     nmail_sendmessage(sd, "Post must contain subject.", 6, 0);
     return 0;
   }
 
-  if (!postlen) {
+  if (!postlen)
+  {
     nmail_sendmessage(sd, "Post must contain a body.", 6, 0);
     return 0;
   }
@@ -1970,12 +2259,13 @@ int boards_post(USER* sd, int board) {
   StringBuf_Destroy(&buf);
   /// End Get Boardname
 
-  if (sd->status.gm_level) header.nval = 1;
+  if (sd->status.gm_level)
+    header.nval = 1;
 
   WFIFOHEAD(char_fd,
-            sizeof(header) + 2);  // 4001(Body) + 53(topic) + 2(sfd) + 2(ID) +
-                                  // 2(board) + 1(null-terminator)*2
-  WFIFOW(char_fd, 0) = 0x300C;    // Boards POST
+            sizeof(header) + 2); // 4001(Body) + 53(topic) + 2(sfd) + 2(ID) +
+                                 // 2(board) + 1(null-terminator)*2
+  WFIFOW(char_fd, 0) = 0x300C;   // Boards POST
   memcpy(WFIFOP(char_fd, 2), &header, sizeof(header));
   WFIFOSET(char_fd, sizeof(header) + 2);
   return 0;
@@ -1983,7 +2273,8 @@ int boards_post(USER* sd, int board) {
 
 /* N-Mail */
 
-int nmail_read(USER* sd, int post) {
+int nmail_read(USER *sd, int post)
+{
   // int hasm=sd->flags&;
   /*sql_request("SELECT fromuser,topic,post,month,day FROM nmail WHERE
   touser='%s' AND mail_id=%d",sd->status.name,post);
@@ -2035,7 +2326,8 @@ int nmail_read(USER* sd, int post) {
   return 0;
 }
 
-int nmail_luascript(USER* sd, int to, int topic, int msg) {
+int nmail_luascript(USER *sd, int to, int topic, int msg)
+{
   char message[4000];
   char escape[4000];
 
@@ -2048,7 +2340,8 @@ int nmail_luascript(USER* sd, int to, int topic, int msg) {
       Sql_Query(sql_handle,
                 "INSERT INTO `Mail` (`MalChaName`, `MalChaNameDestination`, "
                 "`MalBody`) VALUES ('%s', 'Lua', '%s')",
-                sd->status.name, escape)) {
+                sd->status.name, escape))
+  {
     Sql_ShowDebug(sql_handle);
     return 0;
   }
@@ -2057,7 +2350,8 @@ int nmail_luascript(USER* sd, int to, int topic, int msg) {
   return 0;
 }
 
-int nmail_poemscript(USER* sd, char* topic, char* message) {
+int nmail_poemscript(USER *sd, char *topic, char *message)
+{
   char escape[52];
   char escape2[4000];
 
@@ -2065,18 +2359,19 @@ int nmail_poemscript(USER* sd, char* topic, char* message) {
   unsigned int boardpos = 0;
 
   time_t t;
-  struct tm* d;
+  struct tm *d;
 
   t = time(NULL);
   d = localtime(&t);
 
-  unsigned int day = d->tm_mday;  // day of month from 1 to 31
+  unsigned int day = d->tm_mday; // day of month from 1 to 31
   unsigned int month = d->tm_mon;
 
-  SqlStmt* stmt;
+  SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -2087,13 +2382,15 @@ int nmail_poemscript(USER* sd, char* topic, char* message) {
                                    sd->status.id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &poemid, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &poemid, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {  // poem found
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  { // poem found
     nmail_sendmessage(sd, "You have already submitted a poem.", 6, 1);
     return 0;
   }
@@ -2106,13 +2403,15 @@ int nmail_poemscript(USER* sd, char* topic, char* message) {
                                    "WHERE `BrdBnmId` = '19'") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardpos, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardpos, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
   };
 
   SqlStmt_Free(stmt);
@@ -2123,7 +2422,8 @@ int nmail_poemscript(USER* sd, char* topic, char* message) {
                 "`BrdTopic`, `BrdPost`, `BrdMonth`, `BrdDay`, `BrdPosition`) "
                 "VALUES ('19', '%s', '%d', '%s', '%s', '%d', '%d', '%u')",
                 "Anonymous", sd->status.id, escape, escape2, month, day,
-                boardpos + 1)) {
+                boardpos + 1))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 1;
@@ -2134,11 +2434,12 @@ int nmail_poemscript(USER* sd, char* topic, char* message) {
   return 0;
 }
 
-int nmail_sendmailcopy(USER* sd, char* to_user, char* topic, char* message) {
+int nmail_sendmailcopy(USER *sd, char *to_user, char *topic, char *message)
+{
   if (strlen(to_user) > 16 || strlen(topic) > 52 || strlen(message) > 4000)
     return 0;
 
-  WFIFOHEAD(char_fd, 4124);  // 4000 + 52 + 52 + 16 + 2 +2
+  WFIFOHEAD(char_fd, 4124); // 4000 + 52 + 52 + 16 + 2 +2
   WFIFOW(char_fd, 0) = 0x300F;
   WFIFOW(char_fd, 2) = sd->fd;
   memcpy(WFIFOP(char_fd, 4), sd->status.name, 16);
@@ -2151,7 +2452,8 @@ int nmail_sendmailcopy(USER* sd, char* to_user, char* topic, char* message) {
   return 0;
 }
 
-int nmail_write(USER* sd) {
+int nmail_write(USER *sd)
+{
   char to_user[52];
   char topic[52];
   char message[4000];
@@ -2165,17 +2467,20 @@ int nmail_write(USER* sd) {
   memset(to_user, 0, 52);
 
   tolen = RFIFOB(sd->fd, 8);
-  if (tolen > 52) {
+  if (tolen > 52)
+  {
     clif_Hacker(sd->status.name, "NMAIL: To User");
     return 0;
   }
   topiclen = RFIFOB(sd->fd, tolen + 9);
-  if (topiclen > 52) {
+  if (topiclen > 52)
+  {
     clif_Hacker(sd->status.name, "NMAIL: Topic");
     return 0;
   }
   messagelen = SWAP16(RFIFOW(sd->fd, tolen + topiclen + 10));
-  if (messagelen > 4000) {
+  if (messagelen > 4000)
+  {
     clif_Hacker(sd->status.name, "NMAIL: Message");
     return 0;
   }
@@ -2185,13 +2490,15 @@ int nmail_write(USER* sd) {
   memcpy(message, RFIFOP(sd->fd, topiclen + tolen + 12), messagelen);
   sendCopy = RFIFOB(sd->fd, topiclen + tolen + 12 + messagelen);
 
-  if (strcasecmp(to_user, "lua") == 0) {
+  if (strcasecmp(to_user, "lua") == 0)
+  {
     strcpy(sd->mail, message);
     sd->luaexec = 0;
     sl_doscript_blargs("canRunLuaMail", NULL, 1, &sd->bl);
 
-    if (sd->status.gm_level == 99 || sd->luaexec) {  // it's a gm so do lua
-                                                     // thing
+    if (sd->status.gm_level == 99 || sd->luaexec)
+    { // it's a gm so do lua
+      // thing
 
       nmail_luascript(sd, tolen, topiclen, messagelen);
       nmail_sendmessage(sd, "LUA script ran!", 6, 1);
@@ -2199,20 +2506,24 @@ int nmail_write(USER* sd) {
     }
   }
 
-  if (strcasecmp(to_user, "poems") == 0 || strcasecmp(to_user, "poem") == 0) {
-    if (map_readglobalgamereg("poemAccept") == 0) {
+  if (strcasecmp(to_user, "poems") == 0 || strcasecmp(to_user, "poem") == 0)
+  {
+    if (map_readglobalgamereg("poemAccept") == 0)
+    {
       nmail_sendmessage(sd, "Currently not accepting poem submissions.", 6, 0);
       return 0;
     }
 
     strcpy(sd->mail, message);
 
-    if (!topiclen) {
+    if (!topiclen)
+    {
       nmail_sendmessage(sd, "Mail must contain a subject.", 6, 0);
       return 0;
     }
 
-    if (!messagelen) {
+    if (!messagelen)
+    {
       nmail_sendmessage(sd, "Mail must contain a body.", 6, 0);
       return 0;
     }
@@ -2222,12 +2533,14 @@ int nmail_write(USER* sd) {
     return 0;
   }
 
-  if (!topiclen) {
+  if (!topiclen)
+  {
     nmail_sendmessage(sd, "Mail must contain a subject.", 6, 0);
     return 0;
   }
 
-  if (!messagelen) {
+  if (!messagelen)
+  {
     nmail_sendmessage(sd, "Mail must contain a body.", 6, 0);
     return 0;
   }
@@ -2238,22 +2551,24 @@ int nmail_write(USER* sd) {
 
   nmail_sendmail(sd, to_user, topic, message);
 
-  if (sendCopy) {
+  if (sendCopy)
+  {
     char aTopic[255];
     sprintf(aTopic, "[To %s] %s", to_user, topic);
-    aTopic[51] = 0;  // null terminates string just incase it runs too long
+    aTopic[51] = 0; // null terminates string just incase it runs too long
     nmail_sendmailcopy(sd, sd->status.name, aTopic, message);
   }
 
   return 0;
 }
 
-int nmail_sendmail(USER* sd, const char* to_user, const char* topic,
-                   const char* message) {
+int nmail_sendmail(USER *sd, const char *to_user, const char *topic,
+                   const char *message)
+{
   if (strlen(to_user) > 16 || strlen(topic) > 52 || strlen(message) > 4000)
     return 0;
 
-  WFIFOHEAD(char_fd, 4124);  // 4000 + 52 + 52 + 16 + 2 +2
+  WFIFOHEAD(char_fd, 4124); // 4000 + 52 + 52 + 16 + 2 +2
   WFIFOW(char_fd, 0) = 0x300D;
   WFIFOW(char_fd, 2) = sd->fd;
   memcpy(WFIFOP(char_fd, 4), sd->status.name, 16);
@@ -2266,8 +2581,9 @@ int nmail_sendmail(USER* sd, const char* to_user, const char* topic,
   return 0;
 }
 
-int map_addmob(USER* sd, unsigned int id, int start, int end,
-               unsigned int replace) {
+int map_addmob(USER *sd, unsigned int id, int start, int end,
+               unsigned int replace)
+{
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "INSERT INTO `Spawns%d` (`SpnMapId`, `SpnX`, `SpnY`, "
@@ -2278,7 +2594,8 @@ int map_addmob(USER* sd, unsigned int id, int start, int end,
     Sql_ShowDebug(sql_handle);
   return 0;
 }
-int map_changepostcolor(int board, int post, int color) {
+int map_changepostcolor(int board, int post, int color)
+{
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Boards` SET `BrdHighlighted` = '%d' "
                              "WHERE `BrdBnmId` = '%d' AND `BrdPosition` = '%d'",
@@ -2288,12 +2605,14 @@ int map_changepostcolor(int board, int post, int color) {
   // post_id=%d",color,board,post); sql_get_row(); sql_free_row();
   return 0;
 }
-int map_getpostcolor(int board, int post) {
+int map_getpostcolor(int board, int post)
+{
   int color;
-  SqlStmt* stmt;
+  SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -2305,7 +2624,8 @@ int map_getpostcolor(int board, int post) {
                           board, post) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &color, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &color, 0, NULL, NULL))
+  {
     Sql_ShowDebug(sql_handle);
     SqlStmt_Free(stmt);
     return -1;
@@ -2322,21 +2642,24 @@ int map_getpostcolor(int board, int post) {
   return color;
 }
 
-char* map_id2name(unsigned int id) {
-  char* owner;
+char *map_id2name(unsigned int id)
+{
+  char *owner;
   CALLOC(owner, char, 255);
   memset(owner, 0, 255);
 
   char name[16];
 
-  if (!id) {
+  if (!id)
+  {
     strcpy(owner, "None");
     return owner;
   }
 
-  SqlStmt* stmt;
+  SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -2347,11 +2670,13 @@ char* map_id2name(unsigned int id) {
                        id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &name,
-                                      sizeof(name), NULL, NULL)) {
+                                      sizeof(name), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
   }
 
@@ -2362,13 +2687,15 @@ char* map_id2name(unsigned int id) {
   return owner;
 }
 
-void mmo_setonline(unsigned int id, int val) {
+void mmo_setonline(unsigned int id, int val)
+{
   int a, b, c, d, regid;
   char addr[255];
-  USER* sd = map_id2sd(id);
-  SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+  USER *sd = map_id2sd(id);
+  SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return;
@@ -2380,13 +2707,15 @@ void mmo_setonline(unsigned int id, int val) {
                        id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &regid, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &regid, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     a = b = c = d = session[sd->fd]->client_addr.sin_addr.s_addr;
     a &= 0xff;
     b = (b >> 8) & 0xff;
@@ -2416,48 +2745,63 @@ void mmo_setonline(unsigned int id, int val) {
   SqlStmt_Free(stmt);
 }
 
-char isActive(USER* sd) {
-  if (!sd) return 0;
+char isActive(USER *sd)
+{
+  if (!sd)
+    return 0;
 
-  if (!session[sd->fd]) return 0;
+  if (!session[sd->fd])
+    return 0;
 
-  if (session[sd->fd]->eof) return 0;
+  if (session[sd->fd]->eof)
+    return 0;
 
   return 1;
 }
 
-int hasCoref(USER* sd) {
-  USER* nsd = NULL;
+int hasCoref(USER *sd)
+{
+  USER *nsd = NULL;
 
-  if (sd->coref) return 1;
-  if (sd->coref_container) {
+  if (sd->coref)
+    return 1;
+  if (sd->coref_container)
+  {
     nsd = map_id2sd(sd->coref_container);
-    if (!nsd) return 0;
+    if (!nsd)
+      return 0;
     return 1;
   }
 
   return 0;
 }
-int map_reset_timer(int v1, int v2) {
+int map_reset_timer(int v1, int v2)
+{
   static int reset;
 
   static int diff;
   int x;
-  struct map_sessiondata* sd = NULL;
+  struct map_sessiondata *sd = NULL;
   char msg[255];
-  if (!reset) reset = v1;
+  if (!reset)
+    reset = v1;
 
   reset -= v2;
   diff += v2;
-  if (reset <= 250) {
+  if (reset <= 250)
+  {
     clif_broadcast("Chaos is rising up. Please re-enter in a few seconds.", -1);
   }
-  if (reset <= 0) {
-    for (x = 0; x < fd_max; x++) {
-      if (session[x] && (sd = session[x]->session_data) && !session[x]->eof) {
+  if (reset <= 0)
+  {
+    for (x = 0; x < fd_max; x++)
+    {
+      if (session[x] && (sd = session[x]->session_data) && !session[x]->eof)
+      {
         clif_handle_disconnect(sd);
 
-        if (session[x]->func_parse) {
+        if (session[x]->func_parse)
+        {
           session[x]->func_parse(x);
         }
         RFIFOFLUSH(x);
@@ -2478,8 +2822,10 @@ int map_reset_timer(int v1, int v2) {
   }
 
   if (reset <=
-      60000) {  // Less than a minute remaining(gonna mass spell everyone)
-    if (diff >= 10000) {  // every 10 seconds
+      60000)
+  { // Less than a minute remaining(gonna mass spell everyone)
+    if (diff >= 10000)
+    { // every 10 seconds
 
       sprintf(msg, "Reset in %d seconds", reset / 1000);
       // clif_broadcast("---------------------------------------------------",-1);
@@ -2487,16 +2833,22 @@ int map_reset_timer(int v1, int v2) {
       // clif_broadcast("---------------------------------------------------",-1);
       diff = 0;
     }
-  } else if (reset <= 3600000) {  // 60 mins
-    if (diff >= 300000) {         // every 5 mins
+  }
+  else if (reset <= 3600000)
+  { // 60 mins
+    if (diff >= 300000)
+    { // every 5 mins
       sprintf(msg, "Reset in %d minutes", reset / 60000);
       // clif_broadcast("---------------------------------------------------",-1);
       clif_broadcast(msg, -1);
       // clif_broadcast("---------------------------------------------------",-1);
       diff = 0;
     }
-  } else if (reset > 3600000) {  // every hour
-    if (diff >= 3600000) {       // once every hour
+  }
+  else if (reset > 3600000)
+  { // every hour
+    if (diff >= 3600000)
+    { // once every hour
       sprintf(msg, "Reset in %d hours", reset / 3600000);
       // clif_broadcast("---------------------------------------------------",-1);
       clif_broadcast(msg, -1);
@@ -2507,34 +2859,46 @@ int map_reset_timer(int v1, int v2) {
 
   return 0;
 }
-int map_setglobalreg(int m, const char* reg, int val) {
+int map_setglobalreg(int m, const char *reg, int val)
+{
   int i, exist;
 
   exist = -1;
   nullpo_ret(0, reg);
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
-  for (i = 0; i < map[m].registry_num; i++) {
-    if (strcasecmp(map[m].registry[i].str, reg) == 0) {
+  for (i = 0; i < map[m].registry_num; i++)
+  {
+    if (strcasecmp(map[m].registry[i].str, reg) == 0)
+    {
       exist = i;
       break;
     }
   }
   // if registry exists, set value
-  if (exist != -1) {
-    if (val == 0) {
+  if (exist != -1)
+  {
+    if (val == 0)
+    {
       map[m].registry[exist].val = val;
       map_registrysave(m, exist);
-      strcpy(map[m].registry[exist].str, "");  // empty registry
+      strcpy(map[m].registry[exist].str, ""); // empty registry
       return 0;
-    } else {
+    }
+    else
+    {
       map[m].registry[exist].val = val;
       map_registrysave(m, exist);
       return 0;
     }
-  } else {
-    for (i = 0; i < map[m].registry_num; i++) {
-      if (strcasecmp(map[m].registry[i].str, "") == 0) {
+  }
+  else
+  {
+    for (i = 0; i < map[m].registry_num; i++)
+    {
+      if (strcasecmp(map[m].registry[i].str, "") == 0)
+      {
         strcpy(map[m].registry[i].str, reg);
         map[m].registry[i].val = val;
         map_registrysave(m, i);
@@ -2542,7 +2906,8 @@ int map_setglobalreg(int m, const char* reg, int val) {
       }
     }
 
-    if (map[m].registry_num < MAX_MAPREG) {
+    if (map[m].registry_num < MAX_MAPREG)
+    {
       map[m].registry_num = map[m].registry_num + 1;
       i = map[m].registry_num - 1;
       strcpy(map[m].registry[i].str, reg);
@@ -2555,29 +2920,37 @@ int map_setglobalreg(int m, const char* reg, int val) {
   return 0;
 }
 
-int map_readglobalreg(int m, const char* reg) {
+int map_readglobalreg(int m, const char *reg)
+{
   int i, exist;
 
   exist = -1;
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
-  for (i = 0; i < map[m].registry_num; i++) {
-    if (strcasecmp(map[m].registry[i].str, reg) == 0) {
+  for (i = 0; i < map[m].registry_num; i++)
+  {
+    if (strcasecmp(map[m].registry[i].str, reg) == 0)
+    {
       exist = i;
       break;
     }
   }
-  if (exist != -1) {
+  if (exist != -1)
+  {
     return map[m].registry[exist].val;
-  } else {
+  }
+  else
+  {
     return 0;
   }
   return 0;
 }
 // Game registries
 // loads game registries
-int map_loadgameregistry() {
-  SqlStmt* stmt;
+int map_loadgameregistry()
+{
+  SqlStmt *stmt;
   struct global_reg reg;
   int i;
 
@@ -2586,7 +2959,8 @@ int map_loadgameregistry() {
   memset(&reg, 0, sizeof(reg));
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -2599,7 +2973,8 @@ int map_loadgameregistry() {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &reg.str,
                                       sizeof(reg.str), NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &reg.val, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &reg.val, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -2608,7 +2983,8 @@ int map_loadgameregistry() {
   gamereg.registry_num = SqlStmt_NumRows(stmt);
 
   for (i = 0; i < gamereg.registry_num && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++) {
+       i++)
+  {
     memcpy(&gamereg.registry[i], &reg, sizeof(reg));
   }
 
@@ -2617,14 +2993,16 @@ int map_loadgameregistry() {
   return 0;
 }
 // saves gameregistries
-int map_savegameregistry(int i) {
-  struct global_reg* p = &gamereg.registry[i];
+int map_savegameregistry(int i)
+{
+  struct global_reg *p = &gamereg.registry[i];
   unsigned int save_id = 0;
-  SqlStmt* stmt;
+  SqlStmt *stmt;
   unsigned int gameregid;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -2635,44 +3013,56 @@ int map_savegameregistry(int i) {
                                    serverid, p->str) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &gameregid, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &gameregid, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     save_id = gameregid;
   }
 
   SqlStmt_Free(stmt);
 
-  if (save_id) {
-    if (p->val == 0) {
+  if (save_id)
+  {
+    if (p->val == 0)
+    {
       if (SQL_ERROR ==
           Sql_Query(sql_handle,
                     "DELETE FROM `GameRegistry%d` WHERE `GrgIdentifier` = '%s'",
-                    serverid, p->str)) {
-        Sql_ShowDebug(sql_handle);
-        return 0;
-      }
-    } else {
-      if (SQL_ERROR ==
-          Sql_Query(sql_handle,
-                    "UPDATE `GameRegistry%d` SET `GrgIdentifier` = '%s', "
-                    "`GrgValue` = '%d' WHERE `GrgId` = '%d'",
-                    serverid, p->str, p->val, save_id)) {
+                    serverid, p->str))
+      {
         Sql_ShowDebug(sql_handle);
         return 0;
       }
     }
-  } else {
-    if (p->val > 0) {
+    else
+    {
+      if (SQL_ERROR ==
+          Sql_Query(sql_handle,
+                    "UPDATE `GameRegistry%d` SET `GrgIdentifier` = '%s', "
+                    "`GrgValue` = '%d' WHERE `GrgId` = '%d'",
+                    serverid, p->str, p->val, save_id))
+      {
+        Sql_ShowDebug(sql_handle);
+        return 0;
+      }
+    }
+  }
+  else
+  {
+    if (p->val > 0)
+    {
       if (SQL_ERROR ==
           Sql_Query(sql_handle,
                     "INSERT INTO `GameRegistry%d` (`GrgIdentifier`, "
                     "`GrgValue`) VALUES ('%s', '%d')",
-                    serverid, p->str, p->val)) {
+                    serverid, p->str, p->val))
+      {
         Sql_ShowDebug(sql_handle);
         return 0;
       }
@@ -2682,34 +3072,45 @@ int map_savegameregistry(int i) {
   return 0;
 }
 // sets game registry
-int map_setglobalgamereg(const char* reg, int val) {
+int map_setglobalgamereg(const char *reg, int val)
+{
   int i, exist;
 
   exist = -1;
   nullpo_ret(0, reg);
 
   // if registry exists, get number
-  for (i = 0; i < gamereg.registry_num; i++) {
-    if (!strcasecmp(gamereg.registry[i].str, reg)) {
+  for (i = 0; i < gamereg.registry_num; i++)
+  {
+    if (!strcasecmp(gamereg.registry[i].str, reg))
+    {
       exist = i;
       break;
     }
   }
   // if registry exists, set value
-  if (exist != -1) {
-    if (val == 0) {
+  if (exist != -1)
+  {
+    if (val == 0)
+    {
       gamereg.registry[exist].val = val;
       map_savegameregistry(exist);
-      strcpy(gamereg.registry[exist].str, "");  // empty registry
+      strcpy(gamereg.registry[exist].str, ""); // empty registry
       return 0;
-    } else {
+    }
+    else
+    {
       gamereg.registry[exist].val = val;
       map_savegameregistry(exist);
       return 0;
     }
-  } else {
-    for (i = 0; i < gamereg.registry_num; i++) {
-      if (!strcasecmp(gamereg.registry[i].str, "")) {
+  }
+  else
+  {
+    for (i = 0; i < gamereg.registry_num; i++)
+    {
+      if (!strcasecmp(gamereg.registry[i].str, ""))
+      {
         strcpy(gamereg.registry[i].str, reg);
         gamereg.registry[i].val = val;
         map_savegameregistry(i);
@@ -2717,7 +3118,8 @@ int map_setglobalgamereg(const char* reg, int val) {
       }
     }
 
-    if (gamereg.registry_num < MAX_GLOBALREG) {
+    if (gamereg.registry_num < MAX_GLOBALREG)
+    {
       gamereg.registry_num = gamereg.registry_num + 1;
       i = gamereg.registry_num - 1;
       strcpy(gamereg.registry[i].str, reg);
@@ -2730,40 +3132,48 @@ int map_setglobalgamereg(const char* reg, int val) {
   return 0;
 }
 // reads game registry
-int map_readglobalgamereg(const char* reg) {
+int map_readglobalgamereg(const char *reg)
+{
   int i, exist;
 
   exist = -1;
   nullpo_ret(0, reg);
 
-  for (i = 0; i < gamereg.registry_num; i++) {
-    if (!strcasecmp(gamereg.registry[i].str, reg)) {
+  for (i = 0; i < gamereg.registry_num; i++)
+  {
+    if (!strcasecmp(gamereg.registry[i].str, reg))
+    {
       exist = i;
       break;
     }
   }
 
-  if (exist != -1) {
+  if (exist != -1)
+  {
     return gamereg.registry[exist].val;
-  } else {
+  }
+  else
+  {
     return 0;
   }
 
   return 0;
 }
 
-int map_loadclanbank(int id) {
+int map_loadclanbank(int id)
+{
   int i;
   int count = 0;
 
-  SqlStmt* stmt;
+  SqlStmt *stmt;
   struct clan_bank cbank;
-  struct clan_data* clan = NULL;
+  struct clan_data *clan = NULL;
 
   memset(&cbank, 0, sizeof(cbank));
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return -1;
@@ -2801,14 +3211,16 @@ int map_loadclanbank(int id) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &cbank.protected, 0,
                                       NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_STRING, &cbank.note,
-                                      sizeof(cbank.note), NULL, NULL)) {
+                                      sizeof(cbank.note), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return -1;
   }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++) {
+       i++)
+  {
     memcpy(&clan->clanbanks[i], &cbank, sizeof *clan->clanbanks);
 
     count++;
@@ -2819,8 +3231,9 @@ int map_loadclanbank(int id) {
   return 0;
 }
 
-int map_saveclanbank(int id) {
-  SqlStmt* stmt;
+int map_saveclanbank(int id)
+{
+  SqlStmt *stmt;
 
   unsigned int max = 255;
 
@@ -2830,15 +3243,17 @@ int map_saveclanbank(int id) {
   char escape[64];
   char escape2[300];
 
-  struct clan_data* clan = NULL;
+  struct clan_data *clan = NULL;
   clan = clandb_search(id);
 
-  if (clan == NULL) return 0;
+  if (clan == NULL)
+    return 0;
 
   memset(save_id, 0, max * sizeof(int));
   stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -2849,13 +3264,15 @@ int map_saveclanbank(int id) {
                                    id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &item_id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  for (i = 0; i < max; i++) save_id[i] = -1;
+  for (i = 0; i < max; i++)
+    save_id[i] = -1;
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
        i++)
@@ -2863,20 +3280,26 @@ int map_saveclanbank(int id) {
 
   SqlStmt_Free(stmt);
 
-  for (i = 0; i < max; i++) {
+  for (i = 0; i < max; i++)
+  {
     Sql_EscapeString(sql_handle, escape, clan->clanbanks[i].real_name);
     Sql_EscapeString(sql_handle, escape2, clan->clanbanks[i].note);
 
-    if (save_id[i] == i) {
-      if (clan->clanbanks[i].item_id == 0) {
+    if (save_id[i] == i)
+    {
+      if (clan->clanbanks[i].item_id == 0)
+      {
         if (SQL_ERROR == Sql_Query(sql_handle,
                                    "DELETE FROM `ClanBanks` WHERE `CbkClnId` = "
                                    "'%u' AND `CbkPosition` = '%d'",
-                                   id, i)) {
+                                   id, i))
+        {
           Sql_ShowDebug(sql_handle);
           return 0;
         }
-      } else {
+      }
+      else
+      {
         if (SQL_ERROR ==
             Sql_Query(
                 sql_handle,
@@ -2892,13 +3315,17 @@ int map_saveclanbank(int id) {
                 clan->clanbanks[i].customLookColor,
                 clan->clanbanks[i].customIcon,
                 clan->clanbanks[i].customIconColor,
-                clan->clanbanks[i].protected, escape2, id, i)) {
+                clan->clanbanks[i].protected, escape2, id, i))
+        {
           Sql_ShowDebug(sql_handle);
           return 0;
         }
       }
-    } else {
-      if (clan->clanbanks[i].item_id > 0) {
+    }
+    else
+    {
+      if (clan->clanbanks[i].item_id > 0)
+      {
         if (SQL_ERROR ==
             Sql_Query(sql_handle,
                       "INSERT INTO `ClanBanks` (`CBkClnId`, `CbkItmId`, "
@@ -2913,7 +3340,8 @@ int map_saveclanbank(int id) {
                       clan->clanbanks[i].customLookColor,
                       clan->clanbanks[i].customIcon,
                       clan->clanbanks[i].customIconColor,
-                      clan->clanbanks[i].protected, escape2, i)) {
+                      clan->clanbanks[i].protected, escape2, i))
+        {
           Sql_ShowDebug(sql_handle);
           return 0;
         }
@@ -2924,8 +3352,10 @@ int map_saveclanbank(int id) {
   return 1;
 }
 
-int map_weather(int id, int n) {
-  if (old_time != cur_time) {
+int map_weather(int id, int n)
+{
+  if (old_time != cur_time)
+  {
     old_time = cur_time;
     sl_doscript_blargs("mapWeather", NULL, 0);
   }
@@ -2933,26 +3363,32 @@ int map_weather(int id, int n) {
   return 0;
 }
 
-int map_cronjob(int none, int nonetoo) {
+int map_cronjob(int none, int nonetoo)
+{
   unsigned int t = time(NULL);
 
-  if (t % 60 == 0) {
+  if (t % 60 == 0)
+  {
     sl_doscript_blargs("cronJobMin", NULL, 0);
   }
 
-  if (t % 300 == 0) {
+  if (t % 300 == 0)
+  {
     sl_doscript_blargs("cronJob5Min", NULL, 0);
   }
 
-  if (t % 1800 == 0) {
+  if (t % 1800 == 0)
+  {
     sl_doscript_blargs("cronJob30Min", NULL, 0);
   }
 
-  if (t % 3600 == 0) {
+  if (t % 3600 == 0)
+  {
     sl_doscript_blargs("cronJobHour", NULL, 0);
   }
 
-  if (t % 86400 == 0) {
+  if (t % 86400 == 0)
+  {
     sl_doscript_blargs("cronJobDay", NULL, 0);
   }
 
@@ -2961,13 +3397,16 @@ int map_cronjob(int none, int nonetoo) {
   return 0;
 }
 
-int map_savechars(int none, int nonetoo) {
-  USER* sd = NULL;
+int map_savechars(int none, int nonetoo)
+{
+  USER *sd = NULL;
   int x;
 
-  for (x = 0; x < fd_max; x++) {
-    if (session[x] && (sd = (USER*)session[x]->session_data) &&
-        !session[x]->eof) {
+  for (x = 0; x < fd_max; x++)
+  {
+    if (session[x] && (sd = (USER *)session[x]->session_data) &&
+        !session[x]->eof)
+    {
       intif_save(sd);
     }
   }

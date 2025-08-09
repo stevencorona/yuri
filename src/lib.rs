@@ -5,7 +5,7 @@ use std::ffi::CStr;
 use std::ffi::CString;
 
 #[no_mangle]
-pub extern "C" fn rust_generate_hashvalues(name: *const c_char, mut buffer: *mut c_char) {
+pub extern "C" fn rust_generate_hashvalues(name: *const c_char, mut _buffer: *mut c_char) {
     let c_name = unsafe {
         assert!(!name.is_null());
 
@@ -13,5 +13,5 @@ pub extern "C" fn rust_generate_hashvalues(name: *const c_char, mut buffer: *mut
     };
     let hashed = network::crypt::generate_hash(c_name.to_str().unwrap());
     let c_hash_ptr = CString::new(hashed).unwrap();
-    buffer = c_hash_ptr.into_raw();
+    _buffer = c_hash_ptr.into_raw();
 }

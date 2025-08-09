@@ -22,14 +22,18 @@ struct npc_src_list *warp_src_last = NULL;
 // unsigned int npcchar_id = CNPC_START_NUM;
 unsigned int npctemp_id = NPCT_START_NUM;
 
-unsigned int npc_get_new_npcid() {
+unsigned int npc_get_new_npcid()
+{
   unsigned int x;
   struct block_list *bl = NULL;
 
-  for (x = NPC_START_NUM; x <= npc_id; x++) {
-    if (x == npc_id) npc_id++;
+  for (x = NPC_START_NUM; x <= npc_id; x++)
+  {
+    if (x == npc_id)
+      npc_id++;
     bl = map_id2bl(x);
-    if (!bl) {
+    if (!bl)
+    {
       return x;
     }
   }
@@ -38,14 +42,18 @@ unsigned int npc_get_new_npcid() {
   return npc_id;
 }
 
-unsigned int npc_get_new_npctempid() {
+unsigned int npc_get_new_npctempid()
+{
   unsigned int x;
   struct block_list *bl = NULL;
 
-  for (x = NPCT_START_NUM; x <= npctemp_id; x++) {
-    if (x == npctemp_id) npctemp_id++;
+  for (x = NPCT_START_NUM; x <= npctemp_id; x++)
+  {
+    if (x == npctemp_id)
+      npctemp_id++;
     bl = map_id2bl(x);
-    if (!bl) {
+    if (!bl)
+    {
       return x;
     }
   }
@@ -53,16 +61,21 @@ unsigned int npc_get_new_npctempid() {
   npctemp_id++;
   return npctemp_id;
 }
-int npc_idlower(int id) {
-  if (id >= NPCT_START_NUM && id != F1_NPC) {
+int npc_idlower(int id)
+{
+  // Compare as unsigned to avoid tautological signed/unsigned warnings
+  if ((unsigned int)id >= NPCT_START_NUM && (unsigned int)id != F1_NPC)
+  {
     npctemp_id--;
   }
   return 0;
 }
-int npc_src_clear() {
+int npc_src_clear()
+{
   struct npc_src_list *p = npc_src_first;
 
-  while (p) {
+  while (p)
+  {
     struct npc_src_list *p2 = p;
     p = p->next;
     FREE(p2->file);
@@ -73,34 +86,41 @@ int npc_src_clear() {
   return 0;
 }
 
-int npc_src_add(const char *file) {
+int npc_src_add(const char *file)
+{
   struct npc_src_list *new;
 
   CALLOC(new, struct npc_src_list, 1);
   CALLOC(new->file, char, strlen(file) + 1);
   new->next = NULL;
   strncpy(new->file, file, strlen(file));
-  if (npc_src_first == NULL) npc_src_first = new;
-  if (npc_src_last) npc_src_last->next = new;
+  if (npc_src_first == NULL)
+    npc_src_first = new;
+  if (npc_src_last)
+    npc_src_last->next = new;
 
   npc_src_last = new;
   return 0;
 }
-int npc_warp_add(const char *file) {
+int npc_warp_add(const char *file)
+{
   struct npc_src_list *new;
 
   CALLOC(new, struct npc_src_list, 1);
   CALLOC(new->file, char, strlen(file) + 1);
   new->next = NULL;
   strncpy(new->file, file, strlen(file));
-  if (warp_src_first == NULL) warp_src_first = new;
-  if (warp_src_last) warp_src_last->next = new;
+  if (warp_src_first == NULL)
+    warp_src_first = new;
+  if (warp_src_last)
+    warp_src_last->next = new;
 
   warp_src_last = new;
   return 0;
 }
 
-int warp_init() {
+int warp_init()
+{
   // FILE *fp;
   // char line[1024];
   // char *str[10];
@@ -144,7 +164,8 @@ int warp_init() {
   int count = 0;
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -162,17 +183,20 @@ int warp_init() {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &my, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &tm, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &tx, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_INT, &ty, 0, NULL, NULL)) {
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_INT, &ty, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return -1;
   }
 
   for (int j = 0;
-       j < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); j++) {
+       j < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); j++)
+  {
     CALLOC(war, struct warp_list, 1);
 
-    if (!map_isloaded(mm) || !map_isloaded(tm)) {
+    if (!map_isloaded(mm) || !map_isloaded(tm))
+    {
       printf(
           "[warp] [error] src or dst map not loaded warp_id=%i "
           "src=%i "
@@ -195,7 +219,8 @@ int warp_init() {
 
     war->next =
         map[mm].warp[(mx / BLOCK_SIZE) + (my / BLOCK_SIZE) * map[mm].bxs];
-    if (war->next) war->next->prev = war;
+    if (war->next)
+      war->next->prev = war;
     map[mm].warp[(mx / BLOCK_SIZE) + (my / BLOCK_SIZE) * map[mm].bxs] = war;
 
     count++;
@@ -208,7 +233,8 @@ int warp_init() {
   return 0;
 }
 
-int npc_init() {
+int npc_init()
+{
   NPC *nd = NULL;
   struct item item;
   unsigned int x, i, count, id, gid, gc, time, subtype, npcf1npc = 0;
@@ -222,7 +248,8 @@ int npc_init() {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -293,7 +320,8 @@ int npc_init() {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 24, SQLDT_UINT, &movetime, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 25, SQLDT_UCHAR, &receiveItem, 0,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -301,18 +329,27 @@ int npc_init() {
 
   count = SqlStmt_NumRows(stmt);
 
-  for (x = 1; x <= count && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++) {
+  for (x = 1; x <= count && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++)
+  {
     nd = map_id2npc(id);
-    if (npcf1npc == 1) {
+    if (npcf1npc == 1)
+    {
       nd = map_id2npc(F1_NPC);
-      if (nd == NULL) {
+      if (nd == NULL)
+      {
         CALLOC(nd, NPC, 1);
-      } else {
+      }
+      else
+      {
         map_deliddb(&nd->bl);
       }
-    } else if (nd == NULL) {
+    }
+    else if (nd == NULL)
+    {
       CALLOC(nd, NPC, 1);
-    } else {
+    }
+    else
+    {
       map_delblock(&nd->bl);
       map_deliddb(&nd->bl);
     }
@@ -349,31 +386,39 @@ int npc_init() {
     nd->movetime = movetime;
     nd->receiveItem = receiveItem;
 
-    if (nd->bl.id < NPC_START_NUM) {
+    if (nd->bl.id < NPC_START_NUM)
+    {
       nd->bl.m = m;
       nd->bl.x = xc;
       nd->bl.y = yc;
 
-      if (npcf1npc == 1) {
+      if (npcf1npc == 1)
+      {
         nd->bl.id = F1_NPC;
-      } else {
+      }
+      else
+      {
         nd->bl.id = NPC_START_NUM + id - 2;
         npc_id = NPC_START_NUM + id - 2;
       }
     }
 
-    if (nd->bl.subtype < 3) {
+    if (nd->bl.subtype < 3)
+    {
       map_addblock(&nd->bl);
     }
 
     map_addiddb(&nd->bl);
   }
 
-  for (x = NPC_START_NUM; x <= npc_id; x++) {
+  for (x = NPC_START_NUM; x <= npc_id; x++)
+  {
     nd = map_id2npc((unsigned int)x);
 
-    if (nd) {
-      if (nd->npctype == 1) {
+    if (nd)
+    {
+      if (nd->npctype == 1)
+      {
         if (SQL_ERROR ==
                 SqlStmt_Prepare(stmt,
                                 "SELECT '', `NeqLook`, '1', '0', '0', "
@@ -395,14 +440,16 @@ int npc_init() {
             SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &item.custom,
                                             0, NULL, NULL) ||
             SQL_ERROR ==
-                SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &pos, 0, NULL, NULL)) {
+                SqlStmt_BindColumn(stmt, 6, SQLDT_UCHAR, &pos, 0, NULL, NULL))
+        {
           SqlStmt_ShowDebug(stmt);
           SqlStmt_Free(stmt);
           return 0;
         }
 
         // Equip Read
-        for (i = 0; i < 14 && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+        for (i = 0; i < 14 && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++)
+        {
           memcpy(&nd->equip[(int)pos], &item, sizeof(item));
         }
       }
@@ -414,43 +461,54 @@ int npc_init() {
   return 0;
 }
 
-int npc_runtimers(int none, int nonetwo) {
+int npc_runtimers(int none, int nonetwo)
+{
   NPC *nd = NULL;
   unsigned int x;
 
   // regular npc
-  for (x = NPC_START_NUM; x <= npc_id; x++) {
+  for (x = NPC_START_NUM; x <= npc_id; x++)
+  {
     nd = map_id2npc(x);
 
-    if (nd) {
-      if (nd->actiontime > 0) {
+    if (nd)
+    {
+      if (nd->actiontime > 0)
+      {
         npc_action(nd);
       }
 
-      if (nd->movetime > 0) {
+      if (nd->movetime > 0)
+      {
         npc_movetime(nd);
       }
 
-      if (nd->duration > 0) {
+      if (nd->duration > 0)
+      {
         npc_duration(nd);
       }
     }
   }
 
   // temp npc
-  for (x = NPCT_START_NUM; x <= npctemp_id; x++) {
+  for (x = NPCT_START_NUM; x <= npctemp_id; x++)
+  {
     nd = map_id2npc(x);
 
-    if (nd) {
-      if (nd->actiontime > 0) {
+    if (nd)
+    {
+      if (nd->actiontime > 0)
+      {
         npc_action(nd);
       }
 
-      if (nd->movetime > 0) {
+      if (nd->movetime > 0)
+      {
         npc_movetime(nd);
       }
 
-      if (nd->duration > 0) {
+      if (nd->duration > 0)
+      {
         npc_duration(nd);
       }
     }
@@ -458,27 +516,36 @@ int npc_runtimers(int none, int nonetwo) {
   return 0;
 }
 
-int npc_movetime(NPC *nd) {
+int npc_movetime(NPC *nd)
+{
   USER *tsd = NULL;
 
   nullpo_ret(0, nd);
 
   nd->movetimer += 100;
 
-  if (nd->owner) {
+  if (nd->owner)
+  {
     tsd = map_id2sd(nd->owner);
   }
 
-  if (tsd) {
-    if (nd) {
-      if (nd->movetimer >= nd->movetime) {
+  if (tsd)
+  {
+    if (nd)
+    {
+      if (nd->movetimer >= nd->movetime)
+      {
         nd->movetimer = 0;
         sl_doscript_blargs(nd->name, "move", 2, &nd->bl, &tsd->bl);
       }
     }
-  } else {
-    if (nd) {
-      if (nd->movetimer >= nd->movetime) {
+  }
+  else
+  {
+    if (nd)
+    {
+      if (nd->movetimer >= nd->movetime)
+      {
         nd->movetimer = 0;
         sl_doscript_blargs(nd->name, "move", 1, &nd->bl);
       }
@@ -488,27 +555,36 @@ int npc_movetime(NPC *nd) {
   return 0;
 }
 
-int npc_action(NPC *nd) {
+int npc_action(NPC *nd)
+{
   USER *tsd = NULL;
 
   nullpo_ret(0, nd);
 
   nd->time += 100;
 
-  if (nd->owner) {
+  if (nd->owner)
+  {
     tsd = map_id2sd(nd->owner);
   }
 
-  if (tsd) {
-    if (nd) {
-      if (nd->time >= nd->actiontime) {
+  if (tsd)
+  {
+    if (nd)
+    {
+      if (nd->time >= nd->actiontime)
+      {
         nd->time = 0;
         sl_doscript_blargs(nd->name, "action", 2, &nd->bl, &tsd->bl);
       }
     }
-  } else {
-    if (nd) {
-      if (nd->time >= nd->actiontime) {
+  }
+  else
+  {
+    if (nd)
+    {
+      if (nd->time >= nd->actiontime)
+      {
         nd->time = 0;
         sl_doscript_blargs(nd->name, "action", 1, &nd->bl);
       }
@@ -518,27 +594,36 @@ int npc_action(NPC *nd) {
   return 0;
 }
 
-int npc_duration(NPC *nd) {
+int npc_duration(NPC *nd)
+{
   USER *tsd = NULL;
 
   nullpo_ret(0, nd);
 
   nd->duratime += 100;
 
-  if (nd->owner) {
+  if (nd->owner)
+  {
     tsd = map_id2sd(nd->owner);
   }
 
-  if (tsd) {
-    if (nd) {
-      if (nd->duratime >= nd->duration) {
+  if (tsd)
+  {
+    if (nd)
+    {
+      if (nd->duratime >= nd->duration)
+      {
         nd->duratime = 0;
         sl_doscript_blargs(nd->name, "endAction", 2, &nd->bl, &tsd->bl);
       }
     }
-  } else {
-    if (nd) {
-      if (nd->duratime >= nd->duration) {
+  }
+  else
+  {
+    if (nd)
+    {
+      if (nd->duratime >= nd->duration)
+      {
         nd->duratime = 0;
         sl_doscript_blargs(nd->name, "endAction", 1, &nd->bl);
       }
@@ -548,32 +633,43 @@ int npc_duration(NPC *nd) {
   return 0;
 }
 
-int npc_move_sub(struct block_list *bl, va_list ap) {
+int npc_move_sub(struct block_list *bl, va_list ap)
+{
   NPC *nd = NULL;
   MOB *mob = NULL;
   USER *sd = NULL;
 
   nullpo_ret(0, nd = va_arg(ap, NPC *));
 
-  if (nd->canmove == 1) return 0;
+  if (nd->canmove == 1)
+    return 0;
 
-  if (bl->type == BL_NPC) {
-    if (bl->subtype) {
+  if (bl->type == BL_NPC)
+  {
+    if (bl->subtype)
+    {
       return 0;
     }
-  } else if (bl->type == BL_MOB) {
+  }
+  else if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
 
-    if (mob) {
-      if (mob->state == MOB_DEAD) {
+    if (mob)
+    {
+      if (mob->state == MOB_DEAD)
+      {
         return 0;
       }
     }
-  } else if (bl->type == BL_PC) {
+  }
+  else if (bl->type == BL_PC)
+  {
     sd = (USER *)bl;
 
     if ((map[nd->bl.m].show_ghosts && sd->status.state == PC_DIE) ||
-        sd->status.state == -1 || sd->status.gm_level >= 50) {
+        sd->status.state == -1 || sd->status.gm_level >= 50)
+    {
       return 0;
     }
   }
@@ -582,7 +678,8 @@ int npc_move_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int npc_move(NPC *nd) {
+int npc_move(NPC *nd)
+{
   int direction, backx, backy, m, dx, dy, x0, y0, x1, y1;
   int c = 0;
   struct warp_list *i;
@@ -597,116 +694,145 @@ int npc_move(NPC *nd) {
   x0 = nd->bl.x;
   y0 = nd->bl.y;
 
-  switch (direction) {
-    case 0:  // UP
-      if (backy > 0) {
-        dy = backy - 1;
-        x0 -= 9;
+  switch (direction)
+  {
+  case 0: // UP
+    if (backy > 0)
+    {
+      dy = backy - 1;
+      x0 -= 9;
 
-        if (x0 < 0) x0 = 0;
+      if (x0 < 0)
+        x0 = 0;
 
-        y0 -= 9;
-        y1 = 1;
-        x1 = 19;
+      y0 -= 9;
+      y1 = 1;
+      x1 = 19;
 
-        if (y0 < 7) nothingnew = 1;
+      if (y0 < 7)
+        nothingnew = 1;
 
-        if (y0 == 7) {
-          y1 += 7;
-          y0 = 0;
-        }
-
-        if (x0 + 19 + 9 >= map[m].xs) x1 += 9 - ((x0 + 19 + 9) - map[m].xs);
-
-        if (x0 <= 8) {
-          x1 += x0;
-          x0 = 0;
-        }
+      if (y0 == 7)
+      {
+        y1 += 7;
+        y0 = 0;
       }
-      break;
-    case 1:  // Right
-      if (backx < map[m].xs) {
-        x0 += 10;
-        y0 -= 8;
 
-        if (y0 < 0) y0 = 0;
+      if (x0 + 19 + 9 >= map[m].xs)
+        x1 += 9 - ((x0 + 19 + 9) - map[m].xs);
 
-        dx = backx + 1;
-        y1 = 17;
-        x1 = 1;
-
-        if (x0 > map[m].xs - 9) nothingnew = 1;
-
-        if (x0 == map[m].xs - 9) x1 += 9;
-
-        if (y0 + 17 + 8 >= map[m].ys) y1 += 8 - ((y0 + 17 + 8) - map[m].ys);
-
-        if (y0 <= 7) {
-          y1 += y0;
-          y0 = 0;
-        }
+      if (x0 <= 8)
+      {
+        x1 += x0;
+        x0 = 0;
       }
-      break;
-    case 2:  // down
-      if (backy < map[m].ys) {
-        x0 -= 9;
+    }
+    break;
+  case 1: // Right
+    if (backx < map[m].xs)
+    {
+      x0 += 10;
+      y0 -= 8;
 
-        if (x0 < 0) x0 = 0;
+      if (y0 < 0)
+        y0 = 0;
 
-        y0 += 9;
-        dy = backy + 1;
-        y1 = 1;
-        x1 = 19;
+      dx = backx + 1;
+      y1 = 17;
+      x1 = 1;
 
-        if (y0 + 8 > map[m].ys) nothingnew = 1;
+      if (x0 > map[m].xs - 9)
+        nothingnew = 1;
 
-        if (y0 + 8 == map[m].ys) y1 += 8;
+      if (x0 == map[m].xs - 9)
+        x1 += 9;
 
-        if (x0 + 19 + 9 >= map[m].xs) x1 += 9 - ((x0 + 19 + 9) - map[m].xs);
+      if (y0 + 17 + 8 >= map[m].ys)
+        y1 += 8 - ((y0 + 17 + 8) - map[m].ys);
 
-        if (x0 <= 8) {
-          x1 += x0;
-          x0 = 0;
-        }
+      if (y0 <= 7)
+      {
+        y1 += y0;
+        y0 = 0;
       }
-      break;
-    case 3:  // left
-      if (backx > 0) {
-        x0 -= 10;
-        y0 -= 8;
+    }
+    break;
+  case 2: // down
+    if (backy < map[m].ys)
+    {
+      x0 -= 9;
 
-        if (y0 < 0) y0 = 0;
+      if (x0 < 0)
+        x0 = 0;
 
-        y1 = 17;
-        x1 = 1;
-        dx = backx - 1;
+      y0 += 9;
+      dy = backy + 1;
+      y1 = 1;
+      x1 = 19;
 
-        if (x0 < 8) nothingnew = 1;
+      if (y0 + 8 > map[m].ys)
+        nothingnew = 1;
 
-        if (x0 == 8) {
-          x0 = 0;
-          x1 += 8;
-        }
+      if (y0 + 8 == map[m].ys)
+        y1 += 8;
 
-        if (y0 + 17 + 8 >= map[m].ys) y1 += 8 - ((y0 + 17 + 8) - map[m].ys);
+      if (x0 + 19 + 9 >= map[m].xs)
+        x1 += 9 - ((x0 + 19 + 9) - map[m].xs);
 
-        if (y0 <= 7) {
-          y1 += y0;
-          y0 = 0;
-        }
+      if (x0 <= 8)
+      {
+        x1 += x0;
+        x0 = 0;
       }
-      break;
-    default:
-      break;
+    }
+    break;
+  case 3: // left
+    if (backx > 0)
+    {
+      x0 -= 10;
+      y0 -= 8;
+
+      if (y0 < 0)
+        y0 = 0;
+
+      y1 = 17;
+      x1 = 1;
+      dx = backx - 1;
+
+      if (x0 < 8)
+        nothingnew = 1;
+
+      if (x0 == 8)
+      {
+        x0 = 0;
+        x1 += 8;
+      }
+
+      if (y0 + 17 + 8 >= map[m].ys)
+        y1 += 8 - ((y0 + 17 + 8) - map[m].ys);
+
+      if (y0 <= 7)
+      {
+        y1 += y0;
+        y0 = 0;
+      }
+    }
+    break;
+  default:
+    break;
   }
 
-  if (dx >= map[m].xs) dx = map[m].xs - 1;
+  if (dx >= map[m].xs)
+    dx = map[m].xs - 1;
 
-  if (dy >= map[m].ys) dy = map[m].ys - 1;
+  if (dy >= map[m].ys)
+    dy = map[m].ys - 1;
 
   for (i = map[m].warp[dx / BLOCK_SIZE + (dy / BLOCK_SIZE) * map[m].bxs];
-       i && !c; i = i->next) {
-    if (i->x == dx && i->y == dy) {
+       i && !c; i = i->next)
+  {
+    if (i->x == dx && i->y == dy)
+    {
       c = 1;
       return 0;
     }
@@ -716,47 +842,63 @@ int npc_move(NPC *nd) {
   map_foreachincell(npc_move_sub, m, dx, dy, BL_PC, nd);
   map_foreachincell(npc_move_sub, m, dx, dy, BL_NPC, nd);
 
-  if (clif_object_canmove(m, dx, dy, direction)) {
+  if (clif_object_canmove(m, dx, dy, direction))
+  {
     nd->canmove = 0;
     return 0;
   }
 
-  if (clif_object_canmove_from(m, backx, backy, direction)) {
+  if (clif_object_canmove_from(m, backx, backy, direction))
+  {
     nd->canmove = 0;
     return 0;
   }
 
-  if (map_canmove(m, dx, dy) == 1 || nd->canmove == 1) {
+  if (map_canmove(m, dx, dy) == 1 || nd->canmove == 1)
+  {
     nd->canmove = 0;
     return 0;
   }
 
-  if (x0 > map[m].xs) x0 = map[m].xs - 1;
+  if (x0 > map[m].xs)
+    x0 = map[m].xs - 1;
 
-  if (y0 > map[m].ys) y0 = map[m].ys - 1;
+  if (y0 > map[m].ys)
+    y0 = map[m].ys - 1;
 
-  if (x0 < 0) x0 = 0;
+  if (x0 < 0)
+    x0 = 0;
 
-  if (y0 < 0) y0 = 0;
+  if (y0 < 0)
+    y0 = 0;
 
-  if (dx >= map[m].xs) dx = backx;
+  if (dx >= map[m].xs)
+    dx = backx;
 
-  if (dy >= map[m].ys) dy = backy;
+  if (dy >= map[m].ys)
+    dy = backy;
 
-  if (dx < 0) dx = backx;
+  if (dx < 0)
+    dx = backx;
 
-  if (dy < 0) dy = backy;
+  if (dy < 0)
+    dy = backy;
 
-  if (dx != backx || dy != backy) {
+  if (dx != backx || dy != backy)
+  {
     nd->bl.bx = backx;
     nd->bl.by = backy;
     map_moveblock(&nd->bl, dx, dy);
 
-    if (!nothingnew) {
-      if (nd->npctype == 1) {
+    if (!nothingnew)
+    {
+      if (nd->npctype == 1)
+      {
         map_foreachinblock(clif_cnpclook_sub, nd->bl.m, x0, y0, x0 + (x1 - 1),
                            y0 + (y1 - 1), BL_PC, LOOK_SEND, nd);
-      } else {
+      }
+      else
+      {
         map_foreachinblock(clif_mob_look_start_func, nd->bl.m, x0, y0,
                            x0 + (x1 - 1), y0 + (y1 - 1), BL_PC, nd);
         map_foreachinblock(clif_object_look_sub, nd->bl.m, x0, y0,
@@ -770,14 +912,18 @@ int npc_move(NPC *nd) {
     map_foreachinarea(clif_npc_move, m, nd->bl.x, nd->bl.y, AREA, BL_PC,
                       LOOK_SEND, nd);
     return 1;
-  } else {
+  }
+  else
+  {
     return 0;
   }
 }
 
-int npc_warp(NPC *nd, int m, int x, int y) {
+int npc_warp(NPC *nd, int m, int x, int y)
+{
   nullpo_ret(0, nd);
-  if (nd->bl.id < NPC_START_NUM) return 0;
+  if (nd->bl.id < NPC_START_NUM)
+    return 0;
   map_delblock(&nd->bl);
   clif_lookgone(&nd->bl);
   nd->bl.m = m;
@@ -785,41 +931,52 @@ int npc_warp(NPC *nd, int m, int x, int y) {
   nd->bl.y = y;
   nd->bl.type = BL_NPC;
 
-  if (map_addblock(&nd->bl)) {
+  if (map_addblock(&nd->bl))
+  {
     printf("Error warping npcchar.\n");
   }
 
-  if (nd->npctype == 1) {
+  if (nd->npctype == 1)
+  {
     map_foreachinarea(clif_cnpclook_sub, nd->bl.m, nd->bl.x, nd->bl.y, AREA,
                       BL_PC, LOOK_SEND, nd);
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_object_look_sub2, nd->bl.m, nd->bl.x, nd->bl.y, AREA,
                       BL_PC, LOOK_SEND, nd);
   }
   return 0;
 }
 
-int npc_readglobalreg(NPC *nd, const char *reg) {
+int npc_readglobalreg(NPC *nd, const char *reg)
+{
   int i, exist;
 
   exist = -1;
   nullpo_ret(0, nd);
 
-  for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-    if (strcasecmp(nd->registry[i].str, reg) == 0) {
+  for (i = 0; i < MAX_GLOBALNPCREG; i++)
+  {
+    if (strcasecmp(nd->registry[i].str, reg) == 0)
+    {
       exist = i;
       break;
     }
   }
 
-  if (exist != -1) {
+  if (exist != -1)
+  {
     return nd->registry[exist].val;
-  } else {
+  }
+  else
+  {
     return 0;
   }
 }
 
-int npc_setglobalreg(NPC *nd, const char *reg, int val) {
+int npc_setglobalreg(NPC *nd, const char *reg, int val)
+{
   int i, exist;
 
   exist = -1;
@@ -827,26 +984,36 @@ int npc_setglobalreg(NPC *nd, const char *reg, int val) {
   nullpo_ret(0, reg);
 
   // if registry exists, get number
-  for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-    if (strcasecmp(nd->registry[i].str, reg) == 0) {
+  for (i = 0; i < MAX_GLOBALNPCREG; i++)
+  {
+    if (strcasecmp(nd->registry[i].str, reg) == 0)
+    {
       exist = i;
       break;
     }
   }
 
   // if registry exists, set value
-  if (exist != -1) {
-    if (val == 0) {
-      strcpy(nd->registry[exist].str, "");  // empty registry
-      nd->registry[exist].val = val;
-      return 0;
-    } else {
+  if (exist != -1)
+  {
+    if (val == 0)
+    {
+      strcpy(nd->registry[exist].str, ""); // empty registry
       nd->registry[exist].val = val;
       return 0;
     }
-  } else {
-    for (i = 0; i < MAX_GLOBALNPCREG; i++) {
-      if (strcasecmp(nd->registry[i].str, "") == 0) {
+    else
+    {
+      nd->registry[exist].val = val;
+      return 0;
+    }
+  }
+  else
+  {
+    for (i = 0; i < MAX_GLOBALNPCREG; i++)
+    {
+      if (strcasecmp(nd->registry[i].str, "") == 0)
+      {
         strcpy(nd->registry[i].str, reg);
         nd->registry[i].val = val;
         return 0;

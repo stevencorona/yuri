@@ -32,7 +32,8 @@ int downtimer;
 
 char command_code = '/';
 
-struct {
+struct
+{
   int (*func)(USER *, char *, lua_State *);
 
   char *name;
@@ -131,7 +132,10 @@ struct {
                {command_reloadwarps, "reloadwarps", 99},
                {command_transfer, "transfer", 99}};
 
-int command_report(USER *sd, char *line, lua_State *state) {
+struct userlist_data userlist;
+
+int command_report(USER *sd, char *line, lua_State *state)
+{
   USER *tsd = NULL;
   int x;
   char buf[65535];
@@ -139,10 +143,12 @@ int command_report(USER *sd, char *line, lua_State *state) {
   // return -1;
 
   sprintf(buf, "<REPORT>%s: %s", sd->status.name, line);
-  for (x = 1; x < fd_max; x++) {
+  for (x = 1; x < fd_max; x++)
+  {
     tsd = NULL;
     if (session[x] && (tsd = (USER *)session[x]->session_data) &&
-        !session[x]->eof && tsd->status.gm_level) {
+        !session[x]->eof && tsd->status.gm_level)
+    {
       clif_sendmsg(tsd, 12, buf);
     }
   }
@@ -150,7 +156,8 @@ int command_report(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_gm(USER *sd, char *line, lua_State *state) {
+int command_gm(USER *sd, char *line, lua_State *state)
+{
   USER *tsd = NULL;
   char buf[65535];
   int x;
@@ -164,10 +171,12 @@ int command_gm(USER *sd, char *line, lua_State *state) {
   "GM")) { Sql_ShowDebug(sql_handle);
   }*/
 
-  for (x = 1; x < fd_max; x++) {
+  for (x = 1; x < fd_max; x++)
+  {
     tsd = NULL;
     if (session[x] && (tsd = (USER *)session[x]->session_data) &&
-        !session[x]->eof && tsd->status.gm_level) {
+        !session[x]->eof && tsd->status.gm_level)
+    {
       clif_sendmsg(tsd, 11, buf);
     }
   }
@@ -175,7 +184,8 @@ int command_gm(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_transfer(USER *sd, char *line, lua_State *state) {
+int command_transfer(USER *sd, char *line, lua_State *state)
+{
   clif_transfer_test(sd, 1, 10, 10);
 
   return 0;
@@ -215,16 +225,20 @@ sd->status.gm_level == 0
         return 0;
 }*/
 
-int command_weather(USER *sd, char *line, lua_State *state) {
+int command_weather(USER *sd, char *line, lua_State *state)
+{
   int weather = 5, x;
   USER *tmpsd;
   sscanf(line, "%u", &weather);
 
   map[sd->bl.m].weather = weather;
-  for (x = 1; x < fd_max; x++) {
+  for (x = 1; x < fd_max; x++)
+  {
     if (session[x] && (tmpsd = (USER *)session[x]->session_data) &&
-        !session[x]->eof) {
-      if (tmpsd->bl.m == sd->bl.m) {
+        !session[x]->eof)
+    {
+      if (tmpsd->bl.m == sd->bl.m)
+      {
         clif_sendweather(tmpsd);
         // pc_warp(tmpsd,tmpsd->bl.m,tmpsd->bl.x,tmpsd->bl.y);
       }
@@ -234,17 +248,21 @@ int command_weather(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_light(USER *sd, char *line, lua_State *state) {
+int command_light(USER *sd, char *line, lua_State *state)
+{
   unsigned char weather = 232;
 
   USER *tmpsd;
   sscanf(line, "%hhu", &weather);
 
   map[sd->bl.m].light = weather;
-  for (int x = 0; x < fd_max; x++) {
+  for (int x = 0; x < fd_max; x++)
+  {
     if (session[x] && (tmpsd = (USER *)session[x]->session_data) &&
-        !session[x]->eof) {
-      if (tmpsd->bl.m == sd->bl.m) {
+        !session[x]->eof)
+    {
+      if (tmpsd->bl.m == sd->bl.m)
+      {
         pc_warp(tmpsd, tmpsd->bl.m, tmpsd->bl.x, tmpsd->bl.y);
         // clif_sendmapinfo(sd);
       }
@@ -254,27 +272,34 @@ int command_light(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int is_command(USER *sd, const char *p, int len) {
+int is_command(USER *sd, const char *p, int len)
+{
   int i;
   char cmd_line[257];
   char *cmdp;
-  if (*p != command_code) return 0;
+  if (*p != command_code)
+    return 0;
   p++;
   // copy command to buffer
   memcpy(cmd_line, p, len);
   cmd_line[len] = 0x00;
   cmdp = cmd_line;
   // Search for end of command string
-  while (*cmdp && !isspace(*cmdp)) cmdp++;
+  while (*cmdp && !isspace(*cmdp))
+    cmdp++;
   // set null for comparement
   *cmdp = '\0';
-  for (i = 0; command[i].func; i++) {
-    if (!strcasecmp(cmd_line, command[i].name)) break;
+  for (i = 0; command[i].func; i++)
+  {
+    if (!strcasecmp(cmd_line, command[i].name))
+      break;
   }
   // wrong command, exit!
-  if (command[i].func == NULL) return 0;
+  if (command[i].func == NULL)
+    return 0;
 
-  if (sd->status.gm_level < command[i].level) return 0;
+  if (sd->status.gm_level < command[i].level)
+    return 0;
 
   // found command
   // skip our null terminate
@@ -285,50 +310,65 @@ int is_command(USER *sd, const char *p, int len) {
   return 1;
 }
 
-int command_shutdowncancel(USER *sd, char *line, lua_State *state) {
-  if (downtimer) {
+int command_shutdowncancel(USER *sd, char *line, lua_State *state)
+{
+  if (downtimer)
+  {
     clif_broadcast("---------------------------------------------------", -1);
     clif_broadcast("Server shutdown cancelled.", -1);
     clif_broadcast("---------------------------------------------------", -1);
     timer_remove(downtimer);
     downtimer = 0;
-
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "Server is not shutting down.");
   }
 
   return 0;
 }
 
-int command_shutdown(USER *sd, char *line, lua_State *state) {
+int command_shutdown(USER *sd, char *line, lua_State *state)
+{
   int t_time = 0;
   char timelen[5];
   int d;
   char msg[255];
-  if (!downtimer) {
-    if (sscanf(line, "%d %s", &t_time, timelen) < 1) {
+  if (!downtimer)
+  {
+    if (sscanf(line, "%d %s", &t_time, timelen) < 1)
+    {
       return -1;
-    } else if (sscanf(line, "%d %s", &t_time, timelen) == 2) {
-      if (strcasecmp(timelen, "s") == 0 || strcasecmp(timelen, "sec") == 0) {
+    }
+    else if (sscanf(line, "%d %s", &t_time, timelen) == 2)
+    {
+      if (strcasecmp(timelen, "s") == 0 || strcasecmp(timelen, "sec") == 0)
+      {
         t_time *= 1000;
-      } else if (strcasecmp(timelen, "m") == 0 ||
-                 strcasecmp(timelen, "min") == 0) {
+      }
+      else if (strcasecmp(timelen, "m") == 0 ||
+               strcasecmp(timelen, "min") == 0)
+      {
         t_time *= 60000;
-      } else if (strcasecmp(timelen, "h") == 0 ||
-                 strcasecmp(timelen, "hr") == 0) {
+      }
+      else if (strcasecmp(timelen, "h") == 0 ||
+               strcasecmp(timelen, "hr") == 0)
+      {
         t_time *= 3600000;
       }
     }
 
-    if (t_time >= 60000) {
+    if (t_time >= 60000)
+    {
       sprintf(msg, "Reset in %d minutes.", t_time / 60000);
       clif_broadcast("---------------------------------------------------", -1);
       clif_broadcast(msg, -1);
       clif_broadcast("---------------------------------------------------", -1);
       d = t_time / 60000;
       t_time = d * 60000;
-
-    } else {
+    }
+    else
+    {
       sprintf(msg, "Reset in %d seconds.", t_time / 1000);
       clif_broadcast("---------------------------------------------------", -1);
       clif_broadcast(msg, -1);
@@ -338,14 +378,17 @@ int command_shutdown(USER *sd, char *line, lua_State *state) {
     }
     // server_shutdown=1;
     downtimer = timer_insert(250, 250, map_reset_timer, t_time, 250);
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "Server is already shutting down.");
   }
 
   return 0;
 }
 
-int command_luareload(USER *sd, char *line, lua_State *state) {
+int command_luareload(USER *sd, char *line, lua_State *state)
+{
   int errors = sl_reload(state);
 
   nullpo_ret(errors, sd);
@@ -353,42 +396,51 @@ int command_luareload(USER *sd, char *line, lua_State *state) {
   return errors;
 }
 
-int command_magicreload(USER *sd, char *line, lua_State *state) {
+int command_magicreload(USER *sd, char *line, lua_State *state)
+{
   magicdb_read();
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "Magic DB reloaded!");
   return 0;
 }
 
-int command_lua(USER *sd, char *line, lua_State *state) {
+int command_lua(USER *sd, char *line, lua_State *state)
+{
   sd->luaexec = 0;
   sl_doscript_blargs("canRunLuaTalk", NULL, 1, &sd->bl);
 
-  if (sd->luaexec) {
+  if (sd->luaexec)
+  {
     sl_exec(sd, line);
   }
 
   return 0;
 }
 
-int command_luasize(USER *sd, char *line, lua_State *state) {
+int command_luasize(USER *sd, char *line, lua_State *state)
+{
   sl_luasize(sd);
   return 0;
 }
 
-int command_luafix(USER *sd, char *line, lua_State *state) {
+int command_luafix(USER *sd, char *line, lua_State *state)
+{
   sl_fixmem();
   return 0;
 }
 
 int command_blockcount(USER *sd, char *line, lua_State *state) { return 0; }
 
-int command_stealth(USER *sd, char *line, lua_State *state) {
-  if (sd->optFlags & optFlag_stealth) {
+int command_stealth(USER *sd, char *line, lua_State *state)
+{
+  if (sd->optFlags & optFlag_stealth)
+  {
     sd->optFlags ^= optFlag_stealth;
     clif_refresh(sd);
     clif_sendminitext(sd, "Stealth :OFF");
-  } else {
+  }
+  else
+  {
     clif_lookgone(&sd->bl);
     sd->optFlags ^= optFlag_stealth;
     clif_refresh(sd);
@@ -397,7 +449,8 @@ int command_stealth(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_ghosts(USER *sd, char *line, lua_State *state) {
+int command_ghosts(USER *sd, char *line, lua_State *state)
+{
   sd->optFlags ^= optFlag_ghosts;
   clif_refresh(sd);
 
@@ -409,42 +462,54 @@ int command_ghosts(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_unphysical(USER *sd, char *line, lua_State *state) {
+int command_unphysical(USER *sd, char *line, lua_State *state)
+{
   sd->uFlags ^= uFlag_unphysical;
 
-  if (sd->uFlags & uFlag_unphysical) {
+  if (sd->uFlags & uFlag_unphysical)
+  {
     clif_sendminitext(sd, "Unphysical :ON");
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "Unphysical :OFF");
   }
   return 0;
 }
 
-int command_immortality(USER *sd, char *line, lua_State *state) {
+int command_immortality(USER *sd, char *line, lua_State *state)
+{
   sd->uFlags ^= uFlag_immortal;
 
-  if (sd->uFlags & uFlag_immortal) {
+  if (sd->uFlags & uFlag_immortal)
+  {
     clif_sendminitext(sd, "Immortality :ON");
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "Immortality :OFF");
   }
   return 0;
 }
 
-int command_ban(USER *sd, char *line, lua_State *state) {
+int command_ban(USER *sd, char *line, lua_State *state)
+{
   char name[32];
-  if (sscanf(line, "%s", name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1)
+    return -1;
 
   USER *tsd = map_name2sd(name);
 
-  if (tsd) {
+  if (tsd)
+  {
     printf("Banning %s\n", name);
 
     if (SQL_ERROR ==
         Sql_Query(
             sql_handle,
             "UPDATE `Character` SET ChaBanned = '1' WHERE `ChaName` = '%s'",
-            name)) {
+            name))
+    {
       Sql_ShowDebug(sql_handle);
     }
     // unsigned int ipaddr;
@@ -456,55 +521,69 @@ int command_ban(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_unban(USER *sd, char *line, lua_State *state) {
+int command_unban(USER *sd, char *line, lua_State *state)
+{
   char name[32];
 
-  if (sscanf(line, "%s", name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1)
+    return -1;
 
   printf("Unbanning %s\n", name);
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Character` SET ChaBanned = '0' WHERE `ChaName` = '%s'",
-                name)) {
+                name))
+  {
     Sql_ShowDebug(sql_handle);
   }
 
   return 0;
 }
 
-int command_silence(USER *sd, char *line, lua_State *state) {
+int command_silence(USER *sd, char *line, lua_State *state)
+{
   char name[32];
-  if (sscanf(line, "%s", name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1)
+    return -1;
 
   USER *tsd = map_name2sd(name);
 
-  if (tsd) {
+  if (tsd)
+  {
     tsd->uFlags ^= uFlag_silenced;
 
-    if (tsd->uFlags & uFlag_silenced) {
+    if (tsd->uFlags & uFlag_silenced)
+    {
       clif_sendminitext(sd, "Silenced.");
       clif_sendminitext(tsd, "You have been silenced.");
-    } else {
+    }
+    else
+    {
       clif_sendminitext(sd, "Unsilenced.");
       clif_sendminitext(tsd, "Silence lifted.");
     }
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "User not on.");
   }
   return 0;
 }
 
-int command_gfxtoggle(USER *sd, char *line, lua_State *state) {
+int command_gfxtoggle(USER *sd, char *line, lua_State *state)
+{
   sd->gfx.toggle ^= 1;
   return 0;
 }
 
-int command_disguise(USER *sd, char *line, lua_State *state) {
+int command_disguise(USER *sd, char *line, lua_State *state)
+{
   int d;
   int e = 0;
   int os;
-  if (sscanf(line, "%d %d", &d, &e) < 1) return -1;
+  if (sscanf(line, "%d %d", &d, &e) < 1)
+    return -1;
   os = sd->status.state;
   sd->status.state = 0;
   map_foreachinarea(clif_updatestate, sd->bl.m, sd->bl.x, sd->bl.y, AREA, BL_PC,
@@ -518,7 +597,8 @@ int command_disguise(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_broadcast(USER *sd, char *line, lua_State *state) {
+int command_broadcast(USER *sd, char *line, lua_State *state)
+{
   char buf[65535];
 
   // char escape[255];
@@ -536,9 +616,11 @@ int command_broadcast(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_speed(USER *sd, char *line, lua_State *state) {
+int command_speed(USER *sd, char *line, lua_State *state)
+{
   int d;
-  if (sscanf(line, "%d", &d) < 1) return -1;
+  if (sscanf(line, "%d", &d) < 1)
+    return -1;
 
   sd->speed = d;
   clif_sendchararea(sd);
@@ -546,19 +628,23 @@ int command_speed(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_warp(USER *sd, char *line, lua_State *state) {
+int command_warp(USER *sd, char *line, lua_State *state)
+{
   int m, x, y;
-  if (sscanf(line, "%d %d %d", &m, &x, &y) < 1) return -1;
+  if (sscanf(line, "%d %d %d", &m, &x, &y) < 1)
+    return -1;
 
   pc_warp(sd, m, x, y);
   return 0;
 }
 
-int command_pvp(USER *sd, char *line, lua_State *state) {
+int command_pvp(USER *sd, char *line, lua_State *state)
+{
   int pvp;
   char msg[64];
 
-  if (sscanf(line, "%d", &pvp) < 1) {
+  if (sscanf(line, "%d", &pvp) < 1)
+  {
     return -1;
   }
 
@@ -568,30 +654,36 @@ int command_pvp(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_handle_mob(struct block_list *bl, va_list ap) {
+int command_handle_mob(struct block_list *bl, va_list ap)
+{
   MOB *mob = (MOB *)bl;
   // nullpo_ret(0,mob);
-  if (!mob) return 0;
+  if (!mob)
+    return 0;
 
   // mob->spawncheck=mobdb_spawntime(mob->id);
-  if (mob->state == MOB_DEAD && (!mob->onetime)) {
+  if (mob->state == MOB_DEAD && (!mob->onetime))
+  {
     mob_respawn(mob);
   }
   return 0;
 }
 
-int command_respawn(USER *sd, char *line, lua_State *state) {
+int command_respawn(USER *sd, char *line, lua_State *state)
+{
   int m = sd->bl.m;
 
   map_respawn(command_handle_mob, m, BL_MOB);
   return 0;
 }
 
-int command_kc(USER *sd, char *line, lua_State *state) {
+int command_kc(USER *sd, char *line, lua_State *state)
+{
   int x;
   char buf[255];
 
-  for (x = 0; x < MAX_KILLREG; x++) {
+  for (x = 0; x < MAX_KILLREG; x++)
+  {
     sprintf(buf, "%d (%d)", sd->status.killreg[x].mob_id,
             sd->status.killreg[x].amount);
     clif_sendminitext(sd, buf);
@@ -599,25 +691,33 @@ int command_kc(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_spellwork(USER *sd, char *line, lua_State *state) {
+int command_spellwork(USER *sd, char *line, lua_State *state)
+{
   map[sd->bl.m].spell ^= 1;
   return 0;
 }
 
-int command_debug(USER *sd, char *line, lua_State *state) {
+int command_debug(USER *sd, char *line, lua_State *state)
+{
   char *str[64], *p;
   int strnum, i, skip, packnum;
-  if (sscanf(line, "%d%n", &packnum, &skip) < 1) return -1;
+  if (sscanf(line, "%d%n", &packnum, &skip) < 1)
+    return -1;
   p = line + skip;
-  while (*p && isspace(*p)) p++;
+  while (*p && isspace(*p))
+    p++;
   strnum = 0;
-  for (i = 0; i < 64 && p; i++) {
+  for (i = 0; i < 64 && p; i++)
+  {
     str[i] = p;
     p = strchr(p, ',');
     strnum++;
-    if (p) {
+    if (p)
+    {
       *p++ = 0;
-    } else {
+    }
+    else
+    {
       break;
     }
   }
@@ -625,28 +725,38 @@ int command_debug(USER *sd, char *line, lua_State *state) {
   WFIFOW(sd->fd, 1) = SWAP16(strnum + 2);
   WFIFOB(sd->fd, 3) = packnum;
   WFIFOB(sd->fd, 4) = 0x03;
-  for (i = 0; i < strnum; i++) WFIFOB(sd->fd, 5 + i) = atoi(str[i]);
+  for (i = 0; i < strnum; i++)
+    WFIFOB(sd->fd, 5 + i) = atoi(str[i]);
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 
-int command_item(USER *sd, char *line, lua_State *state) {
+int command_item(USER *sd, char *line, lua_State *state)
+{
   struct item it;
   char itemname[32];
   unsigned int itemnum = 0;
   unsigned int itemid = 0;
 
-  if (!isdigit(line[0])) {
-    if (sscanf(line, "%31s %d", itemname, &itemnum) < 1) return -1;
-  } else {
-    if (sscanf(line, "%u %d", &itemid, &itemnum) < 1) return -1;
+  if (!isdigit(line[0]))
+  {
+    if (sscanf(line, "%31s %d", itemname, &itemnum) < 1)
+      return -1;
+  }
+  else
+  {
+    if (sscanf(line, "%u %d", &itemid, &itemnum) < 1)
+      return -1;
   }
 
-  if (!itemid) itemid = itemdb_id(itemname);
+  if (!itemid)
+    itemid = itemdb_id(itemname);
 
-  if (!itemid) return -1;
+  if (!itemid)
+    return -1;
 
-  if (itemnum <= 0) itemnum = 1;
+  if (itemnum <= 0)
+    itemnum = 1;
 
   memset(&it, 0, sizeof(struct item));
   it.id = itemid;
@@ -657,7 +767,8 @@ int command_item(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_legend(USER *sd, char *line, lua_State *state) {
+int command_legend(USER *sd, char *line, lua_State *state)
+{
   sd->status.legends[0].icon = 12;
   sd->status.legends[0].color = 128;
   strcpy(sd->status.legends[0].text, "Blessed by a GM");
@@ -665,22 +776,28 @@ int command_legend(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_res(USER *sd, char *line, lua_State *state) {
-  if (sd->status.state == PC_DIE) pc_res(sd);
+int command_res(USER *sd, char *line, lua_State *state)
+{
+  if (sd->status.state == PC_DIE)
+    pc_res(sd);
   return 0;
 }
 
-int command_spell(USER *sd, char *line, lua_State *state) {
+int command_spell(USER *sd, char *line, lua_State *state)
+{
   int spell;
   int sound;
 
-  if (sscanf(line, "%d %d", &spell, &sound) > -1) {
+  if (sscanf(line, "%d %d", &spell, &sound) > -1)
+  {
     spellgfx = spell;
     soundfx = sound;
     map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_PC, spellgfx, &sd->bl, soundfx);
     clif_playsound(&sd->bl, sound);
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_PC, spellgfx, &sd->bl, soundfx);
   }
@@ -692,23 +809,28 @@ int command_spell(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_nspell(USER *sd, char *line, lua_State *state) {
+int command_nspell(USER *sd, char *line, lua_State *state)
+{
   spellgfx += 1;
-  if (spellgfx > 427) spellgfx = 427;
+  if (spellgfx > 427)
+    spellgfx = 427;
   map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                     BL_PC, spellgfx, &sd->bl, soundfx);
   return 0;
 }
 
-int command_pspell(USER *sd, char *line, lua_State *state) {
+int command_pspell(USER *sd, char *line, lua_State *state)
+{
   spellgfx -= 1;
-  if (spellgfx < 0) spellgfx = 0;
+  if (spellgfx < 0)
+    spellgfx = 0;
   map_foreachinarea(clif_sendanimation, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                     BL_PC, spellgfx, &sd->bl, soundfx);
   return 0;
 }
 
-int command_spellq(USER *sd, char *line, lua_State *state) {
+int command_spellq(USER *sd, char *line, lua_State *state)
+{
   char mini[25];
 
   sprintf(mini, "Current Spell is: %d", spellgfx);
@@ -716,10 +838,12 @@ int command_spellq(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_hair(USER *sd, char *line, lua_State *state) {
+int command_hair(USER *sd, char *line, lua_State *state)
+{
   int hair;
   int hair_color = 0;
-  if (sscanf(line, "%d %d", &hair, &hair_color) < 1) return -1;
+  if (sscanf(line, "%d %d", &hair, &hair_color) < 1)
+    return -1;
 
   sd->status.hair = hair;
   sd->status.hair_color = hair_color;
@@ -728,15 +852,19 @@ int command_hair(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_checkdupes(USER *sd, char *line, lua_State *state) {
+int command_checkdupes(USER *sd, char *line, lua_State *state)
+{
   USER *tmpsd;
   char BufStr[64];
   int x;
 
-  for (x = 1; x < fd_max; x++) {
-    if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof) {
+  for (x = 1; x < fd_max; x++)
+  {
+    if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof)
+    {
       int numDupes = pc_readglobalreg(tmpsd, "goldbardupe");
-      if (numDupes) {
+      if (numDupes)
+      {
         sprintf(BufStr, "%s gold bar %i times", tmpsd->status.name, numDupes);
         clif_sendminitext(sd, BufStr);
       }
@@ -746,15 +874,19 @@ int command_checkdupes(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_checkwpe(USER *sd, char *line, lua_State *state) {
+int command_checkwpe(USER *sd, char *line, lua_State *state)
+{
   USER *tmpsd;
   char BufStr[64];
   int x;
 
-  for (x = 1; x < fd_max; x++) {
-    if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof) {
+  for (x = 1; x < fd_max; x++)
+  {
+    if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof)
+    {
       int numDupes = pc_readglobalreg(tmpsd, "WPEtimes");
-      if (numDupes) {
+      if (numDupes)
+      {
         sprintf(BufStr, "%s WPE attempt %i times", tmpsd->status.name,
                 numDupes);
         clif_sendminitext(sd, BufStr);
@@ -765,16 +897,21 @@ int command_checkwpe(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_kill(USER *sd, char *line, lua_State *state) {
+int command_kill(USER *sd, char *line, lua_State *state)
+{
   char buf[64];
 
   USER *tsd = map_name2sd(line);
-  if (tsd) {
+  if (tsd)
+  {
     sprintf(buf, "Done.");
 
-    if (session[tsd->fd]) session[tsd->fd]->eof = 1;
+    if (session[tsd->fd])
+      session[tsd->fd]->eof = 1;
     clif_sendminitext(sd, buf);
-  } else {
+  }
+  else
+  {
     sprintf(buf, "User not found.");
     clif_sendminitext(sd, buf);
   }
@@ -782,14 +919,18 @@ int command_kill(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_killall(USER *sd, char *line, lua_State *state) {
+int command_killall(USER *sd, char *line, lua_State *state)
+{
   USER *tmpsd = NULL;
   int x;
-  for (x = 1; x < fd_max; x++) {
+  for (x = 1; x < fd_max; x++)
+  {
     tmpsd = NULL;
 
-    if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof) {
-      if (!tmpsd->status.gm_level) {
+    if (session[x] && (tmpsd = session[x]->session_data) && !session[x]->eof)
+    {
+      if (!tmpsd->status.gm_level)
+      {
         session[x]->eof = 1;
       }
     }
@@ -802,9 +943,11 @@ int command_killall(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_side(USER *sd, char *line, lua_State *state) {
+int command_side(USER *sd, char *line, lua_State *state)
+{
   int side;
-  if (sscanf(line, "%d", &side) < 1) return -1;
+  if (sscanf(line, "%d", &side) < 1)
+    return -1;
 
   sd->status.side = side;
   clif_sendchararea(sd);
@@ -812,12 +955,17 @@ int command_side(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_state(USER *sd, char *line, lua_State *lstate) {
+int command_state(USER *sd, char *line, lua_State *lstate)
+{
   int state;
-  if (sscanf(line, "%d", &state) < 1) return -1;
-  if (sd->status.state == 1 && state != 1) {
+  if (sscanf(line, "%d", &state) < 1)
+    return -1;
+  if (sd->status.state == 1 && state != 1)
+  {
     pc_res(sd);
-  } else {
+  }
+  else
+  {
     sd->status.state = state % 5;
     map_foreachinarea(clif_updatestate, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_PC, sd);
@@ -827,9 +975,11 @@ int command_state(USER *sd, char *line, lua_State *lstate) {
   return 0;
 }
 
-int command_armorcolor(USER *sd, char *line, lua_State *state) {
+int command_armorcolor(USER *sd, char *line, lua_State *state)
+{
   int armorcolor;
-  if (sscanf(line, "%d", &armorcolor) < 1) return -1;
+  if (sscanf(line, "%d", &armorcolor) < 1)
+    return -1;
 
   sd->status.armor_color = armorcolor;
   clif_sendchararea(sd);
@@ -837,39 +987,48 @@ int command_armorcolor(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_givespell(USER *sd, char *line, lua_State *state) {
+int command_givespell(USER *sd, char *line, lua_State *state)
+{
   int spell = 0;
   char name[32];
   int x;
-  if (sscanf(line, "%s", name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1)
+    return -1;
 
   spell = magicdb_id(name);
-  for (x = 0; x < 52; x++) {
-    if (sd->status.skill[x] <= 0) {  // vacant spot
+  for (x = 0; x < 52; x++)
+  {
+    if (sd->status.skill[x] <= 0)
+    { // vacant spot
       sd->status.skill[x] = spell;
       pc_loadmagic(sd);
       break;
     }
-    if (sd->status.skill[x] == spell) {
+    if (sd->status.skill[x] == spell)
+    {
       break;
     }
   }
   return 0;
 }
 
-int command_deletespell(USER *sd, char *line, lua_State *state) {
+int command_deletespell(USER *sd, char *line, lua_State *state)
+{
   int spell = 0;
   char name[32];
-  if (sscanf(line, "%s", name) < 1) return -1;
+  if (sscanf(line, "%s", name) < 1)
+    return -1;
 
-  if (spell >= 0 && spell < 52) {
+  if (spell >= 0 && spell < 52)
+  {
     sd->status.skill[spell] = 0;
     pc_loadmagic(sd);
   }
   return 0;
 }
 
-int command_val(USER *sd, char *line, lua_State *state) {
+int command_val(USER *sd, char *line, lua_State *state)
+{
   // int val1=0;
   // int valval=0;
   // if(sscanf(line,"%d %d",&val1,&valval)<1)
@@ -906,22 +1065,27 @@ int command_val(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_makegm(USER *sd, char *line, lua_State *state) {
+int command_makegm(USER *sd, char *line, lua_State *state)
+{
   char name[32];
   USER *tsd;
-  if (sscanf(line, "%31s", name) < 1) return -1;
+  if (sscanf(line, "%31s", name) < 1)
+    return -1;
   tsd = map_name2sd(name);
-  if (tsd) {
+  if (tsd)
+  {
     tsd->status.gm_level = 99;
   }
   return 0;
 }
 
-int command_xprate(USER *sd, char *line, lua_State *state) {
+int command_xprate(USER *sd, char *line, lua_State *state)
+{
   int rate;
   char buf[256];
 
-  if (sscanf(line, "%d", &rate) < 1) return -1;
+  if (sscanf(line, "%d", &rate) < 1)
+    return -1;
 
   sprintf(buf, "Experience rate: %ux", rate);
   clif_sendminitext(sd, buf);
@@ -930,11 +1094,13 @@ int command_xprate(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_drate(USER *sd, char *line, lua_State *state) {
+int command_drate(USER *sd, char *line, lua_State *state)
+{
   int rate;
   char buf[256];
 
-  if (sscanf(line, "%d", &rate) < 1) return -1;
+  if (sscanf(line, "%d", &rate) < 1)
+    return -1;
 
   sprintf(buf, "Drop rate: %u x", rate);
   clif_sendminitext(sd, buf);
@@ -942,7 +1108,8 @@ int command_drate(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_who(USER *sd, char *line, lua_State *state) {
+int command_who(USER *sd, char *line, lua_State *state)
+{
   char buf[256];
 
   sprintf(buf, "There are %d users online.", userlist.user_count);
@@ -950,16 +1117,19 @@ int command_who(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_heal(USER *sd, char *line, lua_State *state) {
+int command_heal(USER *sd, char *line, lua_State *state)
+{
   sd->status.hp = sd->max_hp;
   sd->status.mp = sd->max_mp;
   clif_sendstatus(sd, SFLAG_HPMP);
   return 0;
 }
 
-int command_level(USER *sd, char *line, lua_State *state) {
+int command_level(USER *sd, char *line, lua_State *state)
+{
   int level;
-  if (sscanf(line, "%d", &level) < 1) return -1;
+  if (sscanf(line, "%d", &level) < 1)
+    return -1;
 
   sd->status.level = level;
   clif_sendstatus(sd, SFLAG_FULLSTATS);
@@ -995,28 +1165,32 @@ replace); clif_sendminitext(sd,"One time monster spawn added!"); return 0;
         map_foreachinarea(clif_broadcast_sub, sd->bl.m, sd->bl.x, sd->bl.y,
 AREA, BL_PC, msg); return 0;
 }*/
-int command_reloadmob(USER *sd, char *line, lua_State *state) {
-  mobdb_read("nothing");
+int command_reloadmob(USER *sd, char *line, lua_State *state)
+{
+  mobdb_read();
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "Mob DB Reloaded");
   return 0;
 }
 
-int command_reloadspawn(USER *sd, char *line, lua_State *state) {
-  mobspawn_read("nothing");
+int command_reloadspawn(USER *sd, char *line, lua_State *state)
+{
+  mobspawn_read();
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "Spawn DB Reloaded");
   return 0;
 }
 
-int command_reloaditem(USER *sd, char *line, lua_State *state) {
+int command_reloaditem(USER *sd, char *line, lua_State *state)
+{
   itemdb_read();
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "Item DB Reloaded!");
   return 0;
 }
 
-int command_randomspawn(USER *sd, char *line, lua_State *state) {
+int command_randomspawn(USER *sd, char *line, lua_State *state)
+{
   // int x;
   // int y;
   // int m;
@@ -1054,10 +1228,12 @@ int command_randomspawn(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_weap(USER *sd, char *line, lua_State *state) {
+int command_weap(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.weapon = id;
   sd->gfx.cweapon = color;
@@ -1066,25 +1242,30 @@ int command_weap(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_url(USER *sd, char *line, lua_State *state) {
+int command_url(USER *sd, char *line, lua_State *state)
+{
   USER *tsd = NULL;
   char name[32];
   char url[128];
   int type = 0;
-  if (sscanf(line, "%s %d %s", name, &type, url) < 1) return -1;
+  if (sscanf(line, "%s %d %s", name, &type, url) < 1)
+    return -1;
 
   tsd = map_name2sd(name);
 
-  if (!tsd) return -1;
+  if (!tsd)
+    return -1;
 
   clif_sendurl(tsd, type, url);
   return 0;
 }
 
-int command_armor(USER *sd, char *line, lua_State *state) {
+int command_armor(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.armor = id;
   sd->gfx.carmor = color;
@@ -1093,10 +1274,12 @@ int command_armor(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_shield(USER *sd, char *line, lua_State *state) {
+int command_shield(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.shield = id;
   sd->gfx.cshield = color;
@@ -1105,10 +1288,12 @@ int command_shield(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_faceacc(USER *sd, char *line, lua_State *state) {
+int command_faceacc(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.faceAcc = id;
   sd->gfx.cfaceAcc = color;
@@ -1117,10 +1302,12 @@ int command_faceacc(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_crown(USER *sd, char *line, lua_State *state) {
+int command_crown(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.crown = id;
   sd->gfx.ccrown = color;
@@ -1129,10 +1316,12 @@ int command_crown(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_necklace(USER *sd, char *line, lua_State *state) {
+int command_necklace(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
   sd->gfx.necklace = id;
   sd->gfx.cnecklace = color;
   clif_getchararea(sd);
@@ -1140,10 +1329,12 @@ int command_necklace(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_mantle(USER *sd, char *line, lua_State *state) {
+int command_mantle(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
   sd->gfx.mantle = id;
   sd->gfx.cmantle = color;
   clif_getchararea(sd);
@@ -1151,10 +1342,12 @@ int command_mantle(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_boots(USER *sd, char *line, lua_State *state) {
+int command_boots(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.boots = id;
   sd->gfx.cboots = color;
@@ -1163,11 +1356,13 @@ int command_boots(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_helm(USER *sd, char *line, lua_State *state) {
+int command_helm(USER *sd, char *line, lua_State *state)
+{
   int id;
   int color = 0;
 
-  if (sscanf(line, "%d %d", &id, &color) < 1) return -1;
+  if (sscanf(line, "%d %d", &id, &color) < 1)
+    return -1;
 
   sd->gfx.helm = id;
   sd->gfx.chelm = color;
@@ -1176,23 +1371,33 @@ int command_helm(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_cinv(USER *sd, char *line, lua_State *state) {
+int command_cinv(USER *sd, char *line, lua_State *state)
+{
   int x;
   int slotone = -1;
   int slottwo = -1;
 
-  if (sscanf(line, "%d %d", &slotone, &slottwo) < 0) {
-    for (x = 0; x < MAX_INVENTORY; x++) {
-      if (sd->status.inventory[x].id > 0) {
-        if (sd->status.inventory[x].amount > 0) {
+  if (sscanf(line, "%d %d", &slotone, &slottwo) < 0)
+  {
+    for (x = 0; x < MAX_INVENTORY; x++)
+    {
+      if (sd->status.inventory[x].id > 0)
+      {
+        if (sd->status.inventory[x].amount > 0)
+        {
           pc_delitem(sd, x, sd->status.inventory[x].amount, 0);
         }
       }
     }
-  } else {
-    for (x = slotone; x <= slottwo; x++) {
-      if (sd->status.inventory[x].id > 0) {
-        if (sd->status.inventory[x].amount > 0) {
+  }
+  else
+  {
+    for (x = slotone; x <= slottwo; x++)
+    {
+      if (sd->status.inventory[x].id > 0)
+      {
+        if (sd->status.inventory[x].amount > 0)
+        {
           pc_delitem(sd, x, sd->status.inventory[x].amount, 0);
         }
       }
@@ -1202,7 +1407,8 @@ int command_cinv(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_cfloor(USER *sd, char *line, lua_State *state) {
+int command_cfloor(USER *sd, char *line, lua_State *state)
+{
   /*FLOORITEM* fl=NULL;
   int bx,by,nx,ny,x0,x1,y0,y1,m,x,y,owner,radius;
   int nAreaSizeX, nAreaSizeY;
@@ -1262,21 +1468,29 @@ int command_cfloor(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_cspells(USER *sd, char *line, lua_State *state) {
+int command_cspells(USER *sd, char *line, lua_State *state)
+{
   int x;
   int spellone = -1;
   int spelltwo = -1;
 
-  if (sscanf(line, "%d %d", &spellone, &spelltwo) < 1) {
-    for (x = 0; x < MAX_SPELLS; x++) {
-      if (sd->status.skill[x] > 0) {
+  if (sscanf(line, "%d %d", &spellone, &spelltwo) < 1)
+  {
+    for (x = 0; x < MAX_SPELLS; x++)
+    {
+      if (sd->status.skill[x] > 0)
+      {
         sd->status.skill[x] = 0;
         pc_loadmagic(sd);
       }
     }
-  } else {
-    for (x = spellone; x <= spelltwo; x++) {
-      if (sd->status.skill[x] > 0) {
+  }
+  else
+  {
+    for (x = spellone; x <= spelltwo; x++)
+    {
+      if (sd->status.skill[x] > 0)
+      {
         sd->status.skill[x] = 0;
         pc_loadmagic(sd);
       }
@@ -1286,27 +1500,34 @@ int command_cspells(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_job(USER *sd, char *line, lua_State *state) {
+int command_job(USER *sd, char *line, lua_State *state)
+{
   int job = 0;
   int subjob = 0;
 
-  if (sscanf(line, "%d %d", &job, &subjob) < 1) {
+  if (sscanf(line, "%d %d", &job, &subjob) < 1)
+  {
     return 0;
   }
 
-  if (job < 0) job = 5;
-  if (subjob < 0 || subjob > 16) subjob = 0;
+  if (job < 0)
+    job = 5;
+  if (subjob < 0 || subjob > 16)
+    subjob = 0;
 
   sd->status.class = job;
   sd->status.mark = subjob;
 
-  if (sd->status.class < 0) sd->status.class = 0;
-  if (sd->status.mark < 0) sd->status.mark = 0;
+  if (sd->status.class < 0)
+    sd->status.class = 0;
+  if (sd->status.mark < 0)
+    sd->status.mark = 0;
 
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -1315,7 +1536,8 @@ int command_job(USER *sd, char *line, lua_State *state) {
                              "UPDATE `Character` SET `ChaPthId` = '%u', "
                              "`ChaMark` = '%u' WHERE `ChaId` = '%u'",
                              sd->status.class, sd->status.mark,
-                             sd->status.id)) {
+                             sd->status.id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 0;
@@ -1325,11 +1547,13 @@ int command_job(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_music(USER *sd, char *line, lua_State *state) {
+int command_music(USER *sd, char *line, lua_State *state)
+{
   int oldm, oldx, oldy;
   int music;
 
-  if (sscanf(line, "%d", &music) > -1) {
+  if (sscanf(line, "%d", &music) > -1)
+  {
     musicfx = music;
     oldm = sd->bl.m;
     oldx = sd->bl.x;
@@ -1342,7 +1566,8 @@ int command_music(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_musicn(USER *sd, char *line, lua_State *state) {
+int command_musicn(USER *sd, char *line, lua_State *state)
+{
   int oldm, oldx, oldy;
 
   musicfx += 1;
@@ -1355,7 +1580,8 @@ int command_musicn(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_musicp(USER *sd, char *line, lua_State *state) {
+int command_musicp(USER *sd, char *line, lua_State *state)
+{
   int oldm, oldx, oldy;
 
   musicfx -= 1;
@@ -1368,7 +1594,8 @@ int command_musicp(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_musicq(USER *sd, char *line, lua_State *state) {
+int command_musicq(USER *sd, char *line, lua_State *state)
+{
   char mini[25];
 
   sprintf(mini, "Current music is: %d", musicfx);
@@ -1376,34 +1603,43 @@ int command_musicq(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_sound(USER *sd, char *line, lua_State *state) {
+int command_sound(USER *sd, char *line, lua_State *state)
+{
   int sound;
 
-  if (sscanf(line, "%d", &sound) > -1) {
+  if (sscanf(line, "%d", &sound) > -1)
+  {
     soundfx = sound;
     clif_playsound(&sd->bl, soundfx);
-  } else {
+  }
+  else
+  {
     clif_playsound(&sd->bl, soundfx);
   }
 
   return 0;
 }
 
-int command_nsound(USER *sd, char *line, lua_State *state) {
+int command_nsound(USER *sd, char *line, lua_State *state)
+{
   soundfx += 1;
-  if (soundfx > 125) soundfx = 125;
+  if (soundfx > 125)
+    soundfx = 125;
   clif_playsound(&sd->bl, soundfx);
   return 0;
 }
 
-int command_psound(USER *sd, char *line, lua_State *state) {
+int command_psound(USER *sd, char *line, lua_State *state)
+{
   soundfx -= 1;
-  if (soundfx < 0) soundfx = 0;
+  if (soundfx < 0)
+    soundfx = 0;
   clif_playsound(&sd->bl, soundfx);
   return 0;
 }
 
-int command_soundq(USER *sd, char *line, lua_State *state) {
+int command_soundq(USER *sd, char *line, lua_State *state)
+{
   char mini[25];
 
   sprintf(mini, "Current sound is: %d", soundfx);
@@ -1411,7 +1647,8 @@ int command_soundq(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_reloadboard(USER *sd, char *line, lua_State *state) {
+int command_reloadboard(USER *sd, char *line, lua_State *state)
+{
   boarddb_term();
   boarddb_init();
 
@@ -1420,7 +1657,8 @@ int command_reloadboard(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_reloadclan(USER *sd, char *line, lua_State *state) {
+int command_reloadclan(USER *sd, char *line, lua_State *state)
+{
   clandb_init();
 
   nullpo_ret(0, sd);
@@ -1461,7 +1699,8 @@ NULL, NULL)) { SqlStmt_ShowDebug(stmt); SqlStmt_Free(stmt); return 0;
         return 0;
 }*/
 
-int command_reloadnpc(USER *sd, char *line, lua_State *state) {
+int command_reloadnpc(USER *sd, char *line, lua_State *state)
+{
   npc_init();
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "NPC DB reloaded!");
@@ -1481,17 +1720,20 @@ int command_reloadnpc(USER *sd, char *line, lua_State *state) {
         return 0;
 }*/
 
-int command_reloadcreations(USER *sd, char *line, lua_State *state) {
+int command_reloadcreations(USER *sd, char *line, lua_State *state)
+{
   createdb_term();
   createdb_init();
   clif_sendminitext(sd, "Creations DB reloaded!");
   return 0;
 }
 
-int command_reloadmaps(USER *sd, char *line, lua_State *state) {
+int command_reloadmaps(USER *sd, char *line, lua_State *state)
+{
   map_reload();
 
-  if (char_fd > 0 && session[char_fd] != NULL) {
+  if (char_fd > 0 && session[char_fd] != NULL)
+  {
     int i = 0;
     int j = 0;
 
@@ -1500,13 +1742,16 @@ int command_reloadmaps(USER *sd, char *line, lua_State *state) {
     WFIFOL(char_fd, 2) = map_n * 2 + 8;
     WFIFOW(char_fd, 6) = map_n;
 
-    for (i = 0; i < MAX_MAP_PER_SERVER; i++) {
-      if (map[i].tile != NULL) {
+    for (i = 0; i < MAX_MAP_PER_SERVER; i++)
+    {
+      if (map[i].tile != NULL)
+      {
         WFIFOW(char_fd, j * 2 + 8) = i;
         j++;
       }
 
-      if (j >= map_n) break;
+      if (j >= map_n)
+        break;
     }
 
     WFIFOSET(char_fd, map_n * 2 + 8);
@@ -1517,7 +1762,8 @@ int command_reloadmaps(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_reloadclass(USER *sd, char *line, lua_State *state) {
+int command_reloadclass(USER *sd, char *line, lua_State *state)
+{
   classdb_read();
 
   nullpo_ret(0, sd);
@@ -1525,7 +1771,8 @@ int command_reloadclass(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_reloadlevels(USER *sd, char *line, lua_State *state) {
+int command_reloadlevels(USER *sd, char *line, lua_State *state)
+{
   leveldb_read();
 
   nullpo_ret(0, sd);
@@ -1533,14 +1780,16 @@ int command_reloadlevels(USER *sd, char *line, lua_State *state) {
   return 0;
 }
 
-int command_reloadwarps(USER *sd, char *line, lua_State *state) {
+int command_reloadwarps(USER *sd, char *line, lua_State *state)
+{
   warp_init();
   nullpo_ret(0, sd);
   clif_sendminitext(sd, "Warps reloaded!");
   return 0;
 }
 
-int command_reload(USER *sd, char *line, lua_State *state) {
+int command_reload(USER *sd, char *line, lua_State *state)
+{
   // command_metan(sd,line);
   int errors = command_luareload(sd, line, state);
 
@@ -1560,25 +1809,31 @@ int command_reload(USER *sd, char *line, lua_State *state) {
   return errors;
 }
 
-int at_command(USER *sd, const char *p, int len) {
+int at_command(USER *sd, const char *p, int len)
+{
   int i;
   char cmd_line[257];
   char *cmdp;
-  if (*p != command_code) return 0;
+  if (*p != command_code)
+    return 0;
   p++;
   // copy command to buffer
   memcpy(cmd_line, p, len);
   cmd_line[len] = 0x00;
   cmdp = cmd_line;
   // Search for end of command string
-  while (*cmdp && !isspace(*cmdp)) cmdp++;
+  while (*cmdp && !isspace(*cmdp))
+    cmdp++;
   // set null for comparement
   *cmdp = '\0';
-  for (i = 0; command[i].func; i++) {
-    if (!strcasecmp(cmd_line, command[i].name)) break;
+  for (i = 0; command[i].func; i++)
+  {
+    if (!strcasecmp(cmd_line, command[i].name))
+      break;
   }
   // wrong command, exit!
-  if (command[i].func == NULL) return 0;
+  if (command[i].func == NULL)
+    return 0;
   // found command
   // skip our null terminate
   cmdp++;

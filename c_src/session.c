@@ -34,7 +34,7 @@ time_t stall_time = 60;
 
 int server_shutdown = 0;
 
-struct socket_data* session[FD_SETSIZE];
+struct socket_data *session[FD_SETSIZE];
 
 int null_parse(int fd);
 int null_accept(int fd);
@@ -48,40 +48,51 @@ int (*default_func_timeout)(int) = null_timeout;
 int (*default_func_shutdown)(int) = null_shutdown;
 extern int char_fd;
 
-typedef struct _connect_history {
-  struct _connect_history* next;
+typedef struct _connect_history
+{
+  struct _connect_history *next;
   uint32_t ip;
   uint32_t tick;
   int count;
   unsigned ddos : 1;
 } ConnectHistory;
 
-typedef struct _access_control {
+typedef struct _access_control
+{
   uint32_t ip;
   uint32_t mask;
 } AccessControl;
 
-enum _aco { ACO_DENY_ALLOW, ACO_ALLOW_DENY, ACO_MUTUAL_FAILURE };
-
-struct stThrottle {
-  struct sockaddr_in Ip;
-  int Times;
-  struct stThrottle* Next;
+enum _aco
+{
+  ACO_DENY_ALLOW,
+  ACO_ALLOW_DENY,
+  ACO_MUTUAL_FAILURE
 };
 
-struct stThrottle* Throttles = NULL;
+struct stThrottle
+{
+  struct sockaddr_in Ip;
+  int Times;
+  struct stThrottle *Next;
+};
+
+struct stThrottle *Throttles = NULL;
 
 static int ddos_interval = 3 * 1000;
 static int ddos_autoreset = 10 * 60 * 1000;
 /// Connection history, an array of linked lists.
 /// The array's index for any ip is ip&0xFFFF
-static ConnectHistory* connect_history[0x10000];
+static ConnectHistory *connect_history[0x10000];
 
-int add_ip_lockout(unsigned int n) {
+int add_ip_lockout(unsigned int n)
+{
   unsigned int ip = ntohl(n);
-  ConnectHistory* hist = connect_history[ip & 0xFFFF];
-  while (hist) {
-    if (ip == hist->ip) {
+  ConnectHistory *hist = connect_history[ip & 0xFFFF];
+  while (hist)
+  {
+    if (ip == hist->ip)
+    {
       hist->ddos = 1;
       hist->tick = gettick();
       printf("[lockout] ip=%u.%u.%u.%u\n", CONVIP2(ip));
@@ -102,27 +113,33 @@ int add_ip_lockout(unsigned int n) {
 }
 /// Timer function.
 /// Deletes old connection history records.
-static int connect_check_clear(int d, int data) {
+static int connect_check_clear(int d, int data)
+{
   int i;
-  int clear = 0;
+  // int clear = 0;
   int list = 0;
   ConnectHistory root;
-  ConnectHistory* prev_hist;
-  ConnectHistory* hist;
+  ConnectHistory *prev_hist;
+  ConnectHistory *hist;
   unsigned int tick = gettick();
 
-  for (i = 0; i < 0x10000; ++i) {
+  for (i = 0; i < 0x10000; ++i)
+  {
     prev_hist = &root;
     root.next = hist = connect_history[i];
-    while (hist) {
+    while (hist)
+    {
       if ((!hist->ddos && DIFF_TICK(tick, hist->tick) > ddos_interval * 3) ||
           (hist->ddos && DIFF_TICK(tick, hist->tick) >
-                             ddos_autoreset)) {  // Remove connection history
+                             ddos_autoreset))
+      { // Remove connection history
         prev_hist->next = hist->next;
         FREE(hist);
         hist = prev_hist->next;
-        clear++;
-      } else {
+        // clear++;
+      }
+      else
+      {
         prev_hist = hist;
         hist = hist->next;
       }
@@ -136,41 +153,52 @@ static int connect_check_clear(int d, int data) {
 
 /// Parses the ip address and mask and puts it into acc.
 /// Returns 1 is successful, 0 otherwise.
-int access_ipmask(const char* str, AccessControl* acc) {
+int access_ipmask(const char *str, AccessControl *acc)
+{
   uint32_t ip;
   uint32_t mask;
   unsigned int a[4];
   unsigned int m[4];
   int n;
 
-  if (strcmp(str, "all") == 0) {
+  if (strcmp(str, "all") == 0)
+  {
     ip = 0;
     mask = 0;
-  } else {
+  }
+  else
+  {
     if (((n = sscanf(str, "%u.%u.%u.%u/%u.%u.%u.%u", a, a + 1, a + 2, a + 3, m,
-                     m + 1, m + 2, m + 3)) != 8 &&  // not an ip + standard mask
+                     m + 1, m + 2, m + 3)) != 8 && // not an ip + standard mask
          (n = sscanf(str, "%u.%u.%u.%u/%u", a, a + 1, a + 2, a + 3, m)) !=
-             5 &&  // not an ip + bit mask
+             5 && // not an ip + bit mask
          (n = sscanf(str, "%u.%u.%u.%u", a, a + 1, a + 2, a + 3)) !=
-             4) ||  // not an ip
+             4) || // not an ip
         a[0] > 255 ||
-        a[1] > 255 || a[2] > 255 || a[3] > 255 ||  // invalid ip
+        a[1] > 255 || a[2] > 255 || a[3] > 255 || // invalid ip
         (n == 8 && (m[0] > 255 || m[1] > 255 || m[2] > 255 ||
-                    m[3] > 255)) ||  // invalid standard mask
-        (n == 5 && m[0] > 32)) {     // invalid bit mask
+                    m[3] > 255)) || // invalid standard mask
+        (n == 5 && m[0] > 32))
+    { // invalid bit mask
       return 0;
     }
     ip = (uint32_t)(a[0] | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
-    if (n == 8) {  // standard mask
+    if (n == 8)
+    { // standard mask
       mask = (uint32_t)(a[0] | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
-    } else if (n == 5) {  // bit mask
+    }
+    else if (n == 5)
+    { // bit mask
       mask = 0;
-      while (m[0]) {
+      while (m[0])
+      {
         mask = (mask >> 1) | 0x80000000;
         --m[0];
       }
       mask = ntohl(mask);
-    } else {  // just this ip
+    }
+    else
+    { // just this ip
       mask = 0xFFFFFFFF;
     }
   }
@@ -180,15 +208,16 @@ int access_ipmask(const char* str, AccessControl* acc) {
   return 1;
 }
 
-void setsocketopts(int fd) {
-  int yes = 1;  // reuse fix
+void setsocketopts(int fd)
+{
+  int yes = 1; // reuse fix
 #if !defined(WIN32)
   // set SO_REAUSEADDR to true, unix only. on windows this option causes
   // the previous owner of the socket to give up, which is not desirable
   // in most cases, neither compatible with unix.
-  setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(yes));
+  setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(yes));
 #ifdef SO_REUSEPORT
-  setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (char*)&yes, sizeof(yes));
+  setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (char *)&yes, sizeof(yes));
 #endif
 #endif
 
@@ -197,16 +226,17 @@ void setsocketopts(int fd) {
   // single-packet request/response, plus the FIFO model already does packet
   // grouping anyway.
   // setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&yes, sizeof(yes));
-  setsockopt(fd, IPPROTO_TCP, 0, (char*)&yes, sizeof(yes));
+  setsockopt(fd, IPPROTO_TCP, 0, (char *)&yes, sizeof(yes));
 
   // force the socket into no-wait, graceful-close mode (should be the default,
   // but better make sure)
   //(http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winsock/winsock/closesocket_2.asp)
   {
     struct linger opt;
-    opt.l_onoff = 0;   // SO_DONTLINGER
-    opt.l_linger = 0;  // Do not care
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&opt, sizeof(opt))) {
+    opt.l_onoff = 0;  // SO_DONTLINGER
+    opt.l_linger = 0; // Do not care
+    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&opt, sizeof(opt)))
+    {
       printf("setsocketopts: Unable to set SO_LINGER mode for connection %d!\n",
              fd);
     }
@@ -219,10 +249,12 @@ void setsocketopts(int fd) {
   */
 }
 
-void set_nonblocking(int fd, unsigned long yes) {
+void set_nonblocking(int fd, unsigned long yes)
+{
   // FIONBIO Use with a nonzero argp parameter to enable the nonblocking mode of
   // socket s. The argp parameter is zero if nonblocking is to be disabled.
-  if (ioctl(fd, FIONBIO, &yes) != 0) {
+  if (ioctl(fd, FIONBIO, &yes) != 0)
+  {
     printf("[session] nonblocking failed\n");
   }
   // printf("set_nonblocking: Failed to set socket %d to non-blocking mode (code
@@ -230,40 +262,48 @@ void set_nonblocking(int fd, unsigned long yes) {
 }
 // Set default parse function
 //----------------------------
-void set_defaultparse(int (*defaultparse)(int)) {
+void set_defaultparse(int (*defaultparse)(int))
+{
   default_func_parse = defaultparse;
 }
 
-void set_defaultshutdown(int (*defaultshutdown)(int)) {
+void set_defaultshutdown(int (*defaultshutdown)(int))
+{
   default_func_shutdown = defaultshutdown;
 }
-void set_defaultaccept(int (*defaultaccept)(int)) {
+void set_defaultaccept(int (*defaultaccept)(int))
+{
   default_func_accept = defaultaccept;
 }
 
-void set_defaulttimeout(int (*default_timeout)(int)) {
+void set_defaulttimeout(int (*default_timeout)(int))
+{
   default_func_timeout = default_timeout;
 }
 
 // Socket recv and send
 //----------------------------
-int recv_to_fifo(int fd) {
+int recv_to_fifo(int fd)
+{
   int len;
 
-  if ((fd < 0) || (fd >= FD_SETSIZE)) {
+  if ((fd < 0) || (fd >= FD_SETSIZE))
+  {
     return -1;
   }
 
-  if ((NULL == session[fd])) {
+  if ((NULL == session[fd]))
+  {
     return -1;
   }
 
   // printf("recv_to_fifo : %d %d\n", fd, session[fd]->eof);
-  if (session[fd]->eof) {
+  if (session[fd]->eof)
+  {
     return -1;
   }
 
-  len = recv(fd, (char*)session[fd]->rdata + session[fd]->rdata_size,
+  len = recv(fd, (char *)session[fd]->rdata + session[fd]->rdata_size,
              (int)RFIFOSPACE(fd), 0);
 
   /*	len = read(fd, r_buffer, (512*1024));
@@ -277,8 +317,10 @@ int recv_to_fifo(int fd) {
 
   //{ int i; printf("recv %d : ",fd); for(i=0;i<len;i++){ printf("%02x
   //",RFIFOB(fd,session[fd]->rdata_size+i)); } printf("\n");}
-  if (len == SOCKET_ERROR) {  // An exception has occured
-    if (sErrno != S_EWOULDBLOCK && sErrno != S_EAGAIN) {
+  if (len == SOCKET_ERROR)
+  { // An exception has occured
+    if (sErrno != S_EWOULDBLOCK && sErrno != S_EAGAIN)
+    {
       // printf("recv_to_fifo: code %d, closing connection #%d\n",sErrno,fd);
       // session_eof(fd);
 
@@ -289,9 +331,10 @@ int recv_to_fifo(int fd) {
     return 0;
   }
 
-  if (len == 0) {  // Normal connection end.
+  if (len == 0)
+  { // Normal connection end.
     // session_eof(fd);
-    session[fd]->eof = 4;  // zerolen eof
+    session[fd]->eof = 4; // zerolen eof
     return 0;
   }
 
@@ -317,8 +360,10 @@ RFIFOREST(fd);
         session[fd]->rdata_pos = session[fd]->rdata_pos + len;
         return 0;
 }*/
-int WFIFOHEADER(int fd, int packetID, int packetSize) {
-  if (!session[fd]) {
+int WFIFOHEADER(int fd, int packetID, int packetSize)
+{
+  if (!session[fd])
+  {
     return 0;
   }
   WFIFOB(fd, 0) = 0xAA;
@@ -328,37 +373,45 @@ int WFIFOHEADER(int fd, int packetID, int packetSize) {
   WFIFOB(fd, 4) = session[fd]->increment;
   return 0;
 }
-int send_from_fifo(int fd) {
+int send_from_fifo(int fd)
+{
   int len;
   // struct socket_data *p;
 
-  if ((fd < 0) || (fd >= FD_SETSIZE)) {
+  if ((fd < 0) || (fd >= FD_SETSIZE))
+  {
     return -1;
   }
 
-  if ((NULL == session[fd])) {
+  if ((NULL == session[fd]))
+  {
     return -1;
   }
 
   // printf("recv_to_fifo : %d %d\n", fd, session[fd]->eof);
-  if (session[fd]->eof) {
+  if (session[fd]->eof)
+  {
     return -1;
   }
 
-  if (!session[fd]->wdata_size) {
-    return 0;  // Nothing to send
+  if (!session[fd]->wdata_size)
+  {
+    return 0; // Nothing to send
   }
 
-  if (!session[fd]->wdata) {
+  if (!session[fd]->wdata)
+  {
     session[fd]->eof = 5;
     return -1;
   }
-  len = send(fd, (char*)session[fd]->wdata, session[fd]->wdata_size,
-             0);  // MSG_NOSIGNAL
+  len = send(fd, (char *)session[fd]->wdata, session[fd]->wdata_size,
+             0); // MSG_NOSIGNAL
   //{ int i; printf("send %d : ",fd);  for(i=0;i<len;i++){ printf("%02x
   //",session[fd]->wdata[i]); } printf("\n");}
-  if (len == SOCKET_ERROR) {
-    if (sErrno != S_EWOULDBLOCK && sErrno != S_EAGAIN) {
+  if (len == SOCKET_ERROR)
+  {
+    if (sErrno != S_EWOULDBLOCK && sErrno != S_EAGAIN)
+    {
       // printf("send_from_fifo: error %d, ending connection #%d\n",sErrno,fd);
       session[fd]->wdata_size = 0;
       session[fd]->eof = 2;
@@ -368,10 +421,12 @@ int send_from_fifo(int fd) {
     return 0;
   }
 
-  if (len > 0) {
+  if (len > 0)
+  {
     // some data could not be transferred?
     // shift unsent data to the beginning of the queue
-    if ((size_t)len < session[fd]->wdata_size) {
+    if ((size_t)len < session[fd]->wdata_size)
+    {
       memmove(session[fd]->wdata, session[fd]->wdata + len,
               session[fd]->wdata_size - len);
     }
@@ -385,8 +440,10 @@ int send_from_fifo(int fd) {
 //----------------------------
 int null_accept(int fd) { return 0; }
 
-int null_parse(int fd) {
-  if (session[fd]->eof) {
+int null_parse(int fd)
+{
+  if (session[fd]->eof)
+  {
     session[fd]->eof = 1;
     // session_eof(fd);
     return 0;
@@ -399,36 +456,43 @@ int null_shutdown(int fd) { return 0; }
 int null_timeout(int fd) { return 0; }
 // Socket main function
 //----------------------------
-int connect_client(int listen_fd) {
+int connect_client(int listen_fd)
+{
   int fd;
   struct sockaddr_in client_address;
   socklen_t len;
 
   len = sizeof(client_address);
 
-  fd = accept(listen_fd, (struct sockaddr*)&client_address, &len);
-  if (Check_Throttle(client_address)) {
+  fd = accept(listen_fd, (struct sockaddr *)&client_address, &len);
+  if (Check_Throttle(client_address))
+  {
     close(fd);
     return -1;
   }
 
-  if (fd < 0) {
+  if (fd < 0)
+  {
     return -1;
   }
-  if (fd >= FD_SETSIZE) {
+  if (fd >= FD_SETSIZE)
+  {
     close(fd);
     return -1;
   }
-  if (fd == 0) {
+  if (fd == 0)
+  {
     printf("Socket #0 is reserved!\n");
     close(fd);
     return -1;
   }
-  if (fd_max <= fd) {
+  if (fd_max <= fd)
+  {
     fd_max = fd + 1;
   }
 
-  if (session[fd]) {
+  if (session[fd])
+  {
     printf("Socket fail: Already in use\n");
     return -1;
   }
@@ -462,14 +526,16 @@ int connect_client(int listen_fd) {
   return fd;
 }
 
-int make_listen_port(int port) {
+int make_listen_port(int port)
+{
   struct sockaddr_in server_address;
   int fd;
   int result;
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (fd_max <= fd) {
+  if (fd_max <= fd)
+  {
     fd_max = fd + 1;
   }
 
@@ -491,13 +557,15 @@ int make_listen_port(int port) {
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);
 
-  result = bind(fd, (struct sockaddr*)&server_address, sizeof(server_address));
-  if (result == -1) {
+  result = bind(fd, (struct sockaddr *)&server_address, sizeof(server_address));
+  if (result == -1)
+  {
     perror("bind");
     exit(1);
   }
   result = listen(fd, 5);
-  if (result == -1) {  // error
+  if (result == -1)
+  { // error
     perror("listen");
     exit(1);
   }
@@ -511,13 +579,15 @@ int make_listen_port(int port) {
   return fd;
 }
 
-int make_connection(long ip, int port) {
+int make_connection(long ip, int port)
+{
   struct sockaddr_in server_address;
   int fd;
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (fd_max <= fd) {
+  if (fd_max <= fd)
+  {
     fd_max = fd + 1;
   }
   /*
@@ -539,7 +609,7 @@ int make_connection(long ip, int port) {
 
   set_nonblocking(fd, 1);
   /*result = fcntl(fd, F_SETFL, O_NONBLOCK);*/
-  connect(fd, (struct sockaddr*)(&server_address), sizeof(struct sockaddr_in));
+  connect(fd, (struct sockaddr *)(&server_address), sizeof(struct sockaddr_in));
 
   FD_SET(fd, &readfds);
 
@@ -558,7 +628,8 @@ int make_connection(long ip, int port) {
 
   return fd;
 }
-void create_session(int fd) {
+void create_session(int fd)
+{
   // result = fcntl(fd, F_SETFL, O_NONBLOCK);
   // if(!session[fd]) {
   CALLOC(session[fd], struct socket_data, 1);
@@ -574,13 +645,17 @@ void create_session(int fd) {
 
   session[fd]->rdata_tick = last_tick;
 }
-void flush_fifo(int fd) {
-  if (session[fd] != NULL && session[fd]->func_send != NULL) {
+void flush_fifo(int fd)
+{
+  if (session[fd] != NULL && session[fd]->func_send != NULL)
+  {
     session[fd]->func_send(fd);
   }
 }
-int session_eof(int fd) {
-  if (fd < 0 || fd >= FD_SETSIZE) {
+int session_eof(int fd)
+{
+  if (fd < 0 || fd >= FD_SETSIZE)
+  {
     return -1;
   }
 
@@ -590,7 +665,8 @@ int session_eof(int fd) {
   close(fd);
 
   // log_session(fd,"Closing client FD(%d)\n");
-  if (session[fd]) {
+  if (session[fd])
+  {
     free(session[fd]->rdata);
     free(session[fd]->wdata);
     free(session[fd]->session_data);
@@ -605,62 +681,81 @@ int session_eof(int fd) {
 
   return 0;
 }
-int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen) {
-  if (!session[fd]) {
+int realloc_rfifo(int fd, unsigned int rfifo_sizen, unsigned int wfifo_sizen)
+{
+  if (!session[fd])
+  {
     return 0;
   }
 
   if (session[fd]->max_rdata != rfifo_sizen &&
-      session[fd]->rdata_size < rfifo_sizen) {
+      session[fd]->rdata_size < rfifo_sizen)
+  {
     REALLOC(session[fd]->rdata, unsigned char, rfifo_sizen);
     session[fd]->max_rdata = rfifo_sizen;
   }
 
   if (session[fd]->max_wdata != wfifo_sizen &&
-      session[fd]->wdata_size < wfifo_sizen) {
+      session[fd]->wdata_size < wfifo_sizen)
+  {
     REALLOC(session[fd]->wdata, unsigned char, wfifo_sizen);
     session[fd]->max_wdata = wfifo_sizen;
   }
   return 0;
 }
 
-int realloc_fifo(int fd, size_t addition) {
+int realloc_fifo(int fd, size_t addition)
+{
   size_t newsize;
 
-  if (!session[fd]) {
+  if (!session[fd])
+  {
     return 0;
   }
   // if(!rfifo_sizen) return 0;
-  if (!addition) {
+  if (!addition)
+  {
     return 0;
   }
   // if(!s->rdata) return 0;
-  if (!session[fd]->wdata) {
+  if (!session[fd]->wdata)
+  {
     return 0;
   }
-  if (session[fd]->eof) {
+  if (session[fd]->eof)
+  {
     return 0;
   }
   // g_Size=session[fd]->wdata_size+wfifo_sizen;
-  if (session[fd]->wdata_size + addition > session[fd]->max_wdata) {
+  if (session[fd]->wdata_size + addition > session[fd]->max_wdata)
+  {
     // REALLOC(s->wdata, unsigned char, wfifo_sizen);
     newsize = wfifo_size;
-    while (session[fd]->wdata_size + addition > newsize) {
+    while (session[fd]->wdata_size + addition > newsize)
+    {
       newsize += wfifo_size;
     }
     // setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(char*)&s->max_wdata,(int)sizeof(s->max_wdata));
-
-  } else if (session[fd]->max_wdata >= FIFOSIZE_SERVER) {
-    if ((session[fd]->wdata_size + addition) * 4 < session[fd]->max_wdata) {
+  }
+  else if (session[fd]->max_wdata >= FIFOSIZE_SERVER)
+  {
+    if ((session[fd]->wdata_size + addition) * 4 < session[fd]->max_wdata)
+    {
       newsize = session[fd]->max_wdata / 2;
-    } else {
+    }
+    else
+    {
       return 0;
     }
-  } else if (session[fd]->max_wdata >= 2 * wfifo_size &&
-             (session[fd]->wdata_size + addition) * 4 <
-                 session[fd]->max_wdata) {
+  }
+  else if (session[fd]->max_wdata >= 2 * wfifo_size &&
+           (session[fd]->wdata_size + addition) * 4 <
+               session[fd]->max_wdata)
+  {
     newsize = session[fd]->max_wdata / 2;
-  } else {  // no change
+  }
+  else
+  { // no change
     return 0;
   }
 
@@ -674,33 +769,39 @@ int realloc_fifo(int fd, size_t addition) {
   return 0;
 }
 
-int WFIFOSET(int fd, int len) {
+int WFIFOSET(int fd, int len)
+{
   // struct socket_data *s = session[fd];
-  if (!session[fd]) {
+  if (!session[fd])
+  {
     return 0;
   }
 
-  if (session[fd]->wdata_size + len < session[fd]->max_wdata) {
+  if (session[fd]->wdata_size + len < session[fd]->max_wdata)
+  {
     session[fd]->wdata_size = session[fd]->wdata_size + len;
-  } else
-      // printf("socket #%d %d bytes wdata lost due low free space.\n", fd,
-      // len);
-
-      if (session[fd]->wdata_size + len + 4096 > session[fd]->max_wdata) {
-    // printf("socket #%d wdata low free space!\n", fd);
-    // printf("  capasity: %d bytes.\n", s->max_wdata);
-    // printf("  used: %d bytes.\n", s->wdata_size);
-    // printf("  free: %d bytes.\n", s->max_wdata - s->wdata_size);
-    realloc_fifo(fd, session[fd]->max_wdata + 4096);
-    // printf("  expanded to %d bytes.\n", s->max_wdata);
   }
+  else
+    // printf("socket #%d %d bytes wdata lost due low free space.\n", fd,
+    // len);
+
+    if (session[fd]->wdata_size + len + 4096 > session[fd]->max_wdata)
+    {
+      // printf("socket #%d wdata low free space!\n", fd);
+      // printf("  capasity: %d bytes.\n", s->max_wdata);
+      // printf("  used: %d bytes.\n", s->wdata_size);
+      // printf("  free: %d bytes.\n", s->max_wdata - s->wdata_size);
+      realloc_fifo(fd, session[fd]->max_wdata + 4096);
+      // printf("  expanded to %d bytes.\n", s->max_wdata);
+    }
 
   return len;
 }
 
 // Socket Main Routine
 //----------------------------
-int do_sendrecv() {
+int do_sendrecv()
+{
   fd_set rfd, wfd;
   struct timeval timeout;
   int ret, i;
@@ -709,18 +810,22 @@ int do_sendrecv() {
   rfd = readfds;
   // memcpy(&rfd,&readfds,sizeof(fd_set));
   FD_ZERO(&wfd);
-  for (i = 1; i < fd_max; i++) {
+  for (i = 1; i < fd_max; i++)
+  {
     // p=session[i];
-    if (!session[i] && FD_ISSET(i, &rfd)) {
+    if (!session[i] && FD_ISSET(i, &rfd))
+    {
       printf("[session] force clr fd=%d\n", i);
       FD_CLR(i, &rfd);
       continue;
     }
 
-    if (!session[i]) {
+    if (!session[i])
+    {
       continue;
     }
-    if (session[i]->wdata_size) {
+    if (session[i]->wdata_size)
+    {
       FD_SET(i, &wfd);
     }
   }
@@ -732,36 +837,47 @@ int do_sendrecv() {
 
   last_tick = time(NULL);
 
-  if (ret <= 0) {
+  if (ret <= 0)
+  {
     return 0;
   }
 
-  for (i = 1; i < fd_max; i++) {
+  for (i = 1; i < fd_max; i++)
+  {
     activeFD = i;
     // p=session[i];
-    if (!session[i]) {
+    if (!session[i])
+    {
       continue;
     }
-    if (session[i]->wdata_size) {
+    if (session[i]->wdata_size)
+    {
       // printf("write:%d\n",i);
-      if (session[i]->func_send) {
+      if (session[i]->func_send)
+      {
         session[i]->func_send(i);
       }
     }
-    if (FD_ISSET(i, &rfd)) {
+    if (FD_ISSET(i, &rfd))
+    {
       // printf("read:%d\n",i);
-      if (session[i]->func_recv) {
+      if (session[i]->func_recv)
+      {
         session[i]->func_recv(i);
       }
     }
-    if (session[i]->eof) {  // Force disconnects!
-      if (session[i]->func_parse) {
+    if (session[i]->eof)
+    { // Force disconnects!
+      if (session[i]->func_parse)
+      {
         session[i]->func_parse(i);
       }
     }
 
-    if (server_shutdown && (!FD_ISSET(i, &wfd)) && session[i]) {
-      if (session[i]->func_shutdown) {
+    if (server_shutdown && (!FD_ISSET(i, &wfd)) && session[i])
+    {
+      if (session[i]->func_shutdown)
+      {
         session[i]->func_shutdown(i);
       }
     }
@@ -780,37 +896,44 @@ int do_sendrecv() {
   return 0;
 }
 
-int do_parsepacket(void) {
+int do_parsepacket(void)
+{
   int i;
 
-  for (i = 1; i < fd_max; i++) {
+  for (i = 1; i < fd_max; i++)
+  {
     // p=session[i];
     activeFD = i;
-    if (!session[i]) {
+    if (!session[i])
+    {
       continue;
     }
     // if (session[i]->rdata_size == 0 && session[i]->eof == 0)
     //	continue;
 
     if (session[i]->rdata_tick &&
-        DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time) {
+        DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time)
+    {
       // printf("Session %d timed out\n", i);
       // session[i]->eof=1;
       session[i]->func_timeout(i);
     }
 
-    if (session[i]->func_parse) {
+    if (session[i]->func_parse)
+    {
       session[i]->func_parse(i);
       // if (!session[i])
       // continue;
     }
 
-    if (!session[i]) {
+    if (!session[i])
+    {
       continue;
     }
 
     if (session[i]->rdata_size == rfifo_size &&
-        session[i]->max_rdata == rfifo_size) {
+        session[i]->max_rdata == rfifo_size)
+    {
       session[i]->eof = 1;
       continue;
     }
@@ -823,10 +946,11 @@ int do_parsepacket(void) {
 
 // Socket init
 //----------------------------
-void do_socket(void) {
+void do_socket(void)
+{
   FD_ZERO(&readfds);
   last_tick = time(NULL);
-  memset(&session, 0, FD_SETSIZE * sizeof(struct socket_data*));
+  memset(&session, 0, FD_SETSIZE * sizeof(struct socket_data *));
   memset(connect_history, 0, sizeof(connect_history));
   // add_timer_func_list(connect_check_clear, "connect_check_clear");
   timer_insert(1000, 1000, connect_check_clear, 0, 0);
@@ -836,11 +960,14 @@ void do_socket(void) {
   CALLOC(session[0]->wdata, unsigned char, wfifo_size);
 }
 
-void Add_Throttle(struct sockaddr_in S) {
+void Add_Throttle(struct sockaddr_in S)
+{
   bool Found = false;
-  struct stThrottle* Cur = Throttles;
-  while (Cur) {
-    if (Cur->Ip.sin_addr.s_addr == S.sin_addr.s_addr) {
+  struct stThrottle *Cur = Throttles;
+  while (Cur)
+  {
+    if (Cur->Ip.sin_addr.s_addr == S.sin_addr.s_addr)
+    {
       Cur->Times++;
       Found = true;
       break;
@@ -849,8 +976,9 @@ void Add_Throttle(struct sockaddr_in S) {
     Cur = Cur->Next;
   }
 
-  if (!Found) {
-    struct stThrottle* NewT = malloc(sizeof(struct stThrottle));
+  if (!Found)
+  {
+    struct stThrottle *NewT = malloc(sizeof(struct stThrottle));
     NewT->Ip = S;
     NewT->Times = 1;
     NewT->Next = Throttles;
@@ -859,11 +987,14 @@ void Add_Throttle(struct sockaddr_in S) {
   }
 }
 
-int Check_Throttle(struct sockaddr_in S) {
+int Check_Throttle(struct sockaddr_in S)
+{
   int Ret = 0;
-  struct stThrottle* Cur = Throttles;
-  while (Cur) {
-    if (Cur->Ip.sin_addr.s_addr == S.sin_addr.s_addr) {
+  struct stThrottle *Cur = Throttles;
+  while (Cur)
+  {
+    if (Cur->Ip.sin_addr.s_addr == S.sin_addr.s_addr)
+    {
       Ret = Cur->Times;
       break;
     }
@@ -873,7 +1004,8 @@ int Check_Throttle(struct sockaddr_in S) {
   return Ret;
 }
 
-int Remove_Throttle(int none, int nonetoo) {
+int Remove_Throttle(int none, int nonetoo)
+{
   Throttles = NULL;
   return 0;
 }

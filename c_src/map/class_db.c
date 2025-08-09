@@ -13,12 +13,15 @@
 
 DBMap *class_db;
 
-struct class_data *classdb_search(int id) {
+struct class_data *classdb_search(int id)
+{
   static struct class_data *db = NULL;
-  if (db && db->id == id) return db;
+  if (db && db->id == id)
+    return db;
 
   db = uidb_get(class_db, id);
-  if (db) return db;
+  if (db)
+    return db;
 
   CALLOC(db, struct class_data, 1);
   uidb_put(class_db, id, db);
@@ -30,92 +33,106 @@ struct class_data *classdb_search(int id) {
   return db;
 }
 
-struct class_data *classdb_searchexist(int id) {
+struct class_data *classdb_searchexist(int id)
+{
   struct class_data *db = NULL;
 
   db = uidb_get(class_db, id);
   return db;
 }
-int classdb_chat(int id) {
+int classdb_chat(int id)
+{
   struct class_data *db = NULL;
 
   db = classdb_search(id);
   return db->chat;
 }
-int classdb_icon(int id) {
+int classdb_icon(int id)
+{
   struct class_data *db = NULL;
 
   db = classdb_search(id);
   return db->icon;
 }
-char *classdb_name(int id, int a) {
+char *classdb_name(int id, int a)
+{
   struct class_data *db = NULL;
 
   db = uidb_get(class_db, id);
 
-  switch (a) {
-    case 0:
-      return db->rank0;
-    case 1:
-      return db->rank1;
-    case 2:
-      return db->rank2;
-    case 3:
-      return db->rank3;
-    case 4:
-      return db->rank4;
-    case 5:
-      return db->rank5;
-    case 6:
-      return db->rank6;
-    case 7:
-      return db->rank7;
-    case 8:
-      return db->rank8;
-    case 9:
-      return db->rank9;
-    case 10:
-      return db->rank10;
-    case 11:
-      return db->rank11;
-    case 12:
-      return db->rank12;
-    case 13:
-      return db->rank13;
-    case 14:
-      return db->rank14;
-    case 15:
-      return db->rank15;
-    default:
-      return db->rank0;
+  switch (a)
+  {
+  case 0:
+    return db->rank0;
+  case 1:
+    return db->rank1;
+  case 2:
+    return db->rank2;
+  case 3:
+    return db->rank3;
+  case 4:
+    return db->rank4;
+  case 5:
+    return db->rank5;
+  case 6:
+    return db->rank6;
+  case 7:
+    return db->rank7;
+  case 8:
+    return db->rank8;
+  case 9:
+    return db->rank9;
+  case 10:
+    return db->rank10;
+  case 11:
+    return db->rank11;
+  case 12:
+    return db->rank12;
+  case 13:
+    return db->rank13;
+  case 14:
+    return db->rank14;
+  case 15:
+    return db->rank15;
+  default:
+    return db->rank0;
   }
 }
 
-int classdb_path(int id) {
+int classdb_path(int id)
+{
   struct class_data *db = NULL;
 
   db = uidb_get(class_db, id);
 
-  if (db) {
+  if (db)
+  {
     return db->path;
-  } else {
+  }
+  else
+  {
     return 0;
   }
 }
 
-unsigned int classdb_level(int path, int lvl) {
+unsigned int classdb_level(int path, int lvl)
+{
   struct class_data *db = NULL;
 
   db = uidb_get(class_db, path);
 
-  if (db) {
+  if (db)
+  {
     return db->level[lvl];
-  } else {
+  }
+  else
+  {
     return 0;
   }
 }
 
-int classdb_read() {
+int classdb_read()
+{
   struct class_data *db;
   int i, cls = 0;
 
@@ -125,7 +142,8 @@ int classdb_read() {
 
   memset(&c, 0, sizeof(c));
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -178,7 +196,8 @@ int classdb_read() {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 18, SQLDT_STRING, &c.rank14,
                                       sizeof(c.rank14), NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 19, SQLDT_STRING, &c.rank15,
-                                      sizeof(c.rank15), NULL, NULL)) {
+                                      sizeof(c.rank15), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -186,7 +205,8 @@ int classdb_read() {
 
   cls = SqlStmt_NumRows(stmt);
 
-  for (i = 0; i < cls && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+  for (i = 0; i < cls && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++)
+  {
     CALLOC(db, struct class_data, 1);
     uidb_put(class_db, c.id, db);
     memcpy(db, &c, sizeof(c));
@@ -197,10 +217,11 @@ int classdb_read() {
   return 0;
 }
 
-int leveldb_read() {
+int leveldb_read()
+{
   FILE *fp;
   char line[1024];
-  int lines = 0;
+  /* int lines = 0; */
   char *str[99], *p;
   struct class_data *db;
   int i, cls = 0;
@@ -214,19 +235,24 @@ int leveldb_read() {
   strncat(path, filename, path_size);
 
   fp = fopen(path, "r");
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     printf("DB_ERR: Can't read level db (%s).", path);
     exit(1);
   }
 
-  while (fgets(line, sizeof(line), fp)) {
-    lines++;
-    if (line[0] == '/' && line[1] == '/') continue;
+  while (fgets(line, sizeof(line), fp))
+  {
+    /* lines++; */
+    if (line[0] == '/' && line[1] == '/')
+      continue;
     memset(str, 0, sizeof(str));
-    for (i = 0, p = line; i < 99 && p; i++) {
+    for (i = 0, p = line; i < 99 && p; i++)
+    {
       str[i] = p;
       p = strchr(p, ',');
-      if (p) {
+      if (p)
+      {
         *p++ = 0;
       }
     }
@@ -234,7 +260,8 @@ int leveldb_read() {
     cls++;
     db = classdb_search((unsigned int)strtoul(str[0], NULL, 10));
 
-    for (x = 1; x < 99; x++) {
+    for (x = 1; x < 99; x++)
+    {
       db->level[x] = (unsigned int)strtoul(str[x], NULL, 10);
     }
   }
@@ -245,15 +272,18 @@ int leveldb_read() {
   return 0;
 }
 
-int classdb_term() {
-  if (class_db) {
+int classdb_term()
+{
+  if (class_db)
+  {
     db_destroy(class_db);
   }
 
   return 0;
 }
 
-int classdb_init() {
+int classdb_init()
+{
   class_db = uidb_alloc(DB_OPT_BASE);
   classdb_read();
   leveldb_read();

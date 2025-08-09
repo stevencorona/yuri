@@ -18,18 +18,20 @@
 #include "strlib.h"
 #include "timer.h"
 
-struct DBMap* auth_db;
+struct DBMap *auth_db;
 
 static const int packet_len_table[] = {
-    4,   -1, 38,  -1,  6,   -1,  255, -1,
-    5,   -1, -1,  6,   6,   8,   6,   sizeof(struct boards_read_post_1) + 2,
-    255, 30, 255, 255, 255, 255, 255,  // 0x3800-0x3816
+    4, -1, 38, -1, 6, -1, 255, -1,
+    5, -1, -1, 6, 6, 8, 6, sizeof(struct boards_read_post_1) + 2,
+    255, 30, 255, 255, 255, 255, 255, // 0x3800-0x3816
     0};
 
 int intif_shutdown(int fd) { exit(0); }
-int check_connect_char(int ip, int port) {
+int check_connect_char(int ip, int port)
+{
   // printf("Called Connect\n");
-  if (char_fd <= 0 || session[char_fd] == NULL) {
+  if (char_fd <= 0 || session[char_fd] == NULL)
+  {
     printf("[map] [intif] Connecting to char-server\n");
     char_fd = make_connection(ip, port);
     session[char_fd]->func_parse = intif_parse;
@@ -46,8 +48,10 @@ int check_connect_char(int ip, int port) {
   return 0;
 }
 
-int intif_quit(USER* sd) {
-  if (char_fd <= 0) return -1;
+int intif_quit(USER *sd)
+{
+  if (char_fd <= 0)
+    return -1;
 
   WFIFOHEAD(char_fd, 6);
   WFIFOW(char_fd, 0) = 0x3005;
@@ -56,8 +60,10 @@ int intif_quit(USER* sd) {
   return 0;
 }
 
-int intif_load(int fd, int id, char* name) {
-  if (char_fd <= 0) return -1;
+int intif_load(int fd, int id, char *name)
+{
+  if (char_fd <= 0)
+    return -1;
 
   // printf("	Sent FD: %d\n",fd);
   WFIFOHEAD(char_fd, 24);
@@ -78,7 +84,8 @@ int intif_load(int fd, int id, char* name) {
       Sql_Query(
           sql_handle,
           "UPDATE `Character` SET `ChaServer` = '%i' WHERE `ChaName`='%s'",
-          serverid, name)) {
+          serverid, name))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
   }
@@ -86,12 +93,15 @@ int intif_load(int fd, int id, char* name) {
   return 0;
 }
 
-int intif_savequit(USER* sd) {
+int intif_savequit(USER *sd)
+{
   int retval;
   nullpo_ret(0, sd);
 
-  if (!map_isloaded(sd->status.dest_pos.m)) {
-    if (sd->status.dest_pos.m == 0) {
+  if (!map_isloaded(sd->status.dest_pos.m))
+  {
+    if (sd->status.dest_pos.m == 0)
+    {
       sd->status.dest_pos.m = sd->bl.m;
       sd->status.dest_pos.y = sd->bl.y;
       sd->status.dest_pos.x = sd->bl.x;
@@ -99,7 +109,9 @@ int intif_savequit(USER* sd) {
     sd->status.last_pos.m = sd->status.dest_pos.m;
     sd->status.last_pos.x = sd->status.dest_pos.x;
     sd->status.last_pos.y = sd->status.dest_pos.y;
-  } else {
+  }
+  else
+  {
     sd->status.last_pos.m = sd->bl.m;
     sd->status.last_pos.x = sd->bl.x;
     sd->status.last_pos.y = sd->bl.y;
@@ -112,11 +124,12 @@ int intif_savequit(USER* sd) {
   uLongf clen = compressBound(ulen);
 
   WFIFOHEAD(char_fd, clen + 6);
-  retval = compress2((unsigned char*)WFIFOP(char_fd, 6), &clen,
-                     (unsigned char*)&sd->status, ulen,
-                     1);  // fastest compression.
+  retval = compress2((unsigned char *)WFIFOP(char_fd, 6), &clen,
+                     (unsigned char *)&sd->status, ulen,
+                     1); // fastest compression.
 
-  if (retval) {
+  if (retval)
+  {
     printf("Error Compressing: %s\n", sd->status.name);
     return 0;
   }
@@ -128,8 +141,10 @@ int intif_savequit(USER* sd) {
   return 0;
 }
 
-int intif_save(USER* sd) {
-  if (char_fd <= 0) return -1;
+int intif_save(USER *sd)
+{
+  if (char_fd <= 0)
+    return -1;
   int retval = 0;
 
   nullpo_ret(0, sd);
@@ -144,10 +159,11 @@ int intif_save(USER* sd) {
   uLongf clen = compressBound(ulen);
 
   WFIFOHEAD(char_fd, clen + 6);
-  retval = compress2((unsigned char*)WFIFOP(char_fd, 6), &clen,
-                     (unsigned char*)&sd->status, ulen, 1);
+  retval = compress2((unsigned char *)WFIFOP(char_fd, 6), &clen,
+                     (unsigned char *)&sd->status, ulen, 1);
 
-  if (retval) {
+  if (retval)
+  {
     printf("Error Compressing: %s\n", sd->status.name);
     return 0;
   }
@@ -160,12 +176,15 @@ int intif_save(USER* sd) {
   return 0;
 }
 
-int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
-  USER* sd;
-  if (fd == map_fd) {
+int intif_mmo_tosd(int fd, struct mmo_charstatus *p)
+{
+  USER *sd;
+  if (fd == map_fd)
+  {
     return 0;
   }
-  if (!p) {
+  if (!p)
+  {
     session[fd]->eof = 7;
     return 0;
   }
@@ -192,10 +211,11 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
 
   strcpy(sd->ipaddress, p->ipaddress);
 
-  SqlStmt* stmt;
+  SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -210,12 +230,14 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,
                                       &sd->status.last_pos.x, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_USHORT,
-                                      &sd->status.last_pos.y, 0, NULL, NULL)) {
+                                      &sd->status.last_pos.y, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     // SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
   }
@@ -224,8 +246,10 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
   // sd->status.last_pos.x = 8; sd->status.last_pos.y = 7; } // commented on
   // 05-28-18
 
-  if (sd->status.gm_level) sd->optFlags = optFlag_walkthrough;  //.
-  if (!map_isloaded(sd->status.last_pos.m)) {
+  if (sd->status.gm_level)
+    sd->optFlags = optFlag_walkthrough; //.
+  if (!map_isloaded(sd->status.last_pos.m))
+  {
     // sd->status.last_pos.m=0; sd->status.last_pos.x=8;
     // sd->status.last_pos.y=7;
   }
@@ -270,7 +294,8 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
   */
   mmo_setonline(sd->status.id, 1);
 
-  if (sd->status.gm_level) {
+  if (sd->status.gm_level)
+  {
     // sd->optFlags|=optFlag_stealth;
     // printf("GM(%s) set to stealth.\n",sd->status.name);
   }
@@ -283,11 +308,13 @@ int intif_mmo_tosd(int fd, struct mmo_charstatus* p) {
   clif_retrieveprofile(sd);
   return 0;
 }
-int authdb_init() {
+int authdb_init()
+{
   // auth_db=strdb_alloc(DB_OPT_BASE,32);
   return 0;
 }
-int auth_timer(int id, int none) {
+int auth_timer(int id, int none)
+{
   // struct auth_node* a=(struct auth_node*)strdb_get(auth_db,(char*)id);
   // sql_request("DELETE FROM auth WHERE char_id='%u'",id);
   // sql_get_row();
@@ -302,10 +329,11 @@ int auth_timer(int id, int none) {
   // memset(auth_fifo[id].name,0,16);
   return 1;
 }
-int auth_check(char* name, unsigned int ip) {
+int auth_check(char *name, unsigned int ip)
+{
   unsigned int i;
   unsigned int id;
-  char* data;
+  char *data;
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "SELECT `AutIP`, `AutChaId` FROM `Authorize` "
@@ -313,25 +341,29 @@ int auth_check(char* name, unsigned int ip) {
                              name))
     Sql_ShowDebug(sql_handle);
 
-  if (SQL_SUCCESS != Sql_NextRow(sql_handle)) return 0;  // Not available
+  if (SQL_SUCCESS != Sql_NextRow(sql_handle))
+    return 0; // Not available
 
   Sql_GetData(sql_handle, 0, &data, 0);
   i = strtoul(data, NULL, 10);
   Sql_GetData(sql_handle, 1, &data, 0);
   id = (unsigned int)strtoul(data, NULL, 10);
   Sql_FreeResult(sql_handle);
-  if (i == ip) return id;
+  if (i == ip)
+    return id;
 
   return 0;
   // struct auth_node* t=(struct auth_node*)strdb_get(auth_db,name);
 }
-int auth_delete(char* name) {
-  char* data;
+int auth_delete(char *name)
+{
+  char *data;
   Sql_Query(sql_handle,
             "SELECT `AutTimer` FROM `Authorize` WHERE `AutChaName` = '%s'",
             name);
 
-  if (SQL_SUCCESS != Sql_NextRow(sql_handle)) return 0;
+  if (SQL_SUCCESS != Sql_NextRow(sql_handle))
+    return 0;
 
   Sql_GetData(sql_handle, 0, &data, 0);
   timer_remove((unsigned int)strtoul(data, NULL, 10));
@@ -351,7 +383,8 @@ int auth_delete(char* name) {
   // sql_free_row();
   return 0;
 }
-int auth_add(char* name, unsigned int id, unsigned int ip) {
+int auth_add(char *name, unsigned int id, unsigned int ip)
+{
   int timer;
   // sql_request("SELECT * FROM auth WHERE name='%s'",name);
   if (SQL_ERROR ==
@@ -359,7 +392,8 @@ int auth_add(char* name, unsigned int id, unsigned int ip) {
                 "SELECT * FROM `Authorize` WHERE `AutChaName` = '%s'", name))
     Sql_ShowDebug(sql_handle);
 
-  if (SQL_SUCCESS == Sql_NextRow(sql_handle)) return 0;
+  if (SQL_SUCCESS == Sql_NextRow(sql_handle))
+    return 0;
 
   timer = timer_insert(120000, 120000, auth_timer, id, 0);
 
@@ -376,9 +410,11 @@ int auth_add(char* name, unsigned int id, unsigned int ip) {
   // strdb_put(auth_db,t->name,t);
   return 0;
 }
-int intif_parse_accept(int fd) {
+int intif_parse_accept(int fd)
+{
   int i, j = 0;
-  if (RFIFOB(fd, 2)) {
+  if (RFIFOB(fd, 2))
+  {
     printf("[map] [intif] Cannot connect to login server\n");
     return 0;
   }
@@ -391,17 +427,21 @@ int intif_parse_accept(int fd) {
   WFIFOW(fd, 0) = 0x3001;
   WFIFOL(fd, 2) = map_n * 2 + 8;
   WFIFOW(fd, 6) = map_n;
-  for (i = 0; i < MAX_MAP_PER_SERVER; i++) {
-    if (map[i].tile != NULL) {
+  for (i = 0; i < MAX_MAP_PER_SERVER; i++)
+  {
+    if (map[i].tile != NULL)
+    {
       WFIFOW(fd, j * 2 + 8) = i;
       j++;
     }
-    if (j >= map_n) break;
+    if (j >= map_n)
+      break;
   }
   WFIFOSET(fd, map_n * 2 + 8);
   return 0;
 }
-int intif_parse_mapset(int fd) {
+int intif_parse_mapset(int fd)
+{
   // if(RFIFOREST(fd) < RFIFOW(fd, 7)*2+9)
   // return 0;
   return 0;
@@ -409,7 +449,7 @@ int intif_parse_mapset(int fd) {
   for (i = 0; i < RFIFOW(fd, 7); i++)
     map_setmapip(RFIFOW(fd, i * 2 + 9), RFIFOL(fd, 1), RFIFOW(fd, 5));
   {
-    unsigned char* p;
+    unsigned char *p;
     p = RFIFOP(fd, 1);
     printf("Received %d maps from map server %u.%u.%u.%u:%d\n", RFIFOW(fd, 7),
            p[0], p[1], p[2], p[3], RFIFOW(fd, 5));
@@ -417,8 +457,9 @@ int intif_parse_mapset(int fd) {
   // RFIFOSKIP(fd, RFIFOW(fd, 7)*2+9);
   return 0;
 }
-int intif_parse_authadd(int fd) {
-  auth_add((char*)RFIFOP(fd, 8), RFIFOL(fd, 4), RFIFOL(fd, 34));
+int intif_parse_authadd(int fd)
+{
+  auth_add((char *)RFIFOP(fd, 8), RFIFOL(fd, 4), RFIFOL(fd, 34));
 
   // printf("Auth add: %s\n",RFIFOP(fd,8));
   // printf("Accepting IP: %u - %s\n",RFIFOL(fd,33), auth_fifo
@@ -431,12 +472,14 @@ int intif_parse_authadd(int fd) {
 
   return 0;
 }
-int intif_parse_charload(int fd) {
+int intif_parse_charload(int fd)
+{
   unsigned int ulen;
   uLongf clen;
-  Bytef* cbuf = NULL;
+  Bytef *cbuf = NULL;
 
-  if (!session[RFIFOW(fd, 6)]) return 0;
+  if (!session[RFIFOW(fd, 6)])
+    return 0;
 
   ulen = sizeof(struct mmo_charstatus);
   clen = ulen;
@@ -453,18 +496,20 @@ int intif_parse_charload(int fd) {
           }
   }
 */
-  intif_mmo_tosd(RFIFOW(fd, 6), (struct mmo_charstatus*)cbuf);
+  intif_mmo_tosd(RFIFOW(fd, 6), (struct mmo_charstatus *)cbuf);
   FREE(cbuf);
   return 0;
 }
-int intif_parse_checkonline(int fd) {
+int intif_parse_checkonline(int fd)
+{
   // Come back here
   // return 0;
-  USER* sd = NULL;
+  USER *sd = NULL;
 
   sd = map_id2sd(RFIFOL(fd, 2));
 
-  if (sd) {  // User is not online, FORCE login to delete
+  if (sd)
+  { // User is not online, FORCE login to delete
     session[sd->fd]->eof = 20;
     // WFIFOW(fd,0)=0x3005;
     // WFIFOL(fd,2)=RFIFOL(fd,2);
@@ -473,33 +518,39 @@ int intif_parse_checkonline(int fd) {
 }
 int intif_parse_unknown(int fd) { return 0; }
 
-int intif_parse_deletepostresponse(int fd) {
+int intif_parse_deletepostresponse(int fd)
+{
   int sfd = RFIFOW(fd, 2);
   int response = RFIFOB(fd, 4);
-  USER* sd = NULL;
+  USER *sd = NULL;
 
-  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0) return 0;
+  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0)
+    return 0;
 
-  if (session[sfd]) sd = (USER*)session[sfd]->session_data;
-  if (!sd) return 0;
+  if (session[sfd])
+    sd = (USER *)session[sfd]->session_data;
+  if (!sd)
+    return 0;
 
-  switch (response) {
-    case 0x00:  // Got the OK!
-      nmail_sendmessage(sd, "The message has been deleted.", 7, 1);
-      break;
-    case 0x01:  // Not Your Post, Cannot delete
-      nmail_sendmessage(sd, "You can only delete your own messages.", 7, 0);
-      break;
-    case 0x02:  // SQL Error
-      nmail_sendmessage(sd, "DB Error. Please ticket staff.", 7, 0);
-      break;
-    default:
-      break;
+  switch (response)
+  {
+  case 0x00: // Got the OK!
+    nmail_sendmessage(sd, "The message has been deleted.", 7, 1);
+    break;
+  case 0x01: // Not Your Post, Cannot delete
+    nmail_sendmessage(sd, "You can only delete your own messages.", 7, 0);
+    break;
+  case 0x02: // SQL Error
+    nmail_sendmessage(sd, "DB Error. Please ticket staff.", 7, 0);
+    break;
+  default:
+    break;
   }
   return 0;
 }
-int intif_parse_showpostresponse(int fd) {
-  USER* sd = NULL;
+int intif_parse_showpostresponse(int fd)
+{
+  USER *sd = NULL;
   struct boards_show_header_1 header;
   struct boards_show_array_1 post;
   int len = 0, pos, flen;
@@ -513,13 +564,17 @@ int intif_parse_showpostresponse(int fd) {
   int x;
   StringBuf buf;
   // return 0;
-  if (header.fd > FD_SETSIZE || header.fd >= fd_max || header.fd <= 0) return 0;
+  if (header.fd > FD_SETSIZE || header.fd >= fd_max || header.fd <= 0)
+    return 0;
 
-  if (session[header.fd]) sd = (USER*)session[header.fd]->session_data;
+  if (session[header.fd])
+    sd = (USER *)session[header.fd]->session_data;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
-  if (strcasecmp(sd->status.name, header.name)) return 0;
+  if (strcasecmp(sd->status.name, header.name))
+    return 0;
 
   StringBuf_Init(&buf);
   len = 0;
@@ -533,20 +588,22 @@ int intif_parse_showpostresponse(int fd) {
   strcpy(WFIFOP(header.fd, 10), boarddb_name(header.board));
   len = strlen(boarddb_name(header.board)) + 1;
   pos = len + 9;
-  flen = sizeof(header) + 6;  // Skip past header
+  flen = sizeof(header) + 6; // Skip past header
 
   if (header.array <= 0)
     WFIFOB(header.fd, pos) = 0;
-  else {
+  else
+  {
     WFIFOB(header.fd, pos) = header.array;
     len++;
 
-    for (x = 0; x < header.array; x++) {
+    for (x = 0; x < header.array; x++)
+    {
       memset(&post, 0, sizeof(post));
       memcpy(&post, RFIFOP(fd, flen), sizeof(post));
 
-      WFIFOB(header.fd, len + 9) = post.color;             // Color
-      WFIFOW(header.fd, len + 10) = SWAP16(post.post_id);  // POST ID
+      WFIFOB(header.fd, len + 9) = post.color;            // Color
+      WFIFOW(header.fd, len + 10) = SWAP16(post.post_id); // POST ID
 
       StringBuf_Clear(&buf);
       if (header.board && post.board_name)
@@ -557,7 +614,7 @@ int intif_parse_showpostresponse(int fd) {
       WFIFOB(header.fd, len + 12) = StringBuf_Length(&buf);
 
       memcpy(WFIFOP(header.fd, len + 13), StringBuf_Value(&buf),
-             StringBuf_Length(&buf));  // Name
+             StringBuf_Length(&buf)); // Name
 
       len += StringBuf_Length(&buf) + 4;
 
@@ -578,28 +635,34 @@ int intif_parse_showpostresponse(int fd) {
   return 0;
 }
 
-int intif_parse_userlist(int fd) {
+int intif_parse_userlist(int fd)
+{
   int sfd = RFIFOW(fd, 6);
   int count = RFIFOW(fd, 8);
   int i, len, class, mark, clan, path, hunter;
   unsigned int nation = 0;
   char name[16];
 
-  USER* sd = NULL;
-  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0) return 0;
-  if (session[sfd]) sd = session[sfd]->session_data;
+  USER *sd = NULL;
+  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0)
+    return 0;
+  if (session[sfd])
+    sd = session[sfd]->session_data;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  int usercount = 0;
+  /* int usercount = 0; */
 
-  USER* tsd = NULL;
-  struct socket_data* p;
+  /* USER *tsd = NULL; */
+  /* struct socket_data *p; */
+  /*
   for (int i = 0; i < fd_max; i++) {
     p = session[i];
     if (p && (tsd = p->session_data)) {
@@ -607,6 +670,7 @@ int intif_parse_userlist(int fd) {
                        // most cases will match count.
     }
   }
+  */
 
   // USER LIST PACKET //
 
@@ -614,8 +678,8 @@ int intif_parse_userlist(int fd) {
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x36;
   // WFIFOB(sd->fd,4)=0x01;
-  WFIFOW(sd->fd, 5) = SWAP16(count);  // total users
-  WFIFOW(sd->fd, 7) = SWAP16(count);  // users on server
+  WFIFOW(sd->fd, 5) = SWAP16(count); // total users
+  WFIFOW(sd->fd, 7) = SWAP16(count); // users on server
 
   // WFIFOB(sd->fd,9)=0x01;
   WFIFOB(sd->fd, 9) = 1;
@@ -623,7 +687,8 @@ int intif_parse_userlist(int fd) {
 
   // testing//
 
-  for (i = 0; i < count; i++) {
+  for (i = 0; i < count; i++)
+  {
     hunter = RFIFOW(fd, i * 22 + 10);
     class = RFIFOW(fd, i * 22 + 12);
     mark = RFIFOW(fd, i * 22 + 14);
@@ -631,9 +696,12 @@ int intif_parse_userlist(int fd) {
     nation = RFIFOW(fd, i * 22 + 18);
     memcpy(name, RFIFOP(fd, i * 22 + 20), 16);
 
-    if (class > 4) {
+    if (class > 4)
+    {
       path = classdb_path(class);
-    } else {
+    }
+    else
+    {
       path = class;
     }
 
@@ -654,15 +722,16 @@ int intif_parse_userlist(int fd) {
     WFIFOB(sd->fd, len + 1) = (16 * mark) + classdb_icon(class);
     // printf("16*mark= %u, classdb_icon = %i\n",16*mark,classdb_icon(class));
 
-    WFIFOB(sd->fd, len + 2) = hunter;  // hunter flag
+    WFIFOB(sd->fd, len + 2) = hunter; // hunter flag
 
     // Color Flag
-    WFIFOB(sd->fd, len + 3) = 143;  // white
+    WFIFOB(sd->fd, len + 3) = 143; // white
     if (sd->status.clan && sd->status.clan == clan)
-      WFIFOB(sd->fd, len + 3) = 63;  // Greenish
-    if (classdb_path(class) == 5) {
+      WFIFOB(sd->fd, len + 3) = 63; // Greenish
+    if (classdb_path(class) == 5)
+    {
       WFIFOB(sd->fd, len + 3) = 47;
-    }  // GM   39 = yellow, 47 = red
+    } // GM   39 = yellow, 47 = red
 
     WFIFOB(sd->fd, len + 4) = strlen(name);
 
@@ -677,77 +746,96 @@ int intif_parse_userlist(int fd) {
   return 0;
 }
 
-int intif_parse_boardpostresponse(int fd) {
+int intif_parse_boardpostresponse(int fd)
+{
   int sfd = RFIFOW(fd, 2);
-  USER* sd = NULL;
-  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0) return 0;
-  if (session[sfd]) sd = session[sfd]->session_data;
+  USER *sd = NULL;
+  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0)
+    return 0;
+  if (session[sfd])
+    sd = session[sfd]->session_data;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
-  switch (RFIFOW(fd, 4)) {
-    case 0:  // Worked!
-      nmail_sendmessage(sd, "Your message has been posted.", 6, 1);
-      break;
-    case 1:  // Sql Error
-      nmail_sendmessage(sd, "(SQL Error) Please ticket staff.", 6, 0);
-      break;
+  switch (RFIFOW(fd, 4))
+  {
+  case 0: // Worked!
+    nmail_sendmessage(sd, "Your message has been posted.", 6, 1);
+    break;
+  case 1: // Sql Error
+    nmail_sendmessage(sd, "(SQL Error) Please ticket staff.", 6, 0);
+    break;
   }
 
   return 0;
 }
-int intif_parse_nmailwriteresponse(int fd) {
+int intif_parse_nmailwriteresponse(int fd)
+{
   int sfd = RFIFOW(fd, 2);
-  USER* sd = NULL;
-  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0) return 0;
-  if (session[sfd]) sd = session[sfd]->session_data;
+  USER *sd = NULL;
+  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0)
+    return 0;
+  if (session[sfd])
+    sd = session[sfd]->session_data;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
-  switch (RFIFOW(fd, 4)) {
-    case 0:  // Worked
-      nmail_sendmessage(sd, "Your message has been sent.", 6, 1);
-      break;
-    case 1:  // Sql Error
-      nmail_sendmessage(sd, "(SQL Error) Please ticket staff.", 6, 0);
-      break;
-    case 2:  // Invalid user
-      nmail_sendmessage(sd, "User does not exist.", 6, 0);
-      break;
+  switch (RFIFOW(fd, 4))
+  {
+  case 0: // Worked
+    nmail_sendmessage(sd, "Your message has been sent.", 6, 1);
+    break;
+  case 1: // Sql Error
+    nmail_sendmessage(sd, "(SQL Error) Please ticket staff.", 6, 0);
+    break;
+  case 2: // Invalid user
+    nmail_sendmessage(sd, "User does not exist.", 6, 0);
+    break;
   }
   return 0;
 }
-int intif_parse_findmp(int fd) {
+int intif_parse_findmp(int fd)
+{
   unsigned int id = RFIFOL(fd, 2);
   int mailFlags = RFIFOW(fd, 6);
-  USER* sd = NULL;
+  USER *sd = NULL;
 
   sd = map_id2sd(id);
-  if (sd) {
-    if (mailFlags & FLAG_MAIL) sd->flags |= FLAG_MAIL;
+  if (sd)
+  {
+    if (mailFlags & FLAG_MAIL)
+      sd->flags |= FLAG_MAIL;
 
-    if (mailFlags & FLAG_PARCEL) sd->flags |= FLAG_PARCEL;
+    if (mailFlags & FLAG_PARCEL)
+      sd->flags |= FLAG_PARCEL;
 
     clif_sendstatus(sd, SFLAG_XPMONEY);
   }
   return 0;
 }
-int intif_parse_setmp(int fd) {
+int intif_parse_setmp(int fd)
+{
   int sfd = RFIFOW(fd, 2);
   int flags = RFIFOW(fd, 4);
 
-  USER* sd = NULL;
-  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0) return 0;
-  if (session[sfd]) sd = session[sfd]->session_data;
+  USER *sd = NULL;
+  if (sfd > FD_SETSIZE || sfd >= fd_max || sfd <= 0)
+    return 0;
+  if (session[sfd])
+    sd = session[sfd]->session_data;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   sd->flags = flags;
 
   clif_sendstatus(sd, SFLAG_XPMONEY);
   return 0;
 }
-int intif_parse_readpost(int fd) {
+int intif_parse_readpost(int fd)
+{
   struct boards_read_post_1 h;
 
   memset(&h, 0, sizeof(h));
@@ -756,17 +844,21 @@ int intif_parse_readpost(int fd) {
 
   int len;
 
-  USER* sd = NULL;
-  if (h.fd > FD_SETSIZE || h.fd >= fd_max || h.fd <= 0) return 0;
+  USER *sd = NULL;
+  if (h.fd > FD_SETSIZE || h.fd >= fd_max || h.fd <= 0)
+    return 0;
 
-  if (session[h.fd]) sd = session[h.fd]->session_data;
+  if (session[h.fd])
+    sd = session[h.fd]->session_data;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   if (strcasecmp(sd->status.name, h.name))
-    return 0;  // Name does not match User, Return
+    return 0; // Name does not match User, Return
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -778,7 +870,8 @@ int intif_parse_readpost(int fd) {
   WFIFOB(sd->fd, 5) = h.type;
   WFIFOB(sd->fd, 6) = h.buttons;
   WFIFOB(sd->fd, 7) = 0;
-  if (!h.board) WFIFOB(sd->fd, 7) = 0x01;
+  if (!h.board)
+    WFIFOB(sd->fd, 7) = 0x01;
   WFIFOW(sd->fd, 8) = SWAP16(h.post);
 
   len = strlen(h.user);
@@ -799,10 +892,12 @@ int intif_parse_readpost(int fd) {
   return 0;
 }
 
-int intif_parse(int fd) {
+int intif_parse(int fd)
+{
   int packet_len, cmd;
 
-  if (session[fd]->eof) {
+  if (session[fd]->eof)
+  {
     printf("[map] [intif] Can't connect to Char Server.\n");
     char_fd = 0;
     session_eof(fd);
@@ -814,64 +909,69 @@ int intif_parse(int fd) {
   if (cmd < 0x3800 ||
       cmd >=
           0x3800 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-      packet_len_table[cmd - 0x3800] == 0) {
+      packet_len_table[cmd - 0x3800] == 0)
+  {
     return 0;
   }
   packet_len = packet_len_table[cmd - 0x3800];
 
-  if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) return 2;
+  if (packet_len == -1)
+  {
+    if (RFIFOREST(fd) < 6)
+      return 2;
     packet_len = RFIFOL(fd, 2);
   }
-  if ((int)RFIFOREST(fd) < packet_len) {
+  if ((int)RFIFOREST(fd) < packet_len)
+  {
     return 2;
   }
 
   // printf("MAP: %d\n",cmd);
-  switch (cmd) {
-    case 0x3800:
-      intif_parse_accept(fd);
-      break;
-    case 0x3801:
-      intif_parse_mapset(fd);
-      break;
-    case 0x3802:
-      intif_parse_authadd(fd);
-      break;
-    case 0x3803:
-      intif_parse_charload(fd);
-      break;
-    case 0x3804:
-      intif_parse_checkonline(fd);
-      break;
-    case 0x3805:
-      intif_parse_unknown(fd);
-      break;
-    case 0x3808:
-      intif_parse_deletepostresponse(fd);
-      break;
-    case 0x3809:
-      intif_parse_showpostresponse(fd);
-      break;
-    case 0x380A:
-      intif_parse_userlist(fd);
-      break;
-    case 0x380B:
-      intif_parse_boardpostresponse(fd);
-      break;
-    case 0x380C:
-      intif_parse_nmailwriteresponse(fd);
-      break;
-    case 0x380D:
-      intif_parse_findmp(fd);
-    case 0x380E:
-      intif_parse_setmp(fd);
-    case 0x380F:
-      intif_parse_readpost(fd);
-      break;
+  switch (cmd)
+  {
+  case 0x3800:
+    intif_parse_accept(fd);
+    break;
+  case 0x3801:
+    intif_parse_mapset(fd);
+    break;
+  case 0x3802:
+    intif_parse_authadd(fd);
+    break;
+  case 0x3803:
+    intif_parse_charload(fd);
+    break;
+  case 0x3804:
+    intif_parse_checkonline(fd);
+    break;
+  case 0x3805:
+    intif_parse_unknown(fd);
+    break;
+  case 0x3808:
+    intif_parse_deletepostresponse(fd);
+    break;
+  case 0x3809:
+    intif_parse_showpostresponse(fd);
+    break;
+  case 0x380A:
+    intif_parse_userlist(fd);
+    break;
+  case 0x380B:
+    intif_parse_boardpostresponse(fd);
+    break;
+  case 0x380C:
+    intif_parse_nmailwriteresponse(fd);
+    break;
+  case 0x380D:
+    intif_parse_findmp(fd);
+  case 0x380E:
+    intif_parse_setmp(fd);
+  case 0x380F:
+    intif_parse_readpost(fd);
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 
   RFIFOSKIP(fd, packet_len);
@@ -879,7 +979,8 @@ int intif_parse(int fd) {
   return 0;
 }
 
-int intif_timer(int data1, int data2) {
+int intif_timer(int data1, int data2)
+{
   return 0;
   /*int i;
   USER *sd;
@@ -891,7 +992,8 @@ int intif_timer(int data1, int data2) {
   // return 0;
 }
 
-int intif_init() {
+int intif_init()
+{
   // timer_insert(300000,300000,intif_timer,save_time,0);
   // intif_table_recv[3] = sizeof(struct mmo_charstatus)+3;
   return 0;
