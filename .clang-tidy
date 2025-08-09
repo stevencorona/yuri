@@ -1,8 +1,10 @@
 Checks: >
   -*,
-  misc-unused-*,
   clang-analyzer-deadcode.*,
   bugprone-unused-return-value,
   readability-redundant-*,
   performance-unnecessary-*
   modernize-use-pragma-once
+  -readability-magic-numbers,
+  -cert-err58-cpp,
+  -misc-unused-parameters,
