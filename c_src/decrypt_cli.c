@@ -1,7 +1,7 @@
+#include "net_crypt.h"
+
 #include <stdio.h>
 #include <string.h>
-
-#include "net_crypt.h"
 
 /* test suite, not needed for encryption */
 
@@ -41,84 +41,92 @@
 // 0x5E, 0x07, 0x0B, 0x06, 0x07, 0x0E, 0x01, 0x14, 0x8D, 0x5F, 0x06, 0x0A, 0x76,
 // 0x46, 0xE7};
 
-unsigned char refpacket[] = {0xAA, 0x00, 0x07, 0x3B, 0xBC,
-                             0xB1, 0x87, 0xAD, 0x13, 0x9A};
+unsigned char refpacket[] = { 0xAA, 0x00, 0x07, 0x3B, 0xBC, 0xB1, 0x87, 0xAD, 0x13, 0x9A };
 
 // char refkeysv[] = "114a93e36";
 // char refkeycl[] = "68a17df51";
 // char refname[] = "Ouned";
 char refname[] = "invicta";
 
-int debug(unsigned char *stringthing, int len) {
-  int i;
+int debug(unsigned char* stringthing, int len) {
+    int i;
 
-  printf("Decrypted Packet\n");
+    printf("Decrypted Packet\n");
 
-  for (i = 0; i < len; i++) {
-    printf("0x%02X, ", stringthing[i]);
-  }
-  printf("\n");
-
-  printf("\n\n");
-  for (i = 0; i < len; i++) {
-    if (stringthing[i] < 16) {
-      printf("%02X ", stringthing[i]);
+    for (i = 0; i < len; i++) {
+        printf("0x%02X, ", stringthing[i]);
     }
-    // else { printf("%02X ", stringthing[i]); }
-  }
+    printf("\n");
 
-  printf("\n\n");
-
-  for (i = 0; i < len; i++) {
-    if (stringthing[i] <= 32 || stringthing[i] > 126) {
-      printf(" ");
-    } else {
-      printf("%c", stringthing[i]);
+    printf("\n\n");
+    for (i = 0; i < len; i++) {
+        if (stringthing[i] < 16) {
+            printf("%02X ", stringthing[i]);
+        }
+        // else { printf("%02X ", stringthing[i]); }
     }
-  }
-  printf("\n\n");
 
-  // ASCII LOCATIONS
-  printf("\nField:     Character:        Decimal:         Hex Value:\n");
+    printf("\n\n");
 
-  for (i = 0; i < len; i++) {
-    if (stringthing[i] >= 33 && stringthing[i] < 126) {
-      printf("    %i             %c                 %d                %02X\n",
-             i, stringthing[i], stringthing[i], stringthing[i]);
-    } else {
-      printf("    %i                               %d              %02X\n", i,
-             stringthing[i], stringthing[i]);
+    for (i = 0; i < len; i++) {
+        if (stringthing[i] <= 32 || stringthing[i] > 126) {
+            printf(" ");
+        } else {
+            printf("%c", stringthing[i]);
+        }
     }
-  }
+    printf("\n\n");
 
-  printf("\n\n");
+    // ASCII LOCATIONS
+    printf("\nField:     Character:        Decimal:         Hex Value:\n");
 
-  return 0;
+    for (i = 0; i < len; i++) {
+        if (stringthing[i] >= 33 && stringthing[i] < 126) {
+            printf(
+              "    %i             %c                 %d                %02X\n",
+              i,
+              stringthing[i],
+              stringthing[i],
+              stringthing[i]
+            );
+        } else {
+            printf(
+              "    %i                               %d              %02X\n",
+              i,
+              stringthing[i],
+              stringthing[i]
+            );
+        }
+    }
+
+    printf("\n\n");
+
+    return 0;
 }
 
-int main(int argc, char **argv) {
-  char table[255];
-  /*if (argc < 2 || argc > 3)
-  {
-          fprintf (stderr, "usage: %s name to gen table for\n", argv[0]);
-          system("PAUSE");
-          exit(1);
-  }
+int main(int argc, char** argv) {
+    char table[255];
+    /*if (argc < 2 || argc > 3)
+    {
+            fprintf (stderr, "usage: %s name to gen table for\n", argv[0]);
+            system("PAUSE");
+            exit(1);
+    }
 
-printf ("table for name (\"%s\") = ", argv[1]);
-printf("%s\n", populate_table(argv[1], &table[0], sizeof(table)));
-FILE *f = fopen("tbldump.dat", "w");
-fwrite(&table[0], sizeof(table[0]), sizeof(table)/sizeof(table[0]), f);
-fclose(f);*/
+  printf ("table for name (\"%s\") = ", argv[1]);
+  printf("%s\n", populate_table(argv[1], &table[0], sizeof(table)));
+  FILE *f = fopen("tbldump.dat", "w");
+  fwrite(&table[0], sizeof(table[0]), sizeof(table)/sizeof(table[0]), f);
+  fclose(f);*/
 
-  char key[16];
-  populate_table(&refname[0], &table[0], sizeof(table));
-  generate_key2(&refpacket[0], &table[0], &key[0], 0);
+    char key[16];
+    populate_table(&refname[0], &table[0], sizeof(table));
+    generate_key2(&refpacket[0], &table[0], &key[0], 0);
 
-  // crypt(&refpacket[0]);
+    // crypt(&refpacket[0]);
 
-  tk_crypt_dynamic(&refpacket[0], &key[0]);
+    tk_crypt_dynamic(&refpacket[0], &key[0]);
 
-  debug(&refpacket[0], sizeof(refpacket));
-  return 0;
+    debug(&refpacket[0], sizeof(refpacket));
+    return 0;
 }
