@@ -35,52 +35,61 @@ static const int packet_len_table[] = {72,
                                        255,
                                        255,
                                        255,
-                                       255,  // 0x3000 - 0x3015
-                                       0};   // NULL terminator
+                                       255, // 0x3000 - 0x3015
+                                       0};  // NULL terminator
 
-int mapif_send(int fd, unsigned char* buf, int len, int type) {
+int mapif_send(int fd, unsigned char *buf, int len, int type)
+{
   int i;
 
-  switch (type) {
-    case ALL:
-      for (i = 0; i < map_fifo_max; i++) {
-        if (map_fifo[i].fd > 0) {
-          WFIFOHEAD(map_fifo[i].fd, len);
-          memcpy(WFIFOP(map_fifo[i].fd, 0), buf, len);
-          WFIFOSET(map_fifo[i].fd, len);
-        }
+  switch (type)
+  {
+  case ALL:
+    for (i = 0; i < map_fifo_max; i++)
+    {
+      if (map_fifo[i].fd > 0)
+      {
+        WFIFOHEAD(map_fifo[i].fd, len);
+        memcpy(WFIFOP(map_fifo[i].fd, 0), buf, len);
+        WFIFOSET(map_fifo[i].fd, len);
       }
-      break;
-    case ALLWOS:
-      for (i = 0; i < map_fifo_max; i++) {
-        if ((map_fifo[i].fd > 0) && (map_fifo[i].fd != fd)) {
-          WFIFOHEAD(map_fifo[i].fd, len);
-          memcpy(WFIFOP(map_fifo[i].fd, 0), buf, len);
-          WFIFOSET(map_fifo[i].fd, len);
-        }
+    }
+    break;
+  case ALLWOS:
+    for (i = 0; i < map_fifo_max; i++)
+    {
+      if ((map_fifo[i].fd > 0) && (map_fifo[i].fd != fd))
+      {
+        WFIFOHEAD(map_fifo[i].fd, len);
+        memcpy(WFIFOP(map_fifo[i].fd, 0), buf, len);
+        WFIFOSET(map_fifo[i].fd, len);
       }
-      break;
+    }
+    break;
   }
 
   return 0;
 }
 
-int mapif_send_newmp(int fd, unsigned int id, unsigned int flags) {
+int mapif_send_newmp(int fd, unsigned int id, unsigned int flags)
+{
   unsigned char data[8];
 
   WBUFW(data, 0) = 0x380D;
   WBUFL(data, 2) = id;
   WBUFW(data, 6) = flags;
 
-  mapif_send(fd, data, 8, ALL);  // Send to all servers.
+  mapif_send(fd, data, 8, ALL); // Send to all servers.
   return 0;
 }
-int mapif_parse_auth(int fd) {
+int mapif_parse_auth(int fd)
+{
   int cmd, packet_len;
 
   // if(!packet_len_table[9]) packet_len_table[9]=; //0x3009
 
-  if (session[fd]->eof) {
+  if (session[fd]->eof)
+  {
     session_eof(fd);
     return 0;
   }
@@ -90,25 +99,31 @@ int mapif_parse_auth(int fd) {
   if (cmd < 0x3000 ||
       cmd >=
           0x3000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-      packet_len_table[cmd - 0x3000] == 0) {
+      packet_len_table[cmd - 0x3000] == 0)
+  {
     return 0;
   }
 
   packet_len = packet_len_table[cmd - 0x3000];
 
-  if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) {
+  if (packet_len == -1)
+  {
+    if (RFIFOREST(fd) < 6)
+    {
       return 2;
     }
     packet_len = RFIFOL(fd, 2);
   }
-  if ((int)RFIFOREST(fd) < packet_len) {
+  if ((int)RFIFOREST(fd) < packet_len)
+  {
     return 2;
   }
 
-  if (cmd == 0x3000) {
-    if ((strcmp((char*)RFIFOP(fd, 2), char_id)) &&
-        (strcmp((char*)RFIFOP(fd, 34), char_pw))) {
+  if (cmd == 0x3000)
+  {
+    if ((strcmp((char *)RFIFOP(fd, 2), char_id)) &&
+        (strcmp((char *)RFIFOP(fd, 34), char_pw)))
+    {
       WFIFOHEAD(fd, 4);
       WFIFOW(fd, 0) = 0x3800;
       WFIFOB(fd, 2) = 0x01;
@@ -121,13 +136,16 @@ int mapif_parse_auth(int fd) {
 
     int i;
 
-    for (i = 0; i < map_fifo_max; i++) {
-      if (!map_fifo[i].fd) {
+    for (i = 0; i < map_fifo_max; i++)
+    {
+      if (!map_fifo[i].fd)
+      {
         break;
       }
     }
 
-    if (i >= map_fifo_max) {
+    if (i >= map_fifo_max)
+    {
       map_fifo_max++;
     }
 
@@ -141,15 +159,16 @@ int mapif_parse_auth(int fd) {
     WFIFOHEAD(fd, 4);
     WFIFOW(fd, 0) = 0x3800;
     WFIFOB(fd, 2) = 0x00;
-    WFIFOB(fd, 3) = i;  // map-server #
+    WFIFOB(fd, 3) = i; // map-server #
     WFIFOSET(fd, 4);
 
-    unsigned char* p;
-    p = (unsigned char*)&map_fifo[i].ip;
+    unsigned char *p;
+    p = (unsigned char *)&map_fifo[i].ip;
     printf("[char] [mapif] Map Server Connected id=%d ip=%u.%u.%u.%u port=%d\n",
            i, p[0], p[1], p[2], p[3], map_fifo[i].port);
-
-  } else {
+  }
+  else
+  {
     session[fd]->eof = 1;
   }
 
@@ -158,7 +177,8 @@ int mapif_parse_auth(int fd) {
 }
 
 /// Parse Map Info data from Map server
-int mapif_parse_mapset(int fd, int id) {
+int mapif_parse_mapset(int fd, int id)
+{
   int i;
   map_fifo[id].map_n = RFIFOW(fd, 6);
   for (i = 0; i < map_fifo[id].map_n; i++)
@@ -168,13 +188,18 @@ int mapif_parse_mapset(int fd, int id) {
     int j, k;
 
     // get other map server presence
-    for (i = 0; i < map_fifo_max; i++) {
-      if ((i != id) && (map_fifo[i].fd > 0) && (map_fifo[i].map_n > 0)) {
-        for (j = 0; j < map_fifo[i].map_n; j++) {
+    for (i = 0; i < map_fifo_max; i++)
+    {
+      if ((i != id) && (map_fifo[i].fd > 0) && (map_fifo[i].map_n > 0))
+      {
+        for (j = 0; j < map_fifo[i].map_n; j++)
+        {
           // WFIFOW(fd, j*2+9) = map_fifo[i].map[j];
           for (k = 0; (k < map_fifo[id].map_n) && (k < map_fifo[i].map_n);
-               k++) {
-            if (map_fifo[i].map[j] == map_fifo[id].map[k]) {
+               k++)
+          {
+            if (map_fifo[i].map[j] == map_fifo[id].map[k])
+            {
               // found same map, just report and let admin fix it...
               printf(
                   "[char] [mapif] Same map number(#%d) at server #%d and "
@@ -195,7 +220,8 @@ int mapif_parse_mapset(int fd, int id) {
 }
 
 /// Parse Login Request
-int mapif_parse_login(int fd, int id) {
+int mapif_parse_login(int fd, int id)
+{
   WFIFOHEAD(login_fd, 27);
   WFIFOW(login_fd, 0) = 0x2003;
   WFIFOW(login_fd, 2) = RFIFOW(fd, 2);
@@ -209,19 +235,21 @@ int mapif_parse_login(int fd, int id) {
 }
 
 /// Parse Request of Character to Map Server
-int mapif_parse_requestchar(int fd) {
+int mapif_parse_requestchar(int fd)
+{
   unsigned int ulen, retval;
-  unsigned char* cbuf;
+  unsigned char *cbuf;
   uLongf clen;
   ulen = sizeof(struct mmo_charstatus);
   clen = compressBound((uLong)ulen);
   memset(char_dat, 0, sizeof(struct mmo_charstatus));
-  mmo_char_fromdb(RFIFOL(fd, 4), char_dat, (char*)RFIFOP(fd, 8));
+  mmo_char_fromdb(RFIFOL(fd, 4), char_dat, (char *)RFIFOP(fd, 8));
 
   CALLOC(cbuf, unsigned char, clen);
-  retval = compress(cbuf, &clen, (unsigned char*)char_dat, ulen);
+  retval = compress(cbuf, &clen, (unsigned char *)char_dat, ulen);
 
-  if (retval) {
+  if (retval)
+  {
     FREE(cbuf);
     return 0;
   }
@@ -237,8 +265,9 @@ int mapif_parse_requestchar(int fd) {
 
   return 0;
 }
-int mapif_parse_savechar(int fd) {
-  unsigned char* cbuf;
+int mapif_parse_savechar(int fd)
+{
+  unsigned char *cbuf;
   unsigned int ulen, retval;
   uLongf clen;
 
@@ -249,23 +278,26 @@ int mapif_parse_savechar(int fd) {
 
   retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
-  if (!retval) {
-    mmo_char_todb((struct mmo_charstatus*)cbuf);
+  if (!retval)
+  {
+    mmo_char_todb((struct mmo_charstatus *)cbuf);
   }
 
   FREE(cbuf);
   return 0;
 }
 /// Parse Map Logout(non-existant atm)
-int mapif_parse_logout(int fd) {
+int mapif_parse_logout(int fd)
+{
   logindata_del(RFIFOL(fd, 2));
   return 0;
 }
 
 /// Save and Logout character
-int mapif_parse_savecharlog(int fd) {
-  unsigned char* cbuf;
-  struct mmo_charstatus* c = NULL;
+int mapif_parse_savecharlog(int fd)
+{
+  unsigned char *cbuf;
+  struct mmo_charstatus *c = NULL;
   unsigned int ulen, retval;
   uLongf clen;
 
@@ -276,24 +308,28 @@ int mapif_parse_savecharlog(int fd) {
 
   retval = uncompress(cbuf, &clen, RFIFOP(fd, 6), ulen);
 
-  c = (struct mmo_charstatus*)cbuf;
+  c = (struct mmo_charstatus *)cbuf;
 
-  if (!retval) {
-    mmo_char_todb((struct mmo_charstatus*)cbuf);
+  if (!retval)
+  {
+    mmo_char_todb((struct mmo_charstatus *)cbuf);
   }
-  if (c) logindata_del(c->id);
+  if (c)
+    logindata_del(c->id);
 
   FREE(cbuf);
 
   return 0;
 }
 /// Delete From Nmail
-int mapif_nmail_delete(int fd, char* name, int post) {
+int mapif_nmail_delete(int fd, char *name, int post)
+{
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Mail` SET `MalDeleted` = '1', `MalNew` = '0' WHERE "
                 "`MalChaNameDestination` = '%s' AND `MalPosition` = '%d'",
-                name, post)) {
+                name, post))
+  {
     WFIFOB(fd, 4) = 0x02;
     WFIFOSET(fd, 5);
     Sql_ShowDebug(sql_handle);
@@ -304,7 +340,8 @@ int mapif_nmail_delete(int fd, char* name, int post) {
   WFIFOSET(fd, 5);
   return 0;
 }
-int mapif_parse_deletepost(int fd) {
+int mapif_parse_deletepost(int fd)
+{
   int sfd = RFIFOW(fd, 2);
   int gmLevel = RFIFOW(fd, 4);
   int canDelete = RFIFOW(fd, 6);
@@ -318,44 +355,54 @@ int mapif_parse_deletepost(int fd) {
   WFIFOW(fd, 0) = 0x3808;
   WFIFOW(fd, 2) = sfd;
 
-  if (!board) {
+  if (!board)
+  {
     mapif_nmail_delete(fd, name, post);
     return 0;
-  }  // Handling NMAIL
+  } // Handling NMAIL
 
-  if (gmLevel >= 50 || canDelete) {
+  if (gmLevel >= 50 || canDelete)
+  {
     if (SQL_ERROR ==
         Sql_Query(
             sql_handle,
             "DELETE FROM `Boards` WHERE `BrdBnmId` = %d AND `BrdPosition` = %d",
-            board, post)) {
+            board, post))
+    {
       Sql_ShowDebug(sql_handle);
       WFIFOB(fd, 4) = 0x02;
-    } else
+    }
+    else
       WFIFOB(fd, 4) = 0x00;
-
-  } else {
+  }
+  else
+  {
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "SELECT * FROM `Boards` WHERE `BrdBnmId` = %d "
                                "AND `BrdPosition` = %d AND `BrdChaName` = '%s'",
-                               board, post, name)) {
+                               board, post, name))
+    {
       Sql_ShowDebug(sql_handle);
       WFIFOB(fd, 4) = 0x02;
       WFIFOSET(fd, 5);
       return 0;
     }
 
-    if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
+    if (SQL_SUCCESS != Sql_NextRow(sql_handle))
+    {
       WFIFOB(fd, 4) = 0x01;
-
-    } else {
+    }
+    else
+    {
       if (SQL_ERROR == Sql_Query(sql_handle,
                                  "DELETE FROM `Boards` WHERE `BrdBnmId` = %d "
                                  "AND `BrdPosition` = %d",
-                                 board, post)) {
+                                 board, post))
+      {
         Sql_ShowDebug(sql_handle);
         WFIFOB(fd, 4) = 0x02;
-      } else
+      }
+      else
         WFIFOB(fd, 4) = 0x00;
     }
   }
@@ -365,14 +412,15 @@ int mapif_parse_deletepost(int fd) {
   return 0;
 }
 
-int mapif_parse_showposts(int fd) {
+int mapif_parse_showposts(int fd)
+{
   struct board_show_0 a;
   struct boards_show_header_1 board_header;
   struct boards_show_array_1 post;
   int x;
   int numRows = 0;
   int len = 0;
-  SqlStmt* stmt;
+  SqlStmt *stmt;
   StringBuf buf;
 
   // Set all Variables to 0
@@ -393,20 +441,33 @@ int mapif_parse_showposts(int fd) {
   WFIFOHEAD(fd, sizeof(struct boards_show_header_1) + 6);
   WFIFOW(fd, 0) = 0x3809;
   // Set Header Flags
-  if (a.popup && a.board) {
-    if (a.flags == 6) {
+  if (a.popup && a.board)
+  {
+    if (a.flags == 6)
+    {
       board_header.flags1 = 6;
-    } else if (!(a.flags & BOARD_CAN_WRITE)) {
+    }
+    else if (!(a.flags & BOARD_CAN_WRITE))
+    {
       board_header.flags1 = 0;
-    } else {
+    }
+    else
+    {
       board_header.flags1 = 2;
     }
-  } else {
-    if (a.flags == 6) {
+  }
+  else
+  {
+    if (a.flags == 6)
+    {
       board_header.flags1 = 6;
-    } else if (!(a.flags & BOARD_CAN_WRITE)) {
+    }
+    else if (!(a.flags & BOARD_CAN_WRITE))
+    {
       board_header.flags1 = 1;
-    } else {
+    }
+    else
+    {
       board_header.flags1 = 3;
     }
   }
@@ -421,7 +482,8 @@ int mapif_parse_showposts(int fd) {
 
   // Allocate SQL Handle
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     // SQL Handle Not Allocated, Send Header Only
     memcpy(WFIFOP(fd, 6), &board_header, sizeof(struct boards_show_header_1));
 
@@ -435,14 +497,14 @@ int mapif_parse_showposts(int fd) {
   StringBuf_Init(&buf);
 
   // Choose Correctly Board or NMAIL
-  if (a.board == 0)  // NMail, Use Appropriate Statement
+  if (a.board == 0) // NMail, Use Appropriate Statement
     StringBuf_Printf(&buf,
                      "SELECT `MalNew`, `MalChaName`, `MalSubject`, "
                      "`MalPosition`, `MalMonth`, `MalDay`, `MalId` FROM `Mail` "
                      "WHERE `MalChaNameDestination` = '%s' AND `MalDeleted` = "
                      "0 ORDER BY `MalPosition` DESC LIMIT %d,20",
                      a.name, a.bcount * 20);
-  else  // Board, Use Appropriate Statement
+  else // Board, Use Appropriate Statement
     StringBuf_Printf(
         &buf,
         "SELECT `BrdHighlighted`, `BrdChaName`, `BrdTopic`, `BrdPosition`, "
@@ -466,7 +528,8 @@ int mapif_parse_showposts(int fd) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &post.day, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 6, SQLDT_INT, &post.board_name, 0,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     // There was an Error, Destroy and send Header ONLY
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
@@ -481,7 +544,8 @@ int mapif_parse_showposts(int fd) {
   numRows = SqlStmt_NumRows(stmt);
   // CALLOC(posts,struct board_show_array_1,numRows);
 
-  if (numRows <= 0) {  // NO results, do not show
+  if (numRows <= 0)
+  { // NO results, do not show
     memcpy(WFIFOP(fd, 6), &board_header, sizeof(struct boards_show_header_1));
     WFIFOL(fd, 2) = sizeof(struct boards_show_header_1) + 6;
     WFIFOSET(fd, sizeof(struct boards_show_header_1) + 6);
@@ -494,10 +558,11 @@ int mapif_parse_showposts(int fd) {
   numRows = SqlStmt_NumRows(stmt);
 
   WFIFOHEAD(fd, sizeof(board_header) + sizeof(post) * numRows +
-                    6);  // Make sure enough space for header + Posts
+                    6); // Make sure enough space for header + Posts
   board_header.array = numRows;
 
-  for (x = 0; x < numRows && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++) {
+  for (x = 0; x < numRows && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++)
+  {
     memcpy(WFIFOP(fd, len + sizeof(struct boards_show_header_1) + 6), &post,
            sizeof(post));
     len += sizeof(post);
@@ -513,7 +578,8 @@ int mapif_parse_showposts(int fd) {
   return 0;
 }
 
-int mapif_parse_userlist(int fd) {
+int mapif_parse_userlist(int fd)
+{
   int sfd = RFIFOW(fd, 2);
   int class, mark, clan, x, hunter;
   unsigned int nation = 0;
@@ -521,18 +587,19 @@ int mapif_parse_userlist(int fd) {
 
   memset(name, 0, 32);
 
-  SqlStmt* stmt;
+  SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
   WFIFOHEAD(fd, 65535);
-  WFIFOW(fd, 0) = 0x380A;  /// Change this Number
+  WFIFOW(fd, 0) = 0x380A; /// Change this Number
   WFIFOL(fd, 2) = 10;
   WFIFOW(fd, 6) = sfd;
-  WFIFOW(fd, 8) = 0;  // This is where the User count goes.
+  WFIFOW(fd, 8) = 0; // This is where the User count goes.
 
   if (SQL_ERROR ==
           SqlStmt_Prepare(
@@ -554,7 +621,8 @@ int mapif_parse_userlist(int fd) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &hunter, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &nation, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &nation, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     WFIFOSET(fd, 10);
@@ -563,7 +631,8 @@ int mapif_parse_userlist(int fd) {
 
   WFIFOW(fd, 8) = SqlStmt_NumRows(stmt);
 
-  for (x = 0; x < WFIFOW(fd, 8) && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++) {
+  for (x = 0; x < WFIFOW(fd, 8) && SQL_SUCCESS == SqlStmt_NextRow(stmt); x++)
+  {
     WFIFOW(fd, x * 22 + 10) = hunter;
     WFIFOW(fd, x * 22 + 12) = class;
     WFIFOW(fd, x * 22 + 14) = mark;
@@ -580,8 +649,9 @@ int mapif_parse_userlist(int fd) {
   return 0;
 }
 
-int mapif_parse_readpost(int fd) {
-  char* data;
+int mapif_parse_readpost(int fd)
+{
+  char *data = NULL;
   struct boards_read_post_0 header;
   struct boards_read_post_1 post;
   StringBuf buf;
@@ -604,7 +674,8 @@ int mapif_parse_readpost(int fd) {
   else
     post.buttons = 1;
 
-  if (!header.board) {
+  if (!header.board)
+  {
     post.buttons = 3;
     post.type = 5;
   }
@@ -618,7 +689,7 @@ int mapif_parse_readpost(int fd) {
   StringBuf_Init(&buf);
   // StringBuf_Init(&buf2);
   // printf("Post: %d\n",post);
-  if (header.board == 0)  // This is nmail
+  if (header.board == 0) // This is nmail
     StringBuf_Printf(&buf,
                      "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
                      "`MalChaNameDestination` = '%s' AND `MalDeleted` = '0'",
@@ -629,13 +700,15 @@ int mapif_parse_readpost(int fd) {
         &buf, "SELECT MAX(`BrdPosition`) FROM `Boards` WHERE `BrdBnmId` = '%d'",
         header.board);
 
-  if (SQL_ERROR == Sql_Query(sql_handle, StringBuf_Value(&buf))) {
+  if (SQL_ERROR == Sql_Query(sql_handle, StringBuf_Value(&buf)))
+  {
     Sql_ShowDebug(sql_handle);
     StringBuf_Destroy(&buf);
     return 0;
   }
 
-  if (SQL_ERROR == Sql_NextRow(sql_handle)) {
+  if (SQL_ERROR == Sql_NextRow(sql_handle))
+  {
     Sql_ShowDebug(sql_handle);
     StringBuf_Destroy(&buf);
     return 0;
@@ -643,7 +716,8 @@ int mapif_parse_readpost(int fd) {
 
   Sql_GetData(sql_handle, 0, &data, 0);
 
-  if (!data) {
+  if (!data)
+  {
     return 0;
   }
 
@@ -651,7 +725,8 @@ int mapif_parse_readpost(int fd) {
 
   Sql_FreeResult(sql_handle);
 
-  if (header.post > max) header.post = 1;
+  if (header.post > max)
+    header.post = 1;
 
   StringBuf_Clear(&buf);
   if (header.board == 0)
@@ -670,13 +745,15 @@ int mapif_parse_readpost(int fd) {
         "AND `BrdPosition` >= %d ORDER BY `BrdPosition` LIMIT 1",
         header.board, header.post);
 
-  if (SQL_ERROR == Sql_Query(sql_handle, StringBuf_Value(&buf))) {
+  if (SQL_ERROR == Sql_Query(sql_handle, StringBuf_Value(&buf)))
+  {
     Sql_ShowDebug(sql_handle);
     StringBuf_Destroy(&buf);
     return 0;
   }
 
-  if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
+  if (SQL_SUCCESS != Sql_NextRow(sql_handle))
+  {
     Sql_ShowDebug(sql_handle);
     StringBuf_Destroy(&buf);
     return 0;
@@ -706,7 +783,8 @@ int mapif_parse_readpost(int fd) {
 
   StringBuf_Destroy(&buf);
 
-  if (header.board == 0) {
+  if (header.board == 0)
+  {
     Sql_Query(sql_handle,
               "UPDATE `Mail` SET `MalNew` = 0 WHERE `MalPosition` = %d AND "
               "`MalChaNameDestination` = '%s'",
@@ -715,7 +793,8 @@ int mapif_parse_readpost(int fd) {
               "SELECT * FROM `Mail` WHERE `MalChaNameDestination` = '%s' AND "
               "`MalNew`=1",
               header.name);
-    if (Sql_NumRows(sql_handle) <= 0) {
+    if (Sql_NumRows(sql_handle) <= 0)
+    {
       WFIFOHEAD(fd, 6);
       WFIFOW(fd, 0) = 0x380E;
       WFIFOW(fd, 2) = header.fd;
@@ -726,11 +805,12 @@ int mapif_parse_readpost(int fd) {
   return 0;
   // printf("Sent board info\n");
 }
-int mapif_parse_boardpost(int fd) {
+int mapif_parse_boardpost(int fd)
+{
   struct boards_post_0 header;
   int result = -1;
   int newPostID = 1;
-  char* data;
+  char *data = NULL;
   char topic[104];
   char post[8000];
 
@@ -744,7 +824,7 @@ int mapif_parse_boardpost(int fd) {
 
   WFIFOHEAD(fd, 6);
 
-  WFIFOW(fd, 0) = 0x380B;  // Change
+  WFIFOW(fd, 0) = 0x380B; // Change
 
   WFIFOW(fd, 2) = header.fd;
 
@@ -752,23 +832,27 @@ int mapif_parse_boardpost(int fd) {
       Sql_Query(
           sql_handle,
           "SELECT MAX(`BrdPosition`) FROM `Boards` WHERE `BrdBnmId` = '%d'",
-          header.board)) {
+          header.board))
+  {
     Sql_ShowDebug(sql_handle);
-    WFIFOW(fd, 4) = 1;  // 1 == SQL_ERROR
+    WFIFOW(fd, 4) = 1; // 1 == SQL_ERROR
     WFIFOSET(fd, 6);
     return 0;
   }
 
   result = Sql_NextRow(sql_handle);
-  if (SQL_ERROR == result) {
+  if (SQL_ERROR == result)
+  {
     Sql_ShowDebug(sql_handle);
     WFIFOW(fd, 4) = 1;
     WFIFOSET(fd, 6);
     return 0;
-
-  } else if (SQL_SUCCESS == result) {
+  }
+  else if (SQL_SUCCESS == result)
+  {
     Sql_GetData(sql_handle, 0, &data, 0);
-    if (data) {
+    if (data)
+    {
       newPostID = atoi(data) + 1;
     }
     Sql_FreeResult(sql_handle);
@@ -782,7 +866,8 @@ int mapif_parse_boardpost(int fd) {
                 "VALUES('%d','%d','%s','%s','%s','%d',DATE_FORMAT(CURDATE(),'%%"
                 "m'),DATE_FORMAT(CURDATE(),'%%d'),'%d')",
                 header.board, 0, header.name, topic, post, newPostID,
-                header.nval)) {
+                header.nval))
+  {
     Sql_ShowDebug(sql_handle);
     WFIFOW(fd, 4) = 1;
     WFIFOSET(fd, 6);
@@ -794,7 +879,8 @@ int mapif_parse_boardpost(int fd) {
 
   return 0;
 }
-int mapif_parse_nmailwrite(int fd) {
+int mapif_parse_nmailwrite(int fd)
+{
   int sfd = RFIFOW(fd, 2);
   char from[32];
   char to[104];
@@ -802,27 +888,29 @@ int mapif_parse_nmailwrite(int fd) {
   char msg[8000];
   int newMailID = 1;
   unsigned int toID = 0;
-  char* data;
+  char *data;
   int result;
 
-  Sql_EscapeString(sql_handle, from, (char*)RFIFOP(fd, 4));
-  Sql_EscapeString(sql_handle, to, (char*)RFIFOP(fd, 20));
-  Sql_EscapeString(sql_handle, topic, (char*)RFIFOP(fd, 72));
-  Sql_EscapeString(sql_handle, msg, (char*)RFIFOP(fd, 124));
+  Sql_EscapeString(sql_handle, from, (char *)RFIFOP(fd, 4));
+  Sql_EscapeString(sql_handle, to, (char *)RFIFOP(fd, 20));
+  Sql_EscapeString(sql_handle, topic, (char *)RFIFOP(fd, 72));
+  Sql_EscapeString(sql_handle, msg, (char *)RFIFOP(fd, 124));
 
   WFIFOHEAD(fd, 6);
   WFIFOW(fd, 0) = 0x380C;
   WFIFOW(fd, 2) = sfd;
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
-                "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", to)) {
+                "SELECT `ChaId` FROM `Character` WHERE `ChaName` = '%s'", to))
+  {
     Sql_ShowDebug(sql_handle);
     WFIFOW(fd, 6) = 1;
     WFIFOSET(fd, 6);
     return 0;
   }
 
-  if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
+  if (SQL_SUCCESS != Sql_NextRow(sql_handle))
+  {
     WFIFOW(fd, 6) = 2;
     WFIFOSET(fd, 6);
     Sql_FreeResult(sql_handle);
@@ -837,24 +925,28 @@ int mapif_parse_nmailwrite(int fd) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
                              "`MalChaNameDestination` = '%s'",
-                             to)) {
+                             to))
+  {
     Sql_ShowDebug(sql_handle);
-    WFIFOW(fd, 6) = 1;  // Sql_Error
+    WFIFOW(fd, 6) = 1; // Sql_Error
     WFIFOSET(fd, 6);
     return 0;
   }
 
   result = Sql_NextRow(sql_handle);
-  if (result == SQL_ERROR) {
+  if (result == SQL_ERROR)
+  {
     Sql_ShowDebug(sql_handle);
     WFIFOW(fd, 6) = 1;
     WFIFOSET(fd, 6);
     return 0;
   }
 
-  if (SQL_SUCCESS == result) Sql_GetData(sql_handle, 0, &data, 0);
+  if (SQL_SUCCESS == result)
+    Sql_GetData(sql_handle, 0, &data, 0);
 
-  if (data) {
+  if (data)
+  {
     newMailID = atoi(data) + 1;
   }
 
@@ -866,7 +958,8 @@ int mapif_parse_nmailwrite(int fd) {
           "`MalPosition`, `MalSubject`, `MalBody`, `MalMonth`, `MalDay`, "
           "`MalNew`) VALUES('%s', '%s', %d, '%s', '%s', "
           "DATE_FORMAT(CURDATE(),'%%m'), DATE_FORMAT(CURDATE(), '%%d'), 1)",
-          from, to, newMailID, topic, msg)) {
+          from, to, newMailID, topic, msg))
+  {
     Sql_ShowDebug(sql_handle);
     WFIFOW(fd, 6) = 1;
     WFIFOSET(fd, 6);
@@ -879,37 +972,42 @@ int mapif_parse_nmailwrite(int fd) {
   return 0;
 }
 
-int mapif_parse_nmailwritecopy(int fd) {
+int mapif_parse_nmailwritecopy(int fd)
+{
   char from[32];
   char to[104];
   char topic[104];
   char msg[8000];
   int newMailID = 1;
-  char* data;
+  char *data;
   int result;
 
-  Sql_EscapeString(sql_handle, from, (char*)RFIFOP(fd, 4));
-  Sql_EscapeString(sql_handle, to, (char*)RFIFOP(fd, 20));
-  Sql_EscapeString(sql_handle, topic, (char*)RFIFOP(fd, 72));
-  Sql_EscapeString(sql_handle, msg, (char*)RFIFOP(fd, 124));
+  Sql_EscapeString(sql_handle, from, (char *)RFIFOP(fd, 4));
+  Sql_EscapeString(sql_handle, to, (char *)RFIFOP(fd, 20));
+  Sql_EscapeString(sql_handle, topic, (char *)RFIFOP(fd, 72));
+  Sql_EscapeString(sql_handle, msg, (char *)RFIFOP(fd, 124));
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "SELECT MAX(`MalPosition`) FROM `Mail` WHERE "
                              "`MalChaNameDestination` = '%s'",
-                             to)) {
+                             to))
+  {
     Sql_ShowDebug(sql_handle);
     return 0;
   }
 
   result = Sql_NextRow(sql_handle);
-  if (result == SQL_ERROR) {
+  if (result == SQL_ERROR)
+  {
     Sql_ShowDebug(sql_handle);
     return 0;
   }
 
-  if (SQL_SUCCESS == result) Sql_GetData(sql_handle, 0, &data, 0);
+  if (SQL_SUCCESS == result)
+    Sql_GetData(sql_handle, 0, &data, 0);
 
-  if (data) {
+  if (data)
+  {
     // printf("max: %d, new: %d\n", atoi(data), newMailID);
     newMailID = atoi(data) + 1;
   }
@@ -922,7 +1020,8 @@ int mapif_parse_nmailwritecopy(int fd) {
           "`MalPosition`, `MalSubject`, `MalBody`, `MalMonth`, `MalDay`, "
           "`MalNew`) VALUES('%s', '%s', %d, '%s', '%s', "
           "DATE_FORMAT(CURDATE(),'%%m'), DATE_FORMAT(CURDATE(), '%%d'), 1)",
-          from, to, newMailID, topic, msg)) {
+          from, to, newMailID, topic, msg))
+  {
     Sql_ShowDebug(sql_handle);
     return 0;
   }
@@ -930,7 +1029,8 @@ int mapif_parse_nmailwritecopy(int fd) {
   return 0;
 }
 
-int mapif_parse_findnewmp(int fd) {
+int mapif_parse_findnewmp(int fd)
+{
   /*int sfd=RFIFOW(fd,2);
   char name[32];
   int flags=0;
@@ -970,24 +1070,33 @@ int mapif_parse_findnewmp(int fd) {
   return 0;*/
   return 0;
 }
-int mapif_parse(int fd) {
+int mapif_parse(int fd)
+{
   int id, i;
   int cmd = 0, packet_len;
-  for (id = 0; id < map_fifo_max; id++) {
-    if (map_fifo[id].fd == fd) {
+  for (id = 0; id < map_fifo_max; id++)
+  {
+    if (map_fifo[id].fd == fd)
+    {
       break;
     }
   }
 
-  if (session[fd]->eof) {
+  if (session[fd]->eof)
+  {
     printf("[char] [mapif] Map Server #%d connection lost\n", id);
     map_fifo[id].fd = 0;
     map_fifo_n--;
-    if (id == (map_fifo_max - 1)) {
-      for (i = map_fifo_max - 1; i >= 0; i--) {
-        if (!map_fifo[id].fd) {
+    if (id == (map_fifo_max - 1))
+    {
+      for (i = map_fifo_max - 1; i >= 0; i--)
+      {
+        if (!map_fifo[id].fd)
+        {
           map_fifo_max--;
-        } else {
+        }
+        else
+        {
           break;
         }
       }
@@ -1004,69 +1113,74 @@ int mapif_parse(int fd) {
   if (cmd < 0x3000 ||
       cmd >=
           0x3000 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
-      packet_len_table[cmd - 0x3000] == 0) {
+      packet_len_table[cmd - 0x3000] == 0)
+  {
     return 0;
   }
 
   packet_len = packet_len_table[cmd - 0x3000];
 
-  if (packet_len == -1) {
-    if (RFIFOREST(fd) < 6) {
+  if (packet_len == -1)
+  {
+    if (RFIFOREST(fd) < 6)
+    {
       return 2;
     }
     packet_len = RFIFOL(fd, 2);
   }
-  if ((int)RFIFOREST(fd) < packet_len) {
+  if ((int)RFIFOREST(fd) < packet_len)
+  {
     return 2;
   }
 
   // printf("MAPIF: %d\n",cmd);
-  switch (cmd) {
-    case 0x3001:
-      mapif_parse_mapset(fd, id);
-      break;
-    case 0x3002:
-      mapif_parse_login(fd, id);
-      break;
-    case 0x3003:
-      mapif_parse_requestchar(fd);
-      break;
-    case 0x3004:
-      mapif_parse_savechar(fd);
-      break;
-    case 0x3005:
-      mapif_parse_logout(fd);
-      break;
-    case 0x3007:
-      mapif_parse_savecharlog(fd);
-      break;
-    case 0x3008:
-      mapif_parse_deletepost(fd);
-      break;
-    case 0x3009:
-      mapif_parse_showposts(fd);
-      break;
-    case 0x300A:
-      mapif_parse_readpost(fd);
-      break;
-    case 0x300B:
-      mapif_parse_userlist(fd);
-      break;
-    case 0x300C:
-      mapif_parse_boardpost(fd);
-      break;
-    case 0x300D:
-      mapif_parse_nmailwrite(fd);
-      break;
-    case 0x300E:
-      mapif_parse_findnewmp(fd);
-      break;
-    case 0x300F:
-      mapif_parse_nmailwritecopy(fd);
-      break;
+  switch (cmd)
+  {
+  case 0x3001:
+    mapif_parse_mapset(fd, id);
+    break;
+  case 0x3002:
+    mapif_parse_login(fd, id);
+    break;
+  case 0x3003:
+    mapif_parse_requestchar(fd);
+    break;
+  case 0x3004:
+    mapif_parse_savechar(fd);
+    break;
+  case 0x3005:
+    mapif_parse_logout(fd);
+    break;
+  case 0x3007:
+    mapif_parse_savecharlog(fd);
+    break;
+  case 0x3008:
+    mapif_parse_deletepost(fd);
+    break;
+  case 0x3009:
+    mapif_parse_showposts(fd);
+    break;
+  case 0x300A:
+    mapif_parse_readpost(fd);
+    break;
+  case 0x300B:
+    mapif_parse_userlist(fd);
+    break;
+  case 0x300C:
+    mapif_parse_boardpost(fd);
+    break;
+  case 0x300D:
+    mapif_parse_nmailwrite(fd);
+    break;
+  case 0x300E:
+    mapif_parse_findnewmp(fd);
+    break;
+  case 0x300F:
+    mapif_parse_nmailwritecopy(fd);
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 
   RFIFOSKIP(fd, packet_len);

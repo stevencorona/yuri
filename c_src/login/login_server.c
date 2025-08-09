@@ -26,18 +26,23 @@ const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 const char mask2[] =
     "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
 
-int Valid(const char *buf, const char *mask) {
+int Valid(const char *buf, const char *mask)
+{
   int x = 0;
   int n = 0;
   int found = 0;
 
-  for (x = 0; x < strlen(buf); x++) {
-    for (n = 0; n < strlen(mask); n++) {
-      if (buf[x] == mask[n]) {
+  for (x = 0; x < strlen(buf); x++)
+  {
+    for (n = 0; n < strlen(mask); n++)
+    {
+      if (buf[x] == mask[n])
+      {
         found = 1;
       }
     }
-    if (!found) {
+    if (!found)
+    {
       return 1;
     }
     found = 0;
@@ -46,72 +51,100 @@ int Valid(const char *buf, const char *mask) {
   return 0;
 }
 
-int string_check_allchars(const char *p, int len) {
+int string_check_allchars(const char *p, int len)
+{
   char buf[255];
   memset(buf, 0, 255);
   memcpy(buf, p, len);
   return Valid(buf, mask1);
 }
 
-int string_check(const char *p, int len) {
+int string_check(const char *p, int len)
+{
   char buf[255];
   memset(buf, 0, 255);
   memcpy(buf, p, len);
   return Valid(buf, mask2);
 }
 
-int lang_read(const char *cfg_file) {
+int lang_read(const char *cfg_file)
+{
   char line[1024];
   char r1[1024];
   char r2[1024];
-  int line_num = 0;
+  /* int line_num = 0; */
   FILE *fp = NULL;
 
   fp = fopen(cfg_file, "re");
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     printf("[login] [lang_read_failure]: Language file (%s) not found.\n",
            cfg_file);
     return 1;
   }
 
-  while (fgets(line, sizeof(line), fp)) {
-    line_num++;
-    if (line[0] == '/' && line[1] == '/') {
+  while (fgets(line, sizeof(line), fp))
+  {
+    /* line_num++; */
+    if (line[0] == '/' && line[1] == '/')
+    {
       continue;
     }
 
-    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2) {
-      if (strcasecmp(r1, "LGN_ERRSERVER") == 0) {
+    if (sscanf(line, "%[^:]: %[^\r\n]", r1, r2) == 2)
+    {
+      if (strcasecmp(r1, "LGN_ERRSERVER") == 0)
+      {
         strncpy(login_msg[LGN_ERRSERVER], r2, 256);
         login_msg[LGN_ERRSERVER][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_WRONGPASS") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_WRONGPASS") == 0)
+      {
         strncpy(login_msg[LGN_WRONGPASS], r2, 256);
         login_msg[LGN_WRONGPASS][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_WRONGUSER") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_WRONGUSER") == 0)
+      {
         strncpy(login_msg[LGN_WRONGUSER], r2, 256);
         login_msg[LGN_WRONGUSER][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_ERRDB") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_ERRDB") == 0)
+      {
         strncpy(login_msg[LGN_ERRDB], r2, 256);
         login_msg[LGN_ERRDB][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_USEREXIST") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_USEREXIST") == 0)
+      {
         strncpy(login_msg[LGN_USEREXIST], r2, 256);
         login_msg[LGN_USEREXIST][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_ERRPASS") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_ERRPASS") == 0)
+      {
         strncpy(login_msg[LGN_ERRPASS], r2, 256);
         login_msg[LGN_ERRPASS][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_ERRUSER") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_ERRUSER") == 0)
+      {
         strncpy(login_msg[LGN_ERRUSER], r2, 256);
         login_msg[LGN_ERRUSER][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_NEWCHAR") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_NEWCHAR") == 0)
+      {
         strncpy(login_msg[LGN_NEWCHAR], r2, 256);
         login_msg[LGN_NEWCHAR][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_CHGPASS") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_CHGPASS") == 0)
+      {
         strncpy(login_msg[LGN_CHGPASS], r2, 256);
         login_msg[LGN_CHGPASS][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_DBLLOGIN") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_DBLLOGIN") == 0)
+      {
         strncpy(login_msg[LGN_DBLLOGIN], r2, 256);
         login_msg[LGN_DBLLOGIN][255] = '\0';
-      } else if (strcasecmp(r1, "LGN_BANNED") == 0) {
+      }
+      else if (strcasecmp(r1, "LGN_BANNED") == 0)
+      {
         strncpy(login_msg[LGN_BANNED], r2, 256);
         login_msg[LGN_BANNED][255] = '\0';
       }
@@ -124,7 +157,8 @@ int lang_read(const char *cfg_file) {
 
 void do_term(void) { printf("[login] [shutdown]\n"); }
 
-void help_screen() {
+void help_screen()
+{
   printf("HELP LIST\n");
   printf("---------\n");
   printf(" --conf [FILENAME]  : set config file\n");
@@ -132,32 +166,41 @@ void help_screen() {
   exit(0);
 }
 
-int do_init(int argc, char **argv) {
+int do_init(int argc, char **argv)
+{
   int i = 0;
   char *CONF_FILE = "conf/server.yaml";
   char *LANG_FILE = "conf/lang.yaml";
 
   srand(gettick());
 
-  for (i = 1; i < argc; i++) {
+  for (i = 1; i < argc; i++)
+  {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
-        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
+        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0)
+    {
       help_screen();
-    } else if (strcmp(argv[i], "--conf") == 0) {
+    }
+    else if (strcmp(argv[i], "--conf") == 0)
+    {
       CONF_FILE = argv[i + 1];
-    } else if (strcmp(argv[i], "--lang") == 0) {
+    }
+    else if (strcmp(argv[i], "--lang") == 0)
+    {
       LANG_FILE = argv[i + 1];
     }
   }
 
   config_read(CONF_FILE);
   sql_handle = Sql_Malloc();
-  if (sql_handle == NULL) {
+  if (sql_handle == NULL)
+  {
     Sql_ShowDebug(sql_handle);
     exit(EXIT_FAILURE);
   }
   if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
-                               (uint16_t)sql_port, sql_db)) {
+                               (uint16_t)sql_port, sql_db))
+  {
     printf("[login] [sql_connect_error] id=%s port=%d\n", sql_id, sql_port);
     Sql_ShowDebug(sql_handle);
     Sql_Free(sql_handle);
@@ -182,19 +225,23 @@ int do_init(int argc, char **argv) {
 
 // These are all unsafe and weird -  uidb expects pointer value, but we're
 // trying to give it a uint.
-int getInvalidCount(unsigned int ip) {
+int getInvalidCount(unsigned int ip)
+{
   unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
   return c;
 }
 
-int login_clear_lockout(int i, int d) {
+int login_clear_lockout(int i, int d)
+{
   uidb_remove(bf_lockout, (uintptr_t)i);
   return 1;
 }
-int setInvalidCount(unsigned int ip) {
+int setInvalidCount(unsigned int ip)
+{
   unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
 
-  if (!c) {
+  if (!c)
+  {
     timer_insert(10 * 60 * 1000, 10 * 60 * 1000, login_clear_lockout, ip, 0);
   }
 

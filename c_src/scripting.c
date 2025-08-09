@@ -54,7 +54,8 @@ typedef int (*typel_setattrfunc)(lua_State *, void * /* self */,
 typedef int (*typel_initfunc)(lua_State *, void * /* self */, int /* dataref */,
                               void * /* param */);
 
-typedef struct typel_class_ {
+typedef struct typel_class_
+{
   // an luaL_ref reference to the prototype table for this class. the prototype
   // table holds the functions for this class.
   int protoref;
@@ -67,7 +68,8 @@ typedef struct typel_class_ {
   // to the first real argument
   lua_CFunction ctor;
 } typel_class;
-typedef struct typel_inst_ {
+typedef struct typel_inst_
+{
   typel_class *type;
   int dataref;
   uintptr_t *self;
@@ -83,7 +85,8 @@ int typel_mtgc(lua_State *);
 int typel_mtref;
 // TODO: actually use this!
 #define sl_ensureasync(state)                                              \
-  if (state == sl_gstate) {                                                \
+  if (state == sl_gstate)                                                  \
+  {                                                                        \
     luaL_error(state,                                                      \
                "this function must be called from a coroutine; "           \
                "that is, the calling method must be marked with async()"); \
@@ -95,7 +98,7 @@ int typel_mtref;
 
 void typel_staticinit();
 
-void typel_staticdestroy();  // TODO: this should unref typel_mtref?
+void typel_staticdestroy(); // TODO: this should unref typel_mtref?
 typedef int (*typel_func)(lua_State *, void * /* self */);
 
 #define typel_topointer(state, index) \
@@ -187,9 +190,9 @@ void mobl_staticinit();
 typel_class npcl_type;
 
 void npcl_staticinit();
-//#define cnpcl_pushinst(state, cnd) typel_pushinst(state, &cnpcl_type, cnd, 0)
-// typel_class cnpcl_type;
-// void cnpcl_staticinit();
+// #define cnpcl_pushinst(state, cnd) typel_pushinst(state, &cnpcl_type, cnd, 0)
+//  typel_class cnpcl_type;
+//  void cnpcl_staticinit();
 #define iteml_pushinst(state, item) typel_pushinst(state, &iteml_type, item, 0)
 typel_class iteml_type;
 
@@ -236,17 +239,21 @@ void sl_async_freeco(USER *);
 
 void sl_async_resume(USER *, int);
 
-int bll_spawn(lua_State *state, void *self) {
+int bll_spawn(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   // sl_checkargs(state,"nnnn");
   int i = 0;
   int mob = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nnnn");
     mob = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "snnn");
     mob = mobdb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -260,17 +267,22 @@ int bll_spawn(lua_State *state, void *self) {
   unsigned int *spawnedmobs = NULL;
   lua_newtable(state);
 
-  if (m != 0) {
+  if (m != 0)
+  {
     spawnedmobs = mobspawn_onetime(mob, m, x, y, amount, 0, 0, 0, owner);
 
-    for (i = 1; i <= amount; i++) {
+    for (i = 1; i <= amount; i++)
+    {
       bll_pushinst(state, map_id2bl(spawnedmobs[i - 1]), 0);
       lua_rawseti(state, -2, i);
     }
-  } else {
+  }
+  else
+  {
     spawnedmobs = mobspawn_onetime(mob, bl->m, x, y, amount, 0, 0, 0, owner);
 
-    for (i = 1; i <= amount; i++) {
+    for (i = 1; i <= amount; i++)
+    {
       bll_pushinst(state, map_id2bl(spawnedmobs[i - 1]), 0);
       lua_rawseti(state, -2, i);
     }
@@ -280,21 +292,26 @@ int bll_spawn(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getobjects_helper(struct block_list *bl, va_list ap) {
+int bll_getobjects_helper(struct block_list *bl, va_list ap)
+{
   lua_State *state = va_arg(ap, lua_State *);
   MOB *mob = NULL;
   USER *ptr = NULL;
   int *def = va_arg(ap, int *);
   nullpo_ret(0, bl);
-  if (bl->type == BL_MOB) {
+  if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
-    if (mob->state == MOB_DEAD) {
+    if (mob->state == MOB_DEAD)
+    {
       return 0;
     }
   }
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     ptr = (USER *)bl;
-    if (ptr && (ptr->optFlags & optFlag_stealth)) return 0;
+    if (ptr && (ptr->optFlags & optFlag_stealth))
+      return 0;
   }
 
   def[0]++;
@@ -303,19 +320,23 @@ int bll_getobjects_helper(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int bll_getaliveobjects_helper(struct block_list *bl, va_list ap) {
+int bll_getaliveobjects_helper(struct block_list *bl, va_list ap)
+{
   lua_State *state = va_arg(ap, lua_State *);
   MOB *mob = NULL;
   USER *ptr = NULL;
   int *def = va_arg(ap, int *);
   nullpo_ret(0, bl);
-  if (bl->type == BL_MOB) {
+  if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
-    if (mob->state == MOB_DEAD) {
+    if (mob->state == MOB_DEAD)
+    {
       return 0;
     }
   }
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     ptr = (USER *)bl;
     if (ptr && ((ptr->optFlags & optFlag_stealth) || ptr->status.state == 1))
       return 0;
@@ -327,7 +348,8 @@ int bll_getaliveobjects_helper(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int bll_getaliveobjects(lua_State *state, void *self, int area) {
+int bll_getaliveobjects(lua_State *state, void *self, int area)
+{
   sl_checkargs(state, "n");
   struct block_list *bl = (struct block_list *)self;
   int def[1];
@@ -349,7 +371,8 @@ int bll_getaliveobjects(lua_State *state, void *self, int area) {
   return 1;
 }
 
-int bll_getobjects(lua_State *state, void *self, int area) {
+int bll_getobjects(lua_State *state, void *self, int area)
+{
   sl_checkargs(state, "n");
   struct block_list *bl = (struct block_list *)self;
   int def[1];
@@ -371,7 +394,8 @@ int bll_getobjects(lua_State *state, void *self, int area) {
   return 1;
 }
 
-int bll_getobjects_cell(lua_State *state, void *self) {
+int bll_getobjects_cell(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnnn");
   int m = lua_tonumber(state, sl_memberarg(1)),
       x = lua_tonumber(state, sl_memberarg(2)),
@@ -384,7 +408,8 @@ int bll_getobjects_cell(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getaliveobjects_cell(lua_State *state, void *self) {
+int bll_getaliveobjects_cell(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnnn");
   int m = lua_tonumber(state, sl_memberarg(1)),
       x = lua_tonumber(state, sl_memberarg(2)),
@@ -397,7 +422,8 @@ int bll_getaliveobjects_cell(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getobjects_cell_traps(lua_State *state, void *self) {
+int bll_getobjects_cell_traps(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnnn");
   int m = lua_tonumber(state, sl_memberarg(1)),
       x = lua_tonumber(state, sl_memberarg(2)),
@@ -410,7 +436,8 @@ int bll_getobjects_cell_traps(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getaliveobjects_cell_traps(lua_State *state, void *self) {
+int bll_getaliveobjects_cell_traps(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnnn");
   int m = lua_tonumber(state, sl_memberarg(1)),
       x = lua_tonumber(state, sl_memberarg(2)),
@@ -424,23 +451,28 @@ int bll_getaliveobjects_cell_traps(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getobjects_area(lua_State *state, void *self) {
+int bll_getobjects_area(lua_State *state, void *self)
+{
   return bll_getobjects(state, self, AREA);
 }
 
-int bll_getaliveobjects_area(lua_State *state, void *self) {
+int bll_getaliveobjects_area(lua_State *state, void *self)
+{
   return bll_getaliveobjects(state, self, AREA);
 }
 
-int bll_getobjects_samemap(lua_State *state, void *self) {
+int bll_getobjects_samemap(lua_State *state, void *self)
+{
   return bll_getobjects(state, self, SAMEMAP);
 }
 
-int bll_getaliveobjects_samemap(lua_State *state, void *self) {
+int bll_getaliveobjects_samemap(lua_State *state, void *self)
+{
   return bll_getaliveobjects(state, self, SAMEMAP);
 }
 
-int bll_getobjects_map(lua_State *state, void *self) {
+int bll_getobjects_map(lua_State *state, void *self)
+{
   sl_checkargs(state, "nn");
   struct block_list *bl = (struct block_list *)self;
   int def[1];
@@ -455,7 +487,8 @@ int bll_getobjects_map(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getaliveobjects_map(lua_State *state, void *self) {
+int bll_getaliveobjects_map(lua_State *state, void *self)
+{
   sl_checkargs(state, "nn");
   struct block_list *bl = (struct block_list *)self;
   int def[1];
@@ -470,20 +503,25 @@ int bll_getaliveobjects_map(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_getblock(lua_State *state, void *self) {
+int bll_getblock(lua_State *state, void *self)
+{
   sl_checkargs(state, "n");
   struct block_list *bl = map_id2bl(lua_tonumber(state, sl_memberarg(1)));
 
-  if (bl) {
+  if (bl)
+  {
     bll_pushinst(state, bl, 0);
     return 1;
-  } else {
+  }
+  else
+  {
     lua_pushnil(state);
     return 1;
   }
 }
 
-int bll_sendanimxy(lua_State *state, void *self) {
+int bll_sendanimxy(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnn");
   struct block_list *bl = (struct block_list *)self;
   int anim = lua_tonumber(state, sl_memberarg(1));
@@ -496,7 +534,8 @@ int bll_sendanimxy(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_sendanim(lua_State *state, void *self) {
+int bll_sendanim(lua_State *state, void *self)
+{
   sl_checkargs(state, "n");
   struct block_list *bl = (struct block_list *)self;
   int anim = lua_tonumber(state, sl_memberarg(1));
@@ -507,7 +546,8 @@ int bll_sendanim(lua_State *state, void *self) {
   return 0;
 }
 
-int sl_sendanimationxy(USER *sd, ...) {
+int sl_sendanimationxy(USER *sd, ...)
+{
   va_list ap;
 
   va_start(ap, sd);
@@ -516,7 +556,8 @@ int sl_sendanimationxy(USER *sd, ...) {
   return 0;
 }
 
-int sl_sendanimation(USER *sd, ...) {
+int sl_sendanimation(USER *sd, ...)
+{
   va_list ap;
 
   va_start(ap, sd);
@@ -525,17 +566,21 @@ int sl_sendanimation(USER *sd, ...) {
   return 0;
 }
 
-int bll_selfanimationxy(lua_State *state, void *self) {
+int bll_selfanimationxy(lua_State *state, void *self)
+{
   USER *sd = NULL;
   int anim = lua_tonumber(state, sl_memberarg(2));
   int x = lua_tonumber(state, sl_memberarg(3));
   int y = lua_tonumber(state, sl_memberarg(4));
   int times = lua_tonumber(state, sl_memberarg(5));
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nnnn");
     sd = map_id2sd(lua_tonumber(state, sl_memberarg(1)));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "snnn");
     sd = map_name2sd(lua_tostring(state, sl_memberarg(1)));
   }
@@ -544,17 +589,21 @@ int bll_selfanimationxy(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_selfanimation(lua_State *state, void *self) {
+int bll_selfanimation(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   USER *sd = NULL;
   int anim = lua_tonumber(state, sl_memberarg(2));
   int times = lua_tonumber(state, sl_memberarg(3));
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     sd = map_id2sd(lua_tonumber(state, sl_memberarg(1)));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     sd = map_name2sd(lua_tostring(state, sl_memberarg(1)));
   }
@@ -563,7 +612,8 @@ int bll_selfanimation(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_sendaction(lua_State *state, void *self) {
+int bll_sendaction(lua_State *state, void *self)
+{
   sl_checkargs(state, "nn");
   struct block_list *bl = (struct block_list *)self;
   int action = lua_tonumber(state, sl_memberarg(1));
@@ -573,7 +623,8 @@ int bll_sendaction(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_throw(lua_State *state, void *self) {
+int bll_throw(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnnnn");
   int x, y, icon, color, action;
   unsigned char buf[255];
@@ -591,7 +642,7 @@ int bll_throw(lua_State *state, void *self) {
   WBUFL(buf, 5) = SWAP32(bl->id);
   WBUFW(buf, 9) = SWAP16(icon + 49152);
   WBUFB(buf, 11) = color;
-  WBUFL(buf, 12) = 0;  // 0 to not produce an image on ground.
+  WBUFL(buf, 12) = 0; // 0 to not produce an image on ground.
   WBUFW(buf, 16) = SWAP16(bl->x);
   WBUFW(buf, 18) = SWAP16(bl->y);
   WBUFW(buf, 20) = SWAP16(x);
@@ -604,15 +655,18 @@ int bll_throw(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_getusers(lua_State *state, void *self) {
+int bll_getusers(lua_State *state, void *self)
+{
   USER *tsd = NULL;
   struct socket_data *p;
   // struct block_list *bl= (struct block_list*)self;
   int i;
   lua_newtable(state);
-  for (i = 0; i < fd_max; i++) {
+  for (i = 0; i < fd_max; i++)
+  {
     p = session[i];
-    if (p && (tsd = p->session_data)) {
+    if (p && (tsd = p->session_data))
+    {
       bll_pushinst(state, &tsd->bl, 0);
       lua_rawseti(state, -2, lua_objlen(state, -2) + 1);
     }
@@ -620,13 +674,15 @@ int bll_getusers(lua_State *state, void *self) {
   return 1;
 }
 
-int addmobspawn(lua_State *state) {
+int addmobspawn(lua_State *state)
+{
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
   int mobId = lua_tonumber(state, 4);
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     if (SQL_ERROR ==
         Sql_Query(sql_handle,
                   "INSERT INTO `Spawns%d` (`SpnMapId`, `SpnX`, `SpnY`, "
@@ -634,14 +690,16 @@ int addmobspawn(lua_State *state) {
                   "`SpnMobIdReplace`) VALUES(%d, %d, %d, %d, 0, 25, 25, 0)",
                   serverid, m, x, y, mobId))
       Sql_ShowDebug(sql_handle);
-
-  } else {
+  }
+  else
+  {
     printf("Error in permanently spawning mob! (Map: %d)", m);
   }
   return 1;
 }
 
-int getobjectsmap(lua_State *state) {
+int getobjectsmap(lua_State *state)
+{
   // int m = lua_tonumber(state, 1);
   // int type = lua_tonumber(state, 2);
   // int x;
@@ -657,31 +715,35 @@ int getobjectsmap(lua_State *state) {
   return 0;
 }
 
-void sl_checkargs(lua_State *state, char *fmt) {
+void sl_checkargs(lua_State *state, char *fmt)
+{
   int narg;
-  for (narg = 1; fmt[narg - 1]; ++narg) {
+  for (narg = 1; fmt[narg - 1]; ++narg)
+  {
     int expectedtype = LUA_TNIL, gottype = lua_type(state, sl_memberarg(narg));
-    switch (fmt[narg - 1]) {
-      case 'n':
-        expectedtype = LUA_TNUMBER;
-        break;
-      case 'b':
-        expectedtype = LUA_TBOOLEAN;
-        break;
-      case 't':
-        expectedtype = LUA_TTABLE;
-        break;
-      case 's':
-        expectedtype = LUA_TSTRING;
-        break;
-      case 'f':
-        expectedtype = LUA_TFUNCTION;
-        break;
-      case 'u':
-        expectedtype = LUA_TUSERDATA;
-        break;
+    switch (fmt[narg - 1])
+    {
+    case 'n':
+      expectedtype = LUA_TNUMBER;
+      break;
+    case 'b':
+      expectedtype = LUA_TBOOLEAN;
+      break;
+    case 't':
+      expectedtype = LUA_TTABLE;
+      break;
+    case 's':
+      expectedtype = LUA_TSTRING;
+      break;
+    case 'f':
+      expectedtype = LUA_TFUNCTION;
+      break;
+    case 'u':
+      expectedtype = LUA_TUSERDATA;
+      break;
     }
-    if (gottype != expectedtype) {
+    if (gottype != expectedtype)
+    {
       char message[512];
       message[0] = 0;
       sprintf(message, "%s expected, got %s", lua_typename(state, expectedtype),
@@ -691,14 +753,16 @@ void sl_checkargs(lua_State *state, char *fmt) {
   }
 }
 
-int sl_exec_redirectio(lua_State *state) {
+int sl_exec_redirectio(lua_State *state)
+{
   USER *sd = lua_touserdata(state, lua_upvalueindex(1));
   const char *msg = lua_tostring(state, 1);
   clif_sendwisp(sd, "lua", msg);
   return 0;
 }
 
-int sl_luasize(USER *sd) {
+int sl_luasize(USER *sd)
+{
   char buf[255];
 
   sprintf(buf, "LUA is using %u KB", lua_gc(sl_gstate, LUA_GCCOUNT, 0));
@@ -706,14 +770,16 @@ int sl_luasize(USER *sd) {
   return 0;
 }
 
-int sl_updatepeople(struct block_list *bl, va_list ap) {
+int sl_updatepeople(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   int x = 0;
   int y = 0;
 
   nullpo_ret(0, sd = (USER *)bl);
 
-  if (sd->bl.id >= MOB_START_NUM) return 0;
+  if (sd->bl.id >= MOB_START_NUM)
+    return 0;
 
   if (sd->bl.x - 9 < 0)
     x = 9;
@@ -733,7 +799,8 @@ int sl_updatepeople(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int setpostcolor(lua_State *state) {
+int setpostcolor(lua_State *state)
+{
   sl_checkargs(state, "nn");
   int board = lua_tonumber(state, 1);
   int post = lua_tonumber(state, 2);
@@ -742,14 +809,16 @@ int setpostcolor(lua_State *state) {
   return 0;
 }
 
-int setobject(lua_State *state) {
+int setobject(lua_State *state)
+{
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
   int newnum = lua_tonumber(state, 4);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     map[m].obj[x + y * map[m].xs] = newnum;
     map_foreachinarea(sl_updatepeople, m, x, y, AREA, BL_PC);
   }
@@ -757,27 +826,31 @@ int setobject(lua_State *state) {
   return 0;
 }
 
-int getobject(lua_State *state) {
+int getobject(lua_State *state)
+{
   sl_checkargs(state, "nn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     lua_pushnumber(state, map[m].obj[x + y * map[m].xs]);
   }
 
   return 1;
 }
 
-int settile(lua_State *state) {
+int settile(lua_State *state)
+{
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
   int newnum = lua_tonumber(state, 4);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     map[m].tile[x + y * map[m].xs] = newnum;
     map_foreachinarea(sl_updatepeople, m, x, y, AREA, BL_PC);
   }
@@ -785,48 +858,56 @@ int settile(lua_State *state) {
   return 0;
 }
 
-int gettile(lua_State *state) {
+int gettile(lua_State *state)
+{
   sl_checkargs(state, "nn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     lua_pushnumber(state, map[m].tile[x + y * map[m].xs]);
   }
 
   return 1;
 }
 
-int setpass(lua_State *state) {
+int setpass(lua_State *state)
+{
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
   int newnum = lua_tonumber(state, 4);
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     map[m].pass[x + y * map[m].xs] = newnum;
     map_foreachinarea(sl_updatepeople, m, x, y, AREA, BL_PC);
   }
   return 0;
 }
 
-int get_pass(lua_State *state) {
+int get_pass(lua_State *state)
+{
   sl_checkargs(state, "nn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     if (x > map[m].xs - 1 || y > map[m].ys - 1)
       lua_pushnumber(state, 1);
-    else {
+    else
+    {
       lua_pushnumber(state, map[m].pass[x + y * map[m].xs]);
     }
   }
   return 1;
 }
 
-int setmap(lua_State *state) {
+int setmap(lua_State *state)
+{
   sl_checkargs(state, "s");
   unsigned short buff;
   unsigned int pos = 0;
@@ -853,12 +934,14 @@ int setmap(lua_State *state) {
   FILE *fp = fopen(lua_tostring(state, 2), "rb");
   int blockcount = map[m].bxs * map[m].bys;
 
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     printf("MAP_ERR: Map file not found (%s).\n", lua_tostring(state, 2));
     return -1;
   }
 
-  if (title != NULL) strcpy(map[m].title, title);
+  if (title != NULL)
+    strcpy(map[m].title, title);
   map[m].bgm = bgm;
   map[m].bgmtype = bgmtype;
   map[m].pvp = pvp;
@@ -881,12 +964,15 @@ int setmap(lua_State *state) {
   fread(&buff, 2, 1, fp);
   map[m].ys = SWAP16(buff);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     REALLOC(map[m].tile, unsigned short, map[m].xs *map[m].ys);
     REALLOC(map[m].obj, unsigned short, map[m].xs *map[m].ys);
     REALLOC(map[m].map, unsigned char, map[m].xs *map[m].ys);
     REALLOC(map[m].pass, unsigned short, map[m].xs *map[m].ys);
-  } else {
+  }
+  else
+  {
     CALLOC(map[m].tile, unsigned short, map[m].xs *map[m].ys);
     CALLOC(map[m].obj, unsigned short, map[m].xs *map[m].ys);
     CALLOC(map[m].map, unsigned char, map[m].xs *map[m].ys);
@@ -896,26 +982,32 @@ int setmap(lua_State *state) {
   map[m].bxs = (map[m].xs + BLOCK_SIZE - 1) / BLOCK_SIZE;
   map[m].bys = (map[m].ys + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     FREE(map[m].warp);
     CALLOC(map[m].warp, struct warp_list *, map[m].bxs * map[m].bys);
     REALLOC(map[m].block, struct block_list *, map[m].bxs * map[m].bys);
     REALLOC(map[m].block_mob, struct block_list *, map[m].bxs * map[m].bys);
 
-    if (map[m].bxs * map[m].bys > blockcount) {
-      for (i = blockcount; i < map[m].bxs * map[m].bys; i++) {
+    if (map[m].bxs * map[m].bys > blockcount)
+    {
+      for (i = blockcount; i < map[m].bxs * map[m].bys; i++)
+      {
         map[m].block[i] = NULL;
         map[m].block_mob[i] = NULL;
       }
     }
-  } else {
+  }
+  else
+  {
     CALLOC(map[m].warp, struct warp_list *, map[m].bxs * map[m].bys);
     CALLOC(map[m].block, struct block_list *, map[m].bxs * map[m].bys);
     CALLOC(map[m].block_mob, struct block_list *, map[m].bxs * map[m].bys);
     CALLOC(map[m].registry, struct global_reg, 1000);
   }
 
-  while (!feof(fp)) {
+  while (!feof(fp))
+  {
     fread(&buff, 2, 1, fp);
     map[m].tile[pos] = SWAP16(buff);
     fread(&buff, 2, 1, fp);
@@ -924,7 +1016,8 @@ int setmap(lua_State *state) {
     map[m].obj[pos] = SWAP16(buff);
 
     pos++;
-    if (pos >= map[m].xs * map[m].ys) break;
+    if (pos >= map[m].xs * map[m].ys)
+      break;
   }
 
   pos = 0;
@@ -934,11 +1027,13 @@ int setmap(lua_State *state) {
   return 0;
 }
 
-int getMapAttribute(lua_State *state) {
+int getMapAttribute(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
   const char *attrname = lua_tostring(state, 2);
 
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
   if (!strcmp(attrname, "xmax"))
     lua_pushnumber(state, map[m].xs - 1);
@@ -1005,15 +1100,17 @@ int getMapAttribute(lua_State *state) {
   else if (!strcmp(attrname, "canGroup"))
     lua_pushnumber(state, map[m].canGroup);
   else
-    return 0;  // the attribute was not handled
+    return 0; // the attribute was not handled
   return 1;
 }
 
-int setMapAttribute(lua_State *state) {
+int setMapAttribute(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
   const char *attrname = lua_tostring(state, 2);
 
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
   if (!strcmp(attrname, "mapTitle"))
     strcpy(map[m].title, lua_tostring(state, 3));
@@ -1079,45 +1176,51 @@ int setMapAttribute(lua_State *state) {
   return 1;
 }
 
-void sl_exec(USER *sd, char *str) {
+void sl_exec(USER *sd, char *str)
+{
 #define sl_exec_err()                            \
   const char *msg = lua_tostring(sl_gstate, -1); \
   clif_sendmsg(sd, 0, msg)
 
-  if (luaL_loadstring(sl_gstate, str) != 0) {
+  if (luaL_loadstring(sl_gstate, str) != 0)
+  {
     sl_exec_err();
     lua_pop(sl_gstate, 1);
     return;
   }
-  lua_newtable(sl_gstate);  // the environment table
+  lua_newtable(sl_gstate); // the environment table
   lua_pushlightuserdata(sl_gstate, sd);
   lua_pushcclosure(sl_gstate, sl_exec_redirectio, 1);
-  lua_setfield(sl_gstate, -2, "print");  // set the new print
-  lua_newtable(sl_gstate);               // the metatable for the environment
+  lua_setfield(sl_gstate, -2, "print"); // set the new print
+  lua_newtable(sl_gstate);              // the metatable for the environment
   lua_pushvalue(sl_gstate, LUA_GLOBALSINDEX);
-  lua_setfield(sl_gstate, -2, "__index");  // set __index = _G
+  lua_setfield(sl_gstate, -2, "__index"); // set __index = _G
   lua_setmetatable(sl_gstate, -2);
   lua_setfenv(sl_gstate, -2);
-  if (lua_pcall(sl_gstate, 0, 0, 0) != 0) {
+  if (lua_pcall(sl_gstate, 0, 0, 0) != 0)
+  {
     sl_exec_err();
-    lua_pop(sl_gstate, 1);  // pop the error string
+    lua_pop(sl_gstate, 1); // pop the error string
     return;
   }
 #undef sl_exec_err
 }
 
-int getofflineid(lua_State *state) {
+int getofflineid(lua_State *state)
+{
   int id;
   char name[16];
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
 
-  if (lua_isnumber(state, 1)) {
+  if (lua_isnumber(state, 1))
+  {
     int charid = lua_tonumber(state, 1);
     if (SQL_ERROR ==
             SqlStmt_Prepare(
@@ -1125,22 +1228,28 @@ int getofflineid(lua_State *state) {
                 charid) ||
         SQL_ERROR == SqlStmt_Execute(stmt) ||
         SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &name,
-                                        sizeof(name), NULL, NULL)) {
+                                        sizeof(name), NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       return 0;
     }
 
-    if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+    {
       lua_pushstring(state, name);
       SqlStmt_Free(stmt);
       return 1;
-    } else {
+    }
+    else
+    {
       lua_pushboolean(state, 0);
       SqlStmt_Free(stmt);
       return 1;
     }
-  } else {
+  }
+  else
+  {
     const char *name = lua_tostring(state, 1);
     if (SQL_ERROR ==
             SqlStmt_Prepare(
@@ -1148,17 +1257,21 @@ int getofflineid(lua_State *state) {
                 name) ||
         SQL_ERROR == SqlStmt_Execute(stmt) ||
         SQL_ERROR ==
-            SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+            SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       return 0;
     }
 
-    if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+    {
       lua_pushnumber(state, id);
       SqlStmt_Free(stmt);
       return 1;
-    } else {
+    }
+    else
+    {
       lua_pushboolean(state, 0);
       SqlStmt_Free(stmt);
       return 1;
@@ -1166,13 +1279,15 @@ int getofflineid(lua_State *state) {
   }
 }
 
-int func_panic(lua_State *state) {
+int func_panic(lua_State *state)
+{
   sl_err_print(state);
-  lua_pop(state, 1);  // pop Error String
+  lua_pop(state, 1); // pop Error String
   return 0;
 }
 
-int sl_throw(struct block_list *bl, va_list ap) {
+int sl_throw(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
 
   nullpo_ret(0, sd = (USER *)bl);
@@ -1180,7 +1295,8 @@ int sl_throw(struct block_list *bl, va_list ap) {
   char *buf = va_arg(ap, char *);
   int len = va_arg(ap, int);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -1191,7 +1307,8 @@ int sl_throw(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int throw(lua_State * state) {
+int throw(lua_State *state)
+{
   sl_checkargs(state, "nnnnnnnn");
   int x, y, icon, color, action, m;
   int x2, y2;
@@ -1215,7 +1332,7 @@ int throw(lua_State * state) {
   WBUFL(buf, 5) = SWAP32(id);
   WBUFW(buf, 9) = SWAP16(icon + 49152);
   WBUFB(buf, 11) = color;
-  WBUFL(buf, 12) = 0;  // 0 to not produce an image on ground.
+  WBUFL(buf, 12) = 0; // 0 to not produce an image on ground.
   WBUFW(buf, 16) = SWAP16(x);
   WBUFW(buf, 18) = SWAP16(x);
   WBUFW(buf, 20) = SWAP16(x2);
@@ -1229,19 +1346,23 @@ int throw(lua_State * state) {
   return 0;
 }
 
-int msleep(lua_State *state) {
+int msleep(lua_State *state)
+{
   long msecs = lua_tointeger(state, 1);
   usleep(1000 * msecs);
   return 0;
 }
 
-int getweather(lua_State *state) {
+int getweather(lua_State *state)
+{
   int x;
   unsigned char mapregion = lua_tonumber(state, 1);
   unsigned char mapindoor = lua_tonumber(state, 2);
 
-  for (x = 0; x < 65535; x++) {
-    if (map[x].region == mapregion && map[x].indoor == mapindoor) {
+  for (x = 0; x < 65535; x++)
+  {
+    if (map[x].region == mapregion && map[x].indoor == mapindoor)
+    {
       lua_pushnumber(state, map[x].weather);
       return 1;
     }
@@ -1249,7 +1370,8 @@ int getweather(lua_State *state) {
   return 0;
 }
 
-int setweather(lua_State *state) {
+int setweather(lua_State *state)
+{
   USER *tmpsd;
   int x, i, timer;
   unsigned int t = time(NULL);
@@ -1257,20 +1379,27 @@ int setweather(lua_State *state) {
   unsigned char mapindoor = lua_tonumber(state, 2);
   unsigned char mapweather = lua_tonumber(state, 3);
 
-  for (x = 0; x < 65535; x++) {
-    if (map_isloaded(x)) {
+  for (x = 0; x < 65535; x++)
+  {
+    if (map_isloaded(x))
+    {
       timer = map_readglobalreg(x, "artificial_weather_timer");
-      if (timer <= t && timer > 0) {
+      if (timer <= t && timer > 0)
+      {
         map_setglobalreg(x, "artificial_weather_timer", 0);
         timer = 0;
       }
       if (map[x].region == mapregion && map[x].indoor == mapindoor &&
-          timer == 0) {
+          timer == 0)
+      {
         map[x].weather = mapweather;
-        for (i = 1; i < fd_max; i++) {
+        for (i = 1; i < fd_max; i++)
+        {
           if (session[i] && (tmpsd = (USER *)session[i]->session_data) &&
-              !session[i]->eof) {
-            if (tmpsd->bl.m == x) {
+              !session[i]->eof)
+          {
+            if (tmpsd->bl.m == x)
+            {
               clif_sendweather(tmpsd);
             }
           }
@@ -1281,33 +1410,41 @@ int setweather(lua_State *state) {
   return 0;
 }
 
-int getweatherm(lua_State *state) {
+int getweatherm(lua_State *state)
+{
   int mapnum = lua_tonumber(state, 1);
 
   lua_pushnumber(state, map[mapnum].weather);
   return 1;
 }
 
-int setweatherm(lua_State *state) {
+int setweatherm(lua_State *state)
+{
   USER *tmpsd;
   int i, timer;
   unsigned int t = time(NULL);
   int mapnum = lua_tonumber(state, 1);
   unsigned char mapweather = lua_tonumber(state, 2);
 
-  if (map_isloaded(mapnum)) {
+  if (map_isloaded(mapnum))
+  {
     timer = map_readglobalreg(mapnum, "artificial_weather_timer");
-    if (timer <= t && timer > 0) {
+    if (timer <= t && timer > 0)
+    {
       map_setglobalreg(mapnum, "artificial_weather_timer", 0);
       timer = 0;
     }
 
-    if (timer == 0) {
+    if (timer == 0)
+    {
       map[mapnum].weather = mapweather;
-      for (i = 1; i < fd_max; i++) {
+      for (i = 1; i < fd_max; i++)
+      {
         if (session[i] && (tmpsd = (USER *)session[i]->session_data) &&
-            !session[i]->eof) {
-          if (tmpsd->bl.m == mapnum) {
+            !session[i]->eof)
+        {
+          if (tmpsd->bl.m == mapnum)
+          {
             clif_sendweather(tmpsd);
           }
         }
@@ -1317,7 +1454,8 @@ int setweatherm(lua_State *state) {
   return 0;
 }
 
-int getMapIsLoaded(lua_State *state) {
+int getMapIsLoaded(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
 
   if (map_isloaded(m))
@@ -1328,7 +1466,8 @@ int getMapIsLoaded(lua_State *state) {
   return 1;
 }
 
-int getMapUsers(lua_State *state) {
+int getMapUsers(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
 
   if (map_isloaded(m))
@@ -1339,7 +1478,8 @@ int getMapUsers(lua_State *state) {
   return 1;
 }
 
-int getMapYMax(lua_State *state) {
+int getMapYMax(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
 
   if (map_isloaded(m))
@@ -1350,7 +1490,8 @@ int getMapYMax(lua_State *state) {
   return 1;
 }
 
-int getMapXMax(lua_State *state) {
+int getMapXMax(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
 
   if (map_isloaded(m))
@@ -1361,33 +1502,43 @@ int getMapXMax(lua_State *state) {
   return 1;
 }
 
-int getTick(lua_State *state) {
+int getTick(lua_State *state)
+{
   lua_pushnumber(state, gettick());
 
   return 1;
 }
 
-int curserver(lua_State *state) {
+int curserver(lua_State *state)
+{
   lua_pushnumber(state, serverid);
   return 1;
 }
 
-int setlight(lua_State *state) {
+int setlight(lua_State *state)
+{
   USER *tmpsd;
 
   unsigned char mapregion = lua_tonumber(state, 1);
   unsigned char mapindoor = lua_tonumber(state, 2);
   unsigned char maplight = lua_tonumber(state, 3);
 
-  for (int x = 0; x < 65535; x++) {
-    if (map_isloaded(x)) {
-      if (map[x].region == mapregion && map[x].indoor == mapindoor) {
-        if (map[x].light == 0) map[x].light = maplight;
+  for (int x = 0; x < 65535; x++)
+  {
+    if (map_isloaded(x))
+    {
+      if (map[x].region == mapregion && map[x].indoor == mapindoor)
+      {
+        if (map[x].light == 0)
+          map[x].light = maplight;
 
-        for (int i = 0; i < fd_max; i++) {
+        for (int i = 0; i < fd_max; i++)
+        {
           if (session[i] && (tmpsd = (USER *)session[i]->session_data) &&
-              !session[i]->eof) {
-            if (tmpsd->bl.m == x) {
+              !session[i]->eof)
+          {
+            if (tmpsd->bl.m == x)
+            {
               // clif_refreshnoclick(tmpsd);
             }
           }
@@ -1398,105 +1549,127 @@ int setlight(lua_State *state) {
   return 0;
 }
 
-int curyear(lua_State *state) {
+int curyear(lua_State *state)
+{
   lua_pushnumber(state, cur_year);
   return 1;
 }
 
-int curseason(lua_State *state) {
+int curseason(lua_State *state)
+{
   lua_pushnumber(state, cur_season);
   return 1;
 }
 
-int curday(lua_State *state) {
+int curday(lua_State *state)
+{
   lua_pushnumber(state, cur_day);
   return 1;
 }
 
-int curtime(lua_State *state) {
+int curtime(lua_State *state)
+{
   lua_pushnumber(state, cur_time);
   return 1;
 }
 
-int realday(lua_State *state) {
+int realday(lua_State *state)
+{
   lua_pushnumber(state, getDay());
   return 1;
 }
 
-int realhour(lua_State *state) {
+int realhour(lua_State *state)
+{
   lua_pushnumber(state, getHour());
   return 1;
 }
 
-int realminute(lua_State *state) {
+int realminute(lua_State *state)
+{
   lua_pushnumber(state, getMinute());
   return 1;
 }
 
-int realsecond(lua_State *state) {
+int realsecond(lua_State *state)
+{
   lua_pushnumber(state, getSecond());
   return 1;
 }
 
-int broadcast(lua_State *state) {
+int broadcast(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
   const char *msg = lua_tostring(state, 2);
   clif_broadcast(msg, m);
   return 0;
 }
 
-int gmbroadcast(lua_State *state) {
+int gmbroadcast(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
   const char *msg = lua_tostring(state, 2);
   clif_gmbroadcast(msg, m);
   return 0;
 }
 
-int checkonline(lua_State *state) {
+int checkonline(lua_State *state)
+{
   int numonline, id;
   const char *name = NULL;
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
 
-  if (lua_isnumber(state, 1)) {
-    if (lua_tonumber(state, 1) > 0) {
+  if (lua_isnumber(state, 1))
+  {
+    if (lua_tonumber(state, 1) > 0)
+    {
       id = lua_tonumber(state, 1);
 
       if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                        "SELECT `ChaId` FROM `Character` WHERE "
                                        "`ChaOnline` = '1' AND `ChaId` = '%u'",
                                        id) ||
-          SQL_ERROR == SqlStmt_Execute(stmt)) {
+          SQL_ERROR == SqlStmt_Execute(stmt))
+      {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
       }
     }
-  } else {
+  }
+  else
+  {
     name = lua_tostring(state, 1);
     char *name_buffer[64];
     memcpy(name_buffer, name, strlen(name));
 
-    if (strcasecmp(name, "") == 0) {
+    if (strcasecmp(name, "") == 0)
+    {
       if (SQL_ERROR ==
               SqlStmt_Prepare(stmt,
                               "SELECT `ChaId` FROM `Character` WHERE "
                               "`ChaOnline` = '1' AND `ChaGMLevel` = '0'") ||
-          SQL_ERROR == SqlStmt_Execute(stmt)) {
+          SQL_ERROR == SqlStmt_Execute(stmt))
+      {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
       }
-    } else {
+    }
+    else
+    {
       if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                        "Select `ChaId` FROM `Character` WHERE "
                                        "`ChaOnline` = '1' AND `ChaName` = '%s'",
                                        strlwr(*name_buffer)) ||
-          SQL_ERROR == SqlStmt_Execute(stmt)) {
+          SQL_ERROR == SqlStmt_Execute(stmt))
+      {
         SqlStmt_ShowDebug(stmt);
         SqlStmt_Free(stmt);
         return 0;
@@ -1510,36 +1683,46 @@ int checkonline(lua_State *state) {
   return 1;
 }
 
-int luareload(lua_State *state) {
+int luareload(lua_State *state)
+{
   lua_newtable(state);
   errors = 0;
   command_reload(NULL, NULL, state);
   return 1;
 }
 
-int luatimems(lua_State *state) {
+int luatimems(lua_State *state)
+{
   struct timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   lua_pushnumber(state, ts.tv_nsec / 1000000);
   return 1;
 }
 
-int getwarp(lua_State *state) {
+int getwarp(lua_State *state)
+{
   sl_checkargs(state, "nn");
   int m = lua_tonumber(state, 1);
   int x = lua_tonumber(state, 2);
   int y = lua_tonumber(state, 3);
   struct warp_list *i = NULL;
 
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
-  if (x >= map[m].xs) x = map[m].xs - 1;
-  if (y >= map[m].ys) y = map[m].ys - 1;
+  if (x < 0)
+    x = 0;
+  if (y < 0)
+    y = 0;
+  if (x >= map[m].xs)
+    x = map[m].xs - 1;
+  if (y >= map[m].ys)
+    y = map[m].ys - 1;
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     for (i = map[m].warp[x / BLOCK_SIZE + (y / BLOCK_SIZE) * map[m].bxs]; i;
-         i = i->next) {
-      if (i->x == x && i->y == y) {
+         i = i->next)
+    {
+      if (i->x == x && i->y == y)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
@@ -1550,7 +1733,8 @@ int getwarp(lua_State *state) {
   return 1;
 }
 
-int setwarps(lua_State *state) {
+int setwarps(lua_State *state)
+{
   struct warp_list *war = NULL;
   int mm = lua_tonumber(state, 1);
   int mx = lua_tonumber(state, 2);
@@ -1559,10 +1743,13 @@ int setwarps(lua_State *state) {
   int tx = lua_tonumber(state, 5);
   int ty = lua_tonumber(state, 6);
 
-  if (!map_isloaded(mm) || !map_isloaded(tm)) {
+  if (!map_isloaded(mm) || !map_isloaded(tm))
+  {
     lua_pushboolean(state, 0);
     return 0;
-  } else {
+  }
+  else
+  {
     CALLOC(war, struct warp_list, 1);
 
     war->x = mx;
@@ -1572,7 +1759,8 @@ int setwarps(lua_State *state) {
     war->ty = ty;
     war->next =
         map[mm].warp[(mx / BLOCK_SIZE) + (my / BLOCK_SIZE) * map[mm].bxs];
-    if (war->next) war->next->prev = war;
+    if (war->next)
+      war->next->prev = war;
 
     map[mm].warp[(mx / BLOCK_SIZE) + (my / BLOCK_SIZE) * map[mm].bxs] = war;
 
@@ -1582,14 +1770,16 @@ int setwarps(lua_State *state) {
   return 1;
 }
 
-int getwarps(lua_State *state) {
+int getwarps(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
 
   int mm, mx, my, tm, tx, ty = 0;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -1607,7 +1797,8 @@ int getwarps(lua_State *state) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &my, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &tm, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT, &tx, 0, NULL, NULL) ||
-      SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &ty, 0, NULL, NULL)) {
+      SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_INT, &ty, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -1621,7 +1812,8 @@ int getwarps(lua_State *state) {
 
   for (i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++, x += 6) {
+       i++, x += 6)
+  {
     lua_pushnumber(state, mm);
     lua_rawseti(state, -2, x);
     lua_pushnumber(state, mx);
@@ -1687,7 +1879,8 @@ BLOCK_SIZE) * map[mm + m].bxs];
         return 1;
 }*/
 
-int savemap(lua_State *state) {
+int savemap(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
   const char *mapFile = lua_tostring(state, 2);
   short val;
@@ -1696,17 +1889,21 @@ int savemap(lua_State *state) {
 
   // printf("Map ID: %i, MapFile string: %s\n",m,mapFile);
 
-  if (mapFile) {
+  if (mapFile)
+  {
     fp = fopen(mapFile, "wb");
 
-    if (fp) {
+    if (fp)
+    {
       val = SWAP16(map[m].xs);
       fwrite(&val, 2, 1, fp);
       val = SWAP16(map[m].ys);
       fwrite(&val, 2, 1, fp);
 
-      for (y = 0; y < map[m].ys; y++) {
-        for (x = 0; x < map[m].xs; x++) {
+      for (y = 0; y < map[m].ys; y++)
+      {
+        for (x = 0; x < map[m].xs; x++)
+        {
           val = SWAP16(map[m].tile[(y * map[m].xs) + x]);
           fwrite(&val, 2, 1, fp);
           val = SWAP16(map[m].pass[(y * map[m].xs) + x]);
@@ -1717,11 +1914,15 @@ int savemap(lua_State *state) {
       }
 
       fclose(fp);
-    } else {
+    }
+    else
+    {
       lua_pushboolean(state, 0);
       return 1;
     }
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
@@ -1730,28 +1931,34 @@ int savemap(lua_State *state) {
   return 1;
 }
 
-int sendMeta(lua_State *state) {
+int sendMeta(lua_State *state)
+{
   USER *tsd = NULL;
 
-  for (int i = 0; i < fd_max; i++) {
-    if (session[i] && (tsd = session[i]->session_data)) send_metalist(tsd);
+  for (int i = 0; i < fd_max; i++)
+  {
+    if (session[i] && (tsd = session[i]->session_data))
+      send_metalist(tsd);
   }
 
   return 1;
 }
 
-int getSpellLevel(lua_State *state) {
+int getSpellLevel(lua_State *state)
+{
   const char *spell = lua_tostring(state, 1);
   int level = magicdb_level(spell);
 
   // printf("Spell: %s\n", spell);
   // printf("Level %i\n", level);
-  if (strcmp(spell, "") != 0) lua_pushnumber(state, level);
+  if (strcmp(spell, "") != 0)
+    lua_pushnumber(state, level);
 
   return 1;
 }
 
-int sl_getMobAttributes(lua_State *state) {
+int sl_getMobAttributes(lua_State *state)
+{
   unsigned int id = lua_tonumber(state, 1);
 
   lua_newtable(state);
@@ -1761,35 +1968,37 @@ int sl_getMobAttributes(lua_State *state) {
 
   db = mobdb_search(id);
 
-  if (db) {
-    lua_pushnumber(state, db->vita);  // VITA
+  if (db)
+  {
+    lua_pushnumber(state, db->vita); // VITA
     lua_rawseti(state, -2, 1);
-    lua_pushnumber(state, db->baseac);  // ARMOR
+    lua_pushnumber(state, db->baseac); // ARMOR
     lua_rawseti(state, -2, 2);
-    lua_pushnumber(state, db->exp);  // EXperience
+    lua_pushnumber(state, db->exp); // EXperience
     lua_rawseti(state, -2, 3);
-    lua_pushnumber(state, db->might);  // might
+    lua_pushnumber(state, db->might); // might
     lua_rawseti(state, -2, 4);
-    lua_pushnumber(state, db->will);  // Will
+    lua_pushnumber(state, db->will); // Will
     lua_rawseti(state, -2, 5);
-    lua_pushnumber(state, db->grace);  // Grace
+    lua_pushnumber(state, db->grace); // Grace
     lua_rawseti(state, -2, 6);
-    lua_pushnumber(state, db->look);  // LOOK
+    lua_pushnumber(state, db->look); // LOOK
     lua_rawseti(state, -2, 7);
-    lua_pushnumber(state, db->look_color);  // LOOK Color
+    lua_pushnumber(state, db->look_color); // LOOK Color
     lua_rawseti(state, -2, 8);
-    lua_pushnumber(state, db->level);  // level
+    lua_pushnumber(state, db->level); // level
     lua_rawseti(state, -2, 9);
-    lua_pushstring(state, db->name);  // NAME
+    lua_pushstring(state, db->name); // NAME
     lua_rawseti(state, -2, 10);
-    lua_pushstring(state, db->yname);  // YNAME
+    lua_pushstring(state, db->yname); // YNAME
     lua_rawseti(state, -2, 11);
   }
 
   return 1;
 }
 
-int sl_listAuction(lua_State *state) {
+int sl_listAuction(lua_State *state)
+{
   unsigned int chaid = lua_tonumber(state, 1);
   unsigned int itmid = lua_tonumber(state, 2);
   unsigned int amount = lua_tonumber(state, 3);
@@ -1807,7 +2016,8 @@ int sl_listAuction(lua_State *state) {
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 0;
@@ -1829,7 +2039,8 @@ int sl_listAuction(lua_State *state) {
           "`AuctionBidding`) VALUES "
           "('%u','%u','%u','%u','%u','%s','%u','%u','%u','%u','%u','%u','%d')",
           chaid, itmid, amount, dura, price, engrave, timer, customIcon,
-          customIconC, customLook, customLookC, protected, bidding)) {
+          customIconC, customLook, customLookC, protected, bidding))
+  {
     Sql_ShowDebug(sql_handle);
     lua_pushnumber(state, 0);
     return 0;
@@ -1842,7 +2053,8 @@ int sl_listAuction(lua_State *state) {
   return 1;
 }
 
-int sl_getAuctions(lua_State *state) {
+int sl_getAuctions(lua_State *state)
+{
   unsigned int id, chaid, itmid, amount, durability, itmtimer, customicon,
       customiconcolor, customlook, customlookcolor, protected, price;
   char engrave[64];
@@ -1855,7 +2067,8 @@ int sl_getAuctions(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 1;
   }
@@ -1897,7 +2110,8 @@ int sl_getAuctions(lua_State *state) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &protected, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 13, SQLDT_UCHAR, &bidding, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 13, SQLDT_UCHAR, &bidding, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
@@ -1905,34 +2119,35 @@ int sl_getAuctions(lua_State *state) {
 
   for (i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++, x += 14) {
-    lua_pushnumber(state, id);  // auction id
+       i++, x += 14)
+  {
+    lua_pushnumber(state, id); // auction id
     lua_rawseti(state, -2, x);
-    lua_pushnumber(state, chaid);  // push char id
+    lua_pushnumber(state, chaid); // push char id
     lua_rawseti(state, -2, x + 1);
-    lua_pushnumber(state, itmid);  // itmid
+    lua_pushnumber(state, itmid); // itmid
     lua_rawseti(state, -2, x + 2);
-    lua_pushnumber(state, amount);  // amount
+    lua_pushnumber(state, amount); // amount
     lua_rawseti(state, -2, x + 3);
-    lua_pushnumber(state, durability);  // dura
+    lua_pushnumber(state, durability); // dura
     lua_rawseti(state, -2, x + 4);
-    lua_pushnumber(state, price);  // price
+    lua_pushnumber(state, price); // price
     lua_rawseti(state, -2, x + 5);
-    lua_pushstring(state, engrave);  // engrave
+    lua_pushstring(state, engrave); // engrave
     lua_rawseti(state, -2, x + 6);
-    lua_pushnumber(state, itmtimer);  // itm timer
+    lua_pushnumber(state, itmtimer); // itm timer
     lua_rawseti(state, -2, x + 7);
-    lua_pushnumber(state, customicon);  // customicon
+    lua_pushnumber(state, customicon); // customicon
     lua_rawseti(state, -2, x + 8);
-    lua_pushnumber(state, customiconcolor);  // customiconcolor
+    lua_pushnumber(state, customiconcolor); // customiconcolor
     lua_rawseti(state, -2, x + 9);
-    lua_pushnumber(state, customlook);  // look
+    lua_pushnumber(state, customlook); // look
     lua_rawseti(state, -2, x + 10);
-    lua_pushnumber(state, customlookcolor);  // lookcolor
+    lua_pushnumber(state, customlookcolor); // lookcolor
     lua_rawseti(state, -2, x + 11);
-    lua_pushnumber(state, protected);  // item protects
+    lua_pushnumber(state, protected); // item protects
     lua_rawseti(state, -2, x + 12);
-    lua_pushnumber(state, bidding);  // allow bidding 0 = false, 1 = true
+    lua_pushnumber(state, bidding); // allow bidding 0 = false, 1 = true
     lua_rawseti(state, -2, x + 13);
   }
 
@@ -1941,12 +2156,14 @@ int sl_getAuctions(lua_State *state) {
   return 1;
 }
 
-int sl_removeAuction(lua_State *state) {
+int sl_removeAuction(lua_State *state)
+{
   unsigned int auctionid = lua_tonumber(state, 1);
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -1954,7 +2171,8 @@ int sl_removeAuction(lua_State *state) {
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "DELETE FROM `Auctions` WHERE `AuctionId` = '%u'",
-                             auctionid)) {
+                             auctionid))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 0;
@@ -1963,17 +2181,20 @@ int sl_removeAuction(lua_State *state) {
   return 1;
 }
 
-int sl_clearPoems(lua_State *state) {
+int sl_clearPoems(lua_State *state)
+{
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
   }
 
   if (SQL_ERROR ==
-      Sql_Query(sql_handle, "DELETE FROM `Boards` WHERE `BrdBnmId` = '19'")) {
+      Sql_Query(sql_handle, "DELETE FROM `Boards` WHERE `BrdBnmId` = '19'"))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
 
@@ -1982,14 +2203,15 @@ int sl_clearPoems(lua_State *state) {
   return 1;
 }
 
-int sl_copyPoemToPoetry(lua_State *state) {
+int sl_copyPoemToPoetry(lua_State *state)
+{
   time_t t;
   struct tm *d;
 
   t = time(NULL);
   d = localtime(&t);
 
-  unsigned int day = d->tm_mday;  // day of month from 1 to 31
+  unsigned int day = d->tm_mday; // day of month from 1 to 31
   unsigned int month = d->tm_mon;
 
   unsigned int BrdId = lua_tonumber(state, 1);
@@ -2003,7 +2225,8 @@ int sl_copyPoemToPoetry(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2020,26 +2243,30 @@ int sl_copyPoemToPoetry(lua_State *state) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &post,
                                       sizeof(post), NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &BrdChaId, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &BrdChaId, 0, NULL, NULL))
+  {
     lua_pushboolean(state, 0);
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                      "SELECT MAX(`BrdPosition`) FROM `Boards` "
-                                     "WHERE `BrdBnmId` = '10'")  // poetry board
+                                     "WHERE `BrdBnmId` = '10'") // poetry board
         || SQL_ERROR == SqlStmt_Execute(stmt) ||
         SQL_ERROR ==
-            SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardpos, 0, NULL, NULL)) {
+            SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardpos, 0, NULL, NULL))
+    {
       lua_pushboolean(state, 0);
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       return 0;
     }
-    if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+    {
     }
 
     SqlStmt_Free(stmt);
@@ -2049,7 +2276,8 @@ int sl_copyPoemToPoetry(lua_State *state) {
                   "UPDATE `Boards` SET `BrdBnmId` = '10', `BrdChaName` = '%s', "
                   "`BrdPosition` = '%u', `BrdMonth` = '%d', `BrdDay` = '%d' "
                   "WHERE `BrdId` = '%u'",
-                  BrdChaName, boardpos + 1, month, day, BrdId)) {
+                  BrdChaName, boardpos + 1, month, day, BrdId))
+    {
       lua_pushboolean(state, 0);
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
@@ -2063,7 +2291,8 @@ int sl_copyPoemToPoetry(lua_State *state) {
   return 1;
 }
 
-int sl_getPoems(lua_State *state) {
+int sl_getPoems(lua_State *state)
+{
   unsigned int BrdId = 0;
   unsigned int BrdChaId = 0;
   char topic[72] = {0};
@@ -2075,7 +2304,8 @@ int sl_getPoems(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2090,7 +2320,8 @@ int sl_getPoems(lua_State *state) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_STRING, &topic,
                                       sizeof(topic), NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &BrdChaId, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 2, SQLDT_UINT, &BrdChaId, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
@@ -2098,12 +2329,13 @@ int sl_getPoems(lua_State *state) {
 
   for (i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++, x += 3) {
-    lua_pushnumber(state, BrdId);  // push board id number
+       i++, x += 3)
+  {
+    lua_pushnumber(state, BrdId); // push board id number
     lua_rawseti(state, -2, x);
-    lua_pushnumber(state, BrdChaId);  // push char id
+    lua_pushnumber(state, BrdChaId); // push char id
     lua_rawseti(state, -2, x + 1);
-    lua_pushstring(state, topic);  // poem topic
+    lua_pushstring(state, topic); // poem topic
     lua_rawseti(state, -2, x + 2);
   }
 
@@ -2112,7 +2344,8 @@ int sl_getPoems(lua_State *state) {
   return 1;
 }
 
-int sl_selectBulletinBoard(lua_State *state) {
+int sl_selectBulletinBoard(lua_State *state)
+{
   unsigned int boardid = 0;
 
   unsigned int m = lua_tonumber(state, 1);
@@ -2121,7 +2354,8 @@ int sl_selectBulletinBoard(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -2134,13 +2368,15 @@ int sl_selectBulletinBoard(lua_State *state) {
                           m, x - 1, x + 1, y) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardid, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardid, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushnumber(state, 1);
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     // SqlStmt_ShowDebug(stmt);
     // lua_pushnumber(state,boardid);
     SqlStmt_Free(stmt);
@@ -2152,7 +2388,8 @@ int sl_selectBulletinBoard(lua_State *state) {
   return 1;
 }
 
-int sl_addtoboard(lua_State *state) {
+int sl_addtoboard(lua_State *state)
+{
   unsigned int boardid = lua_tonumber(state, 1);
   char *topic = NULL;
   CALLOC(topic, char, strlen(lua_tostring(state, 2)));
@@ -2170,12 +2407,13 @@ int sl_addtoboard(lua_State *state) {
   t = time(NULL);
   d = localtime(&t);
 
-  unsigned int day = d->tm_mday;  // day of month from 1 to 31
+  unsigned int day = d->tm_mday; // day of month from 1 to 31
   unsigned int month = d->tm_mon;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -2187,13 +2425,15 @@ int sl_addtoboard(lua_State *state) {
               boardid) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardpos, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &boardpos, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
   };
 
   SqlStmt_Free(stmt);
@@ -2203,7 +2443,8 @@ int sl_addtoboard(lua_State *state) {
                 "INSERT INTO `Boards` (`BrdBnmId`, `BrdChaName`, `BrdTopic`, "
                 "`BrdPost`, `BrdMonth`, `BrdDay`, `BrdPosition`) VALUES ('%u', "
                 "'%s', '%s', '%s', '%d', '%d', '%u')",
-                boardid, "SYSTEM", topic, post, month, day, boardpos + 1)) {
+                boardid, "SYSTEM", topic, post, month, day, boardpos + 1))
+  {
     Sql_ShowDebug(sql_handle);
     lua_pushboolean(state, 1);
   }
@@ -2214,7 +2455,8 @@ int sl_addtoboard(lua_State *state) {
   return 1;
 }
 
-int sl_getMapModifiers(lua_State *state) {
+int sl_getMapModifiers(lua_State *state)
+{
   unsigned int mapid = lua_tonumber(state, 1);
 
   char modifier[255];
@@ -2224,7 +2466,8 @@ int sl_getMapModifiers(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2238,7 +2481,8 @@ int sl_getMapModifiers(lua_State *state) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &modifier,
                                       sizeof(modifier), NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &value, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &value, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
@@ -2246,10 +2490,11 @@ int sl_getMapModifiers(lua_State *state) {
 
   for (int i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++, x += 2) {
-    lua_pushstring(state, modifier);  // push mod identifier
+       i++, x += 2)
+  {
+    lua_pushstring(state, modifier); // push mod identifier
     lua_rawseti(state, -2, x);
-    lua_pushnumber(state, value);  // push mod value
+    lua_pushnumber(state, value); // push mod value
     lua_rawseti(state, -2, x + 1);
   }
 
@@ -2258,7 +2503,8 @@ int sl_getMapModifiers(lua_State *state) {
   return 1;
 }
 
-int sl_addMapModifier(lua_State *state) {
+int sl_addMapModifier(lua_State *state)
+{
   unsigned int mapid = lua_tonumber(state, 1);
   const char *modifier = lua_tostring(state, 2);
   int value = lua_tonumber(state, 3);
@@ -2267,7 +2513,8 @@ int sl_addMapModifier(lua_State *state) {
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 0;
@@ -2279,7 +2526,8 @@ int sl_addMapModifier(lua_State *state) {
       Sql_Query(sql_handle,
                 "INSERT INTO `MapModifiers` (`ModMapId`, `ModModifier`, "
                 "`ModValue`) VALUES ('%u', '%s', '%d')",
-                mapid, escape, value)) {
+                mapid, escape, value))
+  {
     Sql_ShowDebug(sql_handle);
     lua_pushboolean(state, 0);
     return 0;
@@ -2289,7 +2537,8 @@ int sl_addMapModifier(lua_State *state) {
   return 1;
 }
 
-int sl_removeMapModifier(lua_State *state) {
+int sl_removeMapModifier(lua_State *state)
+{
   unsigned int mapid = lua_tonumber(state, 1);
   const char *modifier = lua_tostring(state, 2);
 
@@ -2298,7 +2547,8 @@ int sl_removeMapModifier(lua_State *state) {
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 0;
@@ -2309,7 +2559,8 @@ int sl_removeMapModifier(lua_State *state) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "DELETE FROM `MapModifiers` WHERE `ModMapId` = "
                              "'%u' AND `ModModifier` = '%s'",
-                             mapid, escape)) {
+                             mapid, escape))
+  {
     Sql_ShowDebug(sql_handle);
     lua_pushboolean(state, 0);
     return 0;
@@ -2319,13 +2570,15 @@ int sl_removeMapModifier(lua_State *state) {
   return 1;
 }
 
-int sl_removeMapModifierId(lua_State *state) {
+int sl_removeMapModifierId(lua_State *state)
+{
   unsigned int mapid = lua_tonumber(state, 1);
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 0;
@@ -2333,7 +2586,8 @@ int sl_removeMapModifierId(lua_State *state) {
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
-                "DELETE FROM `MapModifiers` WHERE `ModMapId` = '%u'", mapid)) {
+                "DELETE FROM `MapModifiers` WHERE `ModMapId` = '%u'", mapid))
+  {
     Sql_ShowDebug(sql_handle);
     lua_pushboolean(state, 0);
     return 0;
@@ -2343,12 +2597,14 @@ int sl_removeMapModifierId(lua_State *state) {
   return 1;
 }
 
-int sl_getFreeMapModifierId(lua_State *state) {
+int sl_getFreeMapModifierId(lua_State *state)
+{
   unsigned int mapid = 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
@@ -2358,14 +2614,16 @@ int sl_getFreeMapModifierId(lua_State *state) {
           SqlStmt_Prepare(stmt, "SELECT MAX(`ModMapId`) FROM `MapModifiers`") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &mapid, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &mapid, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) lua_pushnumber(state, 0);
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+    lua_pushnumber(state, 0);
 
   SqlStmt_Free(stmt);
 
@@ -2374,12 +2632,14 @@ int sl_getFreeMapModifierId(lua_State *state) {
   return 1;
 }
 
-int sl_getWisdomStarMultiplier(lua_State *state) {
+int sl_getWisdomStarMultiplier(lua_State *state)
+{
   float wisdomStarMultiplier = 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
@@ -2389,13 +2649,15 @@ int sl_getWisdomStarMultiplier(lua_State *state) {
           SqlStmt_Prepare(stmt, "SELECT `WSMultiplier` FROM `WisdomStar`") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_FLOAT,
-                                      &wisdomStarMultiplier, 0, NULL, NULL)) {
+                                      &wisdomStarMultiplier, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     lua_pushnumber(state, wisdomStarMultiplier);
   }
 
@@ -2404,7 +2666,8 @@ int sl_getWisdomStarMultiplier(lua_State *state) {
   return 1;
 }
 
-int sl_setWisdomStarMultiplier(lua_State *state) {
+int sl_setWisdomStarMultiplier(lua_State *state)
+{
   float wisdomStarMultiplier = lua_tonumber(state, 1);
 
   // SqlStmt* stmt;
@@ -2416,7 +2679,8 @@ int sl_setWisdomStarMultiplier(lua_State *state) {
   //}
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `WisdomStar` SET `WSMultiplier` = '%f'",
-                             wisdomStarMultiplier)) {
+                             wisdomStarMultiplier))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
   }
@@ -2424,12 +2688,14 @@ int sl_setWisdomStarMultiplier(lua_State *state) {
   return 1;
 }
 
-int sl_getKanDonationPoints(lua_State *state) {
+int sl_getKanDonationPoints(lua_State *state)
+{
   unsigned int points = 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
@@ -2439,13 +2705,15 @@ int sl_getKanDonationPoints(lua_State *state) {
           SqlStmt_Prepare(stmt, "SELECT `KanPoints` FROM `KanPoints`") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &points, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &points, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     lua_pushnumber(state, points);
   }
 
@@ -2454,12 +2722,14 @@ int sl_getKanDonationPoints(lua_State *state) {
   return 1;
 }
 
-int sl_setKanDonationPoints(lua_State *state) {
+int sl_setKanDonationPoints(lua_State *state)
+{
   unsigned int points = lua_tonumber(state, 1);
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `KanPoints` SET `KanPoints` = '%u'",
-                             points)) {
+                             points))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
   }
@@ -2467,13 +2737,15 @@ int sl_setKanDonationPoints(lua_State *state) {
   return 1;
 }
 
-int sl_addKanDonationPoints(lua_State *state) {
+int sl_addKanDonationPoints(lua_State *state)
+{
   unsigned int points = lua_tonumber(state, 1);
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `KanPoints` SET `KanPoints` = '%u' + `KanPoints`",
-                points)) {
+                points))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushnumber(state, 1);
@@ -2482,13 +2754,15 @@ int sl_addKanDonationPoints(lua_State *state) {
   return 1;
 }
 
-int sl_getClanTribute(lua_State *state) {
+int sl_getClanTribute(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   unsigned int clanTribute = 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2500,13 +2774,15 @@ int sl_getClanTribute(lua_State *state) {
                        clan) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &clanTribute, 0,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     lua_pushnumber(state, clanTribute);
   }
 
@@ -2515,14 +2791,16 @@ int sl_getClanTribute(lua_State *state) {
   return 1;
 }
 
-int sl_setClanTribute(lua_State *state) {
+int sl_setClanTribute(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   unsigned int clanTribute = lua_tonumber(state, 2);
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Clans` SET `ClnTribute` = '%u' WHERE `ClnId` = '%i'",
-                clanTribute, clan)) {
+                clanTribute, clan))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushnumber(state, 1);
@@ -2531,14 +2809,16 @@ int sl_setClanTribute(lua_State *state) {
   return 1;
 }
 
-int sl_addClanTribute(lua_State *state) {
+int sl_addClanTribute(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   unsigned int clanTribute = lua_tonumber(state, 2);
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Clans` SET `ClnTribute` = '%u' + "
                              "`ClnTribute` WHERE `ClnId` = '%i'",
-                             clanTribute, clan)) {
+                             clanTribute, clan))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushnumber(state, 1);
@@ -2547,7 +2827,8 @@ int sl_addClanTribute(lua_State *state) {
   return 1;
 }
 
-int sl_setClanName(lua_State *state) {
+int sl_setClanName(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   char clanName[64] = {0};
   strcpy(clanName, lua_tostring(state, 2));
@@ -2555,7 +2836,8 @@ int sl_setClanName(lua_State *state) {
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Clans` SET `ClnName` = '%s' WHERE `ClnId` = '%i'",
-                clanName, clan)) {
+                clanName, clan))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 1);
@@ -2563,19 +2845,22 @@ int sl_setClanName(lua_State *state) {
 
   struct clan_data *db = NULL;
   db = uidb_get(clan_db, clan);
-  if (!db) return 1;
+  if (!db)
+    return 1;
   strcpy(db->name, clanName);
 
   return 1;
 }
 
-int sl_getClanName(lua_State *state) {
+int sl_getClanName(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   char clanName[64] = {0};
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2587,13 +2872,15 @@ int sl_getClanName(lua_State *state) {
                           clan) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &clanName,
-                                      sizeof(clanName), NULL, NULL)) {
+                                      sizeof(clanName), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     lua_pushstring(state, clanName);
   }
 
@@ -2602,13 +2889,15 @@ int sl_getClanName(lua_State *state) {
   return 1;
 }
 
-int sl_getClanBankSlots(lua_State *state) {
+int sl_getClanBankSlots(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   int clanSlots = 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
@@ -2620,13 +2909,15 @@ int sl_getClanBankSlots(lua_State *state) {
               clan) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &clanSlots, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &clanSlots, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     lua_pushnumber(state, clanSlots);
   }
 
@@ -2635,14 +2926,16 @@ int sl_getClanBankSlots(lua_State *state) {
   return 1;
 }
 
-int sl_setClanBankSlots(lua_State *state) {
+int sl_setClanBankSlots(lua_State *state)
+{
   int clan = lua_tonumber(state, 1);
   int clan_bank_slots = lua_tonumber(state, 2);
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "UPDATE `Clans` SET `ClnBankSlots` = '%i' WHERE `ClnId` = '%i'",
-                clan_bank_slots, clan)) {
+                clan_bank_slots, clan))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushnumber(state, 1);
@@ -2650,7 +2943,8 @@ int sl_setClanBankSlots(lua_State *state) {
   return 1;
 }
 
-int sl_getClanRoster(lua_State *state) {
+int sl_getClanRoster(lua_State *state)
+{
   unsigned int clan = lua_tonumber(state, 1);
 
   unsigned int id, rank = 0;
@@ -2659,7 +2953,8 @@ int sl_getClanRoster(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2673,7 +2968,8 @@ int sl_getClanRoster(lua_State *state) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &rank, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &rank, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
@@ -2684,10 +2980,11 @@ int sl_getClanRoster(lua_State *state) {
 
   for (i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++, x += 2) {
-    lua_pushnumber(state, id);  // ID
+       i++, x += 2)
+  {
+    lua_pushnumber(state, id); // ID
     lua_rawseti(state, -2, x);
-    lua_pushnumber(state, rank);  // rank
+    lua_pushnumber(state, rank); // rank
     lua_rawseti(state, -2, x + 1);
   }
 
@@ -2696,7 +2993,8 @@ int sl_getClanRoster(lua_State *state) {
   return 1;
 }
 
-int sl_getPathRoster(lua_State *state) {
+int sl_getPathRoster(lua_State *state)
+{
   int path = lua_tonumber(state, 1);
 
   int id = 0;
@@ -2706,7 +3004,8 @@ int sl_getPathRoster(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -2720,7 +3019,8 @@ int sl_getPathRoster(lua_State *state) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &rank, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 1, SQLDT_UINT, &rank, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
@@ -2731,10 +3031,11 @@ int sl_getPathRoster(lua_State *state) {
 
   for (i = 0, x = 1;
        i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++, x += 2) {
-    lua_pushnumber(state, id);  // ID
+       i++, x += 2)
+  {
+    lua_pushnumber(state, id); // ID
     lua_rawseti(state, -2, x);
-    lua_pushnumber(state, rank);  // rank
+    lua_pushnumber(state, rank); // rank
     lua_rawseti(state, -2, x + 1);
   }
 
@@ -2743,20 +3044,25 @@ int sl_getPathRoster(lua_State *state) {
   return 1;
 }
 
-int sl_setMapTitle(lua_State *state) {
+int sl_setMapTitle(lua_State *state)
+{
   USER *tsd;
   int m = lua_tonumber(state, 1);
 
   const char *title = lua_tostring(state, 2);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     memset(map[m].title, 0, 64);
     strcpy(map[m].title, title);
 
-    for (int i = 1; i < fd_max; i++) {
+    for (int i = 1; i < fd_max; i++)
+    {
       if (session[i] && (tsd = (USER *)session[i]->session_data) &&
-          !session[i]->eof) {
-        if (tsd->bl.m == m) {
+          !session[i]->eof)
+      {
+        if (tsd->bl.m == m)
+        {
           clif_refreshnoclick(tsd);
         }
       }
@@ -2766,14 +3072,16 @@ int sl_setMapTitle(lua_State *state) {
   return 1;
 }
 
-int sl_getMapTitle(lua_State *state) {
+int sl_getMapTitle(lua_State *state)
+{
   int mapNumber = lua_tonumber(state, 1);
 
   char mapName[64] = {0};
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -2786,14 +3094,16 @@ int sl_getMapTitle(lua_State *state) {
                           mapNumber) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &mapName,
-                                      sizeof(mapName), NULL, NULL)) {
+                                      sizeof(mapName), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-    lua_pushstring(state, mapName);  // NAME
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
+    lua_pushstring(state, mapName); // NAME
   }
 
   SqlStmt_Free(stmt);
@@ -2801,38 +3111,47 @@ int sl_getMapTitle(lua_State *state) {
   return 1;
 }
 
-int sl_setMapPvP(lua_State *state) {
+int sl_setMapPvP(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
   char pvp = lua_tonumber(state, 2);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     map[m].pvp = pvp;
   }
 
   return 1;
 }
 
-int sl_getMapPvP(lua_State *state) {
+int sl_getMapPvP(lua_State *state)
+{
   int m = lua_tonumber(state, 1);
 
-  if (map_isloaded(m)) {
+  if (map_isloaded(m))
+  {
     lua_pushnumber(state, map[m].pvp);
   }
 
   return 1;
 }
 
-int sl_setOfflinePlayerRegistry(lua_State *state) {
+int sl_setOfflinePlayerRegistry(lua_State *state)
+{
   unsigned int id = 0;
   // unsigned char *reg = lua_tostring(state, 2);
   // unsigned int val = lua_tonumber(state, 3);
 
-  if (lua_isnumber(state, 1)) {
+  if (lua_isnumber(state, 1))
+  {
     id = lua_tonumber(state, 1);
-  } else {
+  }
+  else
+  {
     SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-    if (stmt == NULL) {
+    if (stmt == NULL)
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       lua_pushboolean(state, 0);
@@ -2845,15 +3164,17 @@ int sl_setOfflinePlayerRegistry(lua_State *state) {
                 lua_tostring(state, 1)) ||
         SQL_ERROR == SqlStmt_Execute(stmt) ||
         SQL_ERROR ==
-            SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+            SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       lua_pushboolean(state, 0);
       return 1;
     }
 
-    if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-      lua_pushboolean(state, 1);  // NAME
+    if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+    {
+      lua_pushboolean(state, 1); // NAME
     }
 
     SqlStmt_Free(stmt);
@@ -2866,11 +3187,13 @@ int sl_setOfflinePlayerRegistry(lua_State *state) {
   return 1;
 }
 
-int sl_removeClanMember(lua_State *state) {
+int sl_removeClanMember(lua_State *state)
+{
   int id = lua_tonumber(state, 1);
   USER *sd = map_id2sd(id);
 
-  if (sd != NULL) {
+  if (sd != NULL)
+  {
     sd->status.clan = 0;
     strcpy(sd->status.clan_title, "");
     sd->status.clanRank = 0;
@@ -2881,7 +3204,8 @@ int sl_removeClanMember(lua_State *state) {
       Sql_Query(sql_handle,
                 "UPDATE `Character` SET `ChaClnId` = '0', `ChaClanTitle` = '', "
                 "`ChaClnRank` = '0' WHERE `ChaId` = '%u'",
-                id)) {
+                id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -2892,13 +3216,15 @@ int sl_removeClanMember(lua_State *state) {
   return 1;
 }
 
-int sl_addClanMember(lua_State *state) {
+int sl_addClanMember(lua_State *state)
+{
   int id = lua_tonumber(state, 1);
   int clan = lua_tonumber(state, 2);
 
   USER *sd = map_id2sd(id);
 
-  if (sd != NULL) {
+  if (sd != NULL)
+  {
     sd->status.clan = clan;
     strcpy(sd->status.clan_title, "");
     sd->status.clanRank = 1;
@@ -2909,7 +3235,8 @@ int sl_addClanMember(lua_State *state) {
       Sql_Query(sql_handle,
                 "UPDATE `Character` SET `ChaClnId` = '%u', `ChaClanTitle` = "
                 "'', `ChaClnRank` = '1' WHERE `ChaId` = '%u'",
-                clan, id)) {
+                clan, id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -2920,13 +3247,15 @@ int sl_addClanMember(lua_State *state) {
   return 1;
 }
 
-int sl_updateClanMemberRank(lua_State *state) {
+int sl_updateClanMemberRank(lua_State *state)
+{
   int id = lua_tonumber(state, 1);
   int rank = lua_tonumber(state, 2);
 
   USER *sd = map_id2sd(id);
 
-  if (sd != NULL) {
+  if (sd != NULL)
+  {
     sd->status.clanRank = rank;
   }
 
@@ -2934,7 +3263,8 @@ int sl_updateClanMemberRank(lua_State *state) {
       Sql_Query(
           sql_handle,
           "UPDATE `Character` SET `ChaClnRank` = '%u' WHERE `ChaId` = '%u'",
-          rank, id)) {
+          rank, id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -2945,13 +3275,15 @@ int sl_updateClanMemberRank(lua_State *state) {
   return 1;
 }
 
-int sl_updateClanMemberTitle(lua_State *state) {
+int sl_updateClanMemberTitle(lua_State *state)
+{
   int id = lua_tonumber(state, 1);
   const char *title = lua_tostring(state, 2);
 
   USER *sd = map_id2sd(id);
 
-  if (sd != NULL) {
+  if (sd != NULL)
+  {
     strcpy(sd->status.clan_title, title);
     clif_mystaytus(sd);
   }
@@ -2960,7 +3292,8 @@ int sl_updateClanMemberTitle(lua_State *state) {
       Sql_Query(
           sql_handle,
           "UPDATE `Character` SET `ChaClanTitle` = '%s' WHERE `ChaId` = '%u'",
-          title, id)) {
+          title, id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -2971,11 +3304,13 @@ int sl_updateClanMemberTitle(lua_State *state) {
   return 1;
 }
 
-int sl_removePathMember(lua_State *state) {
+int sl_removePathMember(lua_State *state)
+{
   int id = lua_tonumber(state, 1);
   USER *sd = map_id2sd(id);
 
-  if (sd != NULL) {  // if player online
+  if (sd != NULL)
+  { // if player online
     sd->status.class = classdb_path(sd->status.class);
     sd->status.classRank = 0;
     clif_mystaytus(sd);
@@ -2983,7 +3318,8 @@ int sl_removePathMember(lua_State *state) {
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "UPDATE `Character` SET `ChaPthId` = '%u', "
                                "`ChaPthRank` = '0' WHERE `ChaId` = '%u'",
-                               sd->status.class, id)) {
+                               sd->status.class, id))
+    {
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
       lua_pushboolean(state, 0);
@@ -2992,14 +3328,16 @@ int sl_removePathMember(lua_State *state) {
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 1);
     return 1;
-
-  } else {  // SQL UPDATE ONLY
+  }
+  else
+  { // SQL UPDATE ONLY
 
     unsigned char class = 0;
 
     SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-    if (stmt == NULL) {
+    if (stmt == NULL)
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       lua_pushboolean(state, 0);
@@ -3009,17 +3347,19 @@ int sl_removePathMember(lua_State *state) {
     if (SQL_ERROR ==
             SqlStmt_Prepare(
                 stmt, "SELECT `ChaPthId` FROM `Character` WHERE `ChaId` = '%u'",
-                id)  // get current path
+                id) // get current path
         || SQL_ERROR == SqlStmt_Execute(stmt) ||
         SQL_ERROR ==
-            SqlStmt_BindColumn(stmt, 0, SQLDT_UCHAR, &class, 0, NULL, NULL)) {
+            SqlStmt_BindColumn(stmt, 0, SQLDT_UCHAR, &class, 0, NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       lua_pushboolean(state, 0);
       return 1;
     }
 
-    if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+    {
     }
 
     SqlStmt_Free(stmt);
@@ -3027,7 +3367,8 @@ int sl_removePathMember(lua_State *state) {
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "UPDATE `Character` SET `ChaPthId` = '%u', "
                                "`ChaPthRank` = '0' WHERE `ChaId` = '%u'",
-                               class, id)) {
+                               class, id))
+    {
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
       lua_pushboolean(state, 0);
@@ -3042,13 +3383,15 @@ int sl_removePathMember(lua_State *state) {
   return 1;
 }
 
-int sl_addPathMember(lua_State *state) {
+int sl_addPathMember(lua_State *state)
+{
   int id = lua_tonumber(state, 1);
   int class = lua_tonumber(state, 2);
 
   USER *sd = map_id2sd(id);
 
-  if (sd != NULL) {
+  if (sd != NULL)
+  {
     sd->status.class = class;
     sd->status.classRank = 0;
     clif_mystaytus(sd);
@@ -3057,7 +3400,8 @@ int sl_addPathMember(lua_State *state) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Character` SET `ChaPthId` = '%u', "
                              "`ChaPthRank` = '0' WHERE `ChaId` = '%u'",
-                             class, id)) {
+                             class, id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -3068,11 +3412,13 @@ int sl_addPathMember(lua_State *state) {
   return 1;
 }
 
-int sl_getXPforLevel(lua_State *state) {
+int sl_getXPforLevel(lua_State *state)
+{
   int path = lua_tonumber(state, 1);
   int level = lua_tonumber(state, 2);
 
-  if (path > 5) path = classdb_path(path);
+  if (path > 5)
+    path = classdb_path(path);
 
   unsigned int xp = 0;
 
@@ -3083,8 +3429,10 @@ int sl_getXPforLevel(lua_State *state) {
   return 1;
 }
 
-int sl_processKanDonations(lua_State *state) {
-  struct character {
+int sl_processKanDonations(lua_State *state)
+{
+  struct character
+  {
     char name[32];
     unsigned int id;
   };
@@ -3107,7 +3455,8 @@ int sl_processKanDonations(lua_State *state) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -3128,21 +3477,24 @@ int sl_processKanDonations(lua_State *state) {
           SqlStmt_BindColumn(stmt, 2, SQLDT_STRING, &paypal_account_email,
                              sizeof(paypal_account_email), NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_STRING, &txn_id,
-                                      sizeof(txn_id), NULL, NULL)) {
+                                      sizeof(txn_id), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
   }
 
   for (int i = 0;
-       i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+       i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++)
+  {
     // printf("i: %i\n",i);
     // printf("game_account_email: %s, kan_amount:
     // %s\n",game_account_email,kan_amount);
 
     char *pch;
     pch = strtok(kan_amount, " ");
-    if (pch != NULL) {
+    if (pch != NULL)
+    {
       number = atoi(pch);
       pch = strtok(NULL, " ");
     }
@@ -3151,7 +3503,8 @@ int sl_processKanDonations(lua_State *state) {
         Sql_Query(sql_handle,
                   "UPDATE `Accounts` SET `AccountKanBalance` = "
                   "AccountKanBalance + '%d' WHERE `AccountEmail` = '%s'",
-                  number, game_account_email)) {
+                  number, game_account_email))
+    {
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
       return 1;
@@ -3161,7 +3514,8 @@ int sl_processKanDonations(lua_State *state) {
         Sql_Query(sql_handle,
                   "UPDATE `KanDonations` SET `Claimed` = '1' WHERE "
                   "`game_account_email` = '%s' AND `txn_id` = '%s'",
-                  game_account_email, txn_id)) {
+                  game_account_email, txn_id))
+    {
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
       return 1;
@@ -3173,7 +3527,8 @@ int sl_processKanDonations(lua_State *state) {
     SqlStmt *stmt2;
 
     stmt2 = SqlStmt_Malloc(sql_handle);
-    if (stmt2 == NULL) {
+    if (stmt2 == NULL)
+    {
       SqlStmt_ShowDebug(stmt2);
       return 0;
     }
@@ -3197,16 +3552,20 @@ int sl_processKanDonations(lua_State *state) {
         SQL_ERROR == SqlStmt_BindColumn(stmt2, 4, SQLDT_UINT, &characters[4].id,
                                         0, NULL, NULL) ||
         SQL_ERROR == SqlStmt_BindColumn(stmt2, 5, SQLDT_UINT, &characters[5].id,
-                                        0, NULL, NULL)) {
+                                        0, NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt2);
       SqlStmt_Free(stmt2);
       return 1;
     }
 
-    if (SQL_SUCCESS != SqlStmt_NextRow(stmt2)) return 1;
+    if (SQL_SUCCESS != SqlStmt_NextRow(stmt2))
+      return 1;
 
-    for (int x = 0; x < sizeof(characters); x++) {
-      if (characters[x].id > 0) {
+    for (int x = 0; x < sizeof(characters); x++)
+    {
+      if (characters[x].id > 0)
+      {
         int mailpos = 0;
 
         if (SQL_ERROR ==
@@ -3217,13 +3576,15 @@ int sl_processKanDonations(lua_State *state) {
             SQL_ERROR == SqlStmt_Execute(stmt2) ||
             SQL_ERROR ==
                 SqlStmt_BindColumn(stmt2, 0, SQLDT_STRING, &characters[x].name,
-                                   sizeof(characters[x].name), NULL, NULL)) {
+                                   sizeof(characters[x].name), NULL, NULL))
+        {
           SqlStmt_ShowDebug(stmt2);
           SqlStmt_Free(stmt2);
           return 1;
         }
 
-        if (SQL_SUCCESS != SqlStmt_NextRow(stmt2)) return 1;
+        if (SQL_SUCCESS != SqlStmt_NextRow(stmt2))
+          return 1;
 
         if (SQL_ERROR ==
                 SqlStmt_Prepare(
@@ -3233,13 +3594,15 @@ int sl_processKanDonations(lua_State *state) {
                     characters[x].name) ||
             SQL_ERROR == SqlStmt_Execute(stmt2) ||
             SQL_ERROR == SqlStmt_BindColumn(stmt2, 0, SQLDT_INT, &mailpos, 0,
-                                            NULL, NULL)) {
+                                            NULL, NULL))
+        {
           SqlStmt_ShowDebug(stmt2);
           SqlStmt_Free(stmt2);
           return 1;
         }
 
-        if (SQL_SUCCESS != SqlStmt_NextRow(stmt2)) return 1;
+        if (SQL_SUCCESS != SqlStmt_NextRow(stmt2))
+          return 1;
 
         mailpos++;
 
@@ -3260,14 +3623,16 @@ int sl_processKanDonations(lua_State *state) {
                 "`MalSubject`, `MalBody`, `MalPosition`, `MalMonth`, `MalDay`, "
                 "`MalDeleted`, `MalNew`) VALUES ('SYSTEM', '%s', 'Thanks for "
                 "your donation', '%s', '%d', '%d', '%d', '0', '1')",
-                characters[x].name, body, mailpos, month, day)) {
+                characters[x].name, body, mailpos, month, day))
+        {
           Sql_ShowDebug(sql_handle);
           return 1;
         }
 
         USER *sd = NULL;
         sd = map_id2sd(characters[x].id);
-        if (sd) pc_requestmp(sd);
+        if (sd)
+          pc_requestmp(sd);
       }
     }
 
@@ -3331,7 +3696,8 @@ int sl_processKanDonations(lua_State *state) {
 
 // TODO: Investigate if this is used anywhere. Commented it out because it uses
 // sd, but these types of callbacks from lua should not have sd context
-int sl_guitext(lua_State *state) {
+int sl_guitext(lua_State *state)
+{
   // sl_checkargs(state, "ns");
   // int type = lua_tonumber(state, 1);
   // int m = lua_tonumber(state, 2);
@@ -3354,7 +3720,8 @@ int sl_guitext(lua_State *state) {
   return 0;
 }
 
-int sl_setMapRegistry(lua_State *state) {
+int sl_setMapRegistry(lua_State *state)
+{
   sl_checkargs(state, "sn");
   int m = lua_tonumber(state, 1);
   const char *attrname = lua_tostring(state, 2);
@@ -3362,25 +3729,29 @@ int sl_setMapRegistry(lua_State *state) {
 
   // printf("m: %i, attrname: %s, value: %u\n",m,attrname,value);
 
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
   map_setglobalreg(m, attrname, value);
 
   return 0;
 }
 
-int sl_getMapRegistry(lua_State *state) {
+int sl_getMapRegistry(lua_State *state)
+{
   sl_checkargs(state, "s");
   int m = lua_tonumber(state, 1);
   const char *attrname = lua_tostring(state, 2);
 
-  if (!map_isloaded(m)) return 0;
+  if (!map_isloaded(m))
+    return 0;
 
   lua_pushnumber(state, map_readglobalreg(m, attrname));
   return 1;
 }
 
-int sl_getSetItems(lua_State *state) {
+int sl_getSetItems(lua_State *state)
+{
   unsigned int id = lua_tonumber(state, 1);
 
   unsigned int item_ids[5] = {0, 0, 0, 0, 0};
@@ -3388,7 +3759,8 @@ int sl_getSetItems(lua_State *state) {
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -3424,7 +3796,8 @@ int sl_getSetItems(lua_State *state) {
       SQL_ERROR == SqlStmt_BindColumn(stmt, 8, SQLDT_UINT, &item_ids[4], 0,
                                       NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 9, SQLDT_UINT, &item_amounts[4], 0,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -3433,7 +3806,8 @@ int sl_getSetItems(lua_State *state) {
 
   lua_newtable(state);
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     /*for (i = 0, x = 1; i < 3; i++, x += 3) {
 
                     lua_pushnumber(state, item[i].id);
@@ -3444,7 +3818,8 @@ int sl_getSetItems(lua_State *state) {
                     lua_rawseti(state, -2, x + 2);
             }*/
 
-    for (int i = 0, x = 1; i < 5; i++, x += 2) {
+    for (int i = 0, x = 1; i < 5; i++, x += 2)
+    {
       lua_pushnumber(state, item_ids[i]);
       lua_rawseti(state, -2, x);
       lua_pushnumber(state, item_amounts[i]);
@@ -3457,7 +3832,8 @@ int sl_getSetItems(lua_State *state) {
   return 1;
 }
 
-void sl_init() {
+void sl_init()
+{
   sl_gstate = lua_open();
   luaL_openlibs(sl_gstate);
 
@@ -3534,7 +3910,9 @@ void sl_init() {
     SL_EXPOSE_ENUM(WSNOW);
     SL_EXPOSE_ENUM(WBIRD);
   }
-  { SL_EXPOSE_ENUM(F1_NPC); }
+  {
+    SL_EXPOSE_ENUM(F1_NPC);
+  }
 
   lua_register(sl_gstate, "_async", sl_async);
   lua_register(sl_gstate, "_asyncDone", sl_async_done);
@@ -3650,7 +4028,8 @@ void sl_init() {
   strncpy(path, lua_dir, path_size);
   strncat(path, filename, path_size);
 
-  if (luaL_dofile(sl_gstate, path)) {
+  if (luaL_dofile(sl_gstate, path))
+  {
     free(path);
     sl_err_print(sl_gstate);
     return;
@@ -3660,13 +4039,15 @@ void sl_init() {
   sl_reload(NULL);
 }
 
-int sl_loaddir(char *dirpath, lua_State *state) {
+int sl_loaddir(char *dirpath, lua_State *state)
+{
   DIR *dir = opendir(dirpath);
   struct dirent *dir_entry;
   char path[512];
   char dirpath_tail = dirpath[strlen(dirpath) - 1];
   int dirpath_hasslash = dirpath_tail == '/' || dirpath_tail == '\\';
-  while (0 != (dir_entry = readdir(dir))) {
+  while (0 != (dir_entry = readdir(dir)))
+  {
     char *filename = dir_entry->d_name;
     int filename_len = strlen(filename);
     // ignore special files
@@ -3674,20 +4055,28 @@ int sl_loaddir(char *dirpath, lua_State *state) {
         !strcmp(filename, ".svn") || !strcmp(filename, "sys.lua"))
       continue;
     strcpy(path, dirpath);
-    if (!dirpath_hasslash) strcat(path, "/");
+    if (!dirpath_hasslash)
+      strcat(path, "/");
     strcat(path, dir_entry->d_name);
     struct stat dir_entry_stat;
     stat(path, &dir_entry_stat);
-    if (S_ISDIR(dir_entry_stat.st_mode)) {
+    if (S_ISDIR(dir_entry_stat.st_mode))
+    {
       sl_loaddir(path, state);
-    } else if (S_ISREG(dir_entry_stat.st_mode)) {
+    }
+    else if (S_ISREG(dir_entry_stat.st_mode))
+    {
       // only load files with the extension ".lua"
-      if (filename_len < 4) continue;
-      if (strcmp(&filename[filename_len - 4], ".lua")) continue;
-      if (luaL_dofile(sl_gstate, path)) {
+      if (filename_len < 4)
+        continue;
+      if (strcmp(&filename[filename_len - 4], ".lua"))
+        continue;
+      if (luaL_dofile(sl_gstate, path))
+      {
         errors++;
 
-        if (state != NULL) {
+        if (state != NULL)
+        {
           lua_pushstring(state, lua_tostring(sl_gstate, -1));
           lua_rawseti(state, -2, errors);
         }
@@ -3701,7 +4090,8 @@ int sl_loaddir(char *dirpath, lua_State *state) {
   return errors;
 }
 
-int sl_reload(lua_State *state) {
+int sl_reload(lua_State *state)
+{
   int errors = 0;
 
   errors += sl_loaddir(lua_dir, state);
@@ -3711,42 +4101,53 @@ int sl_reload(lua_State *state) {
 
 void sl_fixmem() { lua_gc(sl_gstate, LUA_GCCOLLECT, 0); }
 
-int sl_async_done(lua_State *state) {
+int sl_async_done(lua_State *state)
+{
   // free the coroutine
   USER *sd = (USER *)typel_topointer(state, 1);
   sl_async_freeco(sd);
   return 0;
 }
 
-void sl_async_freeco(USER *sd) {
-  if (!sd->coref) return;
+void sl_async_freeco(USER *sd)
+{
+  if (!sd->coref)
+    return;
   luaL_unref(sl_gstate, LUA_REGISTRYINDEX, sd->coref);
   sd->coref = 0;
 }
 
-void sl_async_resume(USER *sd, int nargs) {
+void sl_async_resume(USER *sd, int nargs)
+{
   unsigned int coref = 0;
   USER *nsd;
-  if (!sd->coref) {
+  if (!sd->coref)
+  {
     nsd = map_id2sd(sd->coref_container);
-    if (!nsd) return;
+    if (!nsd)
+      return;
 
     coref = nsd->coref;
-  } else {
+  }
+  else
+  {
     coref = sd->coref;
   }
 
-  if (!coref) return;
+  if (!coref)
+    return;
 
   lua_State *costate;
   sl_pushref(sl_gstate, coref);
-  if (lua_isthread(sl_gstate, -1)) {
+  if (lua_isthread(sl_gstate, -1))
+  {
     costate = lua_tothread(sl_gstate, -1);
-    lua_pop(sl_gstate, 1);  // pop the thread
+    lua_pop(sl_gstate, 1); // pop the thread
     // printf("%d\n",lua_status(costate));
     lua_xmove(sl_gstate, costate, nargs);
 
-    if (lua_resume(costate, nargs) == LUA_ERRRUN) {
+    if (lua_resume(costate, nargs) == LUA_ERRRUN)
+    {
       const char *err = lua_tostring(costate, -1);
       lua_pop(costate, 1);
       sl_async_freeco(sd);
@@ -3755,21 +4156,25 @@ void sl_async_resume(USER *sd, int nargs) {
   }
 }
 
-int sl_async(lua_State *state) {
+int sl_async(lua_State *state)
+{
   // first argument should be a player object, second argument should be a
   // function to call
   USER *sd = (USER *)typel_topointer(state, 1);
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
-  if (sd->coref) {  // clif_sendminitext(sd,"You are busy.");
+  if (sd->coref)
+  { // clif_sendminitext(sd,"You are busy.");
     return 0;
   };
 
   lua_State *costate = lua_newthread(state);
   sd->coref = luaL_ref(state, LUA_REGISTRYINDEX);
-  lua_pushvalue(state, 2);       // push a copy of the function
-  lua_xmove(state, costate, 1);  // move the function into the coroutine state
-  if (lua_resume(costate, 0) == LUA_ERRRUN) {
+  lua_pushvalue(state, 2);      // push a copy of the function
+  lua_xmove(state, costate, 1); // move the function into the coroutine state
+  if (lua_resume(costate, 0) == LUA_ERRRUN)
+  {
     lua_xmove(costate, state, 1);
     sl_async_freeco(sd);
     return lua_error(state);
@@ -3777,45 +4182,54 @@ int sl_async(lua_State *state) {
   return 0;
 }
 
-int sl_doscript_stackargs(char *root, const char *method, int nargs) {
+int sl_doscript_stackargs(char *root, const char *method, int nargs)
+{
   int argsindex = lua_gettop(sl_gstate) - (nargs - 1), errhandler, i;
   lua_getglobal(sl_gstate, "_errhandler");
   errhandler = lua_gettop(sl_gstate);
   lua_getglobal(sl_gstate, root);
-  if (lua_isnil(sl_gstate, -1)) {
-    lua_pop(sl_gstate, 2 + nargs);  // pop _errhandler, the table, and the args
+  if (lua_isnil(sl_gstate, -1))
+  {
+    lua_pop(sl_gstate, 2 + nargs); // pop _errhandler, the table, and the args
     return 0;
   }
-  if (lua_istable(sl_gstate, -1)) {
+  if (lua_istable(sl_gstate, -1))
+  {
     lua_getfield(sl_gstate, -1, method);
     lua_replace(sl_gstate,
-                -2);  // essentially remove the table leaving only the field
+                -2); // essentially remove the table leaving only the field
   }
-  if (lua_isnil(sl_gstate, -1)) {
-    lua_pop(sl_gstate, 2 + nargs);  // pop _errhandler, the field, and the args
+  if (lua_isnil(sl_gstate, -1))
+  {
+    lua_pop(sl_gstate, 2 + nargs); // pop _errhandler, the field, and the args
     return 0;
   }
   // push copies of the arguments onto the stack
-  for (i = 0; i < nargs; i++) lua_pushvalue(sl_gstate, argsindex + i);
-  if (lua_pcall(sl_gstate, nargs, 0, errhandler) != 0) {
+  for (i = 0; i < nargs; i++)
+    lua_pushvalue(sl_gstate, argsindex + i);
+  if (lua_pcall(sl_gstate, nargs, 0, errhandler) != 0)
+  {
     // sl_err_print(sl_gstate);
-    lua_pop(sl_gstate, 1);  // pop the error string
+    lua_pop(sl_gstate, 1); // pop the error string
   }
-  lua_pop(sl_gstate, nargs + 1);  // pop the original arguments, and _errhandler
+  lua_pop(sl_gstate, nargs + 1); // pop the original arguments, and _errhandler
   return 1;
 }
 
-int sl_doscript_blargs(char *root, const char *method, int nargs, ...) {
+int sl_doscript_blargs(char *root, const char *method, int nargs, ...)
+{
   // printf("root: %s\n", root);
   int i;
-  if (!lua_checkstack(sl_gstate, 100)) {
+  if (!lua_checkstack(sl_gstate, 100))
+  {
     printf("Lua - Min stack requirements not met.\n");
 
     return 0;
   }
   va_list argp;
   va_start(argp, nargs);
-  for (i = 0; i < nargs; i++) {
+  for (i = 0; i < nargs; i++)
+  {
     struct block_list *bl = va_arg(argp, struct block_list *);
     bll_pushinst(sl_gstate, bl, 0);
   }
@@ -3826,9 +4240,11 @@ int sl_doscript_blargs(char *root, const char *method, int nargs, ...) {
   return r;
 }
 
-int sl_doscript_strings(char *root, const char *method, int nargs, ...) {
+int sl_doscript_strings(char *root, const char *method, int nargs, ...)
+{
   int i;
-  if (!lua_checkstack(sl_gstate, 100)) {
+  if (!lua_checkstack(sl_gstate, 100))
+  {
     printf("Lua - Min stack requirements not met.\n");
 
     return 0;
@@ -3836,7 +4252,8 @@ int sl_doscript_strings(char *root, const char *method, int nargs, ...) {
   va_list argp;
   va_start(argp, nargs);
 
-  for (i = 0; i < nargs; i++) {
+  for (i = 0; i < nargs; i++)
+  {
     lua_pushstring(sl_gstate, va_arg(argp, char *));
   }
   va_end(argp);
@@ -3844,7 +4261,8 @@ int sl_doscript_strings(char *root, const char *method, int nargs, ...) {
   return sl_doscript_stackargs(root, method, nargs);
 }
 
-void sl_resumemenu(unsigned int selection, USER *sd) {
+void sl_resumemenu(unsigned int selection, USER *sd)
+{
   /*if(sd->coroutine) {
               if(lua_status(sd->coroutine)==LUA_YIELD) {
                       lua_pushnumber(sd->coroutine, selection);
@@ -3855,17 +4273,21 @@ void sl_resumemenu(unsigned int selection, USER *sd) {
   sl_async_resume(sd, 1);
 }
 
-void sl_resumemenuseq(unsigned int selection, int choice, USER *sd) {
-  if (selection == 1) {  // Quit
+void sl_resumemenuseq(unsigned int selection, int choice, USER *sd)
+{
+  if (selection == 1)
+  { // Quit
     sl_async_freeco(sd);
   }
-  if (selection == 2) {  // Selected(Next)
+  if (selection == 2)
+  { // Selected(Next)
     lua_pushnumber(sl_gstate, choice);
     sl_async_resume(sd, 1);
   }
 }
 
-void sl_resumedialog(unsigned int choice, USER *sd) {
+void sl_resumedialog(unsigned int choice, USER *sd)
+{
   /*if(sd->coroutine) {
               if(lua_status(sd->coroutine)==LUA_YIELD) {
               if(choice == 0) lua_pushstring(sd->coroutine, "previous");
@@ -3875,33 +4297,46 @@ void sl_resumedialog(unsigned int choice, USER *sd) {
               lua_resume(sd->coroutine, 1);
               }
       }*/
-  if (choice == 0) {
+  if (choice == 0)
+  {
     lua_pushstring(sl_gstate, "previous");
   }
   // else if(choice == 1) { lua_pushstring(sl_gstate, "quit"); }
-  else if (choice == 1) {
+  else if (choice == 1)
+  {
     sl_async_freeco(sd);
     return;
-  } else if (choice == 2) {
+  }
+  else if (choice == 2)
+  {
     lua_pushstring(sl_gstate, "next");
-  } else {
+  }
+  else
+  {
     lua_pushstring(sl_gstate, "quit");
   }
   sl_async_resume(sd, 1);
 }
 
-void sl_resumeinputseq(unsigned int choice, char *input, USER *sd) {
-  if (choice == 0) {
+void sl_resumeinputseq(unsigned int choice, char *input, USER *sd)
+{
+  if (choice == 0)
+  {
     lua_pushstring(sl_gstate, "previous");
   }
   // else if(choice == 1) { lua_pushstring(sl_gstate, "quit"); }
-  else if (choice == 1) {
+  else if (choice == 1)
+  {
     sl_async_freeco(sd);
     return;
-  } else if (choice == 2) {
+  }
+  else if (choice == 2)
+  {
     lua_pushstring(sl_gstate, "next");
     lua_pushstring(sl_gstate, input);
-  } else {
+  }
+  else
+  {
     lua_pushstring(sl_gstate, "quit");
   }
   sl_async_resume(sd, 1);
@@ -3912,12 +4347,14 @@ void sl_resumeinputseq(unsigned int choice, char *input, USER *sd) {
         sl_async_resume(sd, 1);
 }*/
 
-void sl_resumebuy(char *name, USER *sd) {
+void sl_resumebuy(char *name, USER *sd)
+{
   lua_pushstring(sl_gstate, name);
   sl_async_resume(sd, 1);
 }
 
-void sl_resumesell(unsigned int choice, USER *sd) {
+void sl_resumesell(unsigned int choice, USER *sd)
+{
   /*if(sd->coroutine) {
               if(lua_status(sd->coroutine)==LUA_YIELD) {
               lua_pushnumber(sd->coroutine,choice);
@@ -3928,7 +4365,8 @@ void sl_resumesell(unsigned int choice, USER *sd) {
   sl_async_resume(sd, 1);
 }
 
-void sl_resumeinput(char *output, char *output2, USER *sd) {
+void sl_resumeinput(char *output, char *output2, USER *sd)
+{
   /*if(sd->coroutine) {
               if(lua_status(sd->coroutine)==LUA_YIELD) {
               //lua_pushstring(sd->coroutine,output);
@@ -3940,7 +4378,8 @@ void sl_resumeinput(char *output, char *output2, USER *sd) {
   sl_async_resume(sd, 1);
 }
 
-void sl_resume(char *output, USER *sd) {
+void sl_resume(char *output, USER *sd)
+{
   /*if(sd->coroutine) {
               if(lua_status(sd->coroutine)==LUA_YIELD) {
               lua_pushstring(sd->coroutine,output);
@@ -3955,12 +4394,14 @@ int iteml_getattr(lua_State *, void *, const char *);
 
 int iteml_ctor(lua_State *);
 
-void iteml_staticinit() {
+void iteml_staticinit()
+{
   iteml_type = typel_new("Item", iteml_ctor);
   iteml_type.getattr = iteml_getattr;
 }
 
-int iteml_ctor(lua_State *state) {
+int iteml_ctor(lua_State *state)
+{
   struct item_data *item = 0;
   if (lua_isnumber(state, 2))
     item = itemdb_search(lua_tonumber(state, 2));
@@ -3968,7 +4409,8 @@ int iteml_ctor(lua_State *state) {
     item = itemdb_searchname(lua_tostring(state, 2));
   else
     luaL_argerror(state, 1, "expected string or number");
-  if (!item) {
+  if (!item)
+  {
     lua_pushnil(state);
     return 1;
     // luaL_error(state, "could not find item in the database");
@@ -3977,7 +4419,8 @@ int iteml_ctor(lua_State *state) {
   return 1;
 }
 
-int iteml_getattr(lua_State *state, void *self, const char *attrname) {
+int iteml_getattr(lua_State *state, void *self, const char *attrname)
+{
   struct item_data *item = (struct item_data *)self;
 
   if (!strcmp(attrname, "vita"))
@@ -4092,7 +4535,7 @@ int iteml_getattr(lua_State *state, void *self, const char *attrname) {
   else if (!strcmp(attrname, "repairable"))
     lua_pushnumber(state, item->repairable);
   else
-    return 0;  // the attribute was not handled
+    return 0; // the attribute was not handled
   return 1;
 }
 
@@ -4100,13 +4543,15 @@ int biteml_getattr(lua_State *, void *, const char *);
 
 int biteml_setattr(lua_State *, void *, const char *);
 
-void biteml_staticinit() {
+void biteml_staticinit()
+{
   biteml_type = typel_new("BoundItem", 0);
   biteml_type.getattr = biteml_getattr;
   biteml_type.setattr = biteml_setattr;
 }
 
-int biteml_setattr(lua_State *state, void *self, const char *attrname) {
+int biteml_setattr(lua_State *state, void *self, const char *attrname)
+{
   struct item *bitem = (struct item *)self;
 
   if (!strcmp(attrname, "id"))
@@ -4141,7 +4586,8 @@ int biteml_setattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int biteml_getattr(lua_State *state, void *self, const char *attrname) {
+int biteml_getattr(lua_State *state, void *self, const char *attrname)
+{
   struct item *bitem = (struct item *)self;
   if (!strcmp(attrname, "amount"))
     lua_pushnumber(state, bitem->amount);
@@ -4170,9 +4616,10 @@ int biteml_getattr(lua_State *state, void *self, const char *attrname) {
   else if (!strcmp(attrname, "note"))
     lua_pushstring(state, bitem->note);
 
-  else {
+  else
+  {
     struct item_data *item =
-        itemdb_search(bitem->id);  // NOTE: this may be slow...?
+        itemdb_search(bitem->id); // NOTE: this may be slow...?
     assert(item);
     return iteml_getattr(state, item, attrname);
   }
@@ -4183,13 +4630,15 @@ int bankiteml_getattr(lua_State *, void *, const char *);
 
 int bankiteml_setattr(lua_State *, void *, const char *);
 
-void bankiteml_staticinit() {
+void bankiteml_staticinit()
+{
   bankiteml_type = typel_new("BankItem", 0);
   bankiteml_type.getattr = bankiteml_getattr;
   bankiteml_type.setattr = bankiteml_setattr;
 }
 
-int bankiteml_setattr(lua_State *state, void *self, const char *attrname) {
+int bankiteml_setattr(lua_State *state, void *self, const char *attrname)
+{
   struct bank_data *bitem = (struct bank_data *)self;
   if (!strcmp(attrname, "id"))
     bitem->item_id = lua_tonumber(state, -1);
@@ -4217,7 +4666,8 @@ int bankiteml_setattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int bankiteml_getattr(lua_State *state, void *self, const char *attrname) {
+int bankiteml_getattr(lua_State *state, void *self, const char *attrname)
+{
   struct bank_data *bitem = (struct bank_data *)self;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, bitem->item_id);
@@ -4242,9 +4692,10 @@ int bankiteml_getattr(lua_State *state, void *self, const char *attrname) {
   else if (!strcmp(attrname, "note"))
     lua_pushstring(state, bitem->note);
 
-  else {
+  else
+  {
     struct item_data *item =
-        itemdb_search(bitem->item_id);  // NOTE: this may be slow...?
+        itemdb_search(bitem->item_id); // NOTE: this may be slow...?
     assert(item);
     return iteml_getattr(state, item, attrname);
   }
@@ -4255,12 +4706,14 @@ int recipel_getattr(lua_State *, void *, const char *);
 
 int recipel_ctor(lua_State *);
 
-void recipel_staticinit() {
+void recipel_staticinit()
+{
   recipel_type = typel_new("Recipe", recipel_ctor);
   recipel_type.getattr = recipel_getattr;
 }
 
-int recipel_ctor(lua_State *state) {
+int recipel_ctor(lua_State *state)
+{
   struct recipe_data *recipe = NULL;
   if (lua_isnumber(state, 2))
     recipe = recipedb_search(lua_tonumber(state, 2));
@@ -4268,7 +4721,8 @@ int recipel_ctor(lua_State *state) {
     recipe = recipedb_searchname(lua_tostring(state, 2));
   else
     luaL_argerror(state, 1, "expected string or number");
-  if (!recipe) {
+  if (!recipe)
+  {
     lua_pushnil(state);
     return 1;
     // luaL_error(state, "could not find item in the database");
@@ -4277,7 +4731,8 @@ int recipel_ctor(lua_State *state) {
   return 1;
 }
 
-int recipel_getattr(lua_State *state, void *self, const char *attrname) {
+int recipel_getattr(lua_State *state, void *self, const char *attrname)
+{
   struct recipe_data *recipe = (struct recipe_data *)self;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, recipe->id);
@@ -4303,35 +4758,43 @@ int recipel_getattr(lua_State *state, void *self, const char *attrname) {
     lua_pushnumber(state, recipe->skillRequired);
   else if (!strcmp(attrname, "tokensRequired"))
     lua_pushnumber(state, recipe->tokensRequired);
-  else if (!strcmp(attrname, "materials")) {
+  else if (!strcmp(attrname, "materials"))
+  {
     int i = 0;
     lua_newtable(state);
 
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++)
+    {
       lua_pushnumber(state, recipe->materials[i]);
       lua_rawseti(state, -2, i + 1);
     }
-  } else if (!strcmp(attrname, "superiorMaterials")) {
+  }
+  else if (!strcmp(attrname, "superiorMaterials"))
+  {
     int i = 0;
     lua_newtable(state);
 
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++)
+    {
       lua_pushnumber(state, recipe->superiorMaterials[i]);
       lua_rawseti(state, -2, i + 1);
     }
-  } else
-    return 0;  // the attribute was not handled
+  }
+  else
+    return 0; // the attribute was not handled
   return 1;
 }
 
 int parcell_getattr(lua_State *, void *, const char *);
 
-void parcell_staticinit() {
+void parcell_staticinit()
+{
   parcell_type = typel_new("Parcel", 0);
   parcell_type.getattr = parcell_getattr;
 }
 
-int parcell_getattr(lua_State *state, void *self, const char *attrname) {
+int parcell_getattr(lua_State *state, void *self, const char *attrname)
+{
   struct parcel *parcel = (struct parcel *)self;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, parcel->data.id);
@@ -4354,9 +4817,10 @@ int parcell_getattr(lua_State *state, void *self, const char *attrname) {
   else if (!strcmp(attrname, "npcFlag"))
     lua_pushnumber(state, parcel->npcflag);
 
-  else {
+  else
+  {
     struct item_data *item =
-        itemdb_search(parcel->data.id);  // NOTE: this may be slow...?
+        itemdb_search(parcel->data.id); // NOTE: this may be slow...?
     assert(item);
     return iteml_getattr(state, item, attrname);
   }
@@ -4368,20 +4832,23 @@ int regl_getattr(lua_State *, void *, const char *);
 int regl_setattr(lua_State *, void *, const char *);
 
 // struct global_reg *regl_findreg(USER *, char *);
-void regl_staticinit() {
+void regl_staticinit()
+{
   regl_type = typel_new("Registry", 0);
   regl_type.getattr = regl_getattr;
   regl_type.setattr = regl_setattr;
 }
 
-int regl_getattr(lua_State *state, void *self, const char *attrname) {
+int regl_getattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
 
   lua_pushnumber(state, pc_readglobalreg(sd, attrname));
   return 1;
 }
 
-int regl_setattr(lua_State *state, void *self, const char *attrname) {
+int regl_setattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
 
   pc_setglobalreg(sd, attrname, lua_tonumber(state, -1));
@@ -4394,19 +4861,22 @@ int reglstring_setattr(lua_State *, void *, const char *);
 
 struct global_regstring *regl_findregstring(USER *, const char *);
 
-void reglstring_staticinit() {
+void reglstring_staticinit()
+{
   reglstring_type = typel_new("RegistryString", 0);
   reglstring_type.getattr = reglstring_getattr;
   reglstring_type.setattr = reglstring_setattr;
 }
 
-int reglstring_getattr(lua_State *state, void *self, const char *attrname) {
+int reglstring_getattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
   lua_pushstring(state, pc_readglobalregstring(sd, attrname));
   return 1;
 }
 
-int reglstring_setattr(lua_State *state, void *self, const char *attrname) {
+int reglstring_setattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
   pc_setglobalregstring(sd, attrname, lua_tostring(state, -1));
   return 1;
@@ -4416,20 +4886,23 @@ int npcintregl_getattr(lua_State *, void *, const char *);
 
 int npcintregl_setattr(lua_State *, void *, const char *);
 
-void npcintregl_staticinit() {
+void npcintregl_staticinit()
+{
   npcintregl_type = typel_new("NpcInt", 0);
   npcintregl_type.getattr = npcintregl_getattr;
   npcintregl_type.setattr = npcintregl_setattr;
 }
 
-int npcintregl_getattr(lua_State *state, void *self, const char *attrname) {
+int npcintregl_getattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
 
   lua_pushnumber(state, pc_readnpcintreg(sd, attrname));
   return 1;
 }
 
-int npcintregl_setattr(lua_State *state, void *self, const char *attrname) {
+int npcintregl_setattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
 
   pc_setnpcintreg(sd, attrname, lua_tonumber(state, -1));
@@ -4440,28 +4913,32 @@ int questregl_getattr(lua_State *, void *, const char *);
 
 int questregl_setattr(lua_State *, void *, const char *);
 
-void questregl_staticinit() {
+void questregl_staticinit()
+{
   questregl_type = typel_new("Quest", 0);
   questregl_type.getattr = questregl_getattr;
   questregl_type.setattr = questregl_setattr;
 }
 
-int questregl_getattr(lua_State *state, void *self, const char *attrname) {
+int questregl_getattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
 
   lua_pushnumber(state, pc_readquestreg(sd, attrname));
   return 1;
 }
 
-int questregl_setattr(lua_State *state, void *self, const char *attrname) {
+int questregl_setattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
 
   pc_setquestreg(sd, attrname, lua_tonumber(state, -1));
   return 1;
 }
 
-void typel_staticinit() {
-  lua_newtable(sl_gstate);  // the global metatable
+void typel_staticinit()
+{
+  lua_newtable(sl_gstate); // the global metatable
   lua_pushcfunction(sl_gstate, typel_mtindex);
   lua_setfield(sl_gstate, -2, "__index");
   lua_pushcfunction(sl_gstate, typel_mtnewindex);
@@ -4475,12 +4952,14 @@ void typel_staticinit() {
          lua_gc(sl_gstate, LUA_GCSETSTEPMUL, 1000));
 }
 
-typel_class typel_new(char *name, lua_CFunction ctor) {
+typel_class typel_new(char *name, lua_CFunction ctor)
+{
   typel_class type;
   memset(&type, 0, sizeof(typel_class));
   // TODO: expose the type object, not the prototype, to lua
-  lua_newtable(sl_gstate);  // the prototype table
-  if (ctor) {
+  lua_newtable(sl_gstate); // the prototype table
+  if (ctor)
+  {
     lua_newtable(sl_gstate);
     lua_pushcfunction(sl_gstate, ctor);
     lua_setfield(sl_gstate, -2, "__call");
@@ -4488,13 +4967,14 @@ typel_class typel_new(char *name, lua_CFunction ctor) {
     type.ctor = ctor;
   }
   type.protoref = luaL_ref(sl_gstate, LUA_REGISTRYINDEX);
-  sl_pushref(sl_gstate, type.protoref);  // expose the prototype table to lua
+  sl_pushref(sl_gstate, type.protoref); // expose the prototype table to lua
   lua_setglobal(sl_gstate, name);
   type.name = name;
   return type;
 }
 
-int typel_mtgc(lua_State *state) {
+int typel_mtgc(lua_State *state)
+{
   typel_inst *inst = lua_touserdata(state, 1);
   luaL_unref(state, LUA_REGISTRYINDEX, inst->dataref);
 
@@ -4504,60 +4984,71 @@ int typel_mtgc(lua_State *state) {
 }
 
 void typel_pushinst(lua_State *state, typel_class *type, void *self,
-                    void *param) {
+                    void *param)
+{
   typel_inst *inst = lua_newuserdata(state, sizeof(typel_inst));
   inst->self = self;
   inst->type = type;
-  sl_pushref(state, typel_mtref);  // set the metatable
+  sl_pushref(state, typel_mtref); // set the metatable
   lua_setmetatable(state, -2);
-  lua_newtable(state);  // create a new data table and store a ref
+  lua_newtable(state); // create a new data table and store a ref
   inst->dataref = luaL_ref(state, LUA_REGISTRYINDEX);
-  if (type->init && inst->self) {
+  if (type->init && inst->self)
+  {
     type->init(state, inst->self, inst->dataref, param);
   }
   // else { luaL_error(state,"dataref no longer exists"); }
 }
 
-void typel_extendproto(typel_class *type, char *name, typel_func func) {
+void typel_extendproto(typel_class *type, char *name, typel_func func)
+{
   sl_pushref(sl_gstate, type->protoref);
   lua_pushlightuserdata(sl_gstate, func);
   lua_pushcclosure(sl_gstate, typel_boundfunc, 1);
   lua_setfield(sl_gstate, -2, name);
-  lua_pop(sl_gstate, 1);  // pop the prototype table
+  lua_pop(sl_gstate, 1); // pop the prototype table
 }
 
-int typel_boundfunc(lua_State *state) {
+int typel_boundfunc(lua_State *state)
+{
   typel_func wrapped = lua_touserdata(state, lua_upvalueindex(1));
   typel_inst *inst =
-      lua_touserdata(state, 1);  // the first parameter is the userdata object
+      lua_touserdata(state, 1); // the first parameter is the userdata object
 
-  if (inst && inst->self) {
+  if (inst && inst->self)
+  {
     return wrapped(state, inst->self);
   }
   return 0;
 }
 
-int typel_mtindex(lua_State *state) {
+int typel_mtindex(lua_State *state)
+{
   typel_inst *inst = lua_touserdata(state, 1);
   typel_class *type = inst->type;
   const char *attrname = lua_tostring(state, 2);
   int result = 0;
-  if (!inst->self) {
+  if (!inst->self)
+  {
     lua_pushnil(state);
     return 1;
   }
-  if (type->getattr) result = type->getattr(state, inst->self, attrname);
-  if (!result) {
+  if (type->getattr)
+    result = type->getattr(state, inst->self, attrname);
+  if (!result)
+  {
     // the attribute was not handled by the getattr method
     // next, try the prototype table
     sl_pushref(state, type->protoref);
     lua_getfield(state, -1, attrname);
-    if (lua_isnil(state, -1)) {
-      lua_pop(state, 2);  // clean up the stack
+    if (lua_isnil(state, -1))
+    {
+      lua_pop(state, 2); // clean up the stack
       // then try the data table associated with the instance
       sl_pushref(state, inst->dataref);
       lua_getfield(state, -1, attrname);
-      if (lua_isnil(state, -1)) {
+      if (lua_isnil(state, -1))
+      {
         // there is no such attribute; push nil
         lua_pop(state, 1);
         lua_pushnil(state);
@@ -4568,29 +5059,35 @@ int typel_mtindex(lua_State *state) {
   return 1;
 }
 
-int typel_mtnewindex(lua_State *state) {
+int typel_mtnewindex(lua_State *state)
+{
   typel_inst *inst = lua_touserdata(state, 1);
   typel_class *type = inst->type;
   const char *attrname = lua_tostring(state, 2);
-  if (!inst->self) {
+  if (!inst->self)
+  {
     return 0;
   }
   int result = 0;
-  if (type->setattr) result = type->setattr(state, inst->self, attrname);
-  if (!result) { /* TODO: error */
+  if (type->setattr)
+    result = type->setattr(state, inst->self, attrname);
+  if (!result)
+  { /* TODO: error */
   }
 
   return 0;
 }
 
-int bll_deliddb(lua_State *state, void *self) {
+int bll_deliddb(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   map_deliddb(bl);
   return 0;
 }
 
-int bll_playsound(lua_State *state, void *self) {
+int bll_playsound(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   sl_checkargs(state, "n");
@@ -4600,7 +5097,8 @@ int bll_playsound(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_talk(lua_State *state, void *self) {
+int bll_talk(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   sl_checkargs(state, "ns");
@@ -4613,25 +5111,34 @@ int bll_talk(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_talkcolor(lua_State *state, void *self) {
+int bll_talkcolor(lua_State *state, void *self)
+{
   sl_checkargs(state, "ns");
   int color = lua_tonumber(state, sl_memberarg(1));
   const char *msg = lua_tostring(state, sl_memberarg(2));
   USER *tsd = NULL;
 
-  if (lua_isnumber(state, sl_memberarg(3))) {
+  if (lua_isnumber(state, sl_memberarg(3)))
+  {
     sl_checkargs(state, "nsn");
     tsd = map_id2sd(lua_tonumber(state, sl_memberarg(3)));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "nss");
     tsd = map_name2sd(lua_tostring(state, sl_memberarg(3)));
   }
 
-  if (lua_tonumber(state, sl_memberarg(3)) == 0) {
+  if (lua_tonumber(state, sl_memberarg(3)) == 0)
+  {
     // map_foreachinarea(clif_sendmsg, bl->m, bl->x, bl->y, AREA, BL_PC, msg
-  } else if (!tsd) {
+  }
+  else if (!tsd)
+  {
     return 0;
-  } else {
+  }
+  else
+  {
     clif_sendmsg(tsd, color, msg);
   }
   return 0;
@@ -4639,26 +5146,30 @@ int bll_talkcolor(lua_State *state, void *self) {
 
 int bll_permspawn(lua_State *state, void *self) { return 0; }
 
-int bll_sendside(lua_State *state, void *self) {
+int bll_sendside(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   clif_sendside(bl);
   return 0;
 }
 
-int bll_delete(lua_State *state, void *self) {
+int bll_delete(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   nullpo_ret(0, bl);
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     return 0;
   }
 
   map_delblock(bl);
   map_deliddb(bl);
 
-  if (bl->id > 0) {
+  if (bl->id > 0)
+  {
     clif_lookgone(bl);
     FREE(bl);
   }
@@ -4666,7 +5177,8 @@ int bll_delete(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_addnpc(lua_State *state, void *self) {
+int bll_addnpc(lua_State *state, void *self)
+{
   sl_checkargs(state, "snnn");
   struct npc_data *nd = NULL;
   int timer = 0;
@@ -4681,9 +5193,12 @@ int bll_addnpc(lua_State *state, void *self) {
   CALLOC(nd, struct npc_data, 1);
 
   strcpy(nd->name, lua_tostring(state, sl_memberarg(1)));
-  if (lua_isstring(state, sl_memberarg(9))) {
+  if (lua_isstring(state, sl_memberarg(9)))
+  {
     strcpy(nd->npc_name, lua_tostring(state, sl_memberarg(9)));
-  } else {
+  }
+  else
+  {
     strcpy(nd->npc_name, "nothing");
   }
   nd->bl.type = BL_NPC;
@@ -4707,7 +5222,8 @@ int bll_addnpc(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_dropitem(lua_State *state, void *self) {
+int bll_dropitem(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   // sl_checkargs(state, "nn");
@@ -4718,31 +5234,36 @@ int bll_dropitem(lua_State *state, void *self) {
 
   USER *sd = NULL;
   // printf("Gettop=%d\n",lua_gettop(state));
-  if (lua_gettop(state) == 4) sd = map_id2sd(lua_tonumber(state, 4));
+  if (lua_gettop(state) == 4)
+    sd = map_id2sd(lua_tonumber(state, 4));
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
 
   amount = lua_tonumber(state, sl_memberarg(2));
   dura = lua_tonumber(state, sl_memberarg(3));
- protected
-  = lua_tonumber(state, sl_memberarg(4));
+  protected = lua_tonumber(state, sl_memberarg(4));
 
-  if (dura == 0) dura = itemdb_dura(id);
-  if (protected == 0) protected
-  = itemdb_protected(id);
+  if (dura == 0)
+    dura = itemdb_dura(id);
+  if (protected == 0)
+    protected = itemdb_protected(id);
 
   mobdb_dropitem(bl->id, id, amount, dura, protected, 0, bl->m, bl->x, bl->y,
                  sd);
   return 0;
 }
 
-int bll_dropitemxy(lua_State *state, void *self) {
+int bll_dropitemxy(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
   // sl_checkargs(state, "nnnnn");
   unsigned int id;
@@ -4755,24 +5276,28 @@ int bll_dropitemxy(lua_State *state, void *self) {
   int y;
   USER *sd = NULL;
   // printf("Gettop=%d\n",lua_gettop(state));
-  if (lua_gettop(state) == 7) sd = map_id2sd(lua_tonumber(state, 7));
+  if (lua_gettop(state) == 7)
+    sd = map_id2sd(lua_tonumber(state, 7));
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
 
   amount = lua_tonumber(state, sl_memberarg(2));
   dura = lua_tonumber(state, sl_memberarg(3));
- protected
-  = lua_tonumber(state, sl_memberarg(4));
+  protected = lua_tonumber(state, sl_memberarg(4));
 
-  if (dura == 0) dura = itemdb_dura(id);
-  if (protected == 0) protected
-  = itemdb_protected(id);
+  if (dura == 0)
+    dura = itemdb_dura(id);
+  if (protected == 0)
+    protected = itemdb_protected(id);
 
   map = lua_tonumber(state, sl_memberarg(5));
   x = lua_tonumber(state, sl_memberarg(6));
@@ -4782,16 +5307,19 @@ int bll_dropitemxy(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_handle_mob(struct block_list *bl, va_list ap) {
+int bll_handle_mob(struct block_list *bl, va_list ap)
+{
   MOB *mob = (MOB *)bl;
 
-  if (mob && mob->state == MOB_DEAD && mob->onetime == 0) {
+  if (mob && mob->state == MOB_DEAD && mob->onetime == 0)
+  {
     mob_respawn(mob);
   }
   return 0;
 }
 
-int bll_respawn(lua_State *state, void *self) {
+int bll_respawn(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
   int m = bl->m;
 
@@ -4799,7 +5327,8 @@ int bll_respawn(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_objectcanmove(lua_State *state, void *self) {
+int bll_objectcanmove(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   sl_checkargs(state, "nnn");
@@ -4808,15 +5337,19 @@ int bll_objectcanmove(lua_State *state, void *self) {
   int side = lua_tonumber(state, sl_memberarg(3));
   int canmove = clif_object_canmove(bl->m, x, y, side);
 
-  if (canmove) {
+  if (canmove)
+  {
     lua_pushboolean(state, 0);
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 1);
   }
   return 1;
 }
 
-int bll_objectcanmovefrom(lua_State *state, void *self) {
+int bll_objectcanmovefrom(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   sl_checkargs(state, "nnn");
@@ -4825,15 +5358,19 @@ int bll_objectcanmovefrom(lua_State *state, void *self) {
   int side = lua_tonumber(state, sl_memberarg(3));
   int canmove = clif_object_canmove_from(bl->m, x, y, side);
 
-  if (canmove) {
+  if (canmove)
+  {
     lua_pushboolean(state, 0);
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 1);
   }
   return 1;
 }
 
-int bll_repeatanimation(lua_State *state, void *self) {
+int bll_repeatanimation(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   sl_checkargs(state, "nn");
@@ -4846,7 +5383,8 @@ int bll_repeatanimation(lua_State *state, void *self) {
   // if(bl->type==BL_MOB) mob=(MOB*)bl;
   // else if(bl->type==BL_PC) t=(USER*)bl;
   // else return 0;
-  if (duration > 0) {
+  if (duration > 0)
+  {
     duration /= 1000;
   }
   // if(mob) {
@@ -4871,7 +5409,8 @@ int bll_repeatanimation(lua_State *state, void *self) {
   return 0;
 }
 
-int bll_sendparcel(lua_State *state, void *self) {
+int bll_sendparcel(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnn");
   int x;
   int pos = -1;
@@ -4898,13 +5437,13 @@ int bll_sendparcel(lua_State *state, void *self) {
   customLookColor = lua_tonumber(state, sl_memberarg(9));
   customIcon = lua_tonumber(state, sl_memberarg(10));
   customIconColor = lua_tonumber(state, sl_memberarg(11));
- protected
-  = lua_tonumber(state, sl_memberarg(12));
+  protected = lua_tonumber(state, sl_memberarg(12));
   dura = lua_tonumber(state, sl_memberarg(13));
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     return 1;
@@ -4916,18 +5455,22 @@ int bll_sendparcel(lua_State *state, void *self) {
                                    receiver) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &pos, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &pos, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
     return 1;
   }
 
-  if (SqlStmt_NumRows(stmt) > 0) {
+  if (SqlStmt_NumRows(stmt) > 0)
+  {
     for (x = 0;
          x < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-         x++) {
-      if (pos > newest) {
+         x++)
+    {
+      if (pos > newest)
+      {
         newest = pos;
       }
     }
@@ -4947,7 +5490,8 @@ int bll_sendparcel(lua_State *state, void *self) {
                 "'%u', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
                 receiver, sender, item, amount, owner, escape, newest, npcflag,
                 customLook, customLookColor, customIcon, customIconColor,
-                protected, dura)) {
+                protected, dura))
+  {
     Sql_ShowDebug(sql_handle);
     lua_pushboolean(state, 0);
     return 1;
@@ -4964,38 +5508,52 @@ int bll_sendparcel(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_updatestate(lua_State *state, void *self) {
+int bll_updatestate(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   USER *sd = NULL;
   MOB *mob = NULL;
   NPC *npc = NULL;
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     sd = (USER *)bl;
     map_foreachinarea(clif_updatestate, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_PC, sd);
-  } else if (bl->type == BL_MOB) {
+  }
+  else if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
 
-    if (mob->data->subtype == 1) {
+    if (mob->data->subtype == 1)
+    {
       map_foreachinarea(clif_cmoblook_sub, mob->bl.m, mob->bl.x, mob->bl.y,
                         AREA, BL_PC, LOOK_SEND, mob);
-    } else {
+    }
+    else
+    {
       map_foreachinarea(clif_object_look_sub2, mob->bl.m, mob->bl.x, mob->bl.y,
                         AREA, BL_PC, LOOK_SEND, mob);
     }
-  } else if (bl->type == BL_NPC) {
+  }
+  else if (bl->type == BL_NPC)
+  {
     npc = (NPC *)bl;
 
-    if (npc->npctype == 1) {
+    if (npc->npctype == 1)
+    {
       map_foreachinarea(clif_cnpclook_sub, npc->bl.m, npc->bl.x, npc->bl.y,
                         AREA, BL_PC, LOOK_SEND, npc);
-    } else {
+    }
+    else
+    {
       map_foreachinarea(clif_object_look_sub2, npc->bl.m, npc->bl.x, npc->bl.y,
                         AREA, BL_PC, LOOK_SEND, npc);
     }
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 0);
     return 0;
   }
@@ -5004,14 +5562,16 @@ int bll_updatestate(lua_State *state, void *self) {
   return 1;
 }
 
-int bll_removesprite(lua_State *state, void *self) {
+int bll_removesprite(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   clif_lookgone(bl);
   return 1;
 }
 
-int bll_getfriends(lua_State *state, void *self) {
+int bll_getfriends(lua_State *state, void *self)
+{
   struct block_list *bl = (struct block_list *)self;
 
   int i, id, numFriends;
@@ -5020,12 +5580,14 @@ int bll_getfriends(lua_State *state, void *self) {
   lua_newtable(state);
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
 
-  if (bl->type != BL_PC) return 0;
+  if (bl->type != BL_PC)
+    return 0;
 
   if (SQL_ERROR ==
           SqlStmt_Prepare(
@@ -5051,7 +5613,8 @@ int bll_getfriends(lua_State *state, void *self) {
               sd->status.name, sd->status.name) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -5059,10 +5622,12 @@ int bll_getfriends(lua_State *state, void *self) {
 
   numFriends = SqlStmt_NumRows(stmt);
 
-  for (i = 1; i <= numFriends && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+  for (i = 1; i <= numFriends && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++)
+  {
     tsd = map_id2sd(id);
 
-    if (tsd) {
+    if (tsd)
+    {
       bll_pushinst(state, &tsd->bl, 0);
       lua_rawseti(state, -2, i);
     }
@@ -5072,7 +5637,8 @@ int bll_getfriends(lua_State *state, void *self) {
   return 1;
 }
 
-void bll_extendproto(typel_class *class) {
+void bll_extendproto(typel_class *class)
+{
   typel_extendproto(class, "getObjectsInCell", bll_getobjects_cell);
   typel_extendproto(class, "getAliveObjectsInCell", bll_getaliveobjects_cell);
   typel_extendproto(class, "getObjectsInCellWithTraps",
@@ -5117,29 +5683,41 @@ void bll_extendproto(typel_class *class) {
   typel_extendproto(class, "getFriends", bll_getfriends);
 }
 
-void bll_pushinst(lua_State *state, struct block_list *bl, void *param) {
-  if (!bl) {
+void bll_pushinst(lua_State *state, struct block_list *bl, void *param)
+{
+  if (!bl)
+  {
     lua_pushnil(state);
     return;
   }
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     USER *sd = map_id2sd(bl->id);
     typel_pushinst(state, &pcl_type, sd, param);
-  } else if (bl->type == BL_MOB) {
+  }
+  else if (bl->type == BL_MOB)
+  {
     MOB *mob = (MOB *)bl;
     typel_pushinst(state, &mobl_type, mob, param);
-  } else if (bl->type == BL_NPC) {
+  }
+  else if (bl->type == BL_NPC)
+  {
     NPC *nd = (NPC *)bl;
     typel_pushinst(state, &npcl_type, nd, param);
-  } else if (bl->type == BL_ITEM) {
+  }
+  else if (bl->type == BL_ITEM)
+  {
     FLOORITEM *fl = (FLOORITEM *)bl;
     typel_pushinst(state, &fll_type, fl, param);
-  } else
-    lua_pushnil(state);  // TODO: should this be an error?
+  }
+  else
+    lua_pushnil(state); // TODO: should this be an error?
 }
 
-int bll_getattr(lua_State *state, struct block_list *bl, const char *attrname) {
-  if (!bl) return 0;
+int bll_getattr(lua_State *state, struct block_list *bl, const char *attrname)
+{
+  if (!bl)
+    return 0;
   if (!strcmp(attrname, "x"))
     lua_pushnumber(state, bl->x);
   else if (!strcmp(attrname, "y"))
@@ -5218,12 +5796,14 @@ int bll_getattr(lua_State *state, struct block_list *bl, const char *attrname) {
     lua_pushnumber(state, map[bl->m].canGroup);
 
   else
-    return 0;  // the attribute was not handled
+    return 0; // the attribute was not handled
   return 1;
 }
 
-int bll_setattr(lua_State *state, struct block_list *bl, const char *attrname) {
-  if (!bl) return 0;
+int bll_setattr(lua_State *state, struct block_list *bl, const char *attrname)
+{
+  if (!bl)
+    return 0;
   if (!strcmp(attrname, "mapTitle"))
     strcpy(map[bl->m].title, lua_tostring(state, -1));
   else if (!strcmp(attrname, "mapFile"))
@@ -5288,7 +5868,8 @@ int bll_setattr(lua_State *state, struct block_list *bl, const char *attrname) {
   return 1;
 }
 
-void fll_staticinit() {
+void fll_staticinit()
+{
   fll_type = typel_new("FloorItem", fll_ctor);
   fll_type.getattr = fll_getattr;
   fll_type.setattr = fll_setattr;
@@ -5310,34 +5891,42 @@ void fll_staticinit() {
   bll_extendproto(&fll_type);
 }
 
-int fll_ctor(lua_State *state) {
+int fll_ctor(lua_State *state)
+{
   FLOORITEM *fl = NULL;
-  if (lua_isnumber(state, 2)) {
+  if (lua_isnumber(state, 2))
+  {
     unsigned int id = lua_tonumber(state, 2);
     fl = map_id2fl(id);
-    if (!fl) {
+    if (!fl)
+    {
       return luaL_error(state, "invalid floor item id (%d)", id);
     }
-  } else {
+  }
+  else
+  {
     luaL_argerror(state, 1, "expected number");
   }
   fll_pushinst(state, fl);
   return 1;
 }
 
-int fll_init(lua_State *state, void *self, int dataref, void *param) {
+int fll_init(lua_State *state, void *self, int dataref, void *param)
+{
   sl_pushref(state, dataref);
 
   // biteml_pushinst(state,&fl->data);
   // lua_setfield(state,-2,"data");
 
-  lua_pop(state, 1);  // pop the data table
+  lua_pop(state, 1); // pop the data table
   return 0;
 }
 
-int fll_getattr(lua_State *state, void *self, const char *attrname) {
+int fll_getattr(lua_State *state, void *self, const char *attrname)
+{
   FLOORITEM *fl = (FLOORITEM *)self;
-  if (bll_getattr(state, &fl->bl, attrname)) return 1;
+  if (bll_getattr(state, &fl->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, fl->data.id);
   else if (!strcmp(attrname, "amount"))
@@ -5366,25 +5955,31 @@ int fll_getattr(lua_State *state, void *self, const char *attrname) {
     lua_pushstring(state, fl->data.note);
   else if (!strcmp(attrname, "timer"))
     lua_pushnumber(state, fl->timer);
-  else if (!strcmp(attrname, "looters")) {
+  else if (!strcmp(attrname, "looters"))
+  {
     lua_newtable(state);
-    for (int i = 0; i < MAX_GROUP_MEMBERS; i++) {
+    for (int i = 0; i < MAX_GROUP_MEMBERS; i++)
+    {
       lua_pushnumber(state, fl->looters[i]);
       lua_rawseti(state, -2, i + 1);
     }
-  } else {
+  }
+  else
+  {
     struct item_data *item =
-        itemdb_search(fl->data.id);  // NOTE: this may be slow...?
+        itemdb_search(fl->data.id); // NOTE: this may be slow...?
     assert(item);
     return iteml_getattr(state, item, attrname);
   }
   return 1;
 }
 
-int fll_setattr(lua_State *state, void *self, const char *attrname) {
+int fll_setattr(lua_State *state, void *self, const char *attrname)
+{
   FLOORITEM *fl = (FLOORITEM *)self;
 
-  if (bll_setattr(state, &fl->bl, attrname)) return 1;
+  if (bll_setattr(state, &fl->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "amount"))
     fl->data.amount = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "owner"))
@@ -5409,10 +6004,12 @@ int fll_setattr(lua_State *state, void *self, const char *attrname) {
     strcpy(fl->data.note, lua_tostring(state, -1));
   else if (!strcmp(attrname, "timer"))
     fl->timer = lua_tonumber(state, -1);
-  else if (!strcmp(attrname, "looters")) {
+  else if (!strcmp(attrname, "looters"))
+  {
     lua_pushnil(state);
 
-    while (lua_next(state, sl_memberarg(2)) != 0) {
+    while (lua_next(state, sl_memberarg(2)) != 0)
+    {
       // key is at -2, value at -1
 
       int index = lua_tonumber(state, -2);
@@ -5420,19 +6017,22 @@ int fll_setattr(lua_State *state, void *self, const char *attrname) {
       fl->looters[index - 1] = lua_tonumber(state, -1);
       lua_pop(state, 1);
     }
-
-  } else
+  }
+  else
     return 0;
   return 1;
 }
 
-int fll_addTrapSpotters(lua_State *state, void *self) {
+int fll_addTrapSpotters(lua_State *state, void *self)
+{
   FLOORITEM *fl = (FLOORITEM *)self;
 
   unsigned int playerid = lua_tonumber(state, sl_memberarg(1));
 
-  for (int i = 0; i < 100; i++) {
-    if (fl->data.trapsTable[i] == 0) {
+  for (int i = 0; i < 100; i++)
+  {
+    if (fl->data.trapsTable[i] == 0)
+    {
       fl->data.trapsTable[i] = playerid;
       break;
     }
@@ -5441,13 +6041,16 @@ int fll_addTrapSpotters(lua_State *state, void *self) {
   return 1;
 }
 
-int fll_getTrapSpotters(lua_State *state, void *self) {
+int fll_getTrapSpotters(lua_State *state, void *self)
+{
   FLOORITEM *fl = (FLOORITEM *)self;
 
   lua_newtable(state);
 
-  for (int i = 0; i < 100; i++) {
-    if (fl->data.trapsTable[i] == 0) continue;
+  for (int i = 0; i < 100; i++)
+  {
+    if (fl->data.trapsTable[i] == 0)
+      continue;
     lua_pushnumber(state, fl->data.trapsTable[i]);
     lua_rawseti(state, -2, i + 1);
   }
@@ -5462,7 +6065,8 @@ int fll_getTrapSpotters(lua_State *state, void *self) {
   return 1;
 }
 
-void npcl_staticinit() {
+void npcl_staticinit()
+{
   npcl_type = typel_new("NPC", npcl_ctor);
   npcl_type.init = npcl_init;
   npcl_type.getattr = npcl_getattr;
@@ -5473,30 +6077,39 @@ void npcl_staticinit() {
   bll_extendproto(&npcl_type);
 }
 
-void npcregl_staticinit() {
+void npcregl_staticinit()
+{
   npcregl_type = typel_new("Registry", 0);
   npcregl_type.getattr = npcregl_getattr;
   npcregl_type.setattr = npcregl_setattr;
 }
 
-int npcl_ctor(lua_State *state) {
+int npcl_ctor(lua_State *state)
+{
   NPC *nd = NULL;
-  if (lua_isnumber(state, 2)) {
+  if (lua_isnumber(state, 2))
+  {
     unsigned int id = lua_tonumber(state, 2);
     nd = map_id2npc(id);
 
-    if (!nd) {
+    if (!nd)
+    {
       lua_pushnil(state);
-      return 1;  // luaL_error(state, "invalid NPC id (%d)", id);
+      return 1; // luaL_error(state, "invalid NPC id (%d)", id);
     }
-  } else if (lua_isstring(state, 2)) {
+  }
+  else if (lua_isstring(state, 2))
+  {
     nd = map_name2npc(lua_tostring(state, 2));
 
-    if (!nd) {
+    if (!nd)
+    {
       lua_pushnil(state);
-      return 1;  // luaL_error(state, "invalid NPC id (%d)", id);
+      return 1; // luaL_error(state, "invalid NPC id (%d)", id);
     }
-  } else {
+  }
+  else
+  {
     luaL_argerror(state, 1, "expected number");
   }
 
@@ -5504,7 +6117,8 @@ int npcl_ctor(lua_State *state) {
   return 1;
 }
 
-int npcl_init(lua_State *state, void *self, int dataref, void *param) {
+int npcl_init(lua_State *state, void *self, int dataref, void *param)
+{
   NPC *nd = (NPC *)self;
 
   sl_pushref(state, dataref);
@@ -5518,13 +6132,15 @@ int npcl_init(lua_State *state, void *self, int dataref, void *param) {
   gameregl_pushinst(state, nd);
   lua_setfield(state, -2, "gameRegistry");
 
-  lua_pop(state, 1);  // pop the data table
+  lua_pop(state, 1); // pop the data table
   return 0;
 }
 
-int npcl_getattr(lua_State *state, void *self, const char *attrname) {
+int npcl_getattr(lua_State *state, void *self, const char *attrname)
+{
   NPC *nd = (NPC *)self;
-  if (bll_getattr(state, &nd->bl, attrname)) return 1;
+  if (bll_getattr(state, &nd->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "id"))
     lua_pushnumber(state, nd->id);
   else if (!strcmp(attrname, "look"))
@@ -5644,10 +6260,12 @@ int npcl_getattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int npcl_setattr(lua_State *state, void *self, const char *attrname) {
+int npcl_setattr(lua_State *state, void *self, const char *attrname)
+{
   NPC *nd = (NPC *)self;
 
-  if (bll_setattr(state, &nd->bl, attrname)) return 1;
+  if (bll_setattr(state, &nd->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "side"))
     nd->side = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "subType"))
@@ -5753,28 +6371,32 @@ int npcl_setattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int npcregl_getattr(lua_State *state, void *self, const char *attrname) {
+int npcregl_getattr(lua_State *state, void *self, const char *attrname)
+{
   NPC *nd = (NPC *)self;
 
   lua_pushnumber(state, npc_readglobalreg(nd, attrname));
   return 1;
 }
 
-int npcregl_setattr(lua_State *state, void *self, const char *attrname) {
+int npcregl_setattr(lua_State *state, void *self, const char *attrname)
+{
   NPC *nd = (NPC *)self;
 
   npc_setglobalreg(nd, attrname, lua_tonumber(state, -1));
   return 0;
 }
 
-int npcl_move(lua_State *state, void *self) {
+int npcl_move(lua_State *state, void *self)
+{
   NPC *nd = (NPC *)self;
 
   lua_pushnumber(state, npc_move(nd));
   return 1;
 }
 
-int npcl_warp(lua_State *state, void *self) {
+int npcl_warp(lua_State *state, void *self)
+{
   NPC *nd = (NPC *)self;
 
   sl_checkargs(state, "nnn");
@@ -5788,26 +6410,31 @@ int npcl_warp(lua_State *state, void *self) {
   return 0;
 }
 
-int npcl_getequippeditem(lua_State *state, void *self) {
+int npcl_getequippeditem(lua_State *state, void *self)
+{
   NPC *nd = (NPC *)self;
 
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   lua_newtable(state);
 
-  if (nd->equip[num].id != 0) {
+  if (nd->equip[num].id != 0)
+  {
     lua_pushnumber(state, nd->equip[num].id);
     lua_rawseti(state, -2, 1);
     lua_pushnumber(state, nd->equip[num].custom);
     lua_rawseti(state, -2, 2);
-  } else {
+  }
+  else
+  {
     lua_pushnil(state);
   }
 
   return 1;
 }
 
-void mobl_staticinit() {
+void mobl_staticinit()
+{
   mobl_type = typel_new("Mob", mobl_ctor);
   mobl_type.getattr = mobl_getattr;
   mobl_type.setattr = mobl_setattr;
@@ -5822,7 +6449,7 @@ void mobl_staticinit() {
   typel_extendproto(&mobl_type, "moveIntent", mobl_moveintent);
   typel_extendproto(&mobl_type, "hasDuration", mobl_hasduration);
   typel_extendproto(&mobl_type, "hasDurationID",
-                    mobl_hasdurationid);  // hasduration with id check
+                    mobl_hasdurationid); // hasduration with id check
   typel_extendproto(&mobl_type, "getDuration", mobl_getduration);
   typel_extendproto(&mobl_type, "getDurationID", mobl_getdurationid);
   typel_extendproto(&mobl_type, "removeHealth", mobl_removehealth);
@@ -5848,21 +6475,26 @@ void mobl_staticinit() {
   bll_extendproto(&mobl_type);
 }
 
-void mobregl_staticinit() {
+void mobregl_staticinit()
+{
   mobregl_type = typel_new("Registry", 0);
   mobregl_type.getattr = mobregl_getattr;
   mobregl_type.setattr = mobregl_setattr;
 }
 
-int mobl_durationamount(lua_State *state, void *self) {
+int mobl_durationamount(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int x, id;
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (mob->da[x].id == id) {
-      if (mob->da[x].duration > 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (mob->da[x].id == id)
+    {
+      if (mob->da[x].duration > 0)
+      {
         lua_pushnumber(state, mob->da[x].duration);
         return 1;
       }
@@ -5872,7 +6504,8 @@ int mobl_durationamount(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_ctor(lua_State *state) {
+int mobl_ctor(lua_State *state)
+{
   /*MOB *mob = NULL;
       unsigned int id = 0;
 
@@ -5896,21 +6529,26 @@ int mobl_ctor(lua_State *state) {
 return 1;*/
 
   MOB *mob = NULL;
-  if (lua_isnumber(state, 2)) {
+  if (lua_isnumber(state, 2))
+  {
     unsigned int id = lua_tonumber(state, 2);
     mob = map_id2mob(id);
-    if (!mob) {
+    if (!mob)
+    {
       lua_pushnil(state);
-      return 1;  // luaL_error(state, "invalid mob id (%d)", id);
+      return 1; // luaL_error(state, "invalid mob id (%d)", id);
     }
-  } else {
+  }
+  else
+  {
     luaL_argerror(state, 1, "expected number");
   }
   mobl_pushinst(state, mob);
   return 1;
 }
 
-int mobl_removehealth(lua_State *state, void *self) {
+int mobl_removehealth(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
@@ -5919,35 +6557,46 @@ int mobl_removehealth(lua_State *state, void *self) {
   USER *tsd = NULL;
   MOB *tmob = NULL;
 
-  if (caster > 0) {
+  if (caster > 0)
+  {
     bl = map_id2bl(caster);
     mob->attacker = caster;
-  } else {
+  }
+  else
+  {
     bl = map_id2bl(mob->attacker);
   }
 
-  if (bl != NULL) {
-    if (bl->type == BL_PC) {
+  if (bl != NULL)
+  {
+    if (bl->type == BL_PC)
+    {
       tsd = (USER *)bl;
       tsd->damage = damage;
       tsd->critchance = 0;
-    } else if (bl->type == BL_MOB) {
+    }
+    else if (bl->type == BL_MOB)
+    {
       tmob = (MOB *)bl;
       tmob->damage = damage;
       tmob->critchance = 0;
     }
-  } else {
+  }
+  else
+  {
     mob->damage = damage;
     mob->critchance = 0;
   }
 
-  if (mob->state != MOB_DEAD) {
+  if (mob->state != MOB_DEAD)
+  {
     clif_send_mob_healthscript(mob, damage, 0);
   }
   return 0;
 }
 
-int mobl_moveintent(lua_State *state, void *self) {
+int mobl_moveintent(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   struct block_list *bl = map_id2bl(lua_tonumber(state, sl_memberarg(1)));
   nullpo_ret(0, bl);
@@ -5955,7 +6604,8 @@ int mobl_moveintent(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_setduration(lua_State *state, void *self) {
+int mobl_setduration(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "sn");
   struct block_list *bl = NULL;
@@ -5964,24 +6614,29 @@ int mobl_setduration(lua_State *state, void *self) {
   alreadycast = 0;
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   time = lua_tonumber(state, sl_memberarg(2));
-  if (time < 1000 && time > 0) time = 1000;
+  if (time < 1000 && time > 0)
+    time = 1000;
   caster_id = lua_tonumber(
       state,
-      sl_memberarg(3));  // set duration for specific caster, 0 for universal
-  recast = lua_tonumber(state, sl_memberarg(4));  // should the spell recast?
+      sl_memberarg(3));                          // set duration for specific caster, 0 for universal
+  recast = lua_tonumber(state, sl_memberarg(4)); // should the spell recast?
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     if (mob->da[x].id == id && mob->da[x].caster_id == caster_id &&
-        mob->da[x].duration > 0) {
+        mob->da[x].duration > 0)
+    {
       alreadycast = 1;
     }
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     // check for existing spell first
     mid = mob->da[x].id;
     if (mid == id && time <= 0 && mob->da[x].caster_id == caster_id &&
-        alreadycast == 1) {
+        alreadycast == 1)
+    {
       mob->da[x].duration = 0;
       mob->da[x].id = 0;
       mob->da[x].caster_id = 0;
@@ -5989,24 +6644,32 @@ int mobl_setduration(lua_State *state, void *self) {
                         AREA, BL_PC, mob->da[x].animation, &mob->bl, -1);
       mob->da[x].animation = 0;
 
-      if (mob->da[x].caster_id != mob->bl.id) {
+      if (mob->da[x].caster_id != mob->bl.id)
+      {
         bl = map_id2bl(mob->da[x].caster_id);
       }
 
-      if (bl != NULL) {
+      if (bl != NULL)
+      {
         sl_doscript_blargs(magicdb_yname(mid), "uncast", 2, &mob->bl, bl);
-      } else {
+      }
+      else
+      {
         sl_doscript_blargs(magicdb_yname(mid), "uncast", 1, &mob->bl);
       }
 
       return 0;
-    } else if (mob->da[x].id == id && mob->da[x].caster_id == caster_id &&
-               (mob->da[x].duration > time || recast == 1) &&
-               alreadycast == 1) {
+    }
+    else if (mob->da[x].id == id && mob->da[x].caster_id == caster_id &&
+             (mob->da[x].duration > time || recast == 1) &&
+             alreadycast == 1)
+    {
       mob->da[x].duration = time;
       return 0;
-    } else if (mob->da[x].id == 0 && mob->da[x].duration == 0 && time != 0 &&
-               alreadycast != 1) {
+    }
+    else if (mob->da[x].id == 0 && mob->da[x].duration == 0 && time != 0 &&
+             alreadycast != 1)
+    {
       // if (mob->da[x].caster_id != caster_id && caster_id > 0) {
       //	mob->da[x].id = id;
       //	mob->da[x].duration=time;
@@ -6031,7 +6694,8 @@ int mobl_setduration(lua_State *state, void *self) {
         return 0;
 }*/
 
-int mobl_flushduration(lua_State *state, void *self) {
+int mobl_flushduration(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   struct block_list *bl = NULL;
   int x;
@@ -6041,32 +6705,47 @@ int mobl_flushduration(lua_State *state, void *self) {
   int maxid = lua_tonumber(state, sl_memberarg(3));
   char flush = 0;
 
-  if (maxid < minid) {
+  if (maxid < minid)
+  {
     maxid = minid;
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     id = mob->da[x].id;
 
-    if (magicdb_dispel(id) > dis) continue;
+    if (magicdb_dispel(id) > dis)
+      continue;
 
-    if (minid <= 0) {
+    if (minid <= 0)
+    {
       flush = 1;
-    } else if (minid > 0 && maxid <= 0) {
-      if (id == minid) {
+    }
+    else if (minid > 0 && maxid <= 0)
+    {
+      if (id == minid)
+      {
         flush = 1;
-      } else {
+      }
+      else
+      {
         flush = 0;
       }
-    } else {
-      if (id >= minid && id <= maxid) {
+    }
+    else
+    {
+      if (id >= minid && id <= maxid)
+      {
         flush = 1;
-      } else {
+      }
+      else
+      {
         flush = 0;
       }
     }
 
-    if (flush == 1) {
+    if (flush == 1)
+    {
       mob->da[x].duration = 0;
       map_foreachinarea(clif_sendanimation, mob->bl.m, mob->bl.x, mob->bl.y,
                         AREA, BL_PC, mob->da[x].animation, &mob->bl, -1);
@@ -6075,9 +6754,12 @@ int mobl_flushduration(lua_State *state, void *self) {
       bl = map_id2bl(mob->da[x].caster_id);
       mob->da[x].caster_id = 0;
 
-      if (bl != NULL) {
+      if (bl != NULL)
+      {
         sl_doscript_blargs(magicdb_yname(id), "uncast", 2, &mob->bl, bl);
-      } else {
+      }
+      else
+      {
         sl_doscript_blargs(magicdb_yname(id), "uncast", 1, &mob->bl);
       }
     }
@@ -6086,7 +6768,8 @@ int mobl_flushduration(lua_State *state, void *self) {
   return 0;
 }
 
-int mobl_flushdurationnouncast(lua_State *state, void *self) {
+int mobl_flushdurationnouncast(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   int x;
   int id;
@@ -6095,27 +6778,38 @@ int mobl_flushdurationnouncast(lua_State *state, void *self) {
   int maxid = lua_tonumber(state, sl_memberarg(3));
   char flush = 0;
 
-  if (maxid < minid) {
+  if (maxid < minid)
+  {
     maxid = minid;
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     id = mob->da[x].id;
 
-    if (magicdb_dispel(id) > dis) continue;
+    if (magicdb_dispel(id) > dis)
+      continue;
 
-    if (minid <= 0) {
+    if (minid <= 0)
+    {
       flush = 1;
-    } else if (minid > 0 && maxid <= 0) {
-      if (id == minid) {
-        flush = 1;
-      }
-    } else {
-      if (id >= minid && id <= maxid) {
+    }
+    else if (minid > 0 && maxid <= 0)
+    {
+      if (id == minid)
+      {
         flush = 1;
       }
     }
-    if (flush == 1) {
+    else
+    {
+      if (id >= minid && id <= maxid)
+      {
+        flush = 1;
+      }
+    }
+    if (flush == 1)
+    {
       mob->da[x].duration = 0;
       mob->da[x].caster_id = 0;
       map_foreachinarea(clif_sendanimation, mob->bl.m, mob->bl.x, mob->bl.y,
@@ -6128,16 +6822,20 @@ int mobl_flushdurationnouncast(lua_State *state, void *self) {
   return 0;
 }
 
-int mobl_hasduration(lua_State *state, void *self) {
+int mobl_hasduration(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "s");
   int x, id;
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (mob->da[x].id == id) {
-      if (mob->da[x].duration > 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (mob->da[x].id == id)
+    {
+      if (mob->da[x].duration > 0)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
@@ -6147,22 +6845,26 @@ int mobl_hasduration(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_hasdurationid(lua_State *state, void *self) {
+int mobl_hasdurationid(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "sn");
   int x, id, caster_id;
 
-  caster_id = 0;  // zero out
+  caster_id = 0; // zero out
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   caster_id = lua_tonumber(
-      state, sl_memberarg(2));  // check duration from specific caster
+      state, sl_memberarg(2)); // check duration from specific caster
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     if (mob->da[x].id == id &&
         mob->da[x].caster_id ==
-            caster_id) {  // add check for appropriate caster
-      if (mob->da[x].duration > 0) {
+            caster_id)
+    { // add check for appropriate caster
+      if (mob->da[x].duration > 0)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
@@ -6172,16 +6874,20 @@ int mobl_hasdurationid(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_getduration(lua_State *state, void *self) {
+int mobl_getduration(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "s");
   int i, id;
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (i = 0; i < MAX_MAGIC_TIMERS; i++) {
-    if (mob->da[i].id == id) {
-      if (mob->da[i].duration > 0) {
+  for (i = 0; i < MAX_MAGIC_TIMERS; i++)
+  {
+    if (mob->da[i].id == id)
+    {
+      if (mob->da[i].duration > 0)
+      {
         lua_pushnumber(state, mob->da[i].duration);
         return 1;
       }
@@ -6192,7 +6898,8 @@ int mobl_getduration(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_getdurationid(lua_State *state, void *self) {
+int mobl_getdurationid(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "sn");
   int i, id, caster_id;
@@ -6201,9 +6908,12 @@ int mobl_getdurationid(lua_State *state, void *self) {
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   caster_id = lua_tonumber(state, sl_memberarg(2));
 
-  for (i = 0; i < MAX_MAGIC_TIMERS; i++) {
-    if (mob->da[i].id == id && mob->da[i].caster_id == caster_id) {
-      if (mob->da[i].duration > 0) {
+  for (i = 0; i < MAX_MAGIC_TIMERS; i++)
+  {
+    if (mob->da[i].id == id && mob->da[i].caster_id == caster_id)
+    {
+      if (mob->da[i].duration > 0)
+      {
         lua_pushnumber(state, mob->da[i].duration);
         return 1;
       }
@@ -6214,24 +6924,33 @@ int mobl_getdurationid(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_sendhealth(lua_State *state, void *self) {
+int mobl_sendhealth(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "nn");
   int damage;
   float dmg = lua_tonumber(state, sl_memberarg(1));
   int critical = lua_tonumber(state, sl_memberarg(2));
 
-  if (dmg > 0) {
+  if (dmg > 0)
+  {
     damage = (int)(dmg + 0.5f);
-  } else if (dmg < 0) {
+  }
+  else if (dmg < 0)
+  {
     damage = (int)(dmg - 0.5f);
-  } else {
+  }
+  else
+  {
     damage = 0;
   }
 
-  if (critical == 1) {
+  if (critical == 1)
+  {
     critical = 33;
-  } else if (critical == 2) {
+  }
+  else if (critical == 2)
+  {
     critical = 255;
   }
 
@@ -6239,7 +6958,8 @@ int mobl_sendhealth(lua_State *state, void *self) {
   return 0;
 }
 
-int mobl_init(lua_State *state, void *self, int dataref, void *param) {
+int mobl_init(lua_State *state, void *self, int dataref, void *param)
+{
   MOB *mob = (MOB *)self;
 
   sl_pushref(state, dataref);
@@ -6253,7 +6973,8 @@ int mobl_init(lua_State *state, void *self, int dataref, void *param) {
   gameregl_pushinst(state, mob);
   lua_setfield(state, -2, "gameRegistry");
 
-  if (mob->target && param == 0) {
+  if (mob->target && param == 0)
+  {
     // the param is used to stop infinite recursion
     /*struct block_list *bl = map_id2bl(mob->target);
             if(bl) {
@@ -6261,14 +6982,16 @@ int mobl_init(lua_State *state, void *self, int dataref, void *param) {
                     lua_setfield(state, -2, "target");
             }*/
   }
-  lua_pop(state, 1);  // pop the data table
+  lua_pop(state, 1); // pop the data table
   return 0;
 }
 
-int mobl_getattr(lua_State *state, void *self, const char *attrname) {
+int mobl_getattr(lua_State *state, void *self, const char *attrname)
+{
   MOB *mob = (MOB *)self;
 
-  if (bll_getattr(state, &mob->bl, attrname)) return 1;
+  if (bll_getattr(state, &mob->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "state"))
     lua_pushnumber(state, mob->state);
   else if (!strcmp(attrname, "startX"))
@@ -6502,10 +7225,12 @@ int mobl_getattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int mobl_setattr(lua_State *state, void *self, const char *attrname) {
+int mobl_setattr(lua_State *state, void *self, const char *attrname)
+{
   MOB *mob = (MOB *)self;
 
-  if (bll_setattr(state, &mob->bl, attrname)) return 1;
+  if (bll_setattr(state, &mob->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "side"))
     mob->side = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "time"))
@@ -6673,7 +7398,8 @@ int mobl_setattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int mobl_attack(lua_State *state, void *self) {
+int mobl_attack(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
@@ -6681,41 +7407,69 @@ int mobl_attack(lua_State *state, void *self) {
   return 0;
 }
 
-int mobl_addhealth(lua_State *state, void *self) {
+int mobl_addhealth(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
   struct block_list *bl = map_id2bl(mob->attacker);
 
-  if (bl != NULL) {
-    if (damage > 0) {
-      if (mob->data->subtype == 0) {
+  if (bl != NULL)
+  {
+    if (damage > 0)
+    {
+      if (mob->data->subtype == 0)
+      {
         sl_doscript_blargs("mob_ai_basic", "on_healed", 2, &mob->bl, bl);
-      } else if (mob->data->subtype == 1) {
+      }
+      else if (mob->data->subtype == 1)
+      {
         sl_doscript_blargs("mob_ai_normal", "on_healed", 2, &mob->bl, bl);
-      } else if (mob->data->subtype == 2) {
+      }
+      else if (mob->data->subtype == 2)
+      {
         sl_doscript_blargs("mob_ai_hard", "on_healed", 2, &mob->bl, bl);
-      } else if (mob->data->subtype == 3) {
+      }
+      else if (mob->data->subtype == 3)
+      {
         sl_doscript_blargs("mob_ai_boss", "on_healed", 2, &mob->bl, bl);
-      } else if (mob->data->subtype == 4) {
+      }
+      else if (mob->data->subtype == 4)
+      {
         sl_doscript_blargs(mob->data->yname, "on_healed", 2, &mob->bl, bl);
-      } else if (mob->data->subtype == 5) {
+      }
+      else if (mob->data->subtype == 5)
+      {
         sl_doscript_blargs("mob_ai_ghost", "on_healed", 2, &mob->bl, bl);
       }
     }
-  } else {
-    if (damage > 0) {
-      if (mob->data->subtype == 0) {
+  }
+  else
+  {
+    if (damage > 0)
+    {
+      if (mob->data->subtype == 0)
+      {
         sl_doscript_blargs("mob_ai_basic", "on_healed", 1, &mob->bl);
-      } else if (mob->data->subtype == 1) {
+      }
+      else if (mob->data->subtype == 1)
+      {
         sl_doscript_blargs("mob_ai_normal", "on_healed", 1, &mob->bl);
-      } else if (mob->data->subtype == 2) {
+      }
+      else if (mob->data->subtype == 2)
+      {
         sl_doscript_blargs("mob_ai_hard", "on_healed", 1, &mob->bl);
-      } else if (mob->data->subtype == 3) {
+      }
+      else if (mob->data->subtype == 3)
+      {
         sl_doscript_blargs("mob_ai_boss", "on_healed", 1, &mob->bl);
-      } else if (mob->data->subtype == 4) {
+      }
+      else if (mob->data->subtype == 4)
+      {
         sl_doscript_blargs(mob->data->yname, "on_healed", 1, &mob->bl);
-      } else if (mob->data->subtype == 5) {
+      }
+      else if (mob->data->subtype == 5)
+      {
         sl_doscript_blargs("mob_ai_ghost", "on_healed", 1, &mob->bl);
       }
     }
@@ -6725,20 +7479,23 @@ int mobl_addhealth(lua_State *state, void *self) {
   return 0;
 }
 
-int mobl_move(lua_State *state, void *self) {
+int mobl_move(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   lua_pushboolean(state, move_mob(mob));
   return 1;
 }
 
-int mobl_move_ignore_object(lua_State *state, void *self) {
+int mobl_move_ignore_object(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   lua_pushboolean(state, move_mob_ignore_object(mob));
   return 1;
 }
 
 // check threat
-int mobl_checkthreat(lua_State *state, void *self) {
+int mobl_checkthreat(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   unsigned int id;
@@ -6749,13 +7506,16 @@ int mobl_checkthreat(lua_State *state, void *self) {
 
   tsd = map_id2sd(id);
 
-  if (!tsd) {  // to hopefully resolve error, added by Enigma 12-23-2018
+  if (!tsd)
+  { // to hopefully resolve error, added by Enigma 12-23-2018
     lua_pushnumber(state, 0);
     return 1;
   }
 
-  for (x = 0; x < MAX_THREATCOUNT; x++) {
-    if (mob->threat[x].user == tsd->bl.id) {
+  for (x = 0; x < MAX_THREATCOUNT; x++)
+  {
+    if (mob->threat[x].user == tsd->bl.id)
+    {
       lua_pushnumber(state, mob->threat[x].amount);
       return 1;
     }
@@ -6765,7 +7525,8 @@ int mobl_checkthreat(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_warp(lua_State *state, void *self) {
+int mobl_warp(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "nnn");
   unsigned short m, x, y;
@@ -6778,23 +7539,28 @@ int mobl_warp(lua_State *state, void *self) {
   return 0;
 }
 
-int mobl_moveghost(lua_State *state, void *self) {
+int mobl_moveghost(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   lua_pushnumber(state, moveghost_mob(mob));
   return 1;
 }
 
-int mobl_callbase(lua_State *state, void *self) {
+int mobl_callbase(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "s");
   const char *script = lua_tostring(state, sl_memberarg(1));
   struct block_list *bl = map_id2bl(mob->attacker);
 
-  if (bl != NULL) {
+  if (bl != NULL)
+  {
     sl_doscript_blargs(mob->data->yname, script, 2, &mob->bl, bl);
     lua_pushboolean(state, 1);
     return 1;
-  } else {
+  }
+  else
+  {
     sl_doscript_blargs(mob->data->yname, script, 2, &mob->bl, &mob->bl);
     lua_pushboolean(state, 1);
     return 1;
@@ -6804,7 +7570,8 @@ int mobl_callbase(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_checkmove(lua_State *state, void *self) {
+int mobl_checkmove(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   char direction;
   short backx;
@@ -6822,26 +7589,31 @@ int mobl_checkmove(lua_State *state, void *self) {
   dy = backy;
   direction = mob->side;
 
-  switch (direction) {
-    case 0:
-      dy -= 1;
-      break;
-    case 1:
-      dx += 1;
-      break;
-    case 2:
-      dy += 1;
-      break;
-    case 3:
-      dx -= 1;
-      break;
+  switch (direction)
+  {
+  case 0:
+    dy -= 1;
+    break;
+  case 1:
+    dx += 1;
+    break;
+  case 2:
+    dy += 1;
+    break;
+  case 3:
+    dx -= 1;
+    break;
   }
 
-  if (dx >= map[m].xs) dx = map[m].xs - 1;
-  if (dy >= map[m].ys) dy = map[m].ys - 1;
+  if (dx >= map[m].xs)
+    dx = map[m].xs - 1;
+  if (dy >= map[m].ys)
+    dy = map[m].ys - 1;
   for (i = map[m].warp[dx / BLOCK_SIZE + (dy / BLOCK_SIZE) * map[m].bxs];
-       i && !c; i = i->next) {
-    if (i->x == dx && i->y == dy) {
+       i && !c; i = i->next)
+  {
+    if (i->x == dx && i->y == dy)
+    {
       c = 1;
       lua_pushboolean(state, 0);
       return 1;
@@ -6852,17 +7624,20 @@ int mobl_checkmove(lua_State *state, void *self) {
   map_foreachincell(mob_move, m, dx, dy, BL_PC, mob);
   map_foreachincell(mob_move, m, dx, dy, BL_NPC, mob);
 
-  if (clif_object_canmove(m, dx, dy, direction)) {
+  if (clif_object_canmove(m, dx, dy, direction))
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
 
-  if (clif_object_canmove_from(m, backx, backy, direction)) {
+  if (clif_object_canmove_from(m, backx, backy, direction))
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
 
-  if (map_canmove(m, dx, dy) == 1 || mob->canmove == 1) {
+  if (map_canmove(m, dx, dy) == 1 || mob->canmove == 1)
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
@@ -6871,13 +7646,16 @@ int mobl_checkmove(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_getgrpdmg(lua_State *state, void *self) {
+int mobl_getgrpdmg(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   int x, y;
   lua_newtable(state);
 
-  for (x = 0, y = 1; x < MAX_THREATCOUNT; x++, y += 2) {
-    if (mob->dmggrptable[x][0] > 0) {
+  for (x = 0, y = 1; x < MAX_THREATCOUNT; x++, y += 2)
+  {
+    if (mob->dmggrptable[x][0] > 0)
+    {
       lua_pushnumber(state, mob->dmggrptable[x][0]);
       lua_rawseti(state, -2, y);
       lua_pushnumber(state, mob->dmggrptable[x][1]);
@@ -6888,13 +7666,16 @@ int mobl_getgrpdmg(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_getinddmg(lua_State *state, void *self) {
+int mobl_getinddmg(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   int x, y;
   lua_newtable(state);
 
-  for (x = 0, y = 1; x < MAX_THREATCOUNT; x++, y += 2) {
-    if (mob->dmgindtable[x][0] > 0) {
+  for (x = 0, y = 1; x < MAX_THREATCOUNT; x++, y += 2)
+  {
+    if (mob->dmgindtable[x][0] > 0)
+    {
       lua_pushnumber(state, mob->dmgindtable[x][0]);
       lua_rawseti(state, -2, y);
       lua_pushnumber(state, mob->dmgindtable[x][1]);
@@ -6905,19 +7686,23 @@ int mobl_getinddmg(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_setgrpdmg(lua_State *state, void *self) {
+int mobl_setgrpdmg(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   int x;
   USER *sd = map_id2sd(lua_tonumber(state, sl_memberarg(1)));
   float dmg = lua_tonumber(state, sl_memberarg(2));
 
-  if (sd == NULL) {
+  if (sd == NULL)
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
 
-  for (x = 0; x < MAX_THREATCOUNT; x++) {
-    if (mob->dmggrptable[x][0] == sd->groupid || mob->dmggrptable[x][0] == 0) {
+  for (x = 0; x < MAX_THREATCOUNT; x++)
+  {
+    if (mob->dmggrptable[x][0] == sd->groupid || mob->dmggrptable[x][0] == 0)
+    {
       mob->dmggrptable[x][0] = sd->groupid;
       mob->dmggrptable[x][1] += dmg;
       lua_pushboolean(state, 1);
@@ -6929,20 +7714,24 @@ int mobl_setgrpdmg(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_setinddmg(lua_State *state, void *self) {
+int mobl_setinddmg(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   int x;
   USER *sd = map_id2sd(lua_tonumber(state, sl_memberarg(1)));
   float dmg = lua_tonumber(state, sl_memberarg(2));
 
-  if (sd == NULL) {
+  if (sd == NULL)
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
 
-  for (x = 0; x < MAX_THREATCOUNT; x++) {
+  for (x = 0; x < MAX_THREATCOUNT; x++)
+  {
     if (mob->dmgindtable[x][0] == sd->status.id ||
-        mob->dmgindtable[x][0] == 0) {
+        mob->dmgindtable[x][0] == 0)
+    {
       mob->dmgindtable[x][0] = sd->status.id;
       mob->dmgindtable[x][1] += dmg;
       lua_pushboolean(state, 1);
@@ -6954,25 +7743,30 @@ int mobl_setinddmg(lua_State *state, void *self) {
   return 1;
 }
 
-int mobl_getequippeditem(lua_State *state, void *self) {
+int mobl_getequippeditem(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
   lua_newtable(state);
 
-  if (mob->data->equip[num].id != 0) {
+  if (mob->data->equip[num].id != 0)
+  {
     lua_pushnumber(state, mob->data->equip[num].id);
     lua_rawseti(state, -2, 1);
     lua_pushnumber(state, mob->data->equip[num].custom);
     lua_rawseti(state, -2, 2);
-  } else {
+  }
+  else
+  {
     lua_pushnil(state);
   }
 
   return 1;
 }
 
-int mobl_calcstat(lua_State *state, void *self) {
+int mobl_calcstat(lua_State *state, void *self)
+{
   MOB *mob = (MOB *)self;
   mob_calcstat(mob);
   return 0;
@@ -6982,20 +7776,23 @@ int mobl_sendstatus(lua_State *state, void *self) { return 0; }
 
 int mobl_sendminitext(lua_State *state, void *self) { return 0; }
 
-int mobregl_getattr(lua_State *state, void *self, const char *attrname) {
+int mobregl_getattr(lua_State *state, void *self, const char *attrname)
+{
   MOB *mob = (MOB *)self;
 
   lua_pushnumber(state, mob_readglobalreg(mob, attrname));
   return 0;
 }
 
-int mobregl_setattr(lua_State *state, void *self, const char *attrname) {
+int mobregl_setattr(lua_State *state, void *self, const char *attrname)
+{
   MOB *mob = (MOB *)self;
   mob_setglobalreg(mob, attrname, lua_tonumber(state, -1));
   return 0;
 }
 
-void pcl_staticinit() {
+void pcl_staticinit()
+{
   pcl_type = typel_new("Player", pcl_ctor);
   pcl_type.getattr = pcl_getattr;
   pcl_type.setattr = pcl_setattr;
@@ -7070,7 +7867,7 @@ void pcl_staticinit() {
                     pcl_flushdurationnouncast);
   typel_extendproto(&pcl_type, "getCasterID", pcl_getcasterid);
   typel_extendproto(&pcl_type, "setAether", pcl_setaether);
-  typel_extendproto(&pcl_type, "hasAether", pcl_hasaether);  // check for aether
+  typel_extendproto(&pcl_type, "hasAether", pcl_hasaether); // check for aether
   typel_extendproto(&pcl_type, "getAether", pcl_getaether);
   typel_extendproto(&pcl_type, "getAllAethers", pcl_getallaethers);
   typel_extendproto(&pcl_type, "flushAether", pcl_flushaether);
@@ -7083,11 +7880,11 @@ void pcl_staticinit() {
   typel_extendproto(&pcl_type, "getBODItem", pcl_getboditem);
   typel_extendproto(&pcl_type, "hasItem", pcl_hasitem);
   typel_extendproto(&pcl_type, "hasItemDura",
-                    pcl_hasitemdura);  // has item with full dura
+                    pcl_hasitemdura); // has item with full dura
   typel_extendproto(&pcl_type, "removeItem", pcl_removeinventoryitem);
   typel_extendproto(&pcl_type, "removeItemSlot", pcl_removeitemslot);
   typel_extendproto(&pcl_type, "removeItemDura",
-                    pcl_removeitemdura);  // remove items with full dura
+                    pcl_removeitemdura); // remove items with full dura
   typel_extendproto(&pcl_type, "getEquippedItem", pcl_getequippeditem);
   typel_extendproto(&pcl_type, "hasEquipped", pcl_hasequipped);
   typel_extendproto(&pcl_type, "pickUp", pcl_pickup);
@@ -7116,15 +7913,15 @@ void pcl_staticinit() {
   typel_extendproto(&pcl_type, "addSpell", pcl_addspell);
   typel_extendproto(&pcl_type, "removeSpell", pcl_removespell);
   typel_extendproto(&pcl_type, "hasSpell", pcl_hasspell);
-  typel_extendproto(&pcl_type, "getSpells", pcl_getspells);  // for remove spell
+  typel_extendproto(&pcl_type, "getSpells", pcl_getspells); // for remove spell
   typel_extendproto(&pcl_type, "getSpellName",
-                    pcl_getspellname);  // for remove spell
+                    pcl_getspellname); // for remove spell
   typel_extendproto(&pcl_type, "getSpellYName",
-                    pcl_getspellyname);  // for remove spell
+                    pcl_getspellyname); // for remove spell
   typel_extendproto(&pcl_type, "getSpellNameFromYName",
-                    pcl_getspellnamefromyname);  // for remove spell
+                    pcl_getspellnamefromyname); // for remove spell
   typel_extendproto(&pcl_type, "addEventXP",
-                    pcl_addEventXP);  // adding experience to Event Ranking
+                    pcl_addEventXP); // adding experience to Event Ranking
   typel_extendproto(&pcl_type, "mapSelection", pcl_mapselection);
   typel_extendproto(&pcl_type, "deductArmor", pcl_deductarmor);
   typel_extendproto(&pcl_type, "deductWeapon", pcl_deductweapon);
@@ -7154,10 +7951,10 @@ void pcl_staticinit() {
   typel_extendproto(&pcl_type, "subpathBankDeposit", pcl_subpathbankdeposit);
   typel_extendproto(&pcl_type, "subpathBankWithdraw", pcl_subpathbankwithdraw);
 
-  typel_extendproto(&pcl_type, "addThreat", pcl_addthreat);  // threat table
-  typel_extendproto(&pcl_type, "setThreat", pcl_setthreat);  // threat table
+  typel_extendproto(&pcl_type, "addThreat", pcl_addthreat); // threat table
+  typel_extendproto(&pcl_type, "setThreat", pcl_setthreat); // threat table
   typel_extendproto(&pcl_type, "addThreatGeneral",
-                    pcl_addthreatgeneral);  // threat table
+                    pcl_addthreatgeneral); // threat table
 
   typel_extendproto(&pcl_type, "getCreationItems", pcl_getcreationitems);
   typel_extendproto(&pcl_type, "getCreationAmounts", pcl_getcreationamounts);
@@ -7171,49 +7968,58 @@ void pcl_staticinit() {
   typel_extendproto(&pcl_type, "addTime", pcl_addtime);
   typel_extendproto(&pcl_type, "removeTime", pcl_removetime);
   typel_extendproto(&pcl_type, "checkLevel",
-                    pcl_checklevel);  // added for testing 11-26-16
+                    pcl_checklevel); // added for testing 11-26-16
   bll_extendproto(&pcl_type);
 }
 
-int pcl_swing(lua_State *state, void *self) {
+int pcl_swing(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_parseattack(sd);
   return 0;
 }
 
-int pcl_swingtarget(lua_State *state, void *self) {
+int pcl_swingtarget(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   struct block_list *bl =
       ((struct block_list *)typel_topointer(state, sl_memberarg(1)));
 
   nullpo_ret(0, bl);
 
-  if (sd->status.equip[EQ_WEAP].id > 0) {
+  if (sd->status.equip[EQ_WEAP].id > 0)
+  {
     clif_playsound(&sd->bl, itemdb_sound(sd->status.equip[EQ_WEAP].id));
   }
 
-  if (bl->type == BL_MOB) {
+  if (bl->type == BL_MOB)
+  {
     clif_mob_damage(sd, (MOB *)typel_topointer(state, sl_memberarg(1)));
-  } else if (bl->type == BL_PC) {
+  }
+  else if (bl->type == BL_PC)
+  {
     clif_pc_damage(sd, (USER *)typel_topointer(state, sl_memberarg(1)));
   }
 
   return 0;
 }
 
-int pcl_lock(lua_State *state, void *self) {
+int pcl_lock(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_blockmovement(sd, 0);
   return 0;
 }
 
-int pcl_unlock(lua_State *state, void *self) {
+int pcl_unlock(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_blockmovement(sd, 1);
   return 0;
 }
 
-int pcl_menu(lua_State *state, void *self) {
+int pcl_menu(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "st");
   int previous = 0, next = 0;
@@ -7221,7 +8027,8 @@ int pcl_menu(lua_State *state, void *self) {
   const char *menuopts[size + 1];
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     // if(index<size) {
@@ -7232,7 +8039,8 @@ int pcl_menu(lua_State *state, void *self) {
 
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value is at -1
     if (!strcmp(lua_tostring(state, -1), "previous"))
       previous = 1;
@@ -7247,7 +8055,8 @@ int pcl_menu(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_menuseq(lua_State *state, void *self) {
+int pcl_menuseq(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "stt");
   int previous = 0, next = 0;
@@ -7256,7 +8065,8 @@ int pcl_menuseq(lua_State *state, void *self) {
 
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     // if(index>0 && index<size) {
@@ -7267,7 +8077,8 @@ int pcl_menuseq(lua_State *state, void *self) {
 
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value is at -1
     if (!strcmp(lua_tostring(state, -1), "previous"))
       previous = 1;
@@ -7282,7 +8093,8 @@ int pcl_menuseq(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_inputseq(lua_State *state, void *self) {
+int pcl_inputseq(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "ssstt");
 
@@ -7292,7 +8104,8 @@ int pcl_inputseq(lua_State *state, void *self) {
 
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(4)) != 0) {
+  while (lua_next(state, sl_memberarg(4)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     // if(index>0 && index<size) {
@@ -7303,7 +8116,8 @@ int pcl_inputseq(lua_State *state, void *self) {
 
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(4)) != 0) {
+  while (lua_next(state, sl_memberarg(4)) != 0)
+  {
     // key is at -2, value is at -1
     if (!strcmp(lua_tostring(state, -1), "previous"))
       previous = 1;
@@ -7322,7 +8136,8 @@ int pcl_inputseq(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_sendboardquestions(lua_State *state, void *self) {
+int pcl_sendboardquestions(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "ttt");
 
@@ -7332,7 +8147,8 @@ int pcl_sendboardquestions(lua_State *state, void *self) {
   memset(questions, 0, sizeof(questions));
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(1)) != 0) {
+  while (lua_next(state, sl_memberarg(1)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     strcpy(questions[index - 1].header, lua_tostring(state, -1));
@@ -7340,7 +8156,8 @@ int pcl_sendboardquestions(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     strcpy(questions[index - 1].question, lua_tostring(state, -1));
@@ -7348,7 +8165,8 @@ int pcl_sendboardquestions(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(3)) != 0) {
+  while (lua_next(state, sl_memberarg(3)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     questions[index - 1].inputLines = lua_tonumber(state, -1);
@@ -7387,7 +8205,8 @@ int pcl_sendboardquestions(lua_State *state, void *self) {
       return lua_yield(state,0);*/
 }
 
-int pcl_popup(lua_State *state, void *self) {
+int pcl_popup(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
 
@@ -7395,9 +8214,11 @@ int pcl_popup(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_paperpopup(lua_State *state, void *self) {
+int pcl_paperpopup(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   sl_checkargs(state, "nns");
 
@@ -7411,9 +8232,11 @@ int pcl_paperpopup(lua_State *state, void *self) {
 }
 
 // int pcl_paperpopupwrite(lua_State *state, USER *sd, struct item *bitem) {
-int pcl_paperpopupwrite(lua_State *state, void *self) {
+int pcl_paperpopupwrite(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   sl_checkargs(state, "nns");
 
@@ -7459,15 +8282,19 @@ int pcl_paperpopupwrite(lua_State *state, void *self) {
         return 0;
 }*/
 
-int pcl_durationamount(lua_State *state, void *self) {
+int pcl_durationamount(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int x, id;
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id == id) {
-      if (sd->status.dura_aether[x].duration > 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id == id)
+    {
+      if (sd->status.dura_aether[x].duration > 0)
+      {
         lua_pushnumber(state, sd->status.dura_aether[x].duration);
         return 1;
       }
@@ -7477,27 +8304,31 @@ int pcl_durationamount(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_updateinv(lua_State *state, void *self) {
+int pcl_updateinv(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_loaditem(sd);
   return 0;
 }
 
-int pcl_deductarmor(lua_State *state, void *self) {
+int pcl_deductarmor(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   clif_deductarmor(sd, lua_tonumber(state, sl_memberarg(1)));
   return 0;
 }
 
-int pcl_deductweapon(lua_State *state, void *self) {
+int pcl_deductweapon(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   clif_deductweapon(sd, lua_tonumber(state, sl_memberarg(1)));
   return 0;
 }
 
-int pcl_flushduration(lua_State *state, void *self) {
+int pcl_flushduration(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   struct block_list *bl = NULL;
   int x;
@@ -7507,32 +8338,47 @@ int pcl_flushduration(lua_State *state, void *self) {
   int maxid = lua_tonumber(state, sl_memberarg(3));
   char flush = 0;
 
-  if (maxid < minid) {
+  if (maxid < minid)
+  {
     maxid = minid;
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     id = sd->status.dura_aether[x].id;
 
-    if (magicdb_dispel(id) > dis) continue;
+    if (magicdb_dispel(id) > dis)
+      continue;
 
-    if (minid <= 0) {
+    if (minid <= 0)
+    {
       flush = 1;
-    } else if (minid > 0 && maxid <= 0) {
-      if (id == minid) {
+    }
+    else if (minid > 0 && maxid <= 0)
+    {
+      if (id == minid)
+      {
         flush = 1;
-      } else {
+      }
+      else
+      {
         flush = 0;
       }
-    } else {
-      if (id >= minid && id <= maxid) {
+    }
+    else
+    {
+      if (id >= minid && id <= maxid)
+      {
         flush = 1;
-      } else {
+      }
+      else
+      {
         flush = 0;
       }
     }
 
-    if (flush == 1) {
+    if (flush == 1)
+    {
       clif_send_duration(sd, id, 0,
                          map_id2sd(sd->status.dura_aether[x].caster_id));
       sd->status.dura_aether[x].duration = 0;
@@ -7543,13 +8389,17 @@ int pcl_flushduration(lua_State *state, void *self) {
       bl = map_id2bl(sd->status.dura_aether[x].caster_id);
       sd->status.dura_aether[x].caster_id = 0;
 
-      if (sd->status.dura_aether[x].aether == 0) {
+      if (sd->status.dura_aether[x].aether == 0)
+      {
         sd->status.dura_aether[x].id = 0;
       }
 
-      if (bl != NULL) {
+      if (bl != NULL)
+      {
         sl_doscript_blargs(magicdb_yname(id), "uncast", 2, &sd->bl, bl);
-      } else {
+      }
+      else
+      {
         sl_doscript_blargs(magicdb_yname(id), "uncast", 1, &sd->bl);
       }
     }
@@ -7558,7 +8408,8 @@ int pcl_flushduration(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_flushdurationnouncast(lua_State *state, void *self) {
+int pcl_flushdurationnouncast(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int x;
   int id;
@@ -7567,32 +8418,47 @@ int pcl_flushdurationnouncast(lua_State *state, void *self) {
   int maxid = lua_tonumber(state, sl_memberarg(3));
   char flush = 0;
 
-  if (maxid < minid) {
+  if (maxid < minid)
+  {
     maxid = minid;
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     id = sd->status.dura_aether[x].id;
 
-    if (magicdb_dispel(id) > dis) continue;
+    if (magicdb_dispel(id) > dis)
+      continue;
 
-    if (minid <= 0) {
+    if (minid <= 0)
+    {
       flush = 1;
-    } else if (minid > 0 && maxid <= 0) {
-      if (id == minid) {
+    }
+    else if (minid > 0 && maxid <= 0)
+    {
+      if (id == minid)
+      {
         flush = 1;
-      } else {
+      }
+      else
+      {
         flush = 0;
       }
-    } else {
-      if (id >= minid && id <= maxid) {
+    }
+    else
+    {
+      if (id >= minid && id <= maxid)
+      {
         flush = 1;
-      } else {
+      }
+      else
+      {
         flush = 0;
       }
     }
 
-    if (flush == 1) {
+    if (flush == 1)
+    {
       clif_send_duration(sd, id, 0,
                          map_id2sd(sd->status.dura_aether[x].caster_id));
       sd->status.dura_aether[x].duration = 0;
@@ -7602,7 +8468,8 @@ int pcl_flushdurationnouncast(lua_State *state, void *self) {
                         -1);
       sd->status.dura_aether[x].animation = 0;
 
-      if (sd->status.dura_aether[x].aether == 0) {
+      if (sd->status.dura_aether[x].aether == 0)
+      {
         sd->status.dura_aether[x].id = 0;
       }
     }
@@ -7648,7 +8515,8 @@ map_id2bl(sd->status.dura_aether[x].caster_id);
         return 0;
 }*/
 
-int pcl_flushaether(lua_State *state, void *self) {
+int pcl_flushaether(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int x;
   int id;
@@ -7657,31 +8525,43 @@ int pcl_flushaether(lua_State *state, void *self) {
   int maxid = lua_tonumber(state, sl_memberarg(3));
   char flush = 0;
 
-  if (maxid < minid) {
+  if (maxid < minid)
+  {
     maxid = minid;
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     id = sd->status.dura_aether[x].id;
 
-    if (magicdb_aether(id) > dis) continue;
+    if (magicdb_aether(id) > dis)
+      continue;
 
-    if (minid <= 0) {
+    if (minid <= 0)
+    {
       flush = 1;
-    } else if (minid > 0 && maxid <= 0) {
-      if (id == minid) {
-        flush = 1;
-      }
-    } else {
-      if (id >= minid && id <= maxid) {
+    }
+    else if (minid > 0 && maxid <= 0)
+    {
+      if (id == minid)
+      {
         flush = 1;
       }
     }
-    if (flush == 1) {
+    else
+    {
+      if (id >= minid && id <= maxid)
+      {
+        flush = 1;
+      }
+    }
+    if (flush == 1)
+    {
       clif_send_aether(sd, id, 0);
       sd->status.dura_aether[x].aether = 0;
 
-      if (sd->status.dura_aether[x].duration == 0) {
+      if (sd->status.dura_aether[x].duration == 0)
+      {
         sd->status.dura_aether[x].id = 0;
       }
     }
@@ -7690,20 +8570,26 @@ int pcl_flushaether(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_killcount(lua_State *state, void *self) {
+int pcl_killcount(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int x;
   int id;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "n");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "s");
     id = mobdb_id(lua_tostring(state, sl_memberarg(1)));
   }
-  for (x = 0; x < MAX_KILLREG; x++) {
-    if (sd->status.killreg[x].mob_id == id) {
+  for (x = 0; x < MAX_KILLREG; x++)
+  {
+    if (sd->status.killreg[x].mob_id == id)
+    {
       lua_pushnumber(state, sd->status.killreg[x].amount);
       return 1;
     }
@@ -7713,32 +8599,40 @@ int pcl_killcount(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_setkillcount(lua_State *state, void *self) {
+int pcl_setkillcount(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int id;
   int amount = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "n");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "s");
     id = mobdb_id(lua_tostring(state, sl_memberarg(1)));
   }
 
   amount = lua_tonumber(state, sl_memberarg(2));
 
-  for (int x = 0; x < MAX_KILLREG; x++) {
-    if (sd->status.killreg[x].mob_id == id) {  // finds mob in entries, updates
+  for (int x = 0; x < MAX_KILLREG; x++)
+  {
+    if (sd->status.killreg[x].mob_id == id)
+    { // finds mob in entries, updates
       sd->status.killreg[x].amount = amount;
       return 1;
     }
   }
 
   for (int x = 0; x < MAX_KILLREG;
-       x++) {  // this executes if mob could not already be found, makes new
-               // entry, sets to values
-    if (sd->status.killreg[x].mob_id == 0) {
+       x++)
+  { // this executes if mob could not already be found, makes new
+    // entry, sets to values
+    if (sd->status.killreg[x].mob_id == 0)
+    {
       sd->status.killreg[x].mob_id = id;
       sd->status.killreg[x].amount = amount;
       return 1;
@@ -7748,9 +8642,11 @@ int pcl_setkillcount(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_flushallkills(lua_State *state, void *self) {
+int pcl_flushallkills(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
-  for (int x = 0; x < MAX_KILLREG; x++) {
+  for (int x = 0; x < MAX_KILLREG; x++)
+  {
     sd->status.killreg[x].mob_id = 0;
     sd->status.killreg[x].amount = 0;
   }
@@ -7758,29 +8654,40 @@ int pcl_flushallkills(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_flushkills(lua_State *state, void *self) {
+int pcl_flushkills(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int x;
   int flushid = 0;
 
-  if (lua_isnil(state, sl_memberarg(1)) == 0) {
-    if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnil(state, sl_memberarg(1)) == 0)
+  {
+    if (lua_isnumber(state, sl_memberarg(1)))
+    {
       // sl_checkargs(state, "n");
       flushid = lua_tonumber(state, sl_memberarg(1));
-    } else {
+    }
+    else
+    {
       // sl_checkargs(state, "s");
       flushid = mobdb_id(lua_tostring(state, sl_memberarg(1)));
     }
   }
 
-  if (flushid == 0) {
-    for (x = 0; x < MAX_KILLREG; x++) {
+  if (flushid == 0)
+  {
+    for (x = 0; x < MAX_KILLREG; x++)
+    {
       sd->status.killreg[x].mob_id = 0;
       sd->status.killreg[x].amount = 0;
     }
-  } else {
-    for (x = 0; x < MAX_KILLREG; x++) {
-      if (sd->status.killreg[x].mob_id == flushid) {
+  }
+  else
+  {
+    for (x = 0; x < MAX_KILLREG; x++)
+    {
+      if (sd->status.killreg[x].mob_id == flushid)
+      {
         sd->status.killreg[x].mob_id = 0;
         sd->status.killreg[x].amount = 0;
       }
@@ -7790,7 +8697,8 @@ int pcl_flushkills(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_showhealth(lua_State *state, void *self) {
+int pcl_showhealth(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int type = lua_tonumber(state, sl_memberarg(1));
@@ -7800,7 +8708,8 @@ int pcl_showhealth(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_addclan(lua_State *state, void *self) {
+int pcl_addclan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   struct clan_data *clan;
   sl_checkargs(state, "s");
@@ -7808,28 +8717,37 @@ int pcl_addclan(lua_State *state, void *self) {
   clan = clandb_searchname(c_name);
   int newid = 0;
 
-  if (clan) {
+  if (clan)
+  {
     lua_pushnumber(state, 0);
-  } else {
+  }
+  else
+  {
     newid = clandb_add(sd, c_name);
     lua_pushnumber(state, newid);
   }
   return 1;
 }
 
-int pcl_hasequipped(lua_State *state, void *self) {
+int pcl_hasequipped(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int id = 0;
   bool found = false;
 
-  if (lua_isstring(state, sl_memberarg(1))) {
+  if (lua_isstring(state, sl_memberarg(1)))
+  {
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
-  } else {
+  }
+  else
+  {
     id = lua_tonumber(state, sl_memberarg(1));
   }
 
-  for (int x = 0; x < MAX_EQUIP; x++) {
-    if ((sd->status.equip[x].id == id) && (id > 0)) {
+  for (int x = 0; x < MAX_EQUIP; x++)
+  {
+    if ((sd->status.equip[x].id == id) && (id > 0))
+    {
       found = true;
       break;
     }
@@ -7840,30 +8758,39 @@ int pcl_hasequipped(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_ctor(lua_State *state) {
+int pcl_ctor(lua_State *state)
+{
   USER *sd = NULL;
-  if (lua_isnumber(state, 2)) {
+  if (lua_isnumber(state, 2))
+  {
     unsigned int id = lua_tonumber(state, 2);
     sd = map_id2sd(id);
-    if (!sd) {
+    if (!sd)
+    {
       lua_pushnil(state);
-      return 1;  // luaL_error(state, "invalid player id (%d)", id);
+      return 1; // luaL_error(state, "invalid player id (%d)", id);
     }
-  } else if (lua_isstring(state, 2)) {
+  }
+  else if (lua_isstring(state, 2))
+  {
     const char *name = lua_tostring(state, 2);
     sd = map_name2sd(name);
-    if (!sd) {
+    if (!sd)
+    {
       lua_pushnil(state);
-      return 1;  // luaL_error(state, "invalid player name (%s)", name);
+      return 1; // luaL_error(state, "invalid player name (%s)", name);
     }
-  } else {
+  }
+  else
+  {
     luaL_argerror(state, 1, "expected string or number");
   }
   pcl_pushinst(state, sd);
   return 1;
 }
 
-int pcl_sendurl(lua_State *state, void *self) {
+int pcl_sendurl(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int type = lua_tonumber(state, sl_memberarg(1));
   const char *url = lua_tostring(state, sl_memberarg(2));
@@ -7873,9 +8800,11 @@ int pcl_sendurl(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_setattr(lua_State *state, void *self, const char *attrname) {
+int pcl_setattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
-  if (bll_setattr(state, &sd->bl, attrname)) return 1;
+  if (bll_setattr(state, &sd->bl, attrname))
+    return 1;
   if (!strcmp(attrname, "npcGraphic"))
     sd->npc_g = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "npcColor"))
@@ -7952,15 +8881,23 @@ int pcl_setattr(lua_State *state, void *self, const char *attrname) {
     sd->status.hair = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "paralyzed"))
     sd->paralyzed = lua_toboolean(state, -1);
-  else if (!strcmp(attrname, "blind")) {
+  else if (!strcmp(attrname, "blind"))
+  {
     sd->blind = lua_toboolean(state, -1);
-  } else if (!strcmp(attrname, "drunk")) {
+  }
+  else if (!strcmp(attrname, "drunk"))
+  {
     sd->drunk = lua_tonumber(state, -1);
-  } else if (!strcmp(attrname, "sex")) {
+  }
+  else if (!strcmp(attrname, "sex"))
+  {
     sd->status.sex = lua_tonumber(state, -1);
-  } else if (!strcmp(attrname, "uflags")) {
+  }
+  else if (!strcmp(attrname, "uflags"))
+  {
     sd->uFlags ^= lua_tointeger(state, -1);
-  } else if (!strcmp(attrname, "backstab"))
+  }
+  else if (!strcmp(attrname, "backstab"))
     sd->backstab = lua_toboolean(state, -1);
   else if (!strcmp(attrname, "flank"))
     sd->flank = lua_toboolean(state, -1);
@@ -8158,10 +9095,13 @@ int pcl_setattr(lua_State *state, void *self, const char *attrname) {
     sd->status.killedby = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "protection"))
     sd->protection = lua_tonumber(state, -1);
-  else if (!strcmp(attrname, "dmgShield")) {
+  else if (!strcmp(attrname, "dmgShield"))
+  {
     sd->dmgshield = lua_tonumber(state, -1);
-    if (sd->dmgshield <= 0) clif_send_duration(sd, 0, 0, NULL);
-  } else if (!strcmp(attrname, "dmgDealt"))
+    if (sd->dmgshield <= 0)
+      clif_send_duration(sd, 0, 0, NULL);
+  }
+  else if (!strcmp(attrname, "dmgDealt"))
     sd->dmgdealt = lua_tonumber(state, -1);
   else if (!strcmp(attrname, "dmgTaken"))
     sd->dmgtaken = lua_tonumber(state, -1);
@@ -8213,21 +9153,27 @@ int pcl_setattr(lua_State *state, void *self, const char *attrname) {
   return 1;
 }
 
-int pcl_dialog(lua_State *state, void *self) {
+int pcl_dialog(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "st");
   int previous = 0, next = 0;
 
-  if (!sd) {  // crash bug
+  if (!sd)
+  { // crash bug
     return 0;
-  } else {
+  }
+  else
+  {
     USER *tsd = map_id2sd(sd->status.id);
-    if (!tsd) return 0;
+    if (!tsd)
+      return 0;
   }
 
   lua_pushnil(state);
 
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value is at -1
     if (!strcmp(lua_tostring(state, -1), "previous"))
       previous = 1;
@@ -8243,7 +9189,8 @@ int pcl_dialog(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_init(lua_State *state, void *self, int dataref, void *param) {
+int pcl_init(lua_State *state, void *self, int dataref, void *param)
+{
   USER *sd = (USER *)self;
   // USER *tsd;
   // if(!sd) {
@@ -8288,14 +9235,18 @@ int pcl_init(lua_State *state, void *self, int dataref, void *param) {
       }*/
   lua_newtable(state);
 
-  if (sd->group_count > 0) {
+  if (sd->group_count > 0)
+  {
     int i;
 
-    for (i = 0; i < sd->group_count; i++) {
+    for (i = 0; i < sd->group_count; i++)
+    {
       lua_pushnumber(state, groups[sd->groupid][i]);
       lua_rawseti(state, -2, i + 1);
     }
-  } else {
+  }
+  else
+  {
     lua_pushnumber(state, sd->status.id);
     lua_rawseti(state, -2, 1);
   }
@@ -8314,20 +9265,22 @@ int pcl_init(lua_State *state, void *self, int dataref, void *param) {
       }
       lua_setfield(state,-2,"inventory");
 */
-  lua_pop(state, 1);  // pop the data table
+  lua_pop(state, 1); // pop the data table
   return 0;
 }
 
 int sl_mob_look(struct block_list *bl, va_list ap) { return 0; }
 
-int pcl_sendminimap(lua_State *state, void *self) {
+int pcl_sendminimap(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_sendminimap(sd);
 
   return 0;
 }
 
-int pcl_setCaptchaKey(lua_State *state, void *self) {
+int pcl_setCaptchaKey(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
 
@@ -8341,7 +9294,8 @@ int pcl_setCaptchaKey(lua_State *state, void *self) {
       Sql_Query(
           sql_handle,
           "UPDATE `Character` SET `ChaCaptchaKey` = '%s' WHERE `ChaId` = '%u'",
-          md5, sd->status.id)) {
+          md5, sd->status.id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -8353,13 +9307,15 @@ int pcl_setCaptchaKey(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getCaptchaKey(lua_State *state, void *self) {
+int pcl_getCaptchaKey(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   char key[64] = "";
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -8371,13 +9327,15 @@ int pcl_getCaptchaKey(lua_State *state, void *self) {
               sd->status.id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &key, sizeof(key),
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
   }
 
   SqlStmt_Free(stmt);
@@ -8386,35 +9344,41 @@ int pcl_getCaptchaKey(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_setAccountBan(lua_State *state, void *self) {
+int pcl_setAccountBan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int banned = lua_tonumber(state, sl_memberarg(1));
 
   int accountid = clif_isregistered(sd->status.id);
 
-  if (accountid == 0) {  // not regd
+  if (accountid == 0)
+  { // not regd
 
     char name[16];
     memcpy(name, sd->status.name, 16);
 
-    if (banned == 1) session[sd->fd]->eof = 1;
+    if (banned == 1)
+      session[sd->fd]->eof = 1;
 
     if (SQL_ERROR ==
         Sql_Query(
             sql_handle,
             "UPDATE `Character` SET ChaBanned = '%i' WHERE `ChaName` = '%s'",
-            banned, name)) {
+            banned, name))
+    {
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
     }
-
-  } else {
+  }
+  else
+  {
     unsigned int ChaIds[6];
 
     SqlStmt *stmt;
 
     stmt = SqlStmt_Malloc(sql_handle);
-    if (stmt == NULL) {
+    if (stmt == NULL)
+    {
       SqlStmt_ShowDebug(stmt);
       return -1;
     }
@@ -8438,23 +9402,29 @@ int pcl_setAccountBan(lua_State *state, void *self) {
         SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_UINT, &ChaIds[4], 0,
                                         NULL, NULL) ||
         SQL_ERROR == SqlStmt_BindColumn(stmt, 5, SQLDT_UINT, &ChaIds[5], 0,
-                                        NULL, NULL)) {
+                                        NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       return 1;
     }
 
-    if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+    {
     }
 
     SqlStmt_Free(stmt);
 
-    if (banned == 1) {
+    if (banned == 1)
+    {
       for (int i = 0; i < ARRAYLENGTH(ChaIds);
-           i++) {  // disconnect all now banned chars
-        if (ChaIds[i] > 0) {
+           i++)
+      { // disconnect all now banned chars
+        if (ChaIds[i] > 0)
+        {
           USER *tsd = map_id2sd(ChaIds[i]);
-          if (tsd != NULL) session[tsd->fd]->eof = 1;
+          if (tsd != NULL)
+            session[tsd->fd]->eof = 1;
         }
       }
     }
@@ -8462,7 +9432,8 @@ int pcl_setAccountBan(lua_State *state, void *self) {
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "UPDATE `Accounts` SET `AccountBanned` = '%i' "
                                "WHERE `AccountId` = '%u'",
-                               banned, accountid)) {
+                               banned, accountid))
+    {
       Sql_ShowDebug(sql_handle);
       Sql_FreeResult(sql_handle);
     }
@@ -8471,7 +9442,8 @@ int pcl_setAccountBan(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_setHeroShow(lua_State *state, void *self) {
+int pcl_setHeroShow(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   sd->status.heroes = lua_tonumber(state, sl_memberarg(1));
@@ -8480,7 +9452,8 @@ int pcl_setHeroShow(lua_State *state, void *self) {
       Sql_Query(
           sql_handle,
           "UPDATE `Character` SET `ChaHeroes` = '%u' WHERE `ChaName` = '%s'",
-          sd->status.heroes, sd->status.name)) {
+          sd->status.heroes, sd->status.name))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 1;
@@ -8491,13 +9464,16 @@ int pcl_setHeroShow(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_updatePath(lua_State *state, void *self) {
+int pcl_updatePath(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int path = lua_tonumber(state, sl_memberarg(1));
   int mark = lua_tonumber(state, sl_memberarg(2));
 
-  if (path < 0) path = 0;
-  if (mark < 0) mark = 0;
+  if (path < 0)
+    path = 0;
+  if (mark < 0)
+    mark = 0;
 
   sd->status.class = path;
   sd->status.mark = mark;
@@ -8505,7 +9481,8 @@ int pcl_updatePath(lua_State *state, void *self) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Character` SET `ChaPthId` = '%u', "
                              "`ChaMark` = '%u' WHERE `ChaId` = '%u'",
-                             path, mark, sd->status.id)) {
+                             path, mark, sd->status.id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 1;
@@ -8517,7 +9494,8 @@ int pcl_updatePath(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_updateCountry(lua_State *state, void *self) {
+int pcl_updateCountry(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int country = lua_tonumber(state, sl_memberarg(1));
 
@@ -8527,7 +9505,8 @@ int pcl_updateCountry(lua_State *state, void *self) {
       Sql_Query(
           sql_handle,
           "UPDATE `Character` SET `ChaNation` = '%u' WHERE `ChaId` = '%u'",
-          country, sd->status.id)) {
+          country, sd->status.id))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return 1;
@@ -8540,14 +9519,16 @@ int pcl_updateCountry(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_updateMail(lua_State *state, void *self) {
+int pcl_updateMail(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   const char *name = lua_tostring(state, sl_memberarg(1));
 
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Mail` SET `MalChaNameDestination` = '%s' "
                              "WHERE `MalChaNameDestination` = '%s'",
-                             sd->status.name, name)) {
+                             sd->status.name, name))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -8560,14 +9541,16 @@ int pcl_updateMail(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_addKan(lua_State *state, void *self) {
+int pcl_addKan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
 
   char *email = clif_getaccountemail(sd->status.id);
 
-  if (email == NULL) {
+  if (email == NULL)
+  {
     FREE(email);
     lua_pushboolean(state, 0);
     return 1;
@@ -8576,7 +9559,8 @@ int pcl_addKan(lua_State *state, void *self) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -8585,7 +9569,8 @@ int pcl_addKan(lua_State *state, void *self) {
                        stmt,
                        "SELECT * FROM `Accounts` WHERE `AccountEmail` = '%s'",
                        email) ||
-      SQL_ERROR == SqlStmt_Execute(stmt)) {
+      SQL_ERROR == SqlStmt_Execute(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     free(email);
@@ -8593,40 +9578,49 @@ int pcl_addKan(lua_State *state, void *self) {
     return 1;
   }
 
-  if (SqlStmt_NumRows(stmt) == 0) {
+  if (SqlStmt_NumRows(stmt) == 0)
+  {
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "INSERT INTO `Accounts` (`AccountEmail`, "
                                "`AccountKanBalance`) VALUES ('%s','%d')",
-                               email, kan)) {
+                               email, kan))
+    {
       Sql_ShowDebug(sql_handle);
       SqlStmt_Free(stmt);
       FREE(email);
       lua_pushboolean(state, 0);
       return 1;
-    } else {
+    }
+    else
+    {
       FREE(email);
       lua_pushboolean(state, 1);
       return 1;
     }
-
-  } else if (SqlStmt_NumRows(stmt) == 1) {
+  }
+  else if (SqlStmt_NumRows(stmt) == 1)
+  {
     if (SQL_ERROR ==
         Sql_Query(sql_handle,
                   "UPDATE `Accounts` SET `AccountKanBalance` = "
                   "`AccountKanBalance` + '%d' WHERE `AccountEmail` = '%s'",
-                  kan, email)) {
+                  kan, email))
+    {
       Sql_ShowDebug(sql_handle);
       SqlStmt_Free(stmt);
       FREE(email);
       lua_pushboolean(state, 0);
       return 1;
-    } else {
+    }
+    else
+    {
       FREE(email);
       lua_pushboolean(state, 1);
       return 1;
     }
-
-  } else {
+  }
+  else
+  {
     Sql_ShowDebug(sql_handle);
     SqlStmt_Free(stmt);
     FREE(email);
@@ -8640,13 +9634,15 @@ int pcl_addKan(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_removeKan(lua_State *state, void *self) {
+int pcl_removeKan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
 
   char *email = clif_getaccountemail(sd->status.id);
-  if (email == NULL) {
+  if (email == NULL)
+  {
     FREE(email);
     lua_pushboolean(state, 0);
     return 1;
@@ -8657,7 +9653,8 @@ int pcl_removeKan(lua_State *state, void *self) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -8668,14 +9665,16 @@ int pcl_removeKan(lua_State *state, void *self) {
                                    email) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &kanBalance, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &kanBalance, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     FREE(email);
     lua_pushboolean(state, 0);
     return 1;
   }
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     FREE(email);
@@ -8691,7 +9690,8 @@ int pcl_removeKan(lua_State *state, void *self) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Accounts` SET `AccountKanBalance` = '%d' "
                              "WHERE `AccountEmail` = '%s'",
-                             kanBalance, email)) {
+                             kanBalance, email))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     FREE(email);
@@ -8704,12 +9704,14 @@ int pcl_removeKan(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_kanBalance(lua_State *state, void *self) {
+int pcl_kanBalance(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int kanBalance = 0;
 
   char *email = clif_getaccountemail(sd->status.id);
-  if (email == NULL) {
+  if (email == NULL)
+  {
     FREE(email);
     lua_pushnumber(state, 0);
     return 1;
@@ -8718,7 +9720,8 @@ int pcl_kanBalance(lua_State *state, void *self) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -8729,14 +9732,16 @@ int pcl_kanBalance(lua_State *state, void *self) {
                                    email) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &kanBalance, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &kanBalance, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     FREE(email);
     lua_pushnumber(state, 0);
     return 1;
   }
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_Free(stmt);
     FREE(email);
     lua_pushnumber(state, 0);
@@ -8750,7 +9755,8 @@ int pcl_kanBalance(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_checkKan(lua_State *state, void *self) {
+int pcl_checkKan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   char kan_amount[80];
   memset(kan_amount, 0, sizeof(kan_amount));
@@ -8759,7 +9765,8 @@ int pcl_checkKan(lua_State *state, void *self) {
 
   char *email = clif_getaccountemail(sd->status.id);
 
-  if (email == NULL) {
+  if (email == NULL)
+  {
     FREE(email);
     lua_pushnumber(state, 0);
     return 1;
@@ -8768,7 +9775,8 @@ int pcl_checkKan(lua_State *state, void *self) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -8780,7 +9788,8 @@ int pcl_checkKan(lua_State *state, void *self) {
                           email) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &kan_amount,
-                                      sizeof(kan_amount), NULL, NULL)) {
+                                      sizeof(kan_amount), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushnumber(state, 0);
@@ -8788,19 +9797,22 @@ int pcl_checkKan(lua_State *state, void *self) {
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     SqlStmt_Free(stmt);
   }
 
   char *pch;
   pch = strtok(kan_amount, " ");
-  if (pch != NULL) {
+  if (pch != NULL)
+  {
     number = atoi(pch);
     pch = strtok(NULL, " ");
   }
 
   FREE(email);
-  if (number != 0) {
+  if (number != 0)
+  {
     lua_pushnumber(state, number);
     return 1;
   }
@@ -8808,7 +9820,8 @@ int pcl_checkKan(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_claimKan(lua_State *state, void *self) {
+int pcl_claimKan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
@@ -8816,7 +9829,8 @@ int pcl_claimKan(lua_State *state, void *self) {
 
   char *email = clif_getaccountemail(sd->status.id);
 
-  if (email == NULL) {
+  if (email == NULL)
+  {
     FREE(email);
     lua_pushboolean(state, 0);
     return 0;
@@ -8825,7 +9839,8 @@ int pcl_claimKan(lua_State *state, void *self) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -8837,7 +9852,8 @@ int pcl_claimKan(lua_State *state, void *self) {
                                    email, kan) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &payment_id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &payment_id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     SqlStmt_Free(stmt);
@@ -8845,15 +9861,18 @@ int pcl_claimKan(lua_State *state, void *self) {
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
   }
 
-  if (SqlStmt_NumRows(stmt) != 0 && payment_id != 0) {
+  if (SqlStmt_NumRows(stmt) != 0 && payment_id != 0)
+  {
     if (SQL_ERROR ==
         Sql_Query(
             sql_handle,
             "UPDATE `KanDonations` SET `Claimed` = 1 WHERE `payment_id` = '%i'",
-            payment_id)) {
+            payment_id))
+    {
       Sql_ShowDebug(sql_handle);
       SqlStmt_Free(stmt);
       FREE(email);
@@ -8868,14 +9887,16 @@ int pcl_claimKan(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_setKan(lua_State *state, void *self) {
+int pcl_setKan(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int kan = lua_tonumber(state, sl_memberarg(1));
 
   char *email = clif_getaccountemail(sd->status.id);
 
-  if (email == NULL) {
+  if (email == NULL)
+  {
     FREE(email);
     lua_pushboolean(state, 0);
     return 1;
@@ -8884,7 +9905,8 @@ int pcl_setKan(lua_State *state, void *self) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -8892,7 +9914,8 @@ int pcl_setKan(lua_State *state, void *self) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Accounts` SET `AccountKanBalance` = '%d' "
                              "WHERE `AccountEmail` = '%s'",
-                             kan, email)) {
+                             kan, email))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     FREE(email);
@@ -8904,9 +9927,11 @@ int pcl_setKan(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getattr(lua_State *state, void *self, const char *attrname) {
+int pcl_getattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
-  if (bll_getattr(state, &sd->bl, attrname)) return 1;
+  if (bll_getattr(state, &sd->bl, attrname))
+    return 1;
   if (!strcasecmp(attrname, "id"))
     lua_pushnumber(state, sd->status.id);
   else if (!strcmp(attrname, "npcGraphic"))
@@ -9316,17 +10341,20 @@ int pcl_getattr(lua_State *state, void *self, const char *attrname) {
     lua_pushnumber(state, sd->status.profile_bankitems);
 
   else
-    return 0;  // the attribute wasn't handled
+    return 0; // the attribute wasn't handled
   return 1;
 }
 
-int pcl_useitem(lua_State *state, void *self) {
+int pcl_useitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *itemname = lua_tostring(state, sl_memberarg(1));
   int i;
-  for (i = 0; i < sd->status.maxinv; i++) {
-    if (!strcasecmp(itemdb_name(sd->status.inventory[i].id), itemname)) {
+  for (i = 0; i < sd->status.maxinv; i++)
+  {
+    if (!strcasecmp(itemdb_name(sd->status.inventory[i].id), itemname))
+    {
       pc_useitem(sd, i);
       return 0;
     }
@@ -9334,7 +10362,8 @@ int pcl_useitem(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_warp(lua_State *state, void *self) {
+int pcl_warp(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nnn");
   int m = lua_tonumber(state, sl_memberarg(1)),
@@ -9345,7 +10374,8 @@ int pcl_warp(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_forcedrop(lua_State *state, void *self) {
+int pcl_forcedrop(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
@@ -9354,13 +10384,15 @@ int pcl_forcedrop(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_resurrect(lua_State *state, void *self) {
+int pcl_resurrect(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_res(sd);
   return 0;
 }
 
-int pcl_setMiniMapToggle(lua_State *state, void *self) {
+int pcl_setMiniMapToggle(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int miniMapToggle = lua_tonumber(state, sl_memberarg(1));
@@ -9368,7 +10400,8 @@ int pcl_setMiniMapToggle(lua_State *state, void *self) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Character` SET `ChaMiniMapToggle` = '%u' "
                              "WHERE `ChaId` = '%d'",
-                             miniMapToggle, sd->status.id)) {
+                             miniMapToggle, sd->status.id))
+  {
     Sql_ShowDebug(sql_handle);
     return 1;
   }
@@ -9383,16 +10416,20 @@ int pcl_setMiniMapToggle(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_addhealth(lua_State *state, void *self) {
+int pcl_addhealth(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
   struct block_list *bl = map_id2bl(sd->attacker);
 
-  if (bl != NULL) {
+  if (bl != NULL)
+  {
     if (damage > 0)
       sl_doscript_blargs("player_combat", "on_healed", 2, &sd->bl, bl);
-  } else {
+  }
+  else
+  {
     if (damage > 0)
       sl_doscript_blargs("player_combat", "on_healed", 1, &sd->bl);
   }
@@ -9402,7 +10439,8 @@ int pcl_addhealth(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_removehealth(lua_State *state, void *self) {
+int pcl_removehealth(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int damage = lua_tonumber(state, sl_memberarg(1));
@@ -9411,36 +10449,47 @@ int pcl_removehealth(lua_State *state, void *self) {
   USER *tsd = NULL;
   MOB *tmob = NULL;
 
-  if (caster > 0) {
+  if (caster > 0)
+  {
     bl = map_id2bl(caster);
     sd->attacker = caster;
-  } else {
+  }
+  else
+  {
     bl = map_id2bl(sd->attacker);
   }
 
-  if (bl != NULL) {
-    if (bl->type == BL_PC) {
+  if (bl != NULL)
+  {
+    if (bl->type == BL_PC)
+    {
       tsd = (USER *)bl;
       tsd->damage = damage;
       tsd->critchance = 0;
-    } else if (bl->type == BL_MOB) {
+    }
+    else if (bl->type == BL_MOB)
+    {
       tmob = (MOB *)bl;
       tmob->damage = damage;
       tmob->critchance = 0;
     }
-  } else {
+  }
+  else
+  {
     sd->damage = damage;
     sd->critchance = 0;
   }
 
-  if (sd->status.state != PC_DIE) {
+  if (sd->status.state != PC_DIE)
+  {
     clif_send_pc_healthscript(sd, damage, 0);
     clif_sendstatus(sd, SFLAG_HPMP);
   }
   return 0;
 }
 
-int pcl_sendminitext(lua_State *state, void *self) {
+int pcl_sendminitext(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *msg = lua_tostring(state, sl_memberarg(1));
@@ -9449,7 +10498,8 @@ int pcl_sendminitext(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_setduration(lua_State *state, void *self) {
+int pcl_setduration(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   struct block_list *bl = NULL;
@@ -9458,24 +10508,29 @@ int pcl_setduration(lua_State *state, void *self) {
   alreadycast = 0;
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   time = lua_tonumber(state, sl_memberarg(2));
-  if (time < 1000 && time > 0) time = 1000;
+  if (time < 1000 && time > 0)
+    time = 1000;
   caster_id = lua_tonumber(
-      state, sl_memberarg(3));  // sets duration from specific caster
+      state, sl_memberarg(3)); // sets duration from specific caster
   recast = lua_tonumber(state, sl_memberarg(4));
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     if (sd->status.dura_aether[x].id == id &&
         sd->status.dura_aether[x].caster_id == caster_id &&
-        sd->status.dura_aether[x].duration > 0) {
+        sd->status.dura_aether[x].duration > 0)
+    {
       alreadycast = 1;
       break;
     }
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {  // MAX_DURATIMER
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  { // MAX_DURATIMER
     mid = sd->status.dura_aether[x].id;
     if (mid == id && time <= 0 &&
-        sd->status.dura_aether[x].caster_id == caster_id && alreadycast == 1) {
+        sd->status.dura_aether[x].caster_id == caster_id && alreadycast == 1)
+    {
       clif_send_duration(sd, id, time, map_id2sd(caster_id));
       sd->status.dura_aether[x].duration = 0;
       sd->status.dura_aether[x].caster_id = 0;
@@ -9484,38 +10539,49 @@ int pcl_setduration(lua_State *state, void *self) {
                         -1);
       sd->status.dura_aether[x].animation = 0;
 
-      if (sd->status.dura_aether[x].aether == 0) {
+      if (sd->status.dura_aether[x].aether == 0)
+      {
         sd->status.dura_aether[x].id = 0;
       }
 
-      if (sd->status.dura_aether[x].caster_id != sd->bl.id) {
+      if (sd->status.dura_aether[x].caster_id != sd->bl.id)
+      {
         bl = map_id2bl(sd->status.dura_aether[x].caster_id);
       }
 
-      if (bl != NULL) {
+      if (bl != NULL)
+      {
         sl_doscript_blargs(magicdb_yname(mid), "uncast", 2, &sd->bl, bl);
-      } else {
+      }
+      else
+      {
         sl_doscript_blargs(magicdb_yname(mid), "uncast", 1, &sd->bl);
       }
 
       return 0;
-    } else if (sd->status.dura_aether[x].id == id &&
-               sd->status.dura_aether[x].caster_id == caster_id &&
-               sd->status.dura_aether[x].aether > 0 &&
-               sd->status.dura_aether[x].duration <= 0) {
+    }
+    else if (sd->status.dura_aether[x].id == id &&
+             sd->status.dura_aether[x].caster_id == caster_id &&
+             sd->status.dura_aether[x].aether > 0 &&
+             sd->status.dura_aether[x].duration <= 0)
+    {
       sd->status.dura_aether[x].duration = time;
       clif_send_duration(sd, id, time / 1000, map_id2sd(caster_id));
       return 0;
-    } else if (sd->status.dura_aether[x].id == id &&
-               sd->status.dura_aether[x].caster_id == caster_id &&
-               (sd->status.dura_aether[x].duration > time || recast == 1) &&
-               alreadycast == 1) {
+    }
+    else if (sd->status.dura_aether[x].id == id &&
+             sd->status.dura_aether[x].caster_id == caster_id &&
+             (sd->status.dura_aether[x].duration > time || recast == 1) &&
+             alreadycast == 1)
+    {
       sd->status.dura_aether[x].duration = time;
       clif_send_duration(sd, id, time / 1000, map_id2sd(caster_id));
       return 0;
-    } else if (sd->status.dura_aether[x].id == 0 &&
-               sd->status.dura_aether[x].duration == 0 && time != 0 &&
-               alreadycast != 1) {
+    }
+    else if (sd->status.dura_aether[x].id == 0 &&
+             sd->status.dura_aether[x].duration == 0 && time != 0 &&
+             alreadycast != 1)
+    {
       // if (sd->status.dura_aether[x].caster_id != caster_id && caster_id > 0)
       // { 	sd->status.dura_aether[x].id = id;
       // sd->status.dura_aether[x].duration
@@ -9537,7 +10603,8 @@ int pcl_setduration(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_setaether(lua_State *state, void *self) {
+int pcl_setaether(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   int id;
@@ -9547,33 +10614,43 @@ int pcl_setaether(lua_State *state, void *self) {
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   time = lua_tonumber(state, sl_memberarg(2));
-  if (time < 1000 && time > 0) time = 1000;
+  if (time < 1000 && time > 0)
+    time = 1000;
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id == id) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id == id)
+    {
       alreadycast = 1;
     }
   }
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id == id && time <= 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id == id && time <= 0)
+    {
       clif_send_aether(sd, id, time);
 
-      if (sd->status.dura_aether[x].duration == 0) {
+      if (sd->status.dura_aether[x].duration == 0)
+      {
         sd->status.dura_aether[x].id = 0;
       }
 
       sd->status.dura_aether[x].aether = 0;
       return 0;
-    } else if (sd->status.dura_aether[x].id == id &&
-               (sd->status.dura_aether[x].aether > time ||
-                sd->status.dura_aether[x].duration > 0)) {
+    }
+    else if (sd->status.dura_aether[x].id == id &&
+             (sd->status.dura_aether[x].aether > time ||
+              sd->status.dura_aether[x].duration > 0))
+    {
       sd->status.dura_aether[x].aether = time;
       clif_send_aether(sd, id, time / 1000);
       return 0;
-    } else if (sd->status.dura_aether[x].id == 0 &&
-               sd->status.dura_aether[x].aether == 0 && time != 0 &&
-               alreadycast != 1) {
+    }
+    else if (sd->status.dura_aether[x].id == 0 &&
+             sd->status.dura_aether[x].aether == 0 && time != 0 &&
+             alreadycast != 1)
+    {
       sd->status.dura_aether[x].id = id;
       sd->status.dura_aether[x].aether = time;
       clif_send_aether(sd, id, time / 1000);
@@ -9583,16 +10660,20 @@ int pcl_setaether(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_hasaether(lua_State *state, void *self) {
+int pcl_hasaether(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int x, id;
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id == id) {
-      if (sd->status.dura_aether[x].aether > 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id == id)
+    {
+      if (sd->status.dura_aether[x].aether > 0)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
@@ -9602,16 +10683,20 @@ int pcl_hasaether(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getaether(lua_State *state, void *self) {
+int pcl_getaether(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int x, id;
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id == id) {
-      if (sd->status.dura_aether[x].aether > 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id == id)
+    {
+      if (sd->status.dura_aether[x].aether > 0)
+      {
         lua_pushnumber(state, sd->status.dura_aether[x].aether);
         return 1;
       }
@@ -9622,14 +10707,17 @@ int pcl_getaether(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getallaethers(lua_State *state, void *self) {
+int pcl_getallaethers(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
-  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++, x += 2) {
+  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++, x += 2)
+  {
     if (sd->status.dura_aether[i].id > 0 &&
-        sd->status.dura_aether[i].aether > 0) {
+        sd->status.dura_aether[i].aether > 0)
+    {
       lua_pushnumber(state, sd->status.dura_aether[i].aether);
       lua_rawseti(state, -2, x);
       lua_pushstring(state, magicdb_yname(sd->status.dura_aether[i].id));
@@ -9640,17 +10728,21 @@ int pcl_getallaethers(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_hasduration(lua_State *state, void *self) {
+int pcl_hasduration(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int id = 0;
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     if (sd->status.dura_aether[x].id > 0 &&
-        sd->status.dura_aether[x].id == id) {
-      if (sd->status.dura_aether[x].duration > 0) {
+        sd->status.dura_aether[x].id == id)
+    {
+      if (sd->status.dura_aether[x].duration > 0)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
@@ -9660,7 +10752,8 @@ int pcl_hasduration(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_hasdurationid(lua_State *state, void *self) {
+int pcl_hasdurationid(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   int x, id, caster_id;
@@ -9669,12 +10762,15 @@ int pcl_hasdurationid(lua_State *state, void *self) {
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   caster_id = lua_tonumber(
-      state, sl_memberarg(2));  // checks for duration from specific caster
+      state, sl_memberarg(2)); // checks for duration from specific caster
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     if (sd->status.dura_aether[x].id == id &&
-        sd->status.dura_aether[x].caster_id == caster_id) {
-      if (sd->status.dura_aether[x].duration > 0) {
+        sd->status.dura_aether[x].caster_id == caster_id)
+    {
+      if (sd->status.dura_aether[x].duration > 0)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
@@ -9684,16 +10780,20 @@ int pcl_hasdurationid(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getduration(lua_State *state, void *self) {
+int pcl_getduration(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int i, id;
 
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
-  for (i = 0; i < MAX_MAGIC_TIMERS; i++) {
-    if (sd->status.dura_aether[i].id == id) {
-      if (sd->status.dura_aether[i].duration > 0) {
+  for (i = 0; i < MAX_MAGIC_TIMERS; i++)
+  {
+    if (sd->status.dura_aether[i].id == id)
+    {
+      if (sd->status.dura_aether[i].duration > 0)
+      {
         lua_pushnumber(state, sd->status.dura_aether[i].duration);
         return 1;
       }
@@ -9704,7 +10804,8 @@ int pcl_getduration(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getdurationid(lua_State *state, void *self) {
+int pcl_getdurationid(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   int i, id, caster_id;
@@ -9713,10 +10814,13 @@ int pcl_getdurationid(lua_State *state, void *self) {
   id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   caster_id = lua_tonumber(state, sl_memberarg(2));
 
-  for (i = 0; i < MAX_MAGIC_TIMERS; i++) {
+  for (i = 0; i < MAX_MAGIC_TIMERS; i++)
+  {
     if (sd->status.dura_aether[i].id == id &&
-        sd->status.dura_aether[i].caster_id == caster_id) {
-      if (sd->status.dura_aether[i].duration > 0) {
+        sd->status.dura_aether[i].caster_id == caster_id)
+    {
+      if (sd->status.dura_aether[i].duration > 0)
+      {
         lua_pushnumber(state, sd->status.dura_aether[i].duration);
         return 1;
       }
@@ -9727,14 +10831,17 @@ int pcl_getdurationid(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getalldurations(lua_State *state, void *self) {
+int pcl_getalldurations(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
-  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++, x++) {
+  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++, x++)
+  {
     if (sd->status.dura_aether[i].id > 0 &&
-        sd->status.dura_aether[i].duration > 0) {
+        sd->status.dura_aether[i].duration > 0)
+    {
       lua_pushstring(state, magicdb_yname(sd->status.dura_aether[i].id));
       lua_rawseti(state, -2, x);
     }
@@ -9743,21 +10850,25 @@ int pcl_getalldurations(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_forcesave(lua_State *state, void *self) {
+int pcl_forcesave(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   intif_save(sd);
 
   return 1;
 }
 
-int pcl_refreshdurations(lua_State *state, void *self) {
+int pcl_refreshdurations(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i = 0;
   int x = 0;
 
-  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++, x++) {
+  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++, x++)
+  {
     if (sd->status.dura_aether[i].id > 0 &&
-        sd->status.dura_aether[i].duration > 0) {
+        sd->status.dura_aether[i].duration > 0)
+    {
       clif_send_duration(sd, sd->status.dura_aether[i].id,
                          sd->status.dura_aether[i].duration / 1000,
                          map_id2sd(sd->status.dura_aether[i].caster_id));
@@ -9767,7 +10878,8 @@ int pcl_refreshdurations(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_addlegend(lua_State *state, void *self) {
+int pcl_addlegend(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "ssnn");
   int icon, color, x;
@@ -9777,9 +10889,11 @@ int pcl_addlegend(lua_State *state, void *self) {
   color = lua_tonumber(state, sl_memberarg(4));
   tchaid = lua_tonumber(state, sl_memberarg(5));
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strcasecmp(sd->status.legends[x].name, "") == 0 &&
-        strcasecmp(sd->status.legends[x + 1].name, "") == 0) {
+        strcasecmp(sd->status.legends[x + 1].name, "") == 0)
+    {
       strcpy(sd->status.legends[x].text, lua_tostring(state, sl_memberarg(1)));
       strcpy(sd->status.legends[x].name, lua_tostring(state, sl_memberarg(2)));
       sd->status.legends[x].icon = icon;
@@ -9792,14 +10906,17 @@ int pcl_addlegend(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_haslegend(lua_State *state, void *self) {
+int pcl_haslegend(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int i;
   const char *legend = lua_tostring(state, sl_memberarg(1));
 
-  for (i = 0; i < MAX_LEGENDS; i++) {
-    if (!strcmp(sd->status.legends[i].name, legend)) {
+  for (i = 0; i < MAX_LEGENDS; i++)
+  {
+    if (!strcmp(sd->status.legends[i].name, legend))
+    {
       lua_pushboolean(state, 1);
       return 1;
     }
@@ -9809,7 +10926,8 @@ int pcl_haslegend(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_buy(lua_State *state, void *self) {
+int pcl_buy(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "stt");
   unsigned int amount = lua_objlen(state, sl_memberarg(2));
@@ -9823,7 +10941,8 @@ int pcl_buy(lua_State *state, void *self) {
   int var2[amount + 1];
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     item[index - 1].id = itemdb_id(lua_tostring(state, -1));
@@ -9834,35 +10953,40 @@ int pcl_buy(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(3)) != 0) {
+  while (lua_next(state, sl_memberarg(3)) != 0)
+  {
     int index = lua_tonumber(state, -2);
     var2[index - 1] = lua_tonumber(state, -1);
     lua_pop(state, 1);
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(4)) != 0) {
+  while (lua_next(state, sl_memberarg(4)) != 0)
+  {
     int index = lua_tonumber(state, -2);
     strcpy(item[index - 1].real_name, lua_tostring(state, -1));
     lua_pop(state, 1);
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(5)) != 0) {
+  while (lua_next(state, sl_memberarg(5)) != 0)
+  {
     int index = lua_tonumber(state, -2);
     item[index - 1].owner = lua_tonumber(state, -1);
     lua_pop(state, 1);
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(6)) != 0) {
+  while (lua_next(state, sl_memberarg(6)) != 0)
+  {
     int index = lua_tonumber(state, -2);
     strcpy((char *)item[index - 1].buytext, lua_tostring(state, -1));
     lua_pop(state, 1);
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(7)) != 0) {
+  while (lua_next(state, sl_memberarg(7)) != 0)
+  {
     int index = lua_tonumber(state, -2);
 
     item[index - 1].customIcon = lua_tonumber(state, -1);
@@ -9870,7 +10994,8 @@ int pcl_buy(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(8)) != 0) {
+  while (lua_next(state, sl_memberarg(8)) != 0)
+  {
     int index = lua_tonumber(state, -2);
 
     item[index - 1].customIconColor = lua_tonumber(state, -1);
@@ -9884,7 +11009,8 @@ int pcl_buy(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_mapselection(lua_State *state, void *self) {
+int pcl_mapselection(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "stttttt");
   int map_x0[255];
@@ -9899,7 +11025,8 @@ int pcl_mapselection(lua_State *state, void *self) {
   int index = lua_objlen(state, sl_memberarg(2));
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     map_x0[index - 1] = lua_tonumber(state, -1);
@@ -9908,7 +11035,8 @@ int pcl_mapselection(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(3)) != 0) {
+  while (lua_next(state, sl_memberarg(3)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     map_y0[index - 1] = lua_tonumber(state, -1);
@@ -9917,14 +11045,16 @@ int pcl_mapselection(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(4)) != 0) {
+  while (lua_next(state, sl_memberarg(4)) != 0)
+  {
     int index = lua_tonumber(state, -2);
     map_name[index - 1] = lua_tostring(state, -1);
     lua_pop(state, 1);
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(5)) != 0) {
+  while (lua_next(state, sl_memberarg(5)) != 0)
+  {
     // key is at -2, value at -1
     unsigned int index = lua_tonumber(state, -2);
     map_id[index - 1] = lua_tonumber(state, -1);
@@ -9933,7 +11063,8 @@ int pcl_mapselection(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(6)) != 0) {
+  while (lua_next(state, sl_memberarg(6)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     map_x1[index - 1] = lua_tonumber(state, -1);
@@ -9942,7 +11073,8 @@ int pcl_mapselection(lua_State *state, void *self) {
   }
 
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(7)) != 0) {
+  while (lua_next(state, sl_memberarg(7)) != 0)
+  {
     // key is at -2, value at -1
     int index = lua_tonumber(state, -2);
     map_y1[index - 1] = lua_tonumber(state, -1);
@@ -9956,12 +11088,14 @@ int pcl_mapselection(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_bank(lua_State *state, void *self) {
+int pcl_bank(lua_State *state, void *self)
+{
   sl_checkargs(state, "s");
   return 0;
 }
 
-int pcl_input(lua_State *state, void *self) {
+int pcl_input(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *dialog = lua_tostring(state, sl_memberarg(1));
@@ -9985,7 +11119,8 @@ int pcl_input(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_sell(lua_State *state, void *self) {
+int pcl_sell(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "st");
   const char *dialog = lua_tostring(state, sl_memberarg(1));
@@ -9995,7 +11130,8 @@ int pcl_sell(lua_State *state, void *self) {
   unsigned int temp;
   int x;
   lua_pushnil(state);
-  while (lua_next(state, sl_memberarg(2)) != 0) {
+  while (lua_next(state, sl_memberarg(2)) != 0)
+  {
     // int index = lua_tonumber(state, -2);
 
     // temp=lua_tonumber(state,-1);
@@ -10004,8 +11140,10 @@ int pcl_sell(lua_State *state, void *self) {
     else if (lua_isstring(state, -1))
       temp = itemdb_id(lua_tostring(state, -1));
 
-    for (x = 0; x < sd->status.maxinv; x++) {
-      if (sd->status.inventory[x].id == temp) {
+    for (x = 0; x < sd->status.maxinv; x++)
+    {
+      if (sd->status.inventory[x].id == temp)
+      {
         item[count] = x;
         // lastcount=count;
         count++;
@@ -10020,7 +11158,8 @@ int pcl_sell(lua_State *state, void *self) {
   return lua_yield(state, 0);
 }
 
-int pcl_sendstatus(lua_State *state, void *self) {
+int pcl_sendstatus(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_requestmp(sd);
   clif_sendstatus(sd, SFLAG_FULLSTATS | SFLAG_HPMP | SFLAG_XPMONEY);
@@ -10028,13 +11167,15 @@ int pcl_sendstatus(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_calcstat(lua_State *state, void *self) {
+int pcl_calcstat(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_calcstat(sd);
   return 0;
 }
 
-int pcl_getboditem(lua_State *state, void *self) {
+int pcl_getboditem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
@@ -10045,7 +11186,8 @@ int pcl_getboditem(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getexchangeitem(lua_State *state, void *self) {
+int pcl_getexchangeitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
@@ -10056,7 +11198,8 @@ int pcl_getexchangeitem(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getinventoryitem(lua_State *state, void *self) {
+int pcl_getinventoryitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
@@ -10069,7 +11212,8 @@ int pcl_getinventoryitem(lua_State *state, void *self) {
 
 int pcl_addinventoryitem(lua_State *state, void *self) { return 1; }
 
-int pcl_getequippeditem(lua_State *state, void *self) {
+int pcl_getequippeditem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
@@ -10080,14 +11224,17 @@ int pcl_getequippeditem(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_removelegendbyname(lua_State *state, void *self) {
+int pcl_removelegendbyname(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   const char *find = lua_tostring(state, sl_memberarg(1));
   int x;
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
-    if (strcasecmp(sd->status.legends[x].name, find) == 0) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
+    if (strcasecmp(sd->status.legends[x].name, find) == 0)
+    {
       strcpy(sd->status.legends[x].text, "");
       strcpy(sd->status.legends[x].name, "");
       sd->status.legends[x].icon = 0;
@@ -10095,9 +11242,11 @@ int pcl_removelegendbyname(lua_State *state, void *self) {
       sd->status.legends[x].tchaid = 0;
     }
   }
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strcasecmp(sd->status.legends[x].name, "") == 0 &&
-        strcasecmp(sd->status.legends[x + 1].name, "") != 0) {
+        strcasecmp(sd->status.legends[x + 1].name, "") != 0)
+    {
       strcpy(sd->status.legends[x].text, sd->status.legends[x + 1].text);
       strcpy(sd->status.legends[x + 1].text, "");
       strcpy(sd->status.legends[x].name, sd->status.legends[x + 1].name);
@@ -10113,17 +11262,21 @@ int pcl_removelegendbyname(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_removelegendbycolor(lua_State *state, void *self) {
+int pcl_removelegendbycolor(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int find = lua_tonumber(state, sl_memberarg(1));
   int x, count = 0;
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
-    if (sd->status.legends[x].color == find) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
+    if (sd->status.legends[x].color == find)
+    {
       count++;
     }
-    if (x + count < MAX_LEGENDS) {
+    if (x + count < MAX_LEGENDS)
+    {
       strcpy(sd->status.legends[x].text, sd->status.legends[x + count].text);
       strcpy(sd->status.legends[x].name, sd->status.legends[x + count].name);
       sd->status.legends[x].icon = sd->status.legends[x + count].icon;
@@ -10131,9 +11284,11 @@ int pcl_removelegendbycolor(lua_State *state, void *self) {
       sd->status.legends[x].tchaid = sd->status.legends[x + count].tchaid;
     }
   }
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strcasecmp(sd->status.legends[x].name, "") == 0 &&
-        strcasecmp(sd->status.legends[x + 1].name, "") != 0) {
+        strcasecmp(sd->status.legends[x + 1].name, "") != 0)
+    {
       strcpy(sd->status.legends[x].text, sd->status.legends[x + 1].text);
       strcpy(sd->status.legends[x + 1].text, "");
       strcpy(sd->status.legends[x].name, sd->status.legends[x + 1].name);
@@ -10149,16 +11304,20 @@ int pcl_removelegendbycolor(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_removeinventoryitem(lua_State *state, void *self) {
+int pcl_removeinventoryitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0, amount = 0, owner = 0;
   int x, type = 0;
   const char *engrave = NULL;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -10170,27 +11329,35 @@ int pcl_removeinventoryitem(lua_State *state, void *self) {
 
   printf("pcl_removeitem engrave=%s\n", engrave);
 
-  if (!engrave) {
+  if (!engrave)
+  {
     engrave = "";
   }
 
   printf("pcl_removeitem engrave=%s\n", engrave);
 
-  if (owner == 0) {
-    for (x = 0; x < sd->status.maxinv; x++) {
+  if (owner == 0)
+  {
+    for (x = 0; x < sd->status.maxinv; x++)
+    {
       if (sd->status.inventory[x].id == id &&
           sd->status.inventory[x].amount < itemdb_stackamount(id) &&
-          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave)))
+      {
         if (sd->status.inventory[x].amount < amount &&
-            sd->status.inventory[x].amount > 0) {
+            sd->status.inventory[x].amount > 0)
+        {
           amount -= sd->status.inventory[x].amount;
           pc_delitem(sd, x, sd->status.inventory[x].amount, type);
 
-          if (amount == 0) {
+          if (amount == 0)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
-        } else if (sd->status.inventory[x].amount >= amount) {
+        }
+        else if (sd->status.inventory[x].amount >= amount)
+        {
           pc_delitem(sd, x, amount, type);
           lua_pushboolean(state, 1);
           return 1;
@@ -10198,41 +11365,55 @@ int pcl_removeinventoryitem(lua_State *state, void *self) {
       }
     }
 
-    for (x = 0; x < sd->status.maxinv; x++) {
+    for (x = 0; x < sd->status.maxinv; x++)
+    {
       if (sd->status.inventory[x].id == id &&
-          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave)))
+      {
         if (sd->status.inventory[x].amount < amount &&
-            sd->status.inventory[x].amount > 0) {
+            sd->status.inventory[x].amount > 0)
+        {
           amount -= sd->status.inventory[x].amount;
           pc_delitem(sd, x, sd->status.inventory[x].amount, type);
 
-          if (amount == 0) {
+          if (amount == 0)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
-        } else if (sd->status.inventory[x].amount >= amount) {
+        }
+        else if (sd->status.inventory[x].amount >= amount)
+        {
           pc_delitem(sd, x, amount, type);
           lua_pushboolean(state, 1);
           return 1;
         }
       }
     }
-  } else if (owner > 0) {
-    for (x = 0; x < sd->status.maxinv; x++) {
+  }
+  else if (owner > 0)
+  {
+    for (x = 0; x < sd->status.maxinv; x++)
+    {
       if (sd->status.inventory[x].id == id &&
           sd->status.inventory[x].amount < itemdb_stackamount(id) &&
           sd->status.inventory[x].owner == owner &&
-          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave)))
+      {
         if (sd->status.inventory[x].amount < amount &&
-            sd->status.inventory[x].amount > 0) {
+            sd->status.inventory[x].amount > 0)
+        {
           amount -= sd->status.inventory[x].amount;
           pc_delitem(sd, x, sd->status.inventory[x].amount, type);
 
-          if (amount == 0) {
+          if (amount == 0)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
-        } else if (sd->status.inventory[x].amount >= amount) {
+        }
+        else if (sd->status.inventory[x].amount >= amount)
+        {
           pc_delitem(sd, x, amount, type);
           lua_pushboolean(state, 1);
           return 1;
@@ -10240,20 +11421,26 @@ int pcl_removeinventoryitem(lua_State *state, void *self) {
       }
     }
 
-    for (x = 0; x < sd->status.maxinv; x++) {
+    for (x = 0; x < sd->status.maxinv; x++)
+    {
       if (sd->status.inventory[x].id == id &&
           sd->status.inventory[x].owner == owner &&
-          !(strcasecmp(sd->status.inventory[x].real_name, engrave))) {
+          !(strcasecmp(sd->status.inventory[x].real_name, engrave)))
+      {
         if (sd->status.inventory[x].amount < amount &&
-            sd->status.inventory[x].amount > 0) {
+            sd->status.inventory[x].amount > 0)
+        {
           amount -= sd->status.inventory[x].amount;
           pc_delitem(sd, x, sd->status.inventory[x].amount, type);
 
-          if (amount == 0) {
+          if (amount == 0)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
-        } else if (sd->status.inventory[x].amount >= amount) {
+        }
+        else if (sd->status.inventory[x].amount >= amount)
+        {
           pc_delitem(sd, x, amount, type);
           lua_pushboolean(state, 1);
           return 1;
@@ -10266,7 +11453,8 @@ int pcl_removeinventoryitem(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_removeitemslot(lua_State *state, void *self) {
+int pcl_removeitemslot(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int slot, amount, type;
@@ -10275,9 +11463,11 @@ int pcl_removeitemslot(lua_State *state, void *self) {
   amount = lua_tonumber(state, sl_memberarg(2));
   type = lua_tonumber(state, sl_memberarg(3));
 
-  if (sd->status.inventory[slot].id > 0) {
+  if (sd->status.inventory[slot].id > 0)
+  {
     if ((sd->status.inventory[slot].amount < amount) &&
-        (sd->status.inventory[slot].amount > 0)) {
+        (sd->status.inventory[slot].amount > 0))
+    {
       // count+=sd->status.inventory[x].amount;
       amount -= sd->status.inventory[slot].amount;
       // if (type == 1) {
@@ -10288,18 +11478,25 @@ int pcl_removeitemslot(lua_State *state, void *self) {
       //	pc_delitem(sd,slot,sd->status.inventory[slot].amount,11);
       //}
 
-      if (amount == 0) {
+      if (amount == 0)
+      {
         lua_pushboolean(state, 1);
         return 1;
       }
-
-    } else if (sd->status.inventory[slot].amount >= amount) {
+    }
+    else if (sd->status.inventory[slot].amount >= amount)
+    {
       // count+=amount;
-      if (type == 1) {
+      if (type == 1)
+      {
         pc_delitem(sd, slot, amount, 10);
-      } else if (type == 2) {
+      }
+      else if (type == 2)
+      {
         pc_delitem(sd, slot, amount, 9);
-      } else {
+      }
+      else
+      {
         pc_delitem(sd, slot, amount, 11);
       }
 
@@ -10312,53 +11509,72 @@ int pcl_removeitemslot(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_removeitemdura(lua_State *state, void *self) {
+int pcl_removeitemdura(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int amount = 0;
   int x;
   int type = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
   amount = lua_tonumber(state, sl_memberarg(2));
   type = lua_tonumber(state, sl_memberarg(3));
 
-  for (x = 0; x < sd->status.maxinv; x++) {
-    if (sd->status.inventory[x].id == id) {
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
+    if (sd->status.inventory[x].id == id)
+    {
       if ((sd->status.inventory[x].amount < amount) &&
           (sd->status.inventory[x].amount > 0) &&
           (sd->status.inventory[x].dura ==
-           itemdb_dura(sd->status.inventory[x].id))) {
+           itemdb_dura(sd->status.inventory[x].id)))
+      {
         // count+=sd->status.inventory[x].amount;
         amount -= sd->status.inventory[x].amount;
-        if (type == 1) {
+        if (type == 1)
+        {
           pc_delitem(sd, x, sd->status.inventory[x].amount, 10);
-        } else if (type == 2) {
+        }
+        else if (type == 2)
+        {
           pc_delitem(sd, x, sd->status.inventory[x].amount, 9);
-        } else {
+        }
+        else
+        {
           pc_delitem(sd, x, sd->status.inventory[x].amount, 11);
         }
 
-        if (amount == 0) {
+        if (amount == 0)
+        {
           lua_pushboolean(state, 1);
           return 1;
         }
-
-      } else if (sd->status.inventory[x].amount >= amount &&
-                 (sd->status.inventory[x].dura ==
-                  itemdb_dura(sd->status.inventory[x].id))) {
+      }
+      else if (sd->status.inventory[x].amount >= amount &&
+               (sd->status.inventory[x].dura ==
+                itemdb_dura(sd->status.inventory[x].id)))
+      {
         // count+=amount;
-        if (type == 1) {
+        if (type == 1)
+        {
           pc_delitem(sd, x, amount, 10);
-        } else if (type == 2) {
+        }
+        else if (type == 2)
+        {
           pc_delitem(sd, x, amount, 9);
-        } else {
+        }
+        else
+        {
           pc_delitem(sd, x, amount, 11);
         }
 
@@ -10372,7 +11588,8 @@ int pcl_removeitemdura(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_addGift(lua_State *state, void *self) {
+int pcl_addGift(lua_State *state, void *self)
+{
   /*int x;
       unsigned int size=lua_objlen(state,sl_memberarg(1));
       struct item_data *item;
@@ -10439,7 +11656,8 @@ int pcl_addGift(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_retrieveGift(lua_State *state, void *self) {
+int pcl_retrieveGift(lua_State *state, void *self)
+{
   /*unsigned int giftid = lua_tonumber(state, sl_memberarg(1));
 
 
@@ -10523,7 +11741,8 @@ int pcl_retrieveGift(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_additem(lua_State *state, void *self) {
+int pcl_additem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int amount = 0;
@@ -10542,10 +11761,13 @@ int pcl_additem(lua_State *state, void *self) {
   unsigned int custom = 0;
 
   CALLOC(fl, struct item, 1);
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -10561,47 +11783,64 @@ int pcl_additem(lua_State *state, void *self) {
   customLookColor = lua_tonumber(state, sl_memberarg(8));
   customIcon = lua_tonumber(state, sl_memberarg(9));
   customIconColor = lua_tonumber(state, sl_memberarg(10));
- protected
-  = lua_tonumber(state, sl_memberarg(11));
+  protected = lua_tonumber(state, sl_memberarg(11));
   note = lua_tostring(state, sl_memberarg(12));
   custom = lua_tonumber(state, sl_memberarg(13));
 
   fl->id = id;
   fl->amount = amount;
 
-  if (owner) {
+  if (owner)
+  {
     fl->owner = owner;
-  } else {
+  }
+  else
+  {
     fl->owner = 0;
   }
 
-  if (time) {
+  if (time)
+  {
     fl->time = time;
-  } else {
+  }
+  else
+  {
     fl->time = 0;
   }
 
-  if (engrave) {
+  if (engrave)
+  {
     strcpy(fl->real_name, engrave);
-  } else {
+  }
+  else
+  {
     strcpy(fl->real_name, "");
   }
 
-  if (note) {
+  if (note)
+  {
     strcpy(fl->note, note);
-  } else {
+  }
+  else
+  {
     strcpy(fl->note, "");
   }
 
-  if (dura) {
+  if (dura)
+  {
     fl->dura = dura;
-  } else {
+  }
+  else
+  {
     fl->dura = itemdb_dura(id);
   }
 
-  if (protected) {
+  if (protected)
+  {
     fl->protected = protected;
-  } else {
+  }
+  else
+  {
     fl->protected = itemdb_protected(id);
   }
 
@@ -10612,23 +11851,30 @@ int pcl_additem(lua_State *state, void *self) {
   fl->custom = custom;
 
   // map_additem(&fl->bl);
-  if (!pc_additem(sd, fl)) {
+  if (!pc_additem(sd, fl))
+  {
     lua_pushboolean(state, 1);
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 0);
   }
   FREE(fl);
   return 1;
 }
 
-int pcl_showboard(lua_State *state, void *self) {
+int pcl_showboard(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "n");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "s");
     id = boarddb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -10639,15 +11885,19 @@ int pcl_showboard(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_showpost(lua_State *state, void *self) {
+int pcl_showpost(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int post = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = boarddb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -10660,7 +11910,8 @@ int pcl_showpost(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_hasitem(lua_State *state, void *self) {
+int pcl_hasitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0, amount = 0, leftover = 0, owner = 0;
   int x = 0;
@@ -10672,14 +11923,17 @@ int pcl_hasitem(lua_State *state, void *self) {
   unsigned int customIcon = 0;
   unsigned int customIconColor = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
-  amount = abs(lua_tonumber(state, sl_memberarg(2)));
+  amount = (int)fabs(lua_tonumber(state, sl_memberarg(2)));
   dura = lua_tonumber(state, sl_memberarg(3));
   owner = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
@@ -10691,63 +11945,82 @@ int pcl_hasitem(lua_State *state, void *self) {
 
   leftover = amount;
 
-  if (!engrave) {
+  if (!engrave)
+  {
     engrave = "";
   }
 
-  if (!note) {
+  if (!note)
+  {
     note = "";
   }
 
-  for (x = 0; x < sd->status.maxinv; x++) {
-    if (owner == 0) {
-      if (!dura) {
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
+    if (owner == 0)
+    {
+      if (!dura)
+      {
         if (sd->status.inventory[x].id == id &&
             !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
             sd->status.inventory[x].customLook == customLook &&
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
             sd->status.inventory[x].customIconColor == customIconColor &&
-            !(strcmp(sd->status.inventory[x].note, note))) {
+            !(strcmp(sd->status.inventory[x].note, note)))
+        {
           if (sd->status.inventory[x].amount < amount &&
-              sd->status.inventory[x].amount > 0) {
+              sd->status.inventory[x].amount > 0)
+          {
             amount -= sd->status.inventory[x].amount;
 
-            if (amount == 0) {
+            if (amount == 0)
+            {
               lua_pushboolean(state, 1);
               return 1;
             }
-          } else if (sd->status.inventory[x].amount >= amount) {
-            lua_pushboolean(state, 1);
-            return 1;
           }
-        }
-      } else {
-        if (sd->status.inventory[x].id == id &&
-            sd->status.inventory[x].dura >= dura &&
-            !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
-            sd->status.inventory[x].customLook == customLook &&
-            sd->status.inventory[x].customLookColor == customLookColor &&
-            sd->status.inventory[x].customIcon == customIcon &&
-            sd->status.inventory[x].customIconColor == customIconColor &&
-            !(strcmp(sd->status.inventory[x].note, note))) {
-          if (sd->status.inventory[x].amount < amount &&
-              sd->status.inventory[x].amount > 0) {
-            amount -= sd->status.inventory[x].amount;
-
-            if (amount == 0) {
-              lua_pushboolean(state, 1);
-              return 1;
-            }
-          } else if (sd->status.inventory[x].amount >= amount) {
+          else if (sd->status.inventory[x].amount >= amount)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
         }
       }
+      else
+      {
+        if (sd->status.inventory[x].id == id &&
+            sd->status.inventory[x].dura >= dura &&
+            !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
+            sd->status.inventory[x].customLook == customLook &&
+            sd->status.inventory[x].customLookColor == customLookColor &&
+            sd->status.inventory[x].customIcon == customIcon &&
+            sd->status.inventory[x].customIconColor == customIconColor &&
+            !(strcmp(sd->status.inventory[x].note, note)))
+        {
+          if (sd->status.inventory[x].amount < amount &&
+              sd->status.inventory[x].amount > 0)
+          {
+            amount -= sd->status.inventory[x].amount;
 
-    } else if (owner > 0) {
-      if (!dura) {
+            if (amount == 0)
+            {
+              lua_pushboolean(state, 1);
+              return 1;
+            }
+          }
+          else if (sd->status.inventory[x].amount >= amount)
+          {
+            lua_pushboolean(state, 1);
+            return 1;
+          }
+        }
+      }
+    }
+    else if (owner > 0)
+    {
+      if (!dura)
+      {
         if (sd->status.inventory[x].id == id &&
             sd->status.inventory[x].owner == owner &&
             !(strcasecmp(sd->status.inventory[x].real_name, engrave)) &&
@@ -10755,21 +12028,28 @@ int pcl_hasitem(lua_State *state, void *self) {
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
             sd->status.inventory[x].customIconColor == customIconColor &&
-            !(strcmp(sd->status.inventory[x].note, note))) {
+            !(strcmp(sd->status.inventory[x].note, note)))
+        {
           if (sd->status.inventory[x].amount < amount &&
-              sd->status.inventory[x].amount > 0) {
+              sd->status.inventory[x].amount > 0)
+          {
             amount -= sd->status.inventory[x].amount;
 
-            if (amount == 0) {
+            if (amount == 0)
+            {
               lua_pushboolean(state, 1);
               return 1;
             }
-          } else if (sd->status.inventory[x].amount >= amount) {
+          }
+          else if (sd->status.inventory[x].amount >= amount)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
         }
-      } else {
+      }
+      else
+      {
         if (sd->status.inventory[x].id == id &&
             sd->status.inventory[x].dura >= dura &&
             sd->status.inventory[x].owner == owner &&
@@ -10778,16 +12058,21 @@ int pcl_hasitem(lua_State *state, void *self) {
             sd->status.inventory[x].customLookColor == customLookColor &&
             sd->status.inventory[x].customIcon == customIcon &&
             sd->status.inventory[x].customIconColor == customIconColor &&
-            !(strcmp(sd->status.inventory[x].note, note))) {
+            !(strcmp(sd->status.inventory[x].note, note)))
+        {
           if (sd->status.inventory[x].amount < amount &&
-              sd->status.inventory[x].amount > 0) {
+              sd->status.inventory[x].amount > 0)
+          {
             amount -= sd->status.inventory[x].amount;
 
-            if (amount == 0) {
+            if (amount == 0)
+            {
               lua_pushboolean(state, 1);
               return 1;
             }
-          } else if (sd->status.inventory[x].amount >= amount) {
+          }
+          else if (sd->status.inventory[x].amount >= amount)
+          {
             lua_pushboolean(state, 1);
             return 1;
           }
@@ -10801,41 +12086,51 @@ int pcl_hasitem(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_hasitemdura(lua_State *state, void *self) {
+int pcl_hasitemdura(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0;
   unsigned int amount = 0, leftover = 0;
   int x;
   int dura = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
-  amount = abs(lua_tonumber(state, sl_memberarg(2)));
+  amount = (int)fabs(lua_tonumber(state, sl_memberarg(2)));
   dura = lua_tonumber(state, sl_memberarg(3));
 
   leftover = amount;
 
-  for (x = 0; x < sd->status.maxinv; x++) {
-    if (sd->status.inventory[x].id == id) {
-      if (!dura) dura = itemdb_dura(sd->status.inventory[x].id);
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
+    if (sd->status.inventory[x].id == id)
+    {
+      if (!dura)
+        dura = itemdb_dura(sd->status.inventory[x].id);
 
       if ((sd->status.inventory[x].amount < amount) &&
           (sd->status.inventory[x].amount > 0) &&
-          (sd->status.inventory[x].dura == dura)) {
+          (sd->status.inventory[x].dura == dura))
+      {
         amount -= sd->status.inventory[x].amount;
         // pc_delitem(sd,x,sd->status.inventory[x].amount,itemdb_type(sd->status.inventory[x].id));
-        if (amount == 0) {
+        if (amount == 0)
+        {
           lua_pushboolean(state, 1);
           return 1;
         }
-
-      } else if (sd->status.inventory[x].amount >= amount &&
-                 (sd->status.inventory[x].dura == dura)) {
+      }
+      else if (sd->status.inventory[x].amount >= amount &&
+               (sd->status.inventory[x].dura == dura))
+      {
         // count+=amount;
         // pc_delitem(sd,x,count,itemdb_type(sd->status.inventory[x].id));
         lua_pushboolean(state, 1);
@@ -10849,33 +12144,44 @@ int pcl_hasitemdura(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_addspell(lua_State *state, void *self) {
+int pcl_addspell(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int spell;
   int x;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     spell = lua_tonumber(state, sl_memberarg(1));
-  } else if (lua_isstring(state, sl_memberarg(1))) {
+  }
+  else if (lua_isstring(state, sl_memberarg(1)))
+  {
     spell = magicdb_id(lua_tostring(state, sl_memberarg(1)));
-  } else {
+  }
+  else
+  {
     lua_pushnil(state);
     return 0;
   }
 
-  for (x = 0; x < 52; x++) {
-    if (sd->status.skill[x] == spell) {
+  for (x = 0; x < 52; x++)
+  {
+    if (sd->status.skill[x] == spell)
+    {
       return 0;
     }
   }
-  for (x = 0; x < 52; x++) {
-    if (sd->status.skill[x] <= 0) {  // vacant spot
+  for (x = 0; x < 52; x++)
+  {
+    if (sd->status.skill[x] <= 0)
+    { // vacant spot
       sl_doscript_blargs(magicdb_yname(spell), "on_learn", 1, &sd->bl);
       sd->status.skill[x] = spell;
       pc_loadmagic(sd);
       break;
     }
-    if (sd->status.skill[x] == spell) {
+    if (sd->status.skill[x] == spell)
+    {
       break;
     }
   }
@@ -10883,7 +12189,8 @@ int pcl_addspell(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_hasspell(lua_State *state, void *self) {
+int pcl_hasspell(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int spell = magicdb_id(lua_tostring(state, sl_memberarg(1)));
@@ -10892,8 +12199,10 @@ int pcl_hasspell(lua_State *state, void *self) {
   // if(sscanf(line,"%d",&spell)<1)
   //	return -1;
 
-  for (x = 0; x < 52; x++) {
-    if (sd->status.skill[x] == spell) {
+  for (x = 0; x < 52; x++)
+  {
+    if (sd->status.skill[x] == spell)
+    {
       lua_pushboolean(state, 1);
       return 1;
     }
@@ -10903,13 +12212,16 @@ int pcl_hasspell(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getspells(lua_State *state, void *self) {
+int pcl_getspells(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
-  for (x = 0, i = 1; x < MAX_SPELLS; x++) {
-    if (sd->status.skill[x]) {
+  for (x = 0, i = 1; x < MAX_SPELLS; x++)
+  {
+    if (sd->status.skill[x])
+    {
       lua_pushnumber(state, sd->status.skill[x]);
       lua_rawseti(state, -2, i);
       i++;
@@ -10919,13 +12231,16 @@ int pcl_getspells(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getspellname(lua_State *state, void *self) {
+int pcl_getspellname(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
-  for (x = 0, i = 1; x < MAX_SPELLS; x++) {
-    if (sd->status.skill[x]) {
+  for (x = 0, i = 1; x < MAX_SPELLS; x++)
+  {
+    if (sd->status.skill[x])
+    {
       lua_pushstring(state, magicdb_name(sd->status.skill[x]));
       lua_rawseti(state, -2, i);
       i++;
@@ -10935,13 +12250,16 @@ int pcl_getspellname(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getspellyname(lua_State *state, void *self) {
+int pcl_getspellyname(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
-  for (x = 0, i = 1; x < MAX_SPELLS; x++) {
-    if (sd->status.skill[x]) {
+  for (x = 0, i = 1; x < MAX_SPELLS; x++)
+  {
+    if (sd->status.skill[x])
+    {
       lua_pushstring(state, magicdb_yname(sd->status.skill[x]));
       lua_rawseti(state, -2, i);
       i++;
@@ -10951,7 +12269,8 @@ int pcl_getspellyname(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getspellnamefromyname(lua_State *state, void *self) {
+int pcl_getspellnamefromyname(lua_State *state, void *self)
+{
   int id = magicdb_id(lua_tostring(state, sl_memberarg(1)));
 
   lua_pushstring(state, magicdb_name(id));
@@ -10959,7 +12278,8 @@ int pcl_getspellnamefromyname(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_addEventXP(lua_State *state, void *self) {
+int pcl_addEventXP(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   char date_string[100] = "";
   char time_string[100] = "";
@@ -10978,39 +12298,47 @@ int pcl_addEventXP(lua_State *state, void *self) {
   char eventname[40] = "";
   unsigned int score = lua_tonumber(state, sl_memberarg(2));
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     eventid = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     strcpy(eventname, lua_tostring(state, sl_memberarg(1)));
   }
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
 
-  if (strcmp(eventname, "") != 0) {
+  if (strcmp(eventname, "") != 0)
+  {
     if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                      "SELECT `EventId` FROM `RankingEvents` "
                                      "WHERE `EventName` = '%s'",
                                      eventname) ||
         SQL_ERROR == SqlStmt_Execute(stmt) ||
         SQL_ERROR ==
-            SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &eventid, 0, NULL, NULL)) {
+            SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &eventid, 0, NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
     }
 
-    if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+    {
       SqlStmt_Free(stmt);
     }
   }
 
-  if (eventid != -1) {
+  if (eventid != -1)
+  {
     ///////////// Get Event Closing Date and Time /////////////////
     if (SQL_ERROR == SqlStmt_Prepare(stmt,
                                      "SELECT `ToDate`, `ToTime` FROM "
@@ -11020,20 +12348,25 @@ int pcl_addEventXP(lua_State *state, void *self) {
         SQL_ERROR ==
             SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &todate, 0, NULL, NULL) ||
         SQL_ERROR ==
-            SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &totime, 0, NULL, NULL)) {
+            SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &totime, 0, NULL, NULL))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
     }
 
-    if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+    if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+    {
       SqlStmt_Free(stmt);
     }
 
     //// Date and Time Check. Does not allow one to enter a score past the
     /// Specified Date and Time of the Event. //////
-    if (date > todate) return 1;
-    if (date == todate) {
-      if (time >= totime) return 1;
+    if (date > todate)
+      return 1;
+    if (date == todate)
+    {
+      if (time >= totime)
+        return 1;
     }
     ////////// End Date and Time Check //////////////////////
 
@@ -11041,31 +12374,37 @@ int pcl_addEventXP(lua_State *state, void *self) {
                                      "SELECT * FROM `RankingScores` WHERE "
                                      "`EventId` = '%i' AND `ChaId` = '%i'",
                                      eventid, sd->status.id) ||
-        SQL_ERROR == SqlStmt_Execute(stmt)) {
+        SQL_ERROR == SqlStmt_Execute(stmt))
+    {
       SqlStmt_ShowDebug(stmt);
       SqlStmt_Free(stmt);
       return 0;
     }
 
-    if (SqlStmt_NumRows(stmt) == 0) {
+    if (SqlStmt_NumRows(stmt) == 0)
+    {
       if (SQL_ERROR ==
           Sql_Query(
               sql_handle,
               "INSERT INTO `RankingScores` (`EventId`, `ChaId`, `ChaName`, "
               "`Score`, `EventClaim`) VALUES ('%i', '%i', '%s', '%i', '2')",
-              eventid, sd->status.id, sd->status.name, score)) {
+              eventid, sd->status.id, sd->status.name, score))
+      {
         Sql_ShowDebug(sql_handle);
         lua_pushboolean(state, 1);
         SqlStmt_Free(stmt);
         return 1;
       }
-    } else {
+    }
+    else
+    {
       if (SQL_ERROR ==
           Sql_Query(
               sql_handle,
               "UPDATE `RankingScores` SET `Score` = `Score` + '%u', `ChaName` "
               "= '%s' WHERE `EventId` = '%i' AND `ChaId` = '%d'",
-              score, sd->status.name, eventid, sd->status.id)) {
+              score, sd->status.name, eventid, sd->status.id))
+      {
         Sql_ShowDebug(sql_handle);
         lua_pushboolean(state, 1);
         SqlStmt_Free(stmt);
@@ -11076,7 +12415,8 @@ int pcl_addEventXP(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_hasspace(lua_State *state, void *self) {
+int pcl_hasspace(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   unsigned int id = 0;
   int x;
@@ -11088,10 +12428,13 @@ int pcl_hasspace(lua_State *state, void *self) {
   unsigned int customIcon = 0;
   unsigned int customIconColor = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -11107,46 +12450,61 @@ int pcl_hasspace(lua_State *state, void *self) {
   //   = lua_tonumber(state, sl_memberarg(9));
   // note = lua_tostring(state, sl_memberarg(10));
 
-  if (!engrave) {
+  if (!engrave)
+  {
     engrave = "";
   }
 
   if (pc_isinvenspace(sd, id, owner, engrave, customLook, customLookColor,
-                      customIcon, customIconColor) >= sd->status.maxinv) {
+                      customIcon, customIconColor) >= sd->status.maxinv)
+  {
     lua_pushboolean(state, 0);
     return 1;
   }
 
-  for (x = 0; x < sd->status.maxinv; x++) {
-    if (!engrave) {
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
+    if (!engrave)
+    {
       engraved = -1;
-    } else {
+    }
+    else
+    {
       engraved = strcasecmp(sd->status.inventory[x].real_name, engrave);
     }
 
     if (sd->status.inventory[x].id == id &&
-        sd->status.inventory[x].owner == owner && engraved == 0) {
-      if (sd->status.inventory[x].amount < itemdb_stackamount(id)) {
+        sd->status.inventory[x].owner == owner && engraved == 0)
+    {
+      if (sd->status.inventory[x].amount < itemdb_stackamount(id))
+      {
         amount -= (itemdb_stackamount(id) - sd->status.inventory[x].amount);
       }
     }
 
     if (sd->status.inventory[x].id == id &&
-        sd->status.inventory[x].owner == owner && engraved != 0) {
-      if (sd->status.inventory[x].amount < itemdb_stackamount(id)) {
+        sd->status.inventory[x].owner == owner && engraved != 0)
+    {
+      if (sd->status.inventory[x].amount < itemdb_stackamount(id))
+      {
         amount -= (itemdb_stackamount(id) - sd->status.inventory[x].amount);
       }
     }
 
-    if (sd->status.inventory[x].id <= 0) {
-      if (amount <= itemdb_stackamount(id)) {
+    if (sd->status.inventory[x].id <= 0)
+    {
+      if (amount <= itemdb_stackamount(id))
+      {
         amount = 0;
-      } else {
+      }
+      else
+      {
         amount -= itemdb_stackamount(id);
       }
     }
 
-    if (amount <= 0) {
+    if (amount <= 0)
+    {
       lua_pushboolean(state, 1);
       return 1;
     }
@@ -11156,22 +12514,30 @@ int pcl_hasspace(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_removespell(lua_State *state, void *self) {
+int pcl_removespell(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int spell;
   int x;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     spell = lua_tonumber(state, sl_memberarg(1));
-  } else if (lua_isstring(state, sl_memberarg(1))) {
+  }
+  else if (lua_isstring(state, sl_memberarg(1)))
+  {
     spell = magicdb_id(lua_tostring(state, sl_memberarg(1)));
-  } else {
+  }
+  else
+  {
     lua_pushnil(state);
     return 0;
   }
 
-  for (x = 0; x < MAX_SPELLS; x++) {
-    if (sd->status.skill[x] == spell) {
+  for (x = 0; x < MAX_SPELLS; x++)
+  {
+    if (sd->status.skill[x] == spell)
+    {
       sl_doscript_blargs(magicdb_yname(spell), "on_forget", 1, &sd->bl);
       clif_removespell(sd, x);
       sd->status.skill[x] = 0;
@@ -11182,12 +12548,14 @@ int pcl_removespell(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_powerboard(lua_State *state, void *self) {
+int pcl_powerboard(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   return clif_sendpowerboard(sd);
 }
 
-int pcl_getbankitem(lua_State *state, void *self) {
+int pcl_getbankitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int num = lua_tonumber(state, sl_memberarg(1));
@@ -11199,13 +12567,16 @@ int pcl_getbankitem(lua_State *state, void *self) {
 }
 
 // get bank items
-int pcl_getbankitems(lua_State *state, void *self) {
+int pcl_getbankitems(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
   lua_newtable(state);
 
-  for (i = 0, x = 1; i < MAX_BANK_SLOTS; i++, x += 10) {
-    if (sd->status.banks[i].item_id > 0) {
+  for (i = 0, x = 1; i < MAX_BANK_SLOTS; i++, x += 10)
+  {
+    if (sd->status.banks[i].item_id > 0)
+    {
       lua_pushnumber(state, sd->status.banks[i].item_id);
       lua_rawseti(state, -2, x);
       lua_pushnumber(state, sd->status.banks[i].amount);
@@ -11233,7 +12604,8 @@ int pcl_getbankitems(lua_State *state, void *self) {
 }
 
 // deposit item
-int pcl_bankdeposit(lua_State *state, void *self) {
+int pcl_bankdeposit(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
@@ -11250,14 +12622,14 @@ int pcl_bankdeposit(lua_State *state, void *self) {
   owner = lua_tonumber(state, sl_memberarg(3));
   time = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
- protected
-  = lua_tonumber(state, sl_memberarg(6));
+  protected = lua_tonumber(state, sl_memberarg(6));
   customIcon = lua_tonumber(state, sl_memberarg(7));
   customIconColor = lua_tonumber(state, sl_memberarg(8));
   customLook = lua_tonumber(state, sl_memberarg(9));
   customLookColor = lua_tonumber(state, sl_memberarg(10));
 
-  for (x = 0; x < MAX_BANK_SLOTS; x++) {
+  for (x = 0; x < MAX_BANK_SLOTS; x++)
+  {
     if (sd->status.banks[x].item_id == item &&
         sd->status.banks[x].owner == owner &&
         sd->status.banks[x].time == time &&
@@ -11266,17 +12638,23 @@ int pcl_bankdeposit(lua_State *state, void *self) {
         sd->status.banks[x].customIcon == customIcon &&
         sd->status.banks[x].customIconColor == customIconColor &&
         sd->status.banks[x].customLook == customLook &&
-        sd->status.banks[x].customLookColor == customLookColor) {
+        sd->status.banks[x].customLookColor == customLookColor)
+    {
       deposit = x;
       break;
     }
   }
 
-  if (deposit != -1) {
+  if (deposit != -1)
+  {
     sd->status.banks[deposit].amount += amount;
-  } else {
-    for (x = 0; x < MAX_BANK_SLOTS; x++) {
-      if (sd->status.banks[x].item_id == 0) {
+  }
+  else
+  {
+    for (x = 0; x < MAX_BANK_SLOTS; x++)
+    {
+      if (sd->status.banks[x].item_id == 0)
+      {
         sd->status.banks[x].item_id = item;
         sd->status.banks[x].amount = amount;
         sd->status.banks[x].owner = owner;
@@ -11295,8 +12673,9 @@ int pcl_bankdeposit(lua_State *state, void *self) {
 
   lua_pushboolean(state, 0);
   return 0;
-}  // withdraw item
-int pcl_bankwithdraw(lua_State *state, void *self) {
+} // withdraw item
+int pcl_bankwithdraw(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
@@ -11312,14 +12691,14 @@ int pcl_bankwithdraw(lua_State *state, void *self) {
   owner = lua_tonumber(state, sl_memberarg(3));
   time = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
- protected
-  = lua_tonumber(state, sl_memberarg(6));
+  protected = lua_tonumber(state, sl_memberarg(6));
   customIcon = lua_tonumber(state, sl_memberarg(7));
   customIconColor = lua_tonumber(state, sl_memberarg(8));
   customLook = lua_tonumber(state, sl_memberarg(9));
   customLookColor = lua_tonumber(state, sl_memberarg(10));
 
-  for (x = 0; x < MAX_BANK_SLOTS; x++) {
+  for (x = 0; x < MAX_BANK_SLOTS; x++)
+  {
     if (sd->status.banks[x].item_id == item &&
         sd->status.banks[x].owner == owner &&
         sd->status.banks[x].time == time &&
@@ -11328,20 +12707,26 @@ int pcl_bankwithdraw(lua_State *state, void *self) {
         sd->status.banks[x].customIcon == customIcon &&
         sd->status.banks[x].customIconColor == customIconColor &&
         sd->status.banks[x].customLook == customLook &&
-        sd->status.banks[x].customLookColor == customLookColor) {
+        sd->status.banks[x].customLookColor == customLookColor)
+    {
       deposit = x;
       break;
     }
   }
 
-  if (deposit != -1) {
-    if ((sd->status.banks[deposit].amount - amount) < 0) {
+  if (deposit != -1)
+  {
+    if ((sd->status.banks[deposit].amount - amount) < 0)
+    {
       lua_pushboolean(state, 0);
       return 1;
-    } else {
+    }
+    else
+    {
       sd->status.banks[deposit].amount -= amount;
 
-      if (sd->status.banks[deposit].amount <= 0) {
+      if (sd->status.banks[deposit].amount <= 0)
+      {
         sd->status.banks[deposit].item_id = 0;
         sd->status.banks[deposit].amount = 0;
         sd->status.banks[deposit].owner = 0;
@@ -11353,8 +12738,10 @@ int pcl_bankwithdraw(lua_State *state, void *self) {
         sd->status.banks[deposit].customLook = 0;
         sd->status.banks[deposit].customLookColor = 0;
 
-        for (x = 0; x < MAX_BANK_SLOTS; x++) {
-          if (sd->status.banks[x].item_id == 0 && x < MAX_BANK_SLOTS - 1) {
+        for (x = 0; x < MAX_BANK_SLOTS; x++)
+        {
+          if (sd->status.banks[x].item_id == 0 && x < MAX_BANK_SLOTS - 1)
+          {
             sd->status.banks[x].item_id = sd->status.banks[x + 1].item_id;
             sd->status.banks[x + 1].item_id = 0;
             sd->status.banks[x].amount = sd->status.banks[x + 1].amount;
@@ -11394,7 +12781,8 @@ int pcl_bankwithdraw(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getclanbankitems(lua_State *state, void *self) {
+int pcl_getclanbankitems(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
 
@@ -11405,8 +12793,10 @@ int pcl_getclanbankitems(lua_State *state, void *self) {
 
   lua_newtable(state);
 
-  for (i = 0, x = 1; i < 255; i++, x += 10) {
-    if (clan->clanbanks[i].item_id > 0) {
+  for (i = 0, x = 1; i < 255; i++, x += 10)
+  {
+    if (clan->clanbanks[i].item_id > 0)
+    {
       lua_pushnumber(state, clan->clanbanks[i].item_id);
       lua_rawseti(state, -2, x);
       lua_pushnumber(state, clan->clanbanks[i].amount);
@@ -11434,7 +12824,8 @@ int pcl_getclanbankitems(lua_State *state, void *self) {
 }
 
 // deposit item
-int pcl_clanbankdeposit(lua_State *state, void *self) {
+int pcl_clanbankdeposit(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
@@ -11456,14 +12847,14 @@ int pcl_clanbankdeposit(lua_State *state, void *self) {
   owner = lua_tonumber(state, sl_memberarg(3));
   time = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
- protected
-  = lua_tonumber(state, sl_memberarg(6));
+  protected = lua_tonumber(state, sl_memberarg(6));
   customIcon = lua_tonumber(state, sl_memberarg(7));
   customIconColor = lua_tonumber(state, sl_memberarg(8));
   customLook = lua_tonumber(state, sl_memberarg(9));
   customLookColor = lua_tonumber(state, sl_memberarg(10));
 
-  for (x = 0; x < 255; x++) {
+  for (x = 0; x < 255; x++)
+  {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
         !strcasecmp(clan->clanbanks[x].real_name, engrave) &&
@@ -11471,19 +12862,25 @@ int pcl_clanbankdeposit(lua_State *state, void *self) {
         clan->clanbanks[x].customIcon == customIcon &&
         clan->clanbanks[x].customIconColor == customIconColor &&
         clan->clanbanks[x].customLook == customLook &&
-        clan->clanbanks[x].customLookColor == customLookColor) {
+        clan->clanbanks[x].customLookColor == customLookColor)
+    {
       deposit = x;
       break;
     }
   }
 
-  if (deposit != -1) {
+  if (deposit != -1)
+  {
     clan->clanbanks[deposit].amount += amount;
     map_saveclanbank(id);
     lua_pushboolean(state, 1);
-  } else {
-    for (x = 0; x < 255; x++) {
-      if (clan->clanbanks[x].item_id == 0) {
+  }
+  else
+  {
+    for (x = 0; x < 255; x++)
+    {
+      if (clan->clanbanks[x].item_id == 0)
+      {
         clan->clanbanks[x].item_id = item;
         clan->clanbanks[x].amount = amount;
         clan->clanbanks[x].owner = owner;
@@ -11505,7 +12902,8 @@ int pcl_clanbankdeposit(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_clanbankwithdraw(lua_State *state, void *self) {
+int pcl_clanbankwithdraw(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
@@ -11526,14 +12924,14 @@ int pcl_clanbankwithdraw(lua_State *state, void *self) {
   owner = lua_tonumber(state, sl_memberarg(3));
   time = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
- protected
-  = lua_tonumber(state, sl_memberarg(6));
+  protected = lua_tonumber(state, sl_memberarg(6));
   customIcon = lua_tonumber(state, sl_memberarg(7));
   customIconColor = lua_tonumber(state, sl_memberarg(8));
   customLook = lua_tonumber(state, sl_memberarg(9));
   customLookColor = lua_tonumber(state, sl_memberarg(10));
 
-  for (x = 0; x < 255; x++) {
+  for (x = 0; x < 255; x++)
+  {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
         !strcasecmp(clan->clanbanks[x].real_name, engrave) &&
@@ -11541,20 +12939,26 @@ int pcl_clanbankwithdraw(lua_State *state, void *self) {
         clan->clanbanks[x].customIcon == customIcon &&
         clan->clanbanks[x].customIconColor == customIconColor &&
         clan->clanbanks[x].customLook == customLook &&
-        clan->clanbanks[x].customLookColor == customLookColor) {
+        clan->clanbanks[x].customLookColor == customLookColor)
+    {
       deposit = x;
       break;
     }
   }
 
-  if (deposit != -1) {
-    if ((clan->clanbanks[deposit].amount - amount) < 0) {
+  if (deposit != -1)
+  {
+    if ((clan->clanbanks[deposit].amount - amount) < 0)
+    {
       lua_pushboolean(state, 0);
       return 1;
-    } else {
+    }
+    else
+    {
       clan->clanbanks[deposit].amount -= amount;
 
-      if (clan->clanbanks[deposit].amount <= 0) {
+      if (clan->clanbanks[deposit].amount <= 0)
+      {
         clan->clanbanks[deposit].item_id = 0;
         clan->clanbanks[deposit].amount = 0;
         clan->clanbanks[deposit].owner = 0;
@@ -11566,8 +12970,10 @@ int pcl_clanbankwithdraw(lua_State *state, void *self) {
         clan->clanbanks[deposit].customLook = 0;
         clan->clanbanks[deposit].customLookColor = 0;
 
-        for (x = 0; x < 255; x++) {
-          if (clan->clanbanks[x].item_id == 0 && x < 255 - 1) {
+        for (x = 0; x < 255; x++)
+        {
+          if (clan->clanbanks[x].item_id == 0 && x < 255 - 1)
+          {
             clan->clanbanks[x].item_id = clan->clanbanks[x + 1].item_id;
             clan->clanbanks[x + 1].item_id = 0;
             clan->clanbanks[x].amount = clan->clanbanks[x + 1].amount;
@@ -11608,7 +13014,8 @@ int pcl_clanbankwithdraw(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getsubpathbankitems(lua_State *state, void *self) {
+int pcl_getsubpathbankitems(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
 
@@ -11619,8 +13026,10 @@ int pcl_getsubpathbankitems(lua_State *state, void *self) {
 
   lua_newtable(state);
 
-  for (i = 0, x = 1; i < 255; i++, x += 5) {
-    if (clan->clanbanks[i].item_id > 0) {
+  for (i = 0, x = 1; i < 255; i++, x += 5)
+  {
+    if (clan->clanbanks[i].item_id > 0)
+    {
       lua_pushnumber(state, clan->clanbanks[i].item_id);
       lua_rawseti(state, -2, x);
       lua_pushnumber(state, clan->clanbanks[i].amount);
@@ -11638,7 +13047,8 @@ int pcl_getsubpathbankitems(lua_State *state, void *self) {
 }
 
 // deposit item
-int pcl_subpathbankdeposit(lua_State *state, void *self) {
+int pcl_subpathbankdeposit(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
@@ -11659,22 +13069,29 @@ int pcl_subpathbankdeposit(lua_State *state, void *self) {
   time = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
 
-  for (x = 0; x < 255; x++) {
+  for (x = 0; x < 255; x++)
+  {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
-        !strcasecmp(clan->clanbanks[x].real_name, engrave)) {
+        !strcasecmp(clan->clanbanks[x].real_name, engrave))
+    {
       deposit = x;
       break;
     }
   }
 
-  if (deposit != -1) {
+  if (deposit != -1)
+  {
     clan->clanbanks[deposit].amount += amount;
     map_saveclanbank(id);
     lua_pushboolean(state, 1);
-  } else {
-    for (x = 0; x < 255; x++) {
-      if (clan->clanbanks[x].item_id == 0) {
+  }
+  else
+  {
+    for (x = 0; x < 255; x++)
+    {
+      if (clan->clanbanks[x].item_id == 0)
+      {
         clan->clanbanks[x].item_id = item;
         clan->clanbanks[x].amount = amount;
         clan->clanbanks[x].owner = owner;
@@ -11691,7 +13108,8 @@ int pcl_subpathbankdeposit(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_subpathbankwithdraw(lua_State *state, void *self) {
+int pcl_subpathbankwithdraw(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x, deposit, amount, owner;
@@ -11711,31 +13129,40 @@ int pcl_subpathbankwithdraw(lua_State *state, void *self) {
   time = lua_tonumber(state, sl_memberarg(4));
   engrave = lua_tostring(state, sl_memberarg(5));
 
-  for (x = 0; x < 255; x++) {
+  for (x = 0; x < 255; x++)
+  {
     if (clan->clanbanks[x].item_id == item &&
         clan->clanbanks[x].owner == owner && clan->clanbanks[x].time == time &&
-        !strcasecmp(clan->clanbanks[x].real_name, engrave)) {
+        !strcasecmp(clan->clanbanks[x].real_name, engrave))
+    {
       deposit = x;
       break;
     }
   }
 
-  if (deposit != -1) {
-    if ((clan->clanbanks[deposit].amount - amount) < 0) {
+  if (deposit != -1)
+  {
+    if ((clan->clanbanks[deposit].amount - amount) < 0)
+    {
       lua_pushboolean(state, 0);
       return 1;
-    } else {
+    }
+    else
+    {
       clan->clanbanks[deposit].amount -= amount;
 
-      if (clan->clanbanks[deposit].amount <= 0) {
+      if (clan->clanbanks[deposit].amount <= 0)
+      {
         clan->clanbanks[deposit].item_id = 0;
         clan->clanbanks[deposit].amount = 0;
         clan->clanbanks[deposit].owner = 0;
         clan->clanbanks[deposit].time = 0;
         strcpy(clan->clanbanks[deposit].real_name, "");
 
-        for (x = 0; x < 255; x++) {
-          if (clan->clanbanks[x].item_id == 0 && x < 255 - 1) {
+        for (x = 0; x < 255; x++)
+        {
+          if (clan->clanbanks[x].item_id == 0 && x < 255 - 1)
+          {
             clan->clanbanks[x].item_id = clan->clanbanks[x + 1].item_id;
             clan->clanbanks[x + 1].item_id = 0;
             clan->clanbanks[x].amount = clan->clanbanks[x + 1].amount;
@@ -11761,14 +13188,16 @@ int pcl_subpathbankwithdraw(lua_State *state, void *self) {
 }
 
 // move givexp to core to allow calling of pc_givexp
-int pcl_givexp(lua_State *state, void *self) {
+int pcl_givexp(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   return pc_givexp(sd, lua_tonumber(state, sl_memberarg(1)), xp_rate);
 }
 
 // threat table adding
-int pcl_addthreat(lua_State *state, void *self) {
+int pcl_addthreat(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   unsigned int id, amount;
@@ -11781,11 +13210,15 @@ int pcl_addthreat(lua_State *state, void *self) {
   nullpo_ret(0, tmob);
   tmob->lastaction = time(NULL);
 
-  for (x = 0; x < MAX_THREATCOUNT && tmob != NULL; x++) {
-    if (tmob->threat[x].user == sd->bl.id) {
+  for (x = 0; x < MAX_THREATCOUNT && tmob != NULL; x++)
+  {
+    if (tmob->threat[x].user == sd->bl.id)
+    {
       tmob->threat[x].amount += amount;
       return 0;
-    } else if (tmob->threat[x].user == 0) {
+    }
+    else if (tmob->threat[x].user == 0)
+    {
       tmob->threat[x].user = sd->bl.id;
       tmob->threat[x].amount = amount;
       return 0;
@@ -11795,7 +13228,8 @@ int pcl_addthreat(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_setthreat(lua_State *state, void *self) {
+int pcl_setthreat(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   unsigned int id, amount;
@@ -11808,11 +13242,15 @@ int pcl_setthreat(lua_State *state, void *self) {
   nullpo_ret(0, tmob);
   tmob->lastaction = time(NULL);
 
-  for (x = 0; x < MAX_THREATCOUNT && tmob != NULL; x++) {
-    if (tmob->threat[x].user == sd->bl.id) {
+  for (x = 0; x < MAX_THREATCOUNT && tmob != NULL; x++)
+  {
+    if (tmob->threat[x].user == sd->bl.id)
+    {
       tmob->threat[x].amount = amount;
       return 0;
-    } else if (tmob->threat[x].user == 0) {
+    }
+    else if (tmob->threat[x].user == 0)
+    {
       tmob->threat[x].user = sd->bl.id;
       tmob->threat[x].amount = amount;
       return 0;
@@ -11822,7 +13260,8 @@ int pcl_setthreat(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_addthreatgeneral(lua_State *state, void *self) {
+int pcl_addthreatgeneral(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int amount;
@@ -11842,34 +13281,51 @@ int pcl_addthreatgeneral(lua_State *state, void *self) {
   nx = map[m].xs - x;
   ny = map[m].ys - y;
 
-  if (nx < 18) nAreaSizeX = nAreaSizeX * 2;
-  if (ny < 16) nAreaSizeY = nAreaSizeY * 2;
-  if (x < 18) nAreaSizeX = nAreaSizeX * 2;
-  if (y < 16) nAreaSizeY = nAreaSizeY * 2;
+  if (nx < 18)
+    nAreaSizeX = nAreaSizeX * 2;
+  if (ny < 16)
+    nAreaSizeY = nAreaSizeY * 2;
+  if (x < 18)
+    nAreaSizeX = nAreaSizeX * 2;
+  if (y < 16)
+    nAreaSizeY = nAreaSizeY * 2;
 
   x0 = x - nAreaSizeX;
   x1 = x + nAreaSizeX;
   y0 = y - nAreaSizeY;
   y1 = y + nAreaSizeY;
 
-  if (x0 < 0) x0 = 0;
-  if (y0 < 0) y0 = 0;
-  if (x1 >= map[m].xs) x1 = map[m].xs - 1;
-  if (y1 >= map[m].ys) y1 = map[m].ys - 1;
+  if (x0 < 0)
+    x0 = 0;
+  if (y0 < 0)
+    y0 = 0;
+  if (x1 >= map[m].xs)
+    x1 = map[m].xs - 1;
+  if (y1 >= map[m].ys)
+    y1 = map[m].ys - 1;
 
-  for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++) {
-    for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++) {
-      for (bl = map[m].block_mob[bx + by * map[m].bxs]; bl; bl = bl->next) {
+  for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++)
+  {
+    for (bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++)
+    {
+      for (bl = map[m].block_mob[bx + by * map[m].bxs]; bl; bl = bl->next)
+      {
         if (bl->type == BL_MOB && bl->x >= x0 && bl->x <= x1 && bl->y >= y0 &&
-            bl->y <= y1) {
+            bl->y <= y1)
+        {
           tmob = (MOB *)bl;
-          if (!tmob) continue;
+          if (!tmob)
+            continue;
           tmob->lastaction = time(NULL);
 
-          for (i = 0; i < MAX_THREATCOUNT && tmob != NULL; i++) {
-            if (tmob->threat[i].user == sd->bl.id) {
+          for (i = 0; i < MAX_THREATCOUNT && tmob != NULL; i++)
+          {
+            if (tmob->threat[i].user == sd->bl.id)
+            {
               tmob->threat[i].amount += amount;
-            } else if (tmob->threat[i].user == 0) {
+            }
+            else if (tmob->threat[i].user == 0)
+            {
               tmob->threat[i].user = sd->bl.id;
               tmob->threat[i].amount = amount;
             }
@@ -11882,7 +13338,8 @@ int pcl_addthreatgeneral(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_speak(lua_State *state, void *self) {
+int pcl_speak(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "sn");
   const char *msg = lua_tostring(state, sl_memberarg(1));
@@ -11893,7 +13350,8 @@ int pcl_speak(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_talkself(lua_State *state, void *self) {
+int pcl_talkself(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "ns");
   unsigned char *buf;
@@ -11903,8 +13361,10 @@ int pcl_talkself(lua_State *state, void *self) {
   int msglen = strlen(msg);
   struct block_list *bl = map_id2bl(id);
 
-  if (bl != NULL) {
-    if (bl->type != BL_PC && bl->type != BL_MOB && bl->type != BL_NPC) {
+  if (bl != NULL)
+  {
+    if (bl->type != BL_PC && bl->type != BL_MOB && bl->type != BL_NPC)
+    {
       return 0;
     }
   }
@@ -11929,37 +13389,48 @@ int pcl_talkself(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_freeasync(lua_State *state, void *self) {
+int pcl_freeasync(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_async_freeco(sd);
   return 0;
 }
 
-int pcl_sendhealth(lua_State *state, void *self) {
+int pcl_sendhealth(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int damage;
   float dmg = lua_tonumber(state, sl_memberarg(1));
   int critical = lua_tonumber(state, sl_memberarg(2));
 
-  if (dmg > 0) {
+  if (dmg > 0)
+  {
     damage = (int)(dmg + 0.5f);
-  } else if (dmg < 0) {
+  }
+  else if (dmg < 0)
+  {
     damage = (int)(dmg - 0.5f);
-  } else {
+  }
+  else
+  {
     damage = 0;
   }
 
-  if (critical == 1) {
+  if (critical == 1)
+  {
     critical = 33;
-  } else if (critical == 2) {
+  }
+  else if (critical == 2)
+  {
     critical = 255;
   }
 
   return clif_send_pc_healthscript(sd, damage, critical);
 }
 
-int pcl_sendmail(lua_State *state, void *self) {
+int pcl_sendmail(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "sss");
   const char *to_user = lua_tostring(state, sl_memberarg(1));
@@ -11970,7 +13441,8 @@ int pcl_sendmail(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_pickup(lua_State *state, void *self) {
+int pcl_pickup(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int id = lua_tonumber(state, sl_memberarg(1));
@@ -11978,16 +13450,20 @@ int pcl_pickup(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_forceequip(lua_State *state, void *self) {
+int pcl_forceequip(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   struct item_data *db = NULL;
 
   int id = 0;
 
-  if (lua_isnumber(state, sl_memberarg(1))) {
+  if (lua_isnumber(state, sl_memberarg(1)))
+  {
     sl_checkargs(state, "nn");
     id = lua_tonumber(state, sl_memberarg(1));
-  } else {
+  }
+  else
+  {
     sl_checkargs(state, "sn");
     id = itemdb_id(lua_tostring(state, sl_memberarg(1)));
   }
@@ -11996,7 +13472,8 @@ int pcl_forceequip(lua_State *state, void *self) {
 
   db = itemdb_search(id);
 
-  if (db == NULL) return 1;
+  if (db == NULL)
+    return 1;
 
   sd->status.equip[slot].id = id;
   sd->status.equip[slot].dura = itemdb_dura(id);
@@ -12015,19 +13492,22 @@ int pcl_forceequip(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_equip(lua_State *state, void *self) {
+int pcl_equip(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_equipscript(sd);
   return 0;
 }
 
-int pcl_takeoff(lua_State *state, void *self) {
+int pcl_takeoff(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_unequipscript(sd);
   return 0;
 }
 
-int pcl_stripequip(lua_State *state, void *self) {
+int pcl_stripequip(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int x, force, destroy = 0;
   char minitext[255], itemname[100];
@@ -12035,26 +13515,33 @@ int pcl_stripequip(lua_State *state, void *self) {
   unsigned int equipType = lua_tonumber(state, sl_memberarg(1));
   FLOORITEM *fl;
 
-  destroy = lua_tonumber(state, sl_memberarg(2));  // if 1 then will be
-                                                   // destroyed
+  destroy = lua_tonumber(state, sl_memberarg(2)); // if 1 then will be
+                                                  // destroyed
   force = lua_tonumber(
-      state, sl_memberarg(3));  // if 1 then will be force to drop if inv full
-  if (sd->status.equip[equipType].id != 0) {
+      state, sl_memberarg(3)); // if 1 then will be force to drop if inv full
+  if (sd->status.equip[equipType].id != 0)
+  {
     strcpy(itemname, itemdb_name(sd->status.equip[equipType].id));
-    for (x = 0; x < sd->status.maxinv; x++) {
-      if (!sd->status.inventory[x].id) {
+    for (x = 0; x < sd->status.maxinv; x++)
+    {
+      if (!sd->status.inventory[x].id)
+      {
         pc_unequip(sd, equipType);
         clif_unequipit(sd, getclifslotfromequiptype(equipType));
-        if (destroy) {
+        if (destroy)
+        {
           sprintf(minitext, "Your %s has been destroyed.", itemname);
-          pc_delitem(sd, x, 1, 8);  // make the item decayed
-        } else {
+          pc_delitem(sd, x, 1, 8); // make the item decayed
+        }
+        else
+        {
           sprintf(minitext, "Your %s has been stripped.", itemname);
         }
         return 0;
       }
     }
-    if (destroy) {
+    if (destroy)
+    {
       pc_unequip(sd, equipType);
       fl = (FLOORITEM *)map_firstincell(sd->bl.m, sd->bl.x, sd->bl.y, BL_ITEM);
       nullpo_ret(0, fl);
@@ -12063,7 +13550,9 @@ int pcl_stripequip(lua_State *state, void *self) {
       clif_lookgone(&fl->bl);
       map_delitem(fl->bl.id);
       sprintf(minitext, "Your %s has been destroyed.", itemname);
-    } else if (force) {
+    }
+    else if (force)
+    {
       pc_unequip(sd, equipType);
       fl = (FLOORITEM *)map_firstincell(sd->bl.m, sd->bl.x, sd->bl.y, BL_ITEM);
       nullpo_ret(0, fl);
@@ -12074,35 +13563,41 @@ int pcl_stripequip(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_die(lua_State *state, void *self) {
+int pcl_die(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_diescript(sd);
   return 0;
 }
 
-int pcl_throwitem(lua_State *state, void *self) {
+int pcl_throwitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_throwitem_script(sd);
   return 0;
 }
 
-int pcl_refresh(lua_State *state, void *self) {
+int pcl_refresh(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_setpos(sd, sd->bl.m, sd->bl.x, sd->bl.y);
   clif_refreshnoclick(sd);
   return 0;
 }
 
-int pcl_refreshInventory(lua_State *state, void *self) {
+int pcl_refreshInventory(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
-  for (int i = 0; i < 52; i++) {
+  for (int i = 0; i < 52; i++)
+  {
     clif_sendadditem(sd, i);
   }
 
   return 0;
 }
 
-int pcl_move(lua_State *state, void *self) {
+int pcl_move(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   // sl_checkargs(state, "n");
   char speed = lua_tonumber(state, sl_memberarg(1));
@@ -12110,13 +13605,15 @@ int pcl_move(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_respawn(lua_State *state, void *self) {
+int pcl_respawn(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_spawn(sd);
   return 0;
 }
 
-int pcl_deductdura(lua_State *state, void *self) {
+int pcl_deductdura(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int equip = lua_tonumber(state, sl_memberarg(1));
@@ -12126,19 +13623,22 @@ int pcl_deductdura(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_deductduraequip(lua_State *state, void *self) {
+int pcl_deductduraequip(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_deductduraequip(sd);
   return 0;
 }
 
-int pcl_checkinvbod(lua_State *state, void *self) {
+int pcl_checkinvbod(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_checkinvbod(sd);
   return 0;
 }
 
-int pcl_deductdurainv(lua_State *state, void *self) {
+int pcl_deductdurainv(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int slot = lua_tonumber(state, sl_memberarg(1));
@@ -12148,30 +13648,40 @@ int pcl_deductdurainv(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_setpk(lua_State *state, void *self) {
+int pcl_setpk(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
   int exist = -1;
   int x;
 
-  for (x = 0; x < 20; x++) {
-    if (sd->pvp[x][0] == id) {
+  for (x = 0; x < 20; x++)
+  {
+    if (sd->pvp[x][0] == id)
+    {
       exist = x;
       break;
     }
   }
 
-  if (exist != -1) {
+  if (exist != -1)
+  {
     sd->pvp[exist][1] = time(NULL);
-  } else {
-    for (x = 0; x < 20; x++) {
-      if (!sd->pvp[x][0]) {
+  }
+  else
+  {
+    for (x = 0; x < 20; x++)
+    {
+      if (!sd->pvp[x][0])
+      {
         sd->pvp[x][0] = id;
         sd->pvp[x][1] = time(NULL);
         clif_getchararea(sd);
         break;
-      } else if (x == 19 && sd->pvp[x][0]) {
+      }
+      else if (x == 19 && sd->pvp[x][0])
+      {
         lua_pushboolean(state, 0);
         return 1;
       }
@@ -12182,14 +13692,17 @@ int pcl_setpk(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getpk(lua_State *state, void *self) {
+int pcl_getpk(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int id = lua_tonumber(state, sl_memberarg(1));
   int x;
 
-  for (x = 0; x < 20; x++) {
-    if (sd->pvp[x][0] == id) {
+  for (x = 0; x < 20; x++)
+  {
+    if (sd->pvp[x][0] == id)
+    {
       lua_pushboolean(state, 1);
       return 1;
     }
@@ -12199,7 +13712,8 @@ int pcl_getpk(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_guitext(lua_State *state, void *self) {
+int pcl_guitext(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
 
@@ -12210,7 +13724,8 @@ int pcl_guitext(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_getcreationitems(lua_State *state, void *self) {
+int pcl_getcreationitems(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int len = lua_tonumber(state, sl_memberarg(1));
@@ -12218,7 +13733,8 @@ int pcl_getcreationitems(lua_State *state, void *self) {
 
   curitem = RFIFOB(sd->fd, len) - 1;
 
-  if (sd->status.inventory[curitem].id) {
+  if (sd->status.inventory[curitem].id)
+  {
     lua_pushnumber(state, sd->status.inventory[curitem].id);
     return 1;
   }
@@ -12226,16 +13742,20 @@ int pcl_getcreationitems(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_getcreationamounts(lua_State *state, void *self) {
+int pcl_getcreationamounts(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int len = lua_tonumber(state, sl_memberarg(1));
   int item = lua_tonumber(state, sl_memberarg(2));
 
-  if (itemdb_type(item) < 3 || itemdb_type(item) > 17) {
+  if (itemdb_type(item) < 3 || itemdb_type(item) > 17)
+  {
     lua_pushnumber(state, RFIFOB(sd->fd, len));
     return 1;
-  } else {
+  }
+  else
+  {
     lua_pushnumber(state, 1);
     return 1;
   }
@@ -12243,7 +13763,8 @@ int pcl_getcreationamounts(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_getparcel(lua_State *state, void *self) {
+int pcl_getparcel(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   struct parcel *item;
   unsigned int id, amount, owner, sender, customLookColor, customIconColor,
@@ -12256,7 +13777,8 @@ int pcl_getparcel(lua_State *state, void *self) {
   char npcflag;
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     SqlStmt_Free(stmt);
@@ -12298,14 +13820,16 @@ int pcl_getparcel(lua_State *state, void *self) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &protected, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &durability, 0,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     SqlStmt_Free(stmt);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     CALLOC(item, struct parcel, 1);
     item->data.id = id;
     item->data.amount = amount;
@@ -12322,15 +13846,19 @@ int pcl_getparcel(lua_State *state, void *self) {
       item->data.dura = durability;
 
     memcpy(item->data.real_name, real_name, sizeof(real_name));
-    if (npcflag == 0) {
+    if (npcflag == 0)
+    {
       item->sender = sender;
-    } else {
+    }
+    else
+    {
       item->sender = sender + NPC_START_NUM - 2;
     }
     item->pos = pos;
     item->npcflag = npcflag;
-
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "You have no pending parcels.");
     lua_pushboolean(state, 0);
     SqlStmt_Free(stmt);
@@ -12343,7 +13871,8 @@ int pcl_getparcel(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getparcellist(lua_State *state, void *self) {
+int pcl_getparcellist(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   struct parcel *item;
   unsigned int id, amount, owner, sender, customLookColor, customIconColor,
@@ -12357,7 +13886,8 @@ int pcl_getparcellist(lua_State *state, void *self) {
   int x = 0;
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     lua_pushboolean(state, 0);
     SqlStmt_Free(stmt);
@@ -12399,7 +13929,8 @@ int pcl_getparcellist(lua_State *state, void *self) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &protected, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_UINT, &durability, 0,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12409,7 +13940,8 @@ int pcl_getparcellist(lua_State *state, void *self) {
   lua_newtable(state);
   for (x = 0, i = 1; x < floor(sd->status.maxslots / 4) &&
                      SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       x++) {
+       x++)
+  {
     CALLOC(item, struct parcel, 1);
     item->data.id = id;
     item->data.amount = amount;
@@ -12426,9 +13958,12 @@ int pcl_getparcellist(lua_State *state, void *self) {
       item->data.dura = durability;
 
     memcpy(item->data.real_name, real_name, sizeof(real_name));
-    if (npcflag == 0) {
+    if (npcflag == 0)
+    {
       item->sender = sender;
-    } else {
+    }
+    else
+    {
       item->sender = sender + NPC_START_NUM - 2;
     }
     item->pos = pos;
@@ -12444,10 +13979,11 @@ int pcl_getparcellist(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_removeparcel(lua_State *state, void *self) {
+int pcl_removeparcel(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nnnn");
-  int sender = lua_tonumber(state, sl_memberarg(1));
+  // int sender = (int)lua_tonumber(state, sl_memberarg(1));
   // unsigned int item = lua_tonumber(state, sl_memberarg(2));
   // unsigned int amount = lua_tonumber(state, sl_memberarg(3));
   int pos = lua_tonumber(state, sl_memberarg(4));
@@ -12459,13 +13995,14 @@ int pcl_removeparcel(lua_State *state, void *self) {
   // unsigned int customIcon = lua_tonumber(state, sl_memberarg(10));
   // unsigned int customIconColor = lua_tonumber(state, sl_memberarg(11));
 
-  sender -= NPC_START_NUM + 1;
+  // sender -= NPC_START_NUM + 1;
 
   if (SQL_ERROR ==
       Sql_Query(sql_handle,
                 "DELETE FROM `Parcels` WHERE `ParChaIdDestination` = '%u' AND "
                 "`ParPosition` = '%d'",
-                sd->status.id, pos)) {
+                sd->status.id, pos))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     lua_pushboolean(state, 0);
@@ -12486,19 +14023,22 @@ int pcl_removeparcel(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_expireitem(lua_State *state, void *self) {
+int pcl_expireitem(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int x, eqdel;
   unsigned int t = time(NULL);
   char msg[255];
 
-  for (x = 0; x < sd->status.maxinv; x++) {
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
     // if (sd->status.inventory[x].time > 0 && sd->status.inventory[x].time < t
     // && itemdb_time(sd->status.inventory[x].id)) {
     if ((sd->status.inventory[x].time > 0 &&
          sd->status.inventory[x].time < t) ||
         (itemdb_time(sd->status.inventory[x].id) > 0 &&
-         itemdb_time(sd->status.inventory[x].id) < t)) {
+         itemdb_time(sd->status.inventory[x].id) < t))
+    {
       sprintf(msg,
               "Your %s has expired! Please visit the cash shop to purchase "
               "another.",
@@ -12508,19 +14048,23 @@ int pcl_expireitem(lua_State *state, void *self) {
     }
   }
 
-  for (x = 0; x < sd->status.maxinv; x++) {
-    if (!sd->status.inventory[x].id) {
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
+    if (!sd->status.inventory[x].id)
+    {
       eqdel = x;
       break;
     }
   }
 
-  for (x = 0; x < 14; x++) {
+  for (x = 0; x < 14; x++)
+  {
     // if (sd->status.equip[x].time > 0 && sd->status.equip[x].time < t &&
     // itemdb_time(sd->status.equip[x].id)) {
     if ((sd->status.equip[x].time > 0 && sd->status.equip[x].time < t) ||
         (itemdb_time(sd->status.equip[x].id) > 0 &&
-         itemdb_time(sd->status.equip[x].id) < t)) {
+         itemdb_time(sd->status.equip[x].id) < t))
+    {
       sprintf(msg,
               "Your %s has expired! Please visit the cash shop to purchase "
               "another.",
@@ -12534,7 +14078,8 @@ int pcl_expireitem(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_logbuysell(lua_State *state, void *self) {
+int pcl_logbuysell(lua_State *state, void *self)
+{
   sl_checkargs(state, "nnnn");
   // unsigned int item = lua_tonumber(state, sl_memberarg(1));
   // unsigned int amount = lua_tonumber(state, sl_memberarg(2));
@@ -12566,30 +14111,37 @@ int pcl_logbuysell(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_settimevalues(lua_State *state, void *self) {
+int pcl_settimevalues(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   int i;
   unsigned int newval = lua_tonumber(state, sl_memberarg(1));
 
   for (i = (sizeof(sd->timevalues) / sizeof(sd->timevalues[0])) - 1; i >= 0;
-       i--) {
-    if (i > 0) {
+       i--)
+  {
+    if (i > 0)
+    {
       sd->timevalues[i] = sd->timevalues[i - 1];
-    } else {
+    }
+    else
+    {
       sd->timevalues[i] = newval;
     }
   }
   return 0;
 }
 
-int pcl_gettimevalues(lua_State *state, void *self) {
+int pcl_gettimevalues(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, x;
 
   lua_newtable(state);
   for (x = 0, i = 1; x < (sizeof(sd->timevalues) / sizeof(sd->timevalues[0]));
-       x++) {
+       x++)
+  {
     lua_pushnumber(state, sd->timevalues[x]);
     lua_rawseti(state, -2, i);
     i++;
@@ -12597,7 +14149,8 @@ int pcl_gettimevalues(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_lookat(lua_State *state, void *self) {
+int pcl_lookat(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   struct block_list *bl = map_id2bl(lua_tonumber(state, sl_memberarg(1)));
@@ -12606,7 +14159,8 @@ int pcl_lookat(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_getunknownspells(lua_State *state, void *self) {
+int pcl_getunknownspells(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   int i, j, x;
   unsigned int id;
@@ -12620,7 +14174,8 @@ int pcl_getunknownspells(lua_State *state, void *self) {
   lua_newtable(state);
 
   memset(idlist, 0, sizeof(int) * 255);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12636,7 +14191,8 @@ int pcl_getunknownspells(lua_State *state, void *self) {
               class1, class2, sd->status.mark, sd->status.alignment) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12644,60 +14200,73 @@ int pcl_getunknownspells(lua_State *state, void *self) {
   }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++) {
-    switch (id) {
-      case 0:
-      case 100:
-      case 200:
-      case 300:
-      case 400:
-      case 500:
-      case 1000:
-      case 1500:
-      case 2000:
-      case 2500:
-      case 3000:
-      case 3500:
-      case 4000:
-      case 4500:
-      case 5000:
-      case 5500:
-      case 7000:
-      case 10000:
-        continue;
-      default:
-        for (j = 0; j < MAX_SPELLS; j++) {
-          if (sd->status.skill[j] == id) {
-            found = 1;
+       i++)
+  {
+    switch (id)
+    {
+    case 0:
+    case 100:
+    case 200:
+    case 300:
+    case 400:
+    case 500:
+    case 1000:
+    case 1500:
+    case 2000:
+    case 2500:
+    case 3000:
+    case 3500:
+    case 4000:
+    case 4500:
+    case 5000:
+    case 5500:
+    case 7000:
+    case 10000:
+      continue;
+    default:
+      for (j = 0; j < MAX_SPELLS; j++)
+      {
+        if (sd->status.skill[j] == id)
+        {
+          found = 1;
+          break;
+        }
+      }
+
+      if (found == 0)
+      {
+        for (x = 0; x < 255; x++)
+        {
+          if (idlist[x] == 0)
+          {
+            idlist[x] = id;
             break;
           }
         }
+      }
+      else
+      {
+        found = 0;
+        continue;
+      }
 
-        if (found == 0) {
-          for (x = 0; x < 255; x++) {
-            if (idlist[x] == 0) {
-              idlist[x] = id;
-              break;
-            }
-          }
-        } else {
-          found = 0;
-          continue;
-        }
-
-        break;
+      break;
     }
   }
 
   SqlStmt_Free(stmt);
 
-  for (i = 0, x = 1; i < 255; i++, x += 2) {
-    if (idlist[i] > 0) {
+  for (i = 0, x = 1; i < 255; i++, x += 2)
+  {
+    if (idlist[i] > 0)
+    {
       lua_pushstring(state, magicdb_name(idlist[i]));
       lua_rawseti(state, -2, x);
       lua_pushstring(state, magicdb_yname(idlist[i]));
       lua_rawseti(state, -2, x + 1);
-    } else {
+    }
+    else
+    {
       break;
     }
   }
@@ -12705,7 +14274,8 @@ int pcl_getunknownspells(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getallspells(lua_State *state, void *self) {
+int pcl_getallspells(lua_State *state, void *self)
+{
   // Used to display all spells in game
   int i, x;
   unsigned int id;
@@ -12715,7 +14285,8 @@ int pcl_getallspells(lua_State *state, void *self) {
   lua_newtable(state);
 
   memset(idlist, 0, sizeof(int) * 255);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12727,7 +14298,8 @@ int pcl_getallspells(lua_State *state, void *self) {
               stmt, "SELECT `SplId` FROM `Spells` WHERE `SplActive` = '1'") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12735,53 +14307,64 @@ int pcl_getallspells(lua_State *state, void *self) {
   }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++) {
-    switch (id) {
-      case 0:
-      case 100:
-      case 200:
-      case 300:
-      case 400:
-      case 500:
-      case 1000:
-      case 1500:
-      case 2000:
-      case 2500:
-      case 3000:
-      case 3500:
-      case 4000:
-      case 4500:
-      case 5000:
-      case 5500:
-      case 7000:
-      case 10000:
-        continue;
-      default:
-        if (found == 0) {
-          for (x = 0; x < 255; x++) {
-            if (idlist[x] == 0) {
-              idlist[x] = id;
-              break;
-            }
+       i++)
+  {
+    switch (id)
+    {
+    case 0:
+    case 100:
+    case 200:
+    case 300:
+    case 400:
+    case 500:
+    case 1000:
+    case 1500:
+    case 2000:
+    case 2500:
+    case 3000:
+    case 3500:
+    case 4000:
+    case 4500:
+    case 5000:
+    case 5500:
+    case 7000:
+    case 10000:
+      continue;
+    default:
+      if (found == 0)
+      {
+        for (x = 0; x < 255; x++)
+        {
+          if (idlist[x] == 0)
+          {
+            idlist[x] = id;
+            break;
           }
-        } else {
-          found = 0;
-          continue;
         }
+      }
+      else
+      {
+        found = 0;
+        continue;
+      }
 
-        break;
+      break;
     }
   }
 
   SqlStmt_Free(stmt);
 
-  for (i = 0, x = 1; i < 255; i++, x += 2) {
-    if (idlist[i] > 0) {
+  for (i = 0, x = 1; i < 255; i++, x += 2)
+  {
+    if (idlist[i] > 0)
+    {
       lua_pushstring(state, magicdb_name(idlist[i]));
       lua_rawseti(state, -2, x);
       lua_pushstring(state, magicdb_yname(idlist[i]));
       lua_rawseti(state, -2, x + 1);
-    } else {
+    }
+    else
+    {
       break;
     }
   }
@@ -12789,7 +14372,8 @@ int pcl_getallspells(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getallclassspells(lua_State *state, void *self) {
+int pcl_getallclassspells(lua_State *state, void *self)
+{
   // Used to display all spells in game
   int i, x;
   unsigned int id;
@@ -12802,7 +14386,8 @@ int pcl_getallclassspells(lua_State *state, void *self) {
   lua_newtable(state);
 
   memset(idlist, 0, sizeof(int) * 255);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12815,7 +14400,8 @@ int pcl_getallclassspells(lua_State *state, void *self) {
                                    class) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     lua_pushboolean(state, 0);
@@ -12823,53 +14409,64 @@ int pcl_getallclassspells(lua_State *state, void *self) {
   }
 
   for (i = 0; i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-       i++) {
-    switch (id) {
-      case 0:
-      case 100:
-      case 200:
-      case 300:
-      case 400:
-      case 500:
-      case 1000:
-      case 1500:
-      case 2000:
-      case 2500:
-      case 3000:
-      case 3500:
-      case 4000:
-      case 4500:
-      case 5000:
-      case 5500:
-      case 7000:
-      case 10000:
-        continue;
-      default:
-        if (found == 0) {
-          for (x = 0; x < 255; x++) {
-            if (idlist[x] == 0) {
-              idlist[x] = id;
-              break;
-            }
+       i++)
+  {
+    switch (id)
+    {
+    case 0:
+    case 100:
+    case 200:
+    case 300:
+    case 400:
+    case 500:
+    case 1000:
+    case 1500:
+    case 2000:
+    case 2500:
+    case 3000:
+    case 3500:
+    case 4000:
+    case 4500:
+    case 5000:
+    case 5500:
+    case 7000:
+    case 10000:
+      continue;
+    default:
+      if (found == 0)
+      {
+        for (x = 0; x < 255; x++)
+        {
+          if (idlist[x] == 0)
+          {
+            idlist[x] = id;
+            break;
           }
-        } else {
-          found = 0;
-          continue;
         }
+      }
+      else
+      {
+        found = 0;
+        continue;
+      }
 
-        break;
+      break;
     }
   }
 
   SqlStmt_Free(stmt);
 
-  for (i = 0, x = 1; i < 255; i++, x += 2) {
-    if (idlist[i] > 0) {
+  for (i = 0, x = 1; i < 255; i++, x += 2)
+  {
+    if (idlist[i] > 0)
+    {
       lua_pushstring(state, magicdb_name(idlist[i]));
       lua_rawseti(state, -2, x);
       lua_pushstring(state, magicdb_yname(idlist[i]));
       lua_rawseti(state, -2, x + 1);
-    } else {
+    }
+    else
+    {
       break;
     }
   }
@@ -12877,13 +14474,15 @@ int pcl_getallclassspells(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_status(lua_State *state, void *self) {
+int pcl_status(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   clif_mystaytus(sd);
   return 1;
 }
 
-int pcl_testpacket(lua_State *state, void *self) {
+int pcl_testpacket(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "t");
   int i = 0;
@@ -12893,16 +14492,19 @@ int pcl_testpacket(lua_State *state, void *self) {
 
   lua_pushnil(state);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  while (lua_next(state, sl_memberarg(1)) != 0) {
+  while (lua_next(state, sl_memberarg(1)) != 0)
+  {
     // key is at -2, value at -1
     i = lua_tonumber(state, -2);
 
-    if (i == 2) {
+    if (i == 2)
+    {
       WFIFOHEAD(sd->fd, lua_tonumber(state, -1) + 3);
       len = lua_tonumber(state, -1);
       index += 1;
@@ -12910,18 +14512,26 @@ int pcl_testpacket(lua_State *state, void *self) {
       continue;
     }
 
-    if (lua_isnumber(state, -1)) {
-      if (lua_tonumber(state, -1) <= 255) {
+    if (lua_isnumber(state, -1))
+    {
+      if (lua_tonumber(state, -1) <= 255)
+      {
         WFIFOB(sd->fd, i - 1 + index) = lua_tonumber(state, -1);
-      } else if (lua_tonumber(state, -1) > 255 &&
-                 lua_tonumber(state, -1) <= 65535) {
+      }
+      else if (lua_tonumber(state, -1) > 255 &&
+               lua_tonumber(state, -1) <= 65535)
+      {
         WFIFOW(sd->fd, i - 1 + index) = SWAP16((int)lua_tonumber(state, -1));
         index += 1;
-      } else {
+      }
+      else
+      {
         WFIFOL(sd->fd, i - 1 + index) = SWAP32((int)lua_tonumber(state, -1));
         index += 3;
       }
-    } else {
+    }
+    else
+    {
       strcpy(WFIFOP(sd->fd, i - 1 + index), lua_tostring(state, -1));
       index += strlen(lua_tostring(state, -1)) - 1;
     }
@@ -12932,7 +14542,8 @@ int pcl_testpacket(lua_State *state, void *self) {
   WFIFOW(sd->fd, 1) = SWAP16(len);
 
   printf("test packet\n");
-  for (int i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++)
+  {
     printf("%02X ", WFIFOB(sd->fd, i));
   }
   printf("\n");
@@ -12942,15 +14553,18 @@ int pcl_testpacket(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_getcasterid(lua_State *state, void *self) {
+int pcl_getcasterid(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "s");
   int spell = magicdb_id(lua_tostring(state, sl_memberarg(1)));
   int i, x;
   lua_newtable(state);
 
-  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++) {
-    if (sd->status.dura_aether[i].id == spell) {
+  for (i = 0, x = 1; i < MAX_MAGIC_TIMERS; i++)
+  {
+    if (sd->status.dura_aether[i].id == spell)
+    {
       lua_pushnumber(state, sd->status.dura_aether[i].caster_id);
       lua_rawseti(state, -2, x);
       x++;
@@ -12960,7 +14574,8 @@ int pcl_getcasterid(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_changeview(lua_State *state, void *self) {
+int pcl_changeview(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   int x = lua_tonumber(state, sl_memberarg(1));
@@ -12983,22 +14598,31 @@ int pcl_changeview(lua_State *state, void *self) {
   return 1;
 }
 
-int pcl_settimer(lua_State *state, void *self) {
+int pcl_settimer(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "nn");
   char type = lua_tonumber(state, sl_memberarg(1));
   unsigned int length = lua_tonumber(state, sl_memberarg(2));
 
-  if (type == 1 || type == 2) {
-    if ((long)length > 4294967295) {
+  if (type == 1 || type == 2)
+  {
+    if ((long)length > 4294967295)
+    {
       sd->disptimertick = 4294967295;
-    } else if ((long)length < 0) {
+    }
+    else if ((long)length < 0)
+    {
       lua_pushboolean(state, 0);
       return 0;
-    } else {
+    }
+    else
+    {
       sd->disptimertick = length;
     }
-  } else if ((type != 1 && type != 2) || sd->disptimer > 0) {
+  }
+  else if ((type != 1 && type != 2) || sd->disptimer > 0)
+  {
     lua_pushboolean(state, 0);
     return 0;
   }
@@ -13010,20 +14634,27 @@ int pcl_settimer(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_addtime(lua_State *state, void *self) {
+int pcl_addtime(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int addition = lua_tonumber(state, sl_memberarg(1));
 
-  if (sd->disptimertype == 2) {
-    if ((long)(sd->disptimertick + addition) > 4294967295) {
+  if (sd->disptimertype == 2)
+  {
+    if ((long)(sd->disptimertick + addition) > 4294967295)
+    {
       sd->disptimertick = 4294967295;
-    } else {
+    }
+    else
+    {
       sd->disptimertick += addition;
     }
 
     clif_send_timer(sd, sd->disptimertype, sd->disptimertick);
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 0);
     return 0;
   }
@@ -13032,20 +14663,27 @@ int pcl_addtime(lua_State *state, void *self) {
   return 0;
 }
 
-int pcl_removetime(lua_State *state, void *self) {
+int pcl_removetime(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   sl_checkargs(state, "n");
   unsigned int addition = lua_tonumber(state, sl_memberarg(1));
 
-  if (sd->disptimertype == 2) {
-    if ((long)(sd->disptimertick - addition) < 0) {
+  if (sd->disptimertype == 2)
+  {
+    if ((long)(sd->disptimertick - addition) < 0)
+    {
       sd->disptimertick = 0;
-    } else {
+    }
+    else
+    {
       sd->disptimertick -= addition;
     }
 
     clif_send_timer(sd, sd->disptimertype, sd->disptimertick);
-  } else {
+  }
+  else
+  {
     lua_pushboolean(state, 0);
     return 0;
   }
@@ -13055,7 +14693,8 @@ int pcl_removetime(lua_State *state, void *self) {
 }
 
 // attempting to call checklevel through LUA script - added for testing 11-26-16
-int pcl_checklevel(lua_State *state, void *self) {
+int pcl_checklevel(lua_State *state, void *self)
+{
   USER *sd = (USER *)self;
   pc_checklevel(sd);
   return 0;
@@ -13065,37 +14704,43 @@ int mapregl_getattr(lua_State *, void *, const char *);
 
 int mapregl_setattr(lua_State *, void *, const char *);
 
-void mapregl_staticinit() {
+void mapregl_staticinit()
+{
   mapregl_type = typel_new("Mapregistry", 0);
   mapregl_type.getattr = mapregl_getattr;
   mapregl_type.setattr = mapregl_setattr;
 }
 
-int mapregl_setattr(lua_State *state, void *self, const char *attrname) {
+int mapregl_setattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
   map_setglobalreg(sd->bl.m, attrname, lua_tonumber(state, -1));
   return 0;
 }
 
-int mapregl_getattr(lua_State *state, void *self, const char *attrname) {
+int mapregl_getattr(lua_State *state, void *self, const char *attrname)
+{
   USER *sd = (USER *)self;
   lua_pushnumber(state, map_readglobalreg(sd->bl.m, attrname));
   return 1;
 }
 
 // game registries
-int gameregl_setattr(lua_State *state, void *self, const char *attrname) {
+int gameregl_setattr(lua_State *state, void *self, const char *attrname)
+{
   map_setglobalgamereg(attrname, lua_tonumber(state, -1));
 
   return 0;
 }
 
-int gameregl_getattr(lua_State *state, void *self, const char *attrname) {
+int gameregl_getattr(lua_State *state, void *self, const char *attrname)
+{
   lua_pushnumber(state, map_readglobalgamereg(attrname));
   return 1;
 }
 
-void gameregl_staticinit() {
+void gameregl_staticinit()
+{
   gameregl_type = typel_new("Gameregistry", 0);
   gameregl_type.getattr = gameregl_getattr;
   gameregl_type.setattr = gameregl_setattr;

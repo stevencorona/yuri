@@ -33,73 +33,76 @@
 
 unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
 
-int flags[16] = {1,   2,   4,    8,    16,   32,   64,    128,
+int flags[16] = {1, 2, 4, 8, 16, 32, 64, 128,
                  256, 512, 1024, 2048, 4096, 8192, 16386, 32768};
 
-int getclifslotfromequiptype(int equipType) {
+int getclifslotfromequiptype(int equipType)
+{
   int type;
 
-  switch (equipType) {
-    case EQ_WEAP:
-      type = 0x01;
-      break;
-    case EQ_ARMOR:
-      type = 0x02;
-      break;
-    case EQ_SHIELD:
-      type = 0x03;
-      break;
-    case EQ_HELM:
-      type = 0x04;
-      break;
-    case EQ_NECKLACE:
-      type = 0x06;
-      break;
-    case EQ_LEFT:
-      type = 0x07;
-      break;
-    case EQ_RIGHT:
-      type = 0x08;
-      break;
-    case EQ_BOOTS:
-      type = 13;
-      break;
-    case EQ_MANTLE:
-      type = 14;
-      break;
-    case EQ_COAT:
-      type = 16;
-      break;
-    case EQ_SUBLEFT:
-      type = 20;
-      break;
-    case EQ_SUBRIGHT:
-      type = 21;
-      break;
-    case EQ_FACEACC:
-      type = 22;
-      break;
-    case EQ_CROWN:
-      type = 23;
-      break;
-    default:
-      type = 0;
+  switch (equipType)
+  {
+  case EQ_WEAP:
+    type = 0x01;
+    break;
+  case EQ_ARMOR:
+    type = 0x02;
+    break;
+  case EQ_SHIELD:
+    type = 0x03;
+    break;
+  case EQ_HELM:
+    type = 0x04;
+    break;
+  case EQ_NECKLACE:
+    type = 0x06;
+    break;
+  case EQ_LEFT:
+    type = 0x07;
+    break;
+  case EQ_RIGHT:
+    type = 0x08;
+    break;
+  case EQ_BOOTS:
+    type = 13;
+    break;
+  case EQ_MANTLE:
+    type = 14;
+    break;
+  case EQ_COAT:
+    type = 16;
+    break;
+  case EQ_SUBLEFT:
+    type = 20;
+    break;
+  case EQ_SUBRIGHT:
+    type = 21;
+    break;
+  case EQ_FACEACC:
+    type = 22;
+    break;
+  case EQ_CROWN:
+    type = 23;
+    break;
+  default:
+    type = 0;
   }
 
   return type;
 }
 
-char *replace_str(char *str, char *orig, char *rep) {
+char *replace_str(char *str, char *orig, char *rep)
+{
   // puts(replace_str("Hello, world!", "world", "Miami"));
 
   static char buffer[4096];
   char *p;
 
-  if (!(p = strstr(str, orig)))  // Is 'orig' even in 'str'?
+  if (!(p = strstr(str, orig))) // Is 'orig' even in 'str'?
     return str;
 
   strncpy(buffer, str,
-          p - str);  // Copy characters from 'str' start to 'orig' st$
+          p - str); // Copy characters from 'str' start to 'orig' st$
   buffer[p - str] = '\0';
 
   sprintf(buffer + (p - str), "%s%s", rep, p + strlen(orig));
@@ -107,7 +110,8 @@ char *replace_str(char *str, char *orig, char *rep) {
   return buffer;
 }
 
-char *clif_getName(unsigned int id) {
+char *clif_getName(unsigned int id)
+{
   // char* name;
   // CALLOC(name,char,16);
   // memset(name,0,16);
@@ -118,7 +122,8 @@ char *clif_getName(unsigned int id) {
   SqlStmt *stmt;
 
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
   }
 
@@ -128,12 +133,14 @@ char *clif_getName(unsigned int id) {
                        id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &name,
-                                      sizeof(name), NULL, NULL)) {
+                                      sizeof(name), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
   }
 
   SqlStmt_Free(stmt);
@@ -141,7 +148,8 @@ char *clif_getName(unsigned int id) {
   return &name[0];
 }
 
-int clif_Hacker(char *name, const char *reason) {
+int clif_Hacker(char *name, const char *reason)
+{
   char StringBuffer[1024];
   printf(CL_MAGENTA "%s " CL_NORMAL "possibly hacking" CL_BOLD "%s" CL_NORMAL
                     "\n",
@@ -150,14 +158,16 @@ int clif_Hacker(char *name, const char *reason) {
   clif_broadcasttogm(StringBuffer, -1);
   return 0;
 }
-int clif_sendurl(USER *sd, int type, const char *url) {
-  if (!sd) return 0;
+int clif_sendurl(USER *sd, int type, const char *url)
+{
+  if (!sd)
+    return 0;
 
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x66;
   WFIFOB(sd->fd, 4) = 0x03;
-  WFIFOB(sd->fd, 5) = type;  // type. 0 = ingame browser, 1= popup open browser
-                             // then close client, 2 = popup
+  WFIFOB(sd->fd, 5) = type; // type. 0 = ingame browser, 1= popup open browser
+                            // then close client, 2 = popup
   WFIFOW(sd->fd, 6) = SWAP16(strlen(url));
   memcpy(WFIFOP(sd->fd, 8), url, strlen(url));
 
@@ -167,8 +177,10 @@ int clif_sendurl(USER *sd, int type, const char *url) {
   return 0;
 }
 
-int clif_sendprofile(USER *sd) {
-  if (!sd) return 0;
+int clif_sendprofile(USER *sd)
+{
+  if (!sd)
+    return 0;
 
   int len = 0;
 
@@ -189,19 +201,20 @@ int clif_sendprofile(USER *sd) {
   return 0;
 }
 
-int clif_sendboard(USER *sd) {
+int clif_sendboard(USER *sd)
+{
   int len = 0;
 
-  char url1[] = "https://www.website.com/boards";  // this first URL doesnt
-                                                   // appear to do anything
-  char url2[] = "https://www.website.com/boards";  // This is the actual URL
-                                                   // that the browser goes to
+  char url1[] = "https://www.website.com/boards"; // this first URL doesnt
+                                                  // appear to do anything
+  char url2[] = "https://www.website.com/boards"; // This is the actual URL
+                                                  // that the browser goes to
 
   char url3[] = "?abc123";
 
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x62;
-  WFIFOB(sd->fd, 5) = 0x00;  // type  0 = board
+  WFIFOB(sd->fd, 5) = 0x00; // type  0 = board
 
   len += 6;
 
@@ -226,27 +239,32 @@ int clif_sendboard(USER *sd) {
 // profile URL 0x62
 // worldmap location URL 0x70
 
-int CheckProximity(struct point one, struct point two, int radius) {
+int CheckProximity(struct point one, struct point two, int radius)
+{
   int ret = 0;
 
   if (one.m == two.m)
-    if (abs(one.x - two.x) <= radius && abs(one.y - two.y) <= radius) ret = 1;
+    if (abs(one.x - two.x) <= radius && abs(one.y - two.y) <= radius)
+      ret = 1;
 
   return ret;
 }
 
-int clif_accept2(int fd, char *name, int name_len) {
+int clif_accept2(int fd, char *name, int name_len)
+{
   char n[32];
 
   // struct auth_node* db=NULL;
   // printf("Namelen: %d\n",name_len);
 
-  if (name_len <= 0 || name_len > 16) {
+  if (name_len <= 0 || name_len > 16)
+  {
     session[fd]->eof = 11;
     return 0;
   }
 
-  if (server_shutdown) {
+  if (server_shutdown)
+  {
     session[fd]->eof = 1;
     return 0;
   }
@@ -274,7 +292,8 @@ int clif_accept2(int fd, char *name, int name_len) {
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return -1;
   }
@@ -285,13 +304,15 @@ int clif_accept2(int fd, char *name, int name_len) {
                        n) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &id, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return -1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+  {
     SqlStmt_Free(stmt);
   }
 
@@ -319,14 +340,19 @@ int clif_accept2(int fd, char *name, int name_len) {
   return 0;
 }
 
-int clif_timeout(int fd) {
+int clif_timeout(int fd)
+{
   USER *sd = NULL;
   int a, b, c, d;
 
-  if (fd == char_fd) return 0;
-  if (fd <= 1) return 0;
-  if (!session[fd]) return 0;
-  if (!session[fd]->session_data) session[fd]->eof = 12;
+  if (fd == char_fd)
+    return 0;
+  if (fd <= 1)
+    return 0;
+  if (!session[fd])
+    return 0;
+  if (!session[fd]->session_data)
+    session[fd]->eof = 12;
 
   nullpo_ret(0, sd = (USER *)session[fd]->session_data);
   a = b = c = d = session[fd]->client_addr.sin_addr.s_addr;
@@ -340,8 +366,10 @@ int clif_timeout(int fd) {
   session[fd]->eof = 1;
   return 0;
 }
-int clif_popup(USER *sd, const char *buf) {
-  if (!session[sd->fd]) {
+int clif_popup(USER *sd, const char *buf)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -358,8 +386,10 @@ int clif_popup(USER *sd, const char *buf) {
   return 0;
 }
 
-int clif_paperpopup(USER *sd, const char *buf, int width, int height) {
-  if (!session[sd->fd]) {
+int clif_paperpopup(USER *sd, const char *buf, int width, int height)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -368,19 +398,21 @@ int clif_paperpopup(USER *sd, const char *buf, int width, int height) {
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOW(sd->fd, 1) = SWAP16(strlen(buf) + 11);
   WFIFOB(sd->fd, 3) = 0x35;
-  WFIFOB(sd->fd, 5) = 0;                    // dunno
-  WFIFOB(sd->fd, 6) = width;                // width of paper
-  WFIFOB(sd->fd, 7) = height;               // height of paper
-  WFIFOB(sd->fd, 8) = 0;                    // dunno
-  WFIFOW(sd->fd, 9) = SWAP16(strlen(buf));  // length of message
-  strcpy(WFIFOP(sd->fd, 11), buf);          // message
+  WFIFOB(sd->fd, 5) = 0;                   // dunno
+  WFIFOB(sd->fd, 6) = width;               // width of paper
+  WFIFOB(sd->fd, 7) = height;              // height of paper
+  WFIFOB(sd->fd, 8) = 0;                   // dunno
+  WFIFOW(sd->fd, 9) = SWAP16(strlen(buf)); // length of message
+  strcpy(WFIFOP(sd->fd, 11), buf);         // message
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 
 int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
-                         int invslot) {
-  if (!session[sd->fd]) {
+                         int invslot)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -389,18 +421,20 @@ int clif_paperpopupwrite(USER *sd, const char *buf, int width, int height,
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOW(sd->fd, 1) = SWAP16(strlen(buf) + 11);
   WFIFOB(sd->fd, 3) = 0x1B;
-  WFIFOB(sd->fd, 5) = invslot;              // invslot
-  WFIFOB(sd->fd, 6) = 0;                    // dunno
-  WFIFOB(sd->fd, 7) = width;                // width of paper
-  WFIFOB(sd->fd, 8) = height;               // height of paper
-  WFIFOW(sd->fd, 9) = SWAP16(strlen(buf));  // length of message
-  strcpy(WFIFOP(sd->fd, 11), buf);          // message
+  WFIFOB(sd->fd, 5) = invslot;             // invslot
+  WFIFOB(sd->fd, 6) = 0;                   // dunno
+  WFIFOB(sd->fd, 7) = width;               // width of paper
+  WFIFOB(sd->fd, 8) = height;              // height of paper
+  WFIFOW(sd->fd, 9) = SWAP16(strlen(buf)); // length of message
+  strcpy(WFIFOP(sd->fd, 11), buf);         // message
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 
-int clif_paperpopupwrite_save(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_paperpopupwrite_save(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -411,30 +445,38 @@ int clif_paperpopupwrite_save(USER *sd) {
   memcpy(input, RFIFOP(sd->fd, 8), SWAP16(RFIFOW(sd->fd, 6)));
   unsigned int slot = RFIFOB(sd->fd, 5);
 
-  if (strcmp(sd->status.inventory[slot].note, input) != 0) {
+  if (strcmp(sd->status.inventory[slot].note, input) != 0)
+  {
     memcpy(sd->status.inventory[slot].note, input, 300);
   }
   return 0;
 }
 
-int stringTruncate(char *buffer, int maxLength) {
-  if (!buffer || maxLength <= 0 || strlen(buffer) == maxLength) return 0;
+int stringTruncate(char *buffer, int maxLength)
+{
+  if (!buffer || maxLength <= 0 || strlen(buffer) == maxLength)
+    return 0;
 
   buffer[maxLength] = '\0';
   return 0;
 }
 
-int clif_transfer(USER *sd, int serverid, int m, int x, int y) {
+int clif_transfer(USER *sd, int serverid, int m, int x, int y)
+{
   int len = 0;
   int dest_port;
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (serverid == 0) dest_port = 2001;
-  if (serverid == 1) dest_port = 2002;
-  if (serverid == 2) dest_port = 2003;
+  if (serverid == 0)
+    dest_port = 2001;
+  if (serverid == 1)
+    dest_port = 2002;
+  if (serverid == 2)
+    dest_port = 2003;
 
   WFIFOHEAD(sd->fd, 255);
   WFIFOB(sd->fd, 0) = 0xAA;
@@ -455,14 +497,16 @@ int clif_transfer(USER *sd, int serverid, int m, int x, int y) {
   WFIFOB(sd->fd, 10) = len;
   WFIFOW(sd->fd, 1) = SWAP16(len + 8);
   // set_packet_indexes(WFIFOP(sd->fd, 0));
-  WFIFOSET(sd->fd, len + 11);  // + 3);
+  WFIFOSET(sd->fd, len + 11); // + 3);
 
   return 0;
 }
 
-int clif_transfer_test(USER *sd, int m, int x, int y) {
+int clif_transfer_test(USER *sd, int m, int x, int y)
+{
   int len = 0;
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -488,14 +532,16 @@ int clif_transfer_test(USER *sd, int m, int x, int y) {
   WFIFOB(sd->fd, 10) = len;
   WFIFOW(sd->fd, 1) = SWAP16(len + 8);
   // set_packet_indexes(WFIFOP(sd->fd, 0));
-  WFIFOSET(sd->fd, len + 11);  // + 3);
+  WFIFOSET(sd->fd, len + 11); // + 3);
 
   return 0;
 }
 
 int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
-                               int count) {
-  if (!session[sd->fd]) {
+                               int count)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -508,7 +554,8 @@ int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
   WFIFOB(sd->fd, 5) = 0x09;
   WFIFOB(sd->fd, 6) = count;
   int len = 7;
-  for (int i = 0; i < count; i++) {
+  for (int i = 0; i < count; i++)
+  {
     WFIFOB(sd->fd, len) = strlen(q[i].header);
     len += 1;
     strcpy(WFIFOP(sd->fd, len), q[i].header);
@@ -543,10 +590,12 @@ int clif_sendBoardQuestionaire(USER *sd, struct board_questionaire *q,
   return 0;
 }
 
-int clif_closeit(USER *sd) {
+int clif_closeit(USER *sd)
+{
   int len = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -588,20 +637,25 @@ int clif_closeit(USER *sd) {
   WFIFOB(sd->fd, 10) = len;
   WFIFOW(sd->fd, 1) = SWAP16(len + 8);
   // set_packet_indexes(WFIFOP(sd->fd, 0));
-  WFIFOSET(sd->fd, len + 11);  // + 3);
+  WFIFOSET(sd->fd, len + 11); // + 3);
   return 0;
 }
 
-int addtokillreg(USER *sd, int mob) {
-  for (int x = 0; x < MAX_KILLREG; x++) {
-    if (sd->status.killreg[x].mob_id == mob) {
+int addtokillreg(USER *sd, int mob)
+{
+  for (int x = 0; x < MAX_KILLREG; x++)
+  {
+    if (sd->status.killreg[x].mob_id == mob)
+    {
       sd->status.killreg[x].amount++;
       return 0;
     }
   }
 
-  for (int x = 0; x < MAX_KILLREG; x++) {
-    if (sd->status.killreg[x].mob_id == 0) {
+  for (int x = 0; x < MAX_KILLREG; x++)
+  {
+    if (sd->status.killreg[x].mob_id == 0)
+    {
       sd->status.killreg[x].mob_id = mob;
       sd->status.killreg[x].amount = 1;
       return 0;
@@ -611,15 +665,19 @@ int addtokillreg(USER *sd, int mob) {
   return 0;
 }
 
-int clif_addtokillreg(USER *sd, int mob) {
+int clif_addtokillreg(USER *sd, int mob)
+{
   USER *tsd = NULL;
   int x;
   nullpo_ret(0, sd);
-  for (x = 0; x < sd->group_count; x++) {
+  for (x = 0; x < sd->group_count; x++)
+  {
     tsd = map_id2sd(groups[sd->groupid][x]);
-    if (!tsd) continue;
+    if (!tsd)
+      continue;
 
-    if (tsd->bl.m == sd->bl.m) {
+    if (tsd->bl.m == sd->bl.m)
+    {
       addtokillreg(tsd, mob);
     }
   }
@@ -655,11 +713,13 @@ int clif_addtokillreg(USER *sd, int mob) {
         return 0;
 }*/
 
-int clif_sendheartbeat(int id, int none) {
+int clif_sendheartbeat(int id, int none)
+{
   USER *sd = map_id2sd((unsigned int)id);
   nullpo_ret(1, sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -670,13 +730,14 @@ int clif_sendheartbeat(int id, int none) {
   WFIFOB(sd->fd, 3) = 0x3B;
 
   WFIFOB(sd->fd, 5) = 0x5F;
-  WFIFOB(sd->fd, 6) = 0x0A;  // 0x00;
+  WFIFOB(sd->fd, 6) = 0x0A; // 0x00;
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
   return 0;
 }
 
-int pc_sendpong(int id, int none) {
+int pc_sendpong(int id, int none)
+{
   // return 0;
   USER *sd = map_id2sd((unsigned int)id);
   nullpo_ret(1, sd);
@@ -684,8 +745,10 @@ int pc_sendpong(int id, int none) {
   // if (DIFF_TICK(gettick(), sd->LastPongStamp) >= 300000) session[sd->fd]->eof
   // = 12;
 
-  if (sd) {
-    if (!session[sd->fd]) {
+  if (sd)
+  {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -699,14 +762,16 @@ int pc_sendpong(int id, int none) {
 
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
-    sd->LastPingTick = gettick();  // For measuring their arrival of response
+    sd->LastPingTick = gettick(); // For measuring their arrival of response
   }
 
   return 0;
 }
 
-int clif_sendguidespecific(USER *sd, int guide) {
-  if (!session[sd->fd]) {
+int clif_sendguidespecific(USER *sd, int guide)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -725,7 +790,8 @@ int clif_sendguidespecific(USER *sd, int guide) {
   return 0;
 }
 
-int clif_broadcast_sub(struct block_list *bl, va_list ap) {
+int clif_broadcast_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   char *msg = NULL;
   // char buf[256];
@@ -735,19 +801,21 @@ int clif_broadcast_sub(struct block_list *bl, va_list ap) {
   msg = va_arg(ap, char *);
   len = strlen(msg);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   int flag = sd->status.settingFlags & FLAG_SHOUT;
-  if (flag == 0) return 0;
+  if (flag == 0)
+    return 0;
 
   WFIFOHEAD(sd->fd, len + 8);
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x0A;
   WFIFOB(sd->fd, 4) = 0x03;
-  WFIFOB(sd->fd, 5) = 0x05;  // this  is a broadcast
+  WFIFOB(sd->fd, 5) = 0x05; // this  is a broadcast
   WFIFOW(sd->fd, 6) = SWAP16(len);
   strcpy(WFIFOP(sd->fd, 8), msg);
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
@@ -755,7 +823,8 @@ int clif_broadcast_sub(struct block_list *bl, va_list ap) {
 
   return 0;
 }
-int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
+int clif_gmbroadcast_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   char *msg = NULL;
   // char buf[256];
@@ -765,7 +834,8 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
   msg = va_arg(ap, char *);
   len = strlen(msg);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -774,7 +844,7 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x0A;
   WFIFOB(sd->fd, 4) = 0x03;
-  WFIFOB(sd->fd, 5) = 0x05;  // this  is a broadcast
+  WFIFOB(sd->fd, 5) = 0x05; // this  is a broadcast
   WFIFOW(sd->fd, 6) = SWAP16(len);
   strcpy(WFIFOP(sd->fd, 8), msg);
   WFIFOW(sd->fd, 1) = SWAP16(len + 5);
@@ -783,18 +853,21 @@ int clif_gmbroadcast_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
+int clif_broadcasttogm_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   const char *msg = NULL;
   // char buf[256];
   int len = 0;
 
   nullpo_ret(0, sd = (USER *)bl);
-  if (sd->status.gm_level) {
+  if (sd->status.gm_level)
+  {
     msg = va_arg(ap, char *);
     len = strlen(msg);
 
-    if (!session[sd->fd]) {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -803,7 +876,7 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 0) = 0xAA;
     WFIFOB(sd->fd, 3) = 0x0A;
     WFIFOB(sd->fd, 4) = 0x03;
-    WFIFOB(sd->fd, 5) = 0x05;  // this  is a broadcast
+    WFIFOB(sd->fd, 5) = 0x05; // this  is a broadcast
     WFIFOW(sd->fd, 6) = SWAP16(len);
     strcpy(WFIFOP(sd->fd, 8), msg);
     WFIFOW(sd->fd, 1) = SWAP16(len + 5);
@@ -812,96 +885,116 @@ int clif_broadcasttogm_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_broadcast(const char *msg, int m) {
-  if (m == -1) {
-    for (int x = 0; x < 65535; x++) {
-      if (map_isloaded(x)) {
+int clif_broadcast(const char *msg, int m)
+{
+  if (m == -1)
+  {
+    for (int x = 0; x < 65535; x++)
+    {
+      if (map_isloaded(x))
+      {
         map_foreachinarea(clif_broadcast_sub, x, 1, 1, SAMEMAP, BL_PC, msg);
       }
     }
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_broadcast_sub, m, 1, 1, SAMEMAP, BL_PC, msg);
   }
 
   return 0;
 }
 
-int clif_gmbroadcast(const char *msg, int m) {
-  if (m == -1) {
-    for (int x = 0; x < 65535; x++) {
-      if (map_isloaded(x)) {
+int clif_gmbroadcast(const char *msg, int m)
+{
+  if (m == -1)
+  {
+    for (int x = 0; x < 65535; x++)
+    {
+      if (map_isloaded(x))
+      {
         map_foreachinarea(clif_gmbroadcast_sub, x, 1, 1, SAMEMAP, BL_PC, msg);
       }
     }
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_gmbroadcast_sub, m, 1, 1, SAMEMAP, BL_PC, msg);
   }
   return 0;
 }
 
-int clif_broadcasttogm(const char *msg, int m) {
-  if (m == -1) {
-    for (int x = 0; x < 65535; x++) {
-      if (map_isloaded(x)) {
+int clif_broadcasttogm(const char *msg, int m)
+{
+  if (m == -1)
+  {
+    for (int x = 0; x < 65535; x++)
+    {
+      if (map_isloaded(x))
+      {
         map_foreachinarea(clif_broadcasttogm_sub, x, 1, 1, SAMEMAP, BL_PC, msg);
       }
     }
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_broadcasttogm_sub, m, 1, 1, SAMEMAP, BL_PC, msg);
   }
   return 0;
 }
 
-int clif_getequiptype(int val) {
+int clif_getequiptype(int val)
+{
   int type = 0;
 
-  switch (val) {
-    case EQ_WEAP:
-      type = 1;
-      break;
-    case EQ_ARMOR:
-      type = 2;
-      break;
-    case EQ_SHIELD:
-      type = 3;
-      break;
-    case EQ_HELM:
-      type = 4;
-      break;
-    case EQ_NECKLACE:
-      type = 6;
-      break;
-    case EQ_LEFT:
-      type = 7;
-      break;
-    case EQ_RIGHT:
-      type = 8;
-      break;
-    case EQ_BOOTS:
-      type = 13;
-      break;
-    case EQ_MANTLE:
-      type = 14;
-      break;
-    case EQ_COAT:
-      type = 16;
-      break;
-    case EQ_SUBLEFT:
-      type = 20;
-      break;
-    case EQ_SUBRIGHT:
-      type = 21;
-      break;
-    case EQ_FACEACC:
-      type = 22;
-      break;
-    case EQ_CROWN:
-      type = 23;
-      break;
+  switch (val)
+  {
+  case EQ_WEAP:
+    type = 1;
+    break;
+  case EQ_ARMOR:
+    type = 2;
+    break;
+  case EQ_SHIELD:
+    type = 3;
+    break;
+  case EQ_HELM:
+    type = 4;
+    break;
+  case EQ_NECKLACE:
+    type = 6;
+    break;
+  case EQ_LEFT:
+    type = 7;
+    break;
+  case EQ_RIGHT:
+    type = 8;
+    break;
+  case EQ_BOOTS:
+    type = 13;
+    break;
+  case EQ_MANTLE:
+    type = 14;
+    break;
+  case EQ_COAT:
+    type = 16;
+    break;
+  case EQ_SUBLEFT:
+    type = 20;
+    break;
+  case EQ_SUBRIGHT:
+    type = 21;
+    break;
+  case EQ_FACEACC:
+    type = 22;
+    break;
+  case EQ_CROWN:
+    type = 23;
+    break;
 
-    default:
-      return 0;
-      break;
+  default:
+    return 0;
+    break;
   }
 
   return type;
@@ -938,11 +1031,13 @@ static short crctable[256] = {
     0xDF7C, 0xAF9B, 0xBFBA, 0x8FD9, 0x9FF8, 0x6E17, 0x7E36, 0x4E55, 0x5E74,
     0x2E93, 0x3EB2, 0x0ED1, 0x1EF0};
 
-short nexCRCC(short *buf, int len) {
+short nexCRCC(short *buf, int len)
+{
   unsigned short crc, temp;
 
   crc = 0;
-  while (len != 0) {
+  while (len != 0)
+  {
     crc = (crctable[crc >> 8] ^ (crc << 8)) ^ buf[0];
     temp = crctable[crc >> 8] ^ buf[1];
     crc = ((temp << 8) ^ crctable[(crc & 0xFF) ^ (temp >> 8)]) ^ buf[2];
@@ -952,19 +1047,25 @@ short nexCRCC(short *buf, int len) {
   return (crc);
 }
 
-int clif_debug(unsigned char *stringthing, int len) {
+int clif_debug(unsigned char *stringthing, int len)
+{
   int i;
 
-  for (i = 0; i < len; i++) {
+  for (i = 0; i < len; i++)
+  {
     printf("%02X ", stringthing[i]);
   }
 
   printf("\n");
 
-  for (i = 0; i < len; i++) {
-    if (stringthing[i] <= 32 || stringthing[i] > 126) {
+  for (i = 0; i < len; i++)
+  {
+    if (stringthing[i] <= 32 || stringthing[i] > 126)
+    {
       printf("   ");
-    } else {
+    }
+    else
+    {
       printf("%02X ", stringthing[i]);
     }
   }
@@ -973,11 +1074,13 @@ int clif_debug(unsigned char *stringthing, int len) {
   return 0;
 }
 
-int clif_sendtowns(USER *sd) {
+int clif_sendtowns(USER *sd)
+{
   int x;
   int len = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -990,8 +1093,9 @@ int clif_sendtowns(USER *sd) {
   WFIFOB(sd->fd, 5) = 64;
   WFIFOW(sd->fd, 6) = 0;
   WFIFOB(sd->fd, 8) = 34;
-  WFIFOB(sd->fd, 9) = town_n;  // Town count
-  for (x = 0; x < town_n; x++) {
+  WFIFOB(sd->fd, 9) = town_n; // Town count
+  for (x = 0; x < town_n; x++)
+  {
     WFIFOB(sd->fd, len + 10) = x;
     WFIFOB(sd->fd, len + 11) = strlen(towns[x].name);
     strcpy(WFIFOP(sd->fd, len + 12), towns[x].name);
@@ -1004,13 +1108,16 @@ int clif_sendtowns(USER *sd) {
   return 0;
 }
 
-int clif_user_list(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_user_list(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -1023,7 +1130,8 @@ int clif_user_list(USER *sd) {
   return 0;
 }
 
-int clif_pc_damage(USER *sd, USER *src) {
+int clif_pc_damage(USER *sd, USER *src)
+{
   USER *tsd = NULL;
   int damage;
   int x;
@@ -1031,51 +1139,66 @@ int clif_pc_damage(USER *sd, USER *src) {
   nullpo_ret(0, sd);
   nullpo_ret(0, src);
 
-  if (src->status.state == 1) return 0;
+  if (src->status.state == 1)
+    return 0;
 
   sl_doscript_blargs("hitCritChance", NULL, 2, &sd->bl, &src->bl);
 
-  if (sd->critchance > 0) {
+  if (sd->critchance > 0)
+  {
     sl_doscript_blargs("swingDamage", NULL, 2, &sd->bl, &src->bl);
     damage = (int)(sd->damage += 0.5f);
 
-    if (sd->status.equip[EQ_WEAP].id > 0) {
+    if (sd->status.equip[EQ_WEAP].id > 0)
+    {
       clif_playsound(&src->bl, itemdb_soundhit(sd->status.equip[EQ_WEAP].id));
     }
 
-    for (x = 0; x < 14; x++) {
-      if (sd->status.equip[x].id > 0) {
+    for (x = 0; x < 14; x++)
+    {
+      if (sd->status.equip[x].id > 0)
+      {
         sl_doscript_blargs(itemdb_yname(sd->status.equip[x].id), "on_hit", 2,
                            &sd->bl, &src->bl);
       }
     }
 
-    for (x = 0; x < MAX_SPELLS; x++) {
-      if (sd->status.skill[x] > 0) {
+    for (x = 0; x < MAX_SPELLS; x++)
+    {
+      if (sd->status.skill[x] > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.skill[x]), "passive_on_hit",
                            2, &sd->bl, &src->bl);
       }
     }
 
-    for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+    for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+    {
       if (sd->status.dura_aether[x].id > 0 &&
-          sd->status.dura_aether[x].duration > 0) {
+          sd->status.dura_aether[x].duration > 0)
+      {
         tsd = map_id2sd(sd->status.dura_aether[x].caster_id);
 
-        if (tsd) {
+        if (tsd)
+        {
           sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                              "on_hit_while_cast", 3, &sd->bl, &src->bl,
                              &tsd->bl);
-        } else {
+        }
+        else
+        {
           sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                              "on_hit_while_cast", 2, &sd->bl, &src->bl);
         }
       }
     }
 
-    if (sd->critchance == 1) {
+    if (sd->critchance == 1)
+    {
       clif_send_pc_health(src, damage, 33);
-    } else if (sd->critchance == 2) {
+    }
+    else if (sd->critchance == 2)
+    {
       clif_send_pc_health(src, damage, 255);
     }
 
@@ -1085,10 +1208,12 @@ int clif_pc_damage(USER *sd, USER *src) {
   return 0;
 }
 
-int clif_send_pc_health(USER *src, int damage, int critical) {
+int clif_send_pc_health(USER *src, int damage, int critical)
+{
   struct block_list *bl = map_id2bl(src->attacker);
 
-  if (bl == NULL) {
+  if (bl == NULL)
+  {
     bl = map_id2bl(src->bl.id);
   }
 
@@ -1096,14 +1221,16 @@ int clif_send_pc_health(USER *src, int damage, int critical) {
   return 0;
 }
 
-void clif_delay(int milliseconds) {
+void clif_delay(int milliseconds)
+{
   clock_t start_time = clock();
 
   while (clock() < start_time + milliseconds)
     ;
 }
 
-int clif_send_pc_healthscript(USER *sd, int damage, int critical) {
+int clif_send_pc_healthscript(USER *sd, int damage, int critical)
+{
   unsigned int maxvita;
   unsigned int currentvita;
   float percentage;
@@ -1117,53 +1244,72 @@ int clif_send_pc_healthscript(USER *sd, int damage, int critical) {
   maxvita = sd->max_hp;
   currentvita = sd->status.hp;
 
-  if (bl) {
-    if (bl->type == BL_MOB) {
+  if (bl)
+  {
+    if (bl->type == BL_MOB)
+    {
       tmob = (MOB *)bl;
-      if (tmob->owner < MOB_START_NUM && tmob->owner > 0) {
+      if (tmob->owner < MOB_START_NUM && tmob->owner > 0)
+      {
         tsd = map_id2sd(tmob->owner);
       }
-    } else if (bl->type == BL_PC) {
+    }
+    else if (bl->type == BL_PC)
+    {
       tsd = (USER *)bl;
     }
   }
 
-  if (damage > 0) {
-    for (x = 0; x < MAX_SPELLS; x++) {
-      if (sd->status.skill[x] > 0) {
+  if (damage > 0)
+  {
+    for (x = 0; x < MAX_SPELLS; x++)
+    {
+      if (sd->status.skill[x] > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.skill[x]),
                            "passive_on_takingdamage", 2, &sd->bl, bl);
       }
     }
   }
 
-  if (damage < 0) {
+  if (damage < 0)
+  {
     sd->lastvita = currentvita;
     currentvita -= damage;
-  } else {
-    if (currentvita < damage) {
+  }
+  else
+  {
+    if (currentvita < damage)
+    {
       sd->lastvita = currentvita;
       currentvita = 0;
-    } else {
+    }
+    else
+    {
       sd->lastvita = currentvita;
       currentvita -= damage;
     }
   }
 
-  if (currentvita > maxvita) {
+  if (currentvita > maxvita)
+  {
     currentvita = maxvita;
   }
 
   sd->status.hp = currentvita;
 
-  if (currentvita == 0) {
+  if (currentvita == 0)
+  {
     percentage = 0;
-  } else {
+  }
+  else
+  {
     percentage = (float)currentvita / (float)maxvita;
     percentage = (float)percentage * 100;
   }
 
-  if (((int)percentage) == 0 && currentvita != 0) percentage = (float)1;
+  if (((int)percentage) == 0 && currentvita != 0)
+    percentage = (float)1;
   // 8 hit types * 32 colors
   WBUFB(buf, 0) = 0xAA;
   WBUFW(buf, 1) = SWAP16(12);
@@ -1180,22 +1326,29 @@ int clif_send_pc_healthscript(USER *sd, int damage, int critical) {
   else
     clif_send(buf, 32, &sd->bl, AREA);
 
-  if (sd->status.hp && damage > 0) {
-    for (x = 0; x < MAX_SPELLS; x++) {
-      if (sd->status.skill[x] > 0) {
+  if (sd->status.hp && damage > 0)
+  {
+    for (x = 0; x < MAX_SPELLS; x++)
+    {
+      if (sd->status.skill[x] > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.skill[x]),
                            "passive_on_takedamage", 2, &sd->bl, bl);
       }
     }
-    for (x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+    for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+    { // Spell stuff
       if (sd->status.dura_aether[x].id > 0 &&
-          sd->status.dura_aether[x].duration > 0) {
+          sd->status.dura_aether[x].duration > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                            "on_takedamage_while_cast", 2, &sd->bl, bl);
       }
     }
-    for (x = 0; x < 14; x++) {  // Equipment stuff
-      if (sd->status.equip[x].id > 0) {
+    for (x = 0; x < 14; x++)
+    { // Equipment stuff
+      if (sd->status.equip[x].id > 0)
+      {
         sl_doscript_blargs(itemdb_yname(sd->status.equip[x].id),
                            "on_takedamage", 2, &sd->bl, bl);
       }
@@ -1219,10 +1372,12 @@ int clif_send_pc_healthscript(USER *sd, int damage, int critical) {
           }
   }*/
 
-  if (!sd->status.hp) {
+  if (!sd->status.hp)
+  {
     sl_doscript_blargs("onDeathPlayer", NULL, 1, &sd->bl);
 
-    if (tsd != NULL) sl_doscript_blargs("onKill", NULL, 2, &sd->bl, &tsd->bl);
+    if (tsd != NULL)
+      sl_doscript_blargs("onKill", NULL, 2, &sd->bl, &tsd->bl);
 
     /*for(x=0;x<14;x++) {
             if(sd->status.equip[x].id > 0) {
@@ -1269,26 +1424,33 @@ int clif_send_pc_healthscript(USER *sd, int damage, int critical) {
     }*/
   }
 
-  if (sd->group_count > 0) {
+  if (sd->group_count > 0)
+  {
     clif_grouphealth_update(sd);
   }
 
   return 0;
 }
 
-void clif_send_selfbar(USER *sd) {
+void clif_send_selfbar(USER *sd)
+{
   float percentage;
 
-  if (sd->status.hp == 0) {
+  if (sd->status.hp == 0)
+  {
     percentage = 0;
-  } else {
+  }
+  else
+  {
     percentage = (float)sd->status.hp / (float)sd->max_hp;
     percentage = (float)percentage * 100;
   }
 
-  if ((int)percentage == 0 && sd->status.hp != 0) percentage = (float)1;
+  if ((int)percentage == 0 && sd->status.hp != 0)
+    percentage = (float)1;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return;
   }
@@ -1304,23 +1466,30 @@ void clif_send_selfbar(USER *sd) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 }
 
-void clif_send_groupbars(USER *sd, USER *tsd) {
+void clif_send_groupbars(USER *sd, USER *tsd)
+{
   float percentage;
 
-  if (!sd || !tsd) {
+  if (!sd || !tsd)
+  {
     return;
   }
 
-  if (tsd->status.hp == 0) {
+  if (tsd->status.hp == 0)
+  {
     percentage = 0;
-  } else {
+  }
+  else
+  {
     percentage = (float)tsd->status.hp / (float)tsd->max_hp;
     percentage = (float)percentage * 100;
   }
 
-  if ((int)percentage == 0 && tsd->status.hp != 0) percentage = (float)1;
+  if ((int)percentage == 0 && tsd->status.hp != 0)
+    percentage = (float)1;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return;
   }
@@ -1336,7 +1505,8 @@ void clif_send_groupbars(USER *sd, USER *tsd) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 }
 
-int clif_send_mobbars(struct block_list *bl, va_list ap) {
+int clif_send_mobbars(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   MOB *mob = NULL;
   float percentage;
@@ -1344,20 +1514,26 @@ int clif_send_mobbars(struct block_list *bl, va_list ap) {
   sd = va_arg(ap, USER *);
   mob = (MOB *)bl;
 
-  if (!sd || !mob) {
+  if (!sd || !mob)
+  {
     return 1;
   }
 
-  if (mob->current_vita == 0) {
+  if (mob->current_vita == 0)
+  {
     percentage = 0;
-  } else {
+  }
+  else
+  {
     percentage = (float)mob->current_vita / (float)mob->maxvita;
     percentage = (float)percentage * 100;
   }
 
-  if ((int)percentage == 0 && mob->current_vita != 0) percentage = (float)1;
+  if ((int)percentage == 0 && mob->current_vita != 0)
+    percentage = (float)1;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 1;
   }
@@ -1375,10 +1551,13 @@ int clif_send_mobbars(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_findspell_pos(USER *sd, int id) {
+int clif_findspell_pos(USER *sd, int id)
+{
   int x;
-  for (x = 0; x < 52; x++) {
-    if (sd->status.skill[x] == id) {
+  for (x = 0; x < 52; x++)
+  {
+    if (sd->status.skill[x] == id)
+    {
       return x;
     }
   }
@@ -1386,7 +1565,8 @@ int clif_findspell_pos(USER *sd, int id) {
   return -1;
 }
 
-int clif_calc_critical(USER *sd, struct block_list *bl) {
+int clif_calc_critical(USER *sd, struct block_list *bl)
+{
   int chance;
   int equat = 0;
   MOB *mob = NULL;
@@ -1394,7 +1574,8 @@ int clif_calc_critical(USER *sd, struct block_list *bl) {
   int crit = 0;
   int max_hit = 95;
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     tsd = (USER *)bl;
     // equat=sd->hit*2+(sd->grace/2)+(sd->status.level/2);
     // equat=equat-((tsd->grace/4)+(sd->status.level));
@@ -1403,7 +1584,9 @@ int clif_calc_critical(USER *sd, struct block_list *bl) {
     // equat=(sd->hit*5+80+(sd->grace/3))-(tsd->grace);
     // equat=(sd->hit + sd->status.level + (sd->might/2) + 40) -
     // (sd->status.level + (sd->grace/2));
-  } else if (bl->type == BL_MOB) {
+  }
+  else if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
     // equat=sd->hit*2+(sd->grace/2)+(sd->status.level/2);
     // equat=equat-(mob->data->grace/4)-mobdb_level(mob->id);
@@ -1412,27 +1595,38 @@ int clif_calc_critical(USER *sd, struct block_list *bl) {
     // equat=(sd->hit + sd->status.level + (sd->might/2) + 40) -
     // (mobdb_level(mob->id) + (mob->data->grace/2));
   }
-  if (equat < 5) equat = 5;
-  if (equat > max_hit) equat = max_hit;
+  if (equat < 5)
+    equat = 5;
+  if (equat > max_hit)
+    equat = max_hit;
 
   chance = rnd(100);
-  if (chance < (equat)) {
+  if (chance < (equat))
+  {
     crit = sd->hit / 3;
-    if (crit < 1) crit = 1;
-    if (crit >= 100) crit = 99;
-    if (chance < crit) {
+    if (crit < 1)
+      crit = 1;
+    if (crit >= 100)
+      crit = 99;
+    if (chance < crit)
+    {
       return 2;
-    } else {
+    }
+    else
+    {
       return 1;
     }
   }
   return 0;
 }
-int clif_has_aethers(USER *sd, int spell) {
+int clif_has_aethers(USER *sd, int spell)
+{
   int x;
 
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id == spell) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id == spell)
+    {
       return sd->status.dura_aether[x].aether;
     }
   }
@@ -1440,7 +1634,8 @@ int clif_has_aethers(USER *sd, int spell) {
   return 0;
 }
 
-int clif_mob_look_start_func(struct block_list *bl, va_list ap) {
+int clif_mob_look_start_func(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
 
   nullpo_ret(0, sd = (USER *)bl);
@@ -1448,7 +1643,8 @@ int clif_mob_look_start_func(struct block_list *bl, va_list ap) {
   sd->mob_count = 0;
   sd->mob_item = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -1460,17 +1656,20 @@ int clif_mob_look_start_func(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_mob_look_close_func(struct block_list *bl, va_list ap) {
+int clif_mob_look_close_func(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
 
   nullpo_ret(0, sd = (USER *)bl);
 
-  if (!sd->mob_count) return 0;
+  if (!sd->mob_count)
+    return 0;
   /*if(sd->mob_count%2==1) {
           sd->mob_len++;
           WFIFOB(sd->fd,sd->mob_len+6)=0;
   }*/
-  if (!sd->mob_item) {
+  if (!sd->mob_item)
+  {
     WFIFOB(sd->fd, sd->mob_len + 7) = 0;
     sd->mob_len++;
   }
@@ -1486,7 +1685,8 @@ int clif_mob_look_close_func(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_object_look_sub(struct block_list *bl, va_list ap) {
+int clif_object_look_sub(struct block_list *bl, va_list ap)
+{
   // set up our types
   USER *sd = NULL;
   MOB *mob = NULL;
@@ -1501,112 +1701,131 @@ int clif_object_look_sub(struct block_list *bl, va_list ap) {
   int len = 0;
   // end setup
   type = va_arg(ap, int);
-  if (type == LOOK_SEND) {
+  if (type == LOOK_SEND)
+  {
     nullpo_ret(0, sd = (USER *)bl);
     nullpo_ret(0, b = va_arg(ap, struct block_list *));
-  } else {
+  }
+  else
+  {
     nullpo_ret(0, sd = va_arg(ap, USER *));
     nullpo_ret(0, b = bl);
   }
 
-  if (b->type == BL_PC) return 0;
+  if (b->type == BL_PC)
+    return 0;
   // len+11 = type
   len = sd->mob_len;
   WFIFOW(sd->fd, len + 7) = SWAP16(b->x);
   WFIFOW(sd->fd, len + 9) = SWAP16(b->y);
   WFIFOL(sd->fd, len + 12) = SWAP32(b->id);
 
-  switch (b->type) {
-    case BL_MOB:
-      mob = (MOB *)b;
+  switch (b->type)
+  {
+  case BL_MOB:
+    mob = (MOB *)b;
 
-      if (mob->state == MOB_DEAD || mob->data->mobtype == 1) return 0;
+    if (mob->state == MOB_DEAD || mob->data->mobtype == 1)
+      return 0;
 
-      nlen = 0;
-      animlen = 0;
+    nlen = 0;
+    animlen = 0;
 
-      if (mob->data->isnpc == 0) {
-        WFIFOB(sd->fd, len + 11) = 0x05;
-        WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
-        WFIFOB(sd->fd, len + 18) = mob->look_color;
-        WFIFOB(sd->fd, len + 19) = mob->side;
-        WFIFOB(sd->fd, len + 20) = 0;
-        WFIFOB(sd->fd, len + 21) = 0;  //# of animations active
-        for (x = 0; x < 50; x++) {
-          if (mob->da[x].duration && mob->da[x].animation) {
-            WFIFOW(sd->fd, nlen + len + 22) = SWAP16(mob->da[x].animation);
-            WFIFOW(sd->fd, nlen + len + 22 + 2) =
-                SWAP16(mob->da[x].duration / 1000);
-            animlen++;
-            nlen += 4;
-          }
+    if (mob->data->isnpc == 0)
+    {
+      WFIFOB(sd->fd, len + 11) = 0x05;
+      WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
+      WFIFOB(sd->fd, len + 18) = mob->look_color;
+      WFIFOB(sd->fd, len + 19) = mob->side;
+      WFIFOB(sd->fd, len + 20) = 0;
+      WFIFOB(sd->fd, len + 21) = 0; // # of animations active
+      for (x = 0; x < 50; x++)
+      {
+        if (mob->da[x].duration && mob->da[x].animation)
+        {
+          WFIFOW(sd->fd, nlen + len + 22) = SWAP16(mob->da[x].animation);
+          WFIFOW(sd->fd, nlen + len + 22 + 2) =
+              SWAP16(mob->da[x].duration / 1000);
+          animlen++;
+          nlen += 4;
         }
-
-        WFIFOB(sd->fd, len + 21) = animlen;
-        WFIFOB(sd->fd, len + 22 + nlen) = 0;  // pass flag
-        sd->mob_len += 15 + nlen;
-      } else if (mob->data->isnpc == 1) {
-        WFIFOB(sd->fd, len + 11) = 12;
-        WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
-        WFIFOB(sd->fd, len + 18) = mob->look_color;
-        WFIFOB(sd->fd, len + 19) = mob->side;
-        WFIFOW(sd->fd, len + 20) = 0;
-        WFIFOB(sd->fd, len + 22) = 0;
-        sd->mob_len += 15;
       }
 
-      break;
-    case BL_NPC:
-      nd = (NPC *)b;
-
-      if (b->subtype || nd->bl.subtype || nd->npctype == 1) return 0;
-
+      WFIFOB(sd->fd, len + 21) = animlen;
+      WFIFOB(sd->fd, len + 22 + nlen) = 0; // pass flag
+      sd->mob_len += 15 + nlen;
+    }
+    else if (mob->data->isnpc == 1)
+    {
       WFIFOB(sd->fd, len + 11) = 12;
-      WFIFOW(sd->fd, len + 16) = SWAP16(32768 + b->graphic_id);
-      WFIFOB(sd->fd, len + 18) = b->graphic_color;
-      WFIFOB(sd->fd, len + 19) = nd->side;  // Looking down
-      WFIFOW(sd->fd, len + 20) = 0;
-      WFIFOB(sd->fd, len + 22) = 0;
-      // WFIFOB(sd->fd,len+22)=0;
-      sd->mob_len += 15;
-      break;
-    case BL_ITEM:
-      item = (FLOORITEM *)b;
-
-      int inTable = 0;
-
-      for (int j = 0; j < sizeof(item->data.trapsTable); j++) {
-        if (item->data.trapsTable[j] == sd->status.id) inTable = 1;
-      }
-
-      // printf("func 1...  name: %s, inTable: %i\n",sd->status.name,inTable);
-
-      if (itemdb_type(item->data.id) == ITM_TRAPS && !inTable) {
-        return 0;
-      }
-
-      WFIFOB(sd->fd, len + 11) = 0x02;
-
-      if (item->data.customIcon != 0) {
-        WFIFOW(sd->fd, len + 16) = SWAP16(item->data.customIcon + 49152);
-        WFIFOB(sd->fd, len + 18) = item->data.customIconColor;
-      } else {
-        WFIFOW(sd->fd, len + 16) = SWAP16(itemdb_icon(item->data.id));
-        WFIFOB(sd->fd, len + 18) = itemdb_iconcolor(item->data.id);
-      }
-
-      WFIFOB(sd->fd, len + 19) = 0;
+      WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
+      WFIFOB(sd->fd, len + 18) = mob->look_color;
+      WFIFOB(sd->fd, len + 19) = mob->side;
       WFIFOW(sd->fd, len + 20) = 0;
       WFIFOB(sd->fd, len + 22) = 0;
       sd->mob_len += 15;
-      sd->mob_item = 1;
-      break;
+    }
+
+    break;
+  case BL_NPC:
+    nd = (NPC *)b;
+
+    if (b->subtype || nd->bl.subtype || nd->npctype == 1)
+      return 0;
+
+    WFIFOB(sd->fd, len + 11) = 12;
+    WFIFOW(sd->fd, len + 16) = SWAP16(32768 + b->graphic_id);
+    WFIFOB(sd->fd, len + 18) = b->graphic_color;
+    WFIFOB(sd->fd, len + 19) = nd->side; // Looking down
+    WFIFOW(sd->fd, len + 20) = 0;
+    WFIFOB(sd->fd, len + 22) = 0;
+    // WFIFOB(sd->fd,len+22)=0;
+    sd->mob_len += 15;
+    break;
+  case BL_ITEM:
+    item = (FLOORITEM *)b;
+
+    int inTable = 0;
+
+    for (int j = 0; j < sizeof(item->data.trapsTable); j++)
+    {
+      if (item->data.trapsTable[j] == sd->status.id)
+        inTable = 1;
+    }
+
+    // printf("func 1...  name: %s, inTable: %i\n",sd->status.name,inTable);
+
+    if (itemdb_type(item->data.id) == ITM_TRAPS && !inTable)
+    {
+      return 0;
+    }
+
+    WFIFOB(sd->fd, len + 11) = 0x02;
+
+    if (item->data.customIcon != 0)
+    {
+      WFIFOW(sd->fd, len + 16) = SWAP16(item->data.customIcon + 49152);
+      WFIFOB(sd->fd, len + 18) = item->data.customIconColor;
+    }
+    else
+    {
+      WFIFOW(sd->fd, len + 16) = SWAP16(itemdb_icon(item->data.id));
+      WFIFOB(sd->fd, len + 18) = itemdb_iconcolor(item->data.id);
+    }
+
+    WFIFOB(sd->fd, len + 19) = 0;
+    WFIFOW(sd->fd, len + 20) = 0;
+    WFIFOB(sd->fd, len + 22) = 0;
+    sd->mob_len += 15;
+    sd->mob_item = 1;
+    break;
   }
   sd->mob_count++;
   return 0;
 }
 
-int clif_object_look_sub2(struct block_list *bl, va_list ap) {
+int clif_object_look_sub2(struct block_list *bl, va_list ap)
+{
   // set up our types
   USER *sd = NULL;
   MOB *mob = NULL;
@@ -1619,22 +1838,27 @@ int clif_object_look_sub2(struct block_list *bl, va_list ap) {
   int nlen = 0, x = 0;
   // end setup
   type = va_arg(ap, int);
-  if (type == LOOK_SEND) {
+  if (type == LOOK_SEND)
+  {
     nullpo_ret(0, sd = (USER *)bl);
     nullpo_ret(0, b = va_arg(ap, struct block_list *));
-  } else {
+  }
+  else
+  {
     nullpo_ret(0, sd = va_arg(ap, USER *));
     nullpo_ret(0, b = bl);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 6000);
 
-  if (b->type == BL_PC) return 0;
+  if (b->type == BL_PC)
+    return 0;
 
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOW(sd->fd, 1) = SWAP16(20);
@@ -1645,103 +1869,119 @@ int clif_object_look_sub2(struct block_list *bl, va_list ap) {
   WFIFOW(sd->fd, 9) = SWAP16(b->y);
   WFIFOL(sd->fd, 12) = SWAP32(b->id);
 
-  switch (b->type) {
-    case BL_MOB:
-      mob = (MOB *)b;
+  switch (b->type)
+  {
+  case BL_MOB:
+    mob = (MOB *)b;
 
-      if (mob->state == MOB_DEAD || mob->data->mobtype == 1) return 0;
+    if (mob->state == MOB_DEAD || mob->data->mobtype == 1)
+      return 0;
 
-      nlen = 0;
+    nlen = 0;
 
-      if (mob->data->isnpc == 0) {
-        WFIFOB(sd->fd, 11) = 0x05;
-        WFIFOW(sd->fd, 16) = SWAP16(32768 + mob->look);
-        WFIFOB(sd->fd, 18) = mob->look_color;
-        WFIFOB(sd->fd, 19) = mob->side;
-        WFIFOB(sd->fd, 20) = 0;
-        WFIFOB(sd->fd, 21) = 0;
-        for (x = 0; x < 50; x++) {
-          if (mob->da[x].duration && mob->da[x].animation) {
-            WFIFOW(sd->fd, nlen + 22) = SWAP16(mob->da[x].animation);
-            WFIFOW(sd->fd, nlen + 22 + 2) = SWAP16(mob->da[x].duration / 1000);
-            nlen += 4;
-          }
+    if (mob->data->isnpc == 0)
+    {
+      WFIFOB(sd->fd, 11) = 0x05;
+      WFIFOW(sd->fd, 16) = SWAP16(32768 + mob->look);
+      WFIFOB(sd->fd, 18) = mob->look_color;
+      WFIFOB(sd->fd, 19) = mob->side;
+      WFIFOB(sd->fd, 20) = 0;
+      WFIFOB(sd->fd, 21) = 0;
+      for (x = 0; x < 50; x++)
+      {
+        if (mob->da[x].duration && mob->da[x].animation)
+        {
+          WFIFOW(sd->fd, nlen + 22) = SWAP16(mob->da[x].animation);
+          WFIFOW(sd->fd, nlen + 22 + 2) = SWAP16(mob->da[x].duration / 1000);
+          nlen += 4;
         }
-
-        WFIFOB(sd->fd, 21) = nlen / 4;
-        WFIFOB(sd->fd, nlen + 22) = 0;  // passflag
-        // WFIFOB(sd->fd,22)=0;
-      } else if (mob->data->isnpc == 1) {
-        WFIFOB(sd->fd, len + 11) = 12;
-        WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
-        WFIFOB(sd->fd, len + 18) = mob->look_color;
-        WFIFOB(sd->fd, len + 19) = mob->side;
-        WFIFOW(sd->fd, len + 20) = 0;
-        WFIFOB(sd->fd, len + 22) = 0;
       }
 
-      break;
-    case BL_NPC:
-      nd = (NPC *)b;
-      // npc=va_arg(ap,struct npc_data*);
-      if (b->subtype || nd->bl.subtype || nd->npctype == 1) return 0;
+      WFIFOB(sd->fd, 21) = nlen / 4;
+      WFIFOB(sd->fd, nlen + 22) = 0; // passflag
+                                     // WFIFOB(sd->fd,22)=0;
+    }
+    else if (mob->data->isnpc == 1)
+    {
+      WFIFOB(sd->fd, len + 11) = 12;
+      WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
+      WFIFOB(sd->fd, len + 18) = mob->look_color;
+      WFIFOB(sd->fd, len + 19) = mob->side;
+      WFIFOW(sd->fd, len + 20) = 0;
+      WFIFOB(sd->fd, len + 22) = 0;
+    }
 
-      WFIFOB(sd->fd, 11) = 12;
-      WFIFOW(sd->fd, 16) = SWAP16(32768 + b->graphic_id);
-      WFIFOB(sd->fd, 18) = b->graphic_color;
-      WFIFOB(sd->fd, 19) = nd->side;  // Looking down
-      WFIFOW(sd->fd, 20) = 0;
-      WFIFOB(sd->fd, 22) = 0;
-      break;
-    case BL_ITEM:
-      item = (FLOORITEM *)b;
+    break;
+  case BL_NPC:
+    nd = (NPC *)b;
+    // npc=va_arg(ap,struct npc_data*);
+    if (b->subtype || nd->bl.subtype || nd->npctype == 1)
+      return 0;
 
-      int inTable = 0;
+    WFIFOB(sd->fd, 11) = 12;
+    WFIFOW(sd->fd, 16) = SWAP16(32768 + b->graphic_id);
+    WFIFOB(sd->fd, 18) = b->graphic_color;
+    WFIFOB(sd->fd, 19) = nd->side; // Looking down
+    WFIFOW(sd->fd, 20) = 0;
+    WFIFOB(sd->fd, 22) = 0;
+    break;
+  case BL_ITEM:
+    item = (FLOORITEM *)b;
 
-      for (int j = 0; j < sizeof(item->data.trapsTable); j++) {
-        if (item->data.trapsTable[j] == sd->status.id) inTable = 1;
-      }
+    int inTable = 0;
 
-      // printf("func 2,   name: %s, inTable: %i\n",sd->status.name,inTable);
+    for (int j = 0; j < sizeof(item->data.trapsTable); j++)
+    {
+      if (item->data.trapsTable[j] == sd->status.id)
+        inTable = 1;
+    }
 
-      if (itemdb_type(item->data.id) == ITM_TRAPS && !inTable) {
-        return 0;
-      }
+    // printf("func 2,   name: %s, inTable: %i\n",sd->status.name,inTable);
 
-      WFIFOB(sd->fd, 11) = 0x02;
+    if (itemdb_type(item->data.id) == ITM_TRAPS && !inTable)
+    {
+      return 0;
+    }
 
-      if (item->data.customIcon != 0) {
-        WFIFOW(sd->fd, 16) = SWAP16(item->data.customIcon + 49152);
-        WFIFOB(sd->fd, 18) = item->data.customIconColor;
-      }
+    WFIFOB(sd->fd, 11) = 0x02;
 
-      else {
-        WFIFOW(sd->fd, 16) = SWAP16(itemdb_icon(item->data.id));
-        WFIFOB(sd->fd, 18) = itemdb_iconcolor(item->data.id);
-      }
+    if (item->data.customIcon != 0)
+    {
+      WFIFOW(sd->fd, 16) = SWAP16(item->data.customIcon + 49152);
+      WFIFOB(sd->fd, 18) = item->data.customIconColor;
+    }
 
-      WFIFOB(sd->fd, 19) = 0;
-      WFIFOW(sd->fd, 20) = 0;
-      WFIFOB(sd->fd, 22) = 0;
-      break;
+    else
+    {
+      WFIFOW(sd->fd, 16) = SWAP16(itemdb_icon(item->data.id));
+      WFIFOB(sd->fd, 18) = itemdb_iconcolor(item->data.id);
+    }
+
+    WFIFOB(sd->fd, 19) = 0;
+    WFIFOW(sd->fd, 20) = 0;
+    WFIFOB(sd->fd, 22) = 0;
+    break;
   }
   WFIFOW(sd->fd, 1) = SWAP16(20 + nlen);
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   // sd->mob_count++;
   return 0;
 }
-int clif_object_look_specific(USER *sd, unsigned int id) {
+int clif_object_look_specific(USER *sd, unsigned int id)
+{
   MOB *mob = NULL;
   FLOORITEM *item = NULL;
   NPC *nd = NULL;
   struct block_list *b = NULL;
   int len = 0;
   // end setup
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
   nullpo_ret(0, b = map_id2bl(id));
 
-  if (b->type == BL_PC) return 0;
+  if (b->type == BL_PC)
+    return 0;
   // len+11 = type
   // len=sd->mob_len;
 
@@ -1750,89 +1990,103 @@ int clif_object_look_specific(USER *sd, unsigned int id) {
   WFIFOW(sd->fd, 7) = SWAP16(b->x);
   WFIFOW(sd->fd, 9) = SWAP16(b->y);
   WFIFOL(sd->fd, 12) = SWAP32(b->id);
-  switch (b->type) {
-    case BL_MOB:
-      mob = (MOB *)b;
+  switch (b->type)
+  {
+  case BL_MOB:
+    mob = (MOB *)b;
 
-      if (mob->state == MOB_DEAD || mob->data->mobtype == 1) return 0;
-
-      if (mob->data->isnpc == 0) {
-        WFIFOB(sd->fd, 11) = 0x05;
-        WFIFOW(sd->fd, 16) = SWAP16(32768 + mob->look);
-        WFIFOB(sd->fd, 18) = mob->look_color;
-        WFIFOB(sd->fd, 19) = mob->side;
-        WFIFOW(sd->fd, 20) = 0;
-        WFIFOB(sd->fd, 22) = 0;
-      } else if (mob->data->isnpc == 1) {
-        WFIFOB(sd->fd, len + 11) = 12;
-        WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
-        WFIFOB(sd->fd, len + 18) = mob->look_color;
-        WFIFOB(sd->fd, len + 19) = mob->side;
-        WFIFOW(sd->fd, len + 20) = 0;
-        WFIFOB(sd->fd, len + 22) = 0;
-        sd->mob_len += 15;
-      }
-
-      break;
-    case BL_NPC:
-      nd = (NPC *)b;
-      if (b->subtype || nd->bl.subtype || nd->npctype == 1) return 0;
-
-      WFIFOB(sd->fd, 11) = 12;
-      WFIFOW(sd->fd, 16) = SWAP16(32768 + b->graphic_id);
-      WFIFOB(sd->fd, 18) = b->graphic_color;
-      WFIFOB(sd->fd, 19) = 2;  // Looking down
-      WFIFOW(sd->fd, 20) = 0;
-      WFIFOB(sd->fd, 22) = 0;
-      // WFIFOB(sd->fd,22)=0;
-      // sd->mob_=16;
-
-      break;
-    case BL_ITEM:
-      item = (FLOORITEM *)b;
-
-      int inTable = 0;
-
-      for (int j = 0; j < sizeof(item->data.trapsTable); j++) {
-        if (item->data.trapsTable[j] == sd->status.id) inTable = 1;
-      }
-
-      // printf("func 3,     name: %s, inTable: %i\n",sd->status.name,inTable);
-
-      if (itemdb_type(item->data.id) == ITM_TRAPS && !inTable) {
-        return 0;
-      }
-
-      WFIFOB(sd->fd, 11) = 0x02;
-
-      if (item->data.customIcon != 0) {
-        WFIFOW(sd->fd, 16) = SWAP16(item->data.customIcon + 49152);
-        WFIFOB(sd->fd, 18) = item->data.customIconColor;
-      } else {
-        WFIFOW(sd->fd, 16) = SWAP16(itemdb_icon(item->data.id));
-        WFIFOB(sd->fd, 18) = itemdb_iconcolor(item->data.id);
-      }
-
-      WFIFOB(sd->fd, 19) = 0;
-      WFIFOW(sd->fd, 20) = 0;
-      WFIFOB(sd->fd, 22) = 0;
-      WFIFOB(sd->fd, 2) = 0x13;
-      WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+    if (mob->state == MOB_DEAD || mob->data->mobtype == 1)
       return 0;
-      // sd->mob_=15;
-      break;
+
+    if (mob->data->isnpc == 0)
+    {
+      WFIFOB(sd->fd, 11) = 0x05;
+      WFIFOW(sd->fd, 16) = SWAP16(32768 + mob->look);
+      WFIFOB(sd->fd, 18) = mob->look_color;
+      WFIFOB(sd->fd, 19) = mob->side;
+      WFIFOW(sd->fd, 20) = 0;
+      WFIFOB(sd->fd, 22) = 0;
+    }
+    else if (mob->data->isnpc == 1)
+    {
+      WFIFOB(sd->fd, len + 11) = 12;
+      WFIFOW(sd->fd, len + 16) = SWAP16(32768 + mob->look);
+      WFIFOB(sd->fd, len + 18) = mob->look_color;
+      WFIFOB(sd->fd, len + 19) = mob->side;
+      WFIFOW(sd->fd, len + 20) = 0;
+      WFIFOB(sd->fd, len + 22) = 0;
+      sd->mob_len += 15;
+    }
+
+    break;
+  case BL_NPC:
+    nd = (NPC *)b;
+    if (b->subtype || nd->bl.subtype || nd->npctype == 1)
+      return 0;
+
+    WFIFOB(sd->fd, 11) = 12;
+    WFIFOW(sd->fd, 16) = SWAP16(32768 + b->graphic_id);
+    WFIFOB(sd->fd, 18) = b->graphic_color;
+    WFIFOB(sd->fd, 19) = 2; // Looking down
+    WFIFOW(sd->fd, 20) = 0;
+    WFIFOB(sd->fd, 22) = 0;
+    // WFIFOB(sd->fd,22)=0;
+    // sd->mob_=16;
+
+    break;
+  case BL_ITEM:
+    item = (FLOORITEM *)b;
+
+    int inTable = 0;
+
+    for (int j = 0; j < sizeof(item->data.trapsTable); j++)
+    {
+      if (item->data.trapsTable[j] == sd->status.id)
+        inTable = 1;
+    }
+
+    // printf("func 3,     name: %s, inTable: %i\n",sd->status.name,inTable);
+
+    if (itemdb_type(item->data.id) == ITM_TRAPS && !inTable)
+    {
+      return 0;
+    }
+
+    WFIFOB(sd->fd, 11) = 0x02;
+
+    if (item->data.customIcon != 0)
+    {
+      WFIFOW(sd->fd, 16) = SWAP16(item->data.customIcon + 49152);
+      WFIFOB(sd->fd, 18) = item->data.customIconColor;
+    }
+    else
+    {
+      WFIFOW(sd->fd, 16) = SWAP16(itemdb_icon(item->data.id));
+      WFIFOB(sd->fd, 18) = itemdb_iconcolor(item->data.id);
+    }
+
+    WFIFOB(sd->fd, 19) = 0;
+    WFIFOW(sd->fd, 20) = 0;
+    WFIFOB(sd->fd, 22) = 0;
+    WFIFOB(sd->fd, 2) = 0x13;
+    WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+    return 0;
+    // sd->mob_=15;
+    break;
   }
 
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   // sd->mob_count++;
   return 0;
 }
-int clif_mob_look_start(USER *sd) {
+int clif_mob_look_start(USER *sd)
+{
   sd->mob_count = 0;
   sd->mob_len = 0;
   sd->mob_item = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -1846,15 +2100,18 @@ int clif_mob_look_start(USER *sd) {
 
   return 0;
 }
-int clif_mob_look_close(USER *sd) {
-  if (sd->mob_count) {
+int clif_mob_look_close(USER *sd)
+{
+  if (sd->mob_count)
+  {
     // printf("Mob count: %d\n",count[0]);
 
     // if(sd->mob_count%2==1) {
     //	sd->mob_len++;
     //	WFIFOB(sd->fd,sd->mob_len+6)=0;
     //}
-    if (!sd->mob_item) {
+    if (!sd->mob_item)
+    {
       WFIFOB(sd->fd, sd->mob_len + 7) = 0;
       sd->mob_len++;
     }
@@ -1870,7 +2127,8 @@ int clif_mob_look_close(USER *sd) {
   return 0;
 }
 
-int clif_send_duration(USER *sd, int id, int time, USER *tsd) {
+int clif_send_duration(USER *sd, int id, int time, USER *tsd)
+{
   int len;
 
   nullpo_ret(0, sd);
@@ -1878,17 +2136,24 @@ int clif_send_duration(USER *sd, int id, int time, USER *tsd) {
   char *name = NULL;
   name = magicdb_name(id);
 
-  if (!magicdb_ticker(id)) return 0;
+  if (!magicdb_ticker(id))
+    return 0;
 
-  if (id == 0) {
+  if (id == 0)
+  {
     len = 6;
-  } else if (tsd) {
+  }
+  else if (tsd)
+  {
     len = strlen(name) + strlen(tsd->status.name) + 3;
-  } else {
+  }
+  else
+  {
     len = strlen(name);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -1896,13 +2161,18 @@ int clif_send_duration(USER *sd, int id, int time, USER *tsd) {
   WFIFOHEAD(sd->fd, len + 10);
   WFIFOB(sd->fd, 5) = len;
 
-  if (id == 0) {
+  if (id == 0)
+  {
     strcpy(WFIFOP(sd->fd, 6), "Shield");
-  } else if (tsd != NULL) {
+  }
+  else if (tsd != NULL)
+  {
     char buf[len];
     sprintf(buf, "%s (%s)", name, tsd->status.name);
     strcpy(WFIFOP(sd->fd, 6), buf);
-  } else {
+  }
+  else
+  {
     strcpy(WFIFOP(sd->fd, 6), name);
   }
 
@@ -1914,19 +2184,22 @@ int clif_send_duration(USER *sd, int id, int time, USER *tsd) {
   return 0;
 }
 
-int clif_send_aether(USER *sd, int id, int time) {
+int clif_send_aether(USER *sd, int id, int time)
+{
   int pos;
 
   nullpo_ret(0, sd);
   pos = clif_findspell_pos(sd, id);
-  if (pos < 0) return 0;
+  if (pos < 0)
+    return 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  WFIFOHEAD(sd->fd, 11);  // this is causing crashes
+  WFIFOHEAD(sd->fd, 11); // this is causing crashes
   WFIFOHEADER(sd->fd, 63, 8);
   WFIFOW(sd->fd, 5) = SWAP16(pos + 1);
   WFIFOL(sd->fd, 7) = SWAP32(time);
@@ -1934,12 +2207,13 @@ int clif_send_aether(USER *sd, int id, int time) {
   return 0;
 }
 
-int clif_npc_move(struct block_list *bl, va_list ap) {
+int clif_npc_move(struct block_list *bl, va_list ap)
+{
   unsigned char *buf;
   USER *sd = NULL;
   NPC *nd = NULL;
 
-  va_arg(ap, int);  // type
+  va_arg(ap, int); // type
   nullpo_ret(0, sd = (USER *)bl);
   nullpo_ret(0, nd = va_arg(ap, NPC *));
 
@@ -1955,7 +2229,7 @@ int clif_npc_move(struct block_list *bl, va_list ap) {
   WBUFB(buf, 13) = nd->side;
   WBUFB(buf, 14) = 0x00;
 
-  clif_send(buf, 32, &nd->bl, AREA_WOS);  // come back
+  clif_send(buf, 32, &nd->bl, AREA_WOS); // come back
   FREE(buf);
 
   /*WFIFOHEAD(sd->fd,14);
@@ -1969,23 +2243,30 @@ int clif_npc_move(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_mob_move(struct block_list *bl, va_list ap) {
+int clif_mob_move(struct block_list *bl, va_list ap)
+{
   int type;
   USER *sd = NULL;
   MOB *mob = NULL;
   type = va_arg(ap, int);
 
-  if (type == LOOK_GET) {
+  if (type == LOOK_GET)
+  {
     nullpo_ret(0, sd = va_arg(ap, USER *));
     nullpo_ret(0, mob = (MOB *)bl);
-    if (mob->state == MOB_DEAD) return 0;
-  } else {
+    if (mob->state == MOB_DEAD)
+      return 0;
+  }
+  else
+  {
     nullpo_ret(0, sd = (USER *)bl);
     nullpo_ret(0, mob = va_arg(ap, MOB *));
-    if (mob->state == MOB_DEAD) return 0;
+    if (mob->state == MOB_DEAD)
+      return 0;
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -2000,74 +2281,93 @@ int clif_mob_move(struct block_list *bl, va_list ap) {
   // printf("Moved\n");
   return 0;
 }
-int clif_mob_damage(USER *sd, MOB *mob) {
+int clif_mob_damage(USER *sd, MOB *mob)
+{
   int damage;
   int x;
 
   nullpo_ret(0, sd);
   nullpo_ret(0, mob);
 
-  if (mob->state == MOB_DEAD) return 0;
+  if (mob->state == MOB_DEAD)
+    return 0;
 
   sl_doscript_blargs("hitCritChance", NULL, 2, &sd->bl, &mob->bl);
 
-  if (sd->critchance > 0) {
+  if (sd->critchance > 0)
+  {
     sl_doscript_blargs("swingDamage", NULL, 2, &sd->bl, &mob->bl);
 
-    if (sd->status.equip[EQ_WEAP].id > 0) {
+    if (sd->status.equip[EQ_WEAP].id > 0)
+    {
       clif_playsound(&mob->bl, itemdb_soundhit(sd->status.equip[EQ_WEAP].id));
     }
 
-    if (rnd(100) > 75) {
+    if (rnd(100) > 75)
+    {
       clif_deductdura(sd, EQ_WEAP, 1);
     }
 
     damage = (int)(sd->damage += 0.5f);
     mob->lastaction = time(NULL);
 
-    for (x = 0; x < MAX_THREATCOUNT; x++) {
-      if (mob->threat[x].user == sd->bl.id) {
+    for (x = 0; x < MAX_THREATCOUNT; x++)
+    {
+      if (mob->threat[x].user == sd->bl.id)
+      {
         mob->threat[x].amount = mob->threat[x].amount + damage;
         break;
-      } else if (mob->threat[x].user == 0) {
+      }
+      else if (mob->threat[x].user == 0)
+      {
         mob->threat[x].user = sd->bl.id;
         mob->threat[x].amount = damage;
         break;
       }
     }
 
-    for (x = 0; x < 14; x++) {
-      if (sd->status.equip[x].id > 0) {
+    for (x = 0; x < 14; x++)
+    {
+      if (sd->status.equip[x].id > 0)
+      {
         sl_doscript_blargs(itemdb_yname(sd->status.equip[x].id), "on_hit", 2,
                            &sd->bl, &mob->bl);
       }
     }
 
-    for (x = 0; x < MAX_SPELLS; x++) {
-      if (sd->status.skill[x] > 0) {
+    for (x = 0; x < MAX_SPELLS; x++)
+    {
+      if (sd->status.skill[x] > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.skill[x]), "passive_on_hit",
                            2, &sd->bl, &mob->bl);
       }
     }
 
-    for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+    for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+    {
       if (sd->status.dura_aether[x].id > 0 &&
-          sd->status.dura_aether[x].duration > 0) {
+          sd->status.dura_aether[x].duration > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                            "on_hit_while_cast", 2, &sd->bl, &mob->bl);
       }
     }
 
-    if (sd->critchance == 1) {
+    if (sd->critchance == 1)
+    {
       clif_send_mob_health(mob, damage, 33);
-    } else if (sd->critchance == 2) {
+    }
+    else if (sd->critchance == 2)
+    {
       clif_send_mob_health(mob, damage, 255);
     }
   }
 
   return 0;
 }
-int clif_send_mob_health_sub(struct block_list *bl, va_list ap) {
+int clif_send_mob_health_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   USER *tsd = NULL;
   MOB *mob = NULL;
@@ -2082,13 +2382,16 @@ int clif_send_mob_health_sub(struct block_list *bl, va_list ap) {
   damage = va_arg(ap, int);
   nullpo_ret(0, tsd = (USER *)bl);
 
-  if (!clif_isingroup(tsd, sd)) {
-    if (sd->bl.id != bl->id) {
+  if (!clif_isingroup(tsd, sd))
+  {
+    if (sd->bl.id != bl->id)
+    {
       return 0;
     }
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -2102,7 +2405,8 @@ int clif_send_mob_health_sub(struct block_list *bl, va_list ap) {
   WFIFOSET(tsd->fd, yuri_encrypt(tsd->fd));
   return 0;
 }
-int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap) {
+int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   MOB *mob = NULL;
 
@@ -2115,7 +2419,8 @@ int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap) {
   damage = va_arg(ap, int);
   nullpo_ret(0, sd = (USER *)bl);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -2130,33 +2435,48 @@ int clif_send_mob_health_sub_nosd(struct block_list *bl, va_list ap) {
 
   return 0;
 }
-int clif_send_mob_health(MOB *mob, int damage, int critical) {
+int clif_send_mob_health(MOB *mob, int damage, int critical)
+{
   struct block_list *bl = map_id2bl(mob->attacker);
 
-  if (mob->bl.type != BL_MOB) return 0;
+  if (mob->bl.type != BL_MOB)
+    return 0;
 
-  if (bl == NULL) {
+  if (bl == NULL)
+  {
     bl = map_id2bl(mob->bl.id);
   }
 
-  if (mob->data->subtype == 0) {
+  if (mob->data->subtype == 0)
+  {
     sl_doscript_blargs("mob_ai_basic", "on_attacked", 2, &mob->bl, bl);
-  } else if (mob->data->subtype == 1) {
+  }
+  else if (mob->data->subtype == 1)
+  {
     sl_doscript_blargs("mob_ai_normal", "on_attacked", 2, &mob->bl, bl);
-  } else if (mob->data->subtype == 2) {
+  }
+  else if (mob->data->subtype == 2)
+  {
     sl_doscript_blargs("mob_ai_hard", "on_attacked", 2, &mob->bl, bl);
-  } else if (mob->data->subtype == 3) {
+  }
+  else if (mob->data->subtype == 3)
+  {
     sl_doscript_blargs("mob_ai_boss", "on_attacked", 2, &mob->bl, bl);
-  } else if (mob->data->subtype == 4) {
+  }
+  else if (mob->data->subtype == 4)
+  {
     sl_doscript_blargs(mob->data->yname, "on_attacked", 2, &mob->bl, bl);
-  } else if (mob->data->subtype == 5) {
+  }
+  else if (mob->data->subtype == 5)
+  {
     sl_doscript_blargs("mob_ai_ghost", "on_attacked", 2, &mob->bl, bl);
   }
 
   return 0;
 }
 
-int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
+int clif_send_mob_healthscript(MOB *mob, int damage, int critical)
+{
   unsigned int dropid = 0;
   float dmgpct = 0.0f;
   char droptype = 0;
@@ -2166,7 +2486,8 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
   float percentage;
   struct block_list *bl = NULL;
 
-  if (mob->attacker > 0) {
+  if (mob->attacker > 0)
+  {
     bl = map_id2bl(mob->attacker);
   }
   USER *sd = NULL;
@@ -2175,52 +2496,72 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
   // USER *tsd;
   nullpo_ret(0, mob);
   // nullpo_ret(0,bl);
-  if (bl != NULL) {
-    if (bl->type == BL_PC) {
+  if (bl != NULL)
+  {
+    if (bl->type == BL_PC)
+    {
       sd = (USER *)bl;
-    } else if (bl->type == BL_MOB) {
+    }
+    else if (bl->type == BL_MOB)
+    {
       tmob = (MOB *)bl;
-      if (tmob->owner < MOB_START_NUM && tmob->owner > 0) {
+      if (tmob->owner < MOB_START_NUM && tmob->owner > 0)
+      {
         sd = map_id2sd(tmob->owner);
       }
     }
   }
 
-  if (mob->state == MOB_DEAD) return 0;
+  if (mob->state == MOB_DEAD)
+    return 0;
 
   maxvita = mob->maxvita;
   currentvita = mob->current_vita;
 
-  if (damage < 0) {
-    if (currentvita - damage > maxvita) {
+  if (damage < 0)
+  {
+    if (currentvita - damage > maxvita)
+    {
       mob->maxdmg += (float)(maxvita - currentvita);
-    } else {
+    }
+    else
+    {
       mob->maxdmg -= (float)(damage);
     }
 
     mob->lastvita = currentvita;
     currentvita -= damage;
-  } else {
-    if (currentvita < damage) {
+  }
+  else
+  {
+    if (currentvita < damage)
+    {
       mob->lastvita = currentvita;
       currentvita = 0;
-    } else {
+    }
+    else
+    {
       mob->lastvita = currentvita;
       currentvita -= damage;
     }
   }
 
-  if (currentvita > maxvita) {
+  if (currentvita > maxvita)
+  {
     currentvita = maxvita;
   }
 
-  if (currentvita <= 0) {
+  if (currentvita <= 0)
+  {
     percentage = 0.0f;
-  } else {
+  }
+  else
+  {
     percentage = (float)currentvita / (float)maxvita;
     percentage = percentage * 100.0f;
 
-    if (percentage < 1.0f && currentvita) percentage = 1.0f;
+    if (percentage < 1.0f && currentvita)
+      percentage = 1.0f;
   }
 
   // for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
@@ -2231,22 +2572,28 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
   //	}
   //}
 
-  if (currentvita > 0 && damage > 0) {
-    for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  if (currentvita > 0 && damage > 0)
+  {
+    for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+    {
       struct skill_info *p;
       p = &mob->da[x];
 
-      if (p->id > 0 && p->duration > 0) {
+      if (p->id > 0 && p->duration > 0)
+      {
         sl_doscript_blargs(magicdb_yname(p->id), "on_takedamage_while_cast", 2,
                            &mob->bl, bl);
       }
     }
   }
 
-  if (sd != NULL) {
+  if (sd != NULL)
+  {
     map_foreachinarea(clif_send_mob_health_sub, mob->bl.m, mob->bl.x, mob->bl.y,
                       AREA, BL_PC, sd, mob, critical, (int)percentage, damage);
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_send_mob_health_sub_nosd, mob->bl.m, mob->bl.x,
                       mob->bl.y, AREA, BL_PC, mob, critical, (int)percentage,
                       damage);
@@ -2254,13 +2601,17 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
 
   mob->current_vita = currentvita;
 
-  if (!mob->current_vita) {
+  if (!mob->current_vita)
+  {
     sl_doscript_blargs(mob->data->yname, "before_death", 2, &mob->bl, &sd->bl);
     sl_doscript_blargs("before_death", NULL, 2, &mob->bl, &sd->bl);
 
-    for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-      if (mob->da[x].id > 0) {
-        if (mob->da[x].duration > 0) {
+    for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+    {
+      if (mob->da[x].id > 0)
+      {
+        if (mob->da[x].duration > 0)
+        {
           sl_doscript_blargs(magicdb_yname(mob->da[x].id),
                              "before_death_while_cast", 2, &mob->bl, bl);
         }
@@ -2268,14 +2619,19 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
     }
   }
 
-  if (!mob->current_vita) {
+  if (!mob->current_vita)
+  {
     mob_flushmagic(mob);
     clif_mob_kill(mob);
 
-    if (tmob != NULL && mob->summon == 0) {
-      for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-        if (tmob->da[x].id > 0) {
-          if (tmob->da[x].duration > 0) {
+    if (tmob != NULL && mob->summon == 0)
+    {
+      for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+      {
+        if (tmob->da[x].id > 0)
+        {
+          if (tmob->da[x].duration > 0)
+          {
             sl_doscript_blargs(magicdb_yname(tmob->da[x].id),
                                "on_kill_while_cast", 2, &tmob->bl, &mob->bl);
           }
@@ -2283,67 +2639,93 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
       }
     }
 
-    if (sd != NULL && mob->summon == 0) {
-      if (tmob == NULL) {
-        for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-          if (sd->status.dura_aether[x].id > 0) {
-            if (sd->status.dura_aether[x].duration > 0) {
+    if (sd != NULL && mob->summon == 0)
+    {
+      if (tmob == NULL)
+      {
+        for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+        {
+          if (sd->status.dura_aether[x].id > 0)
+          {
+            if (sd->status.dura_aether[x].duration > 0)
+            {
               sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                                  "on_kill_while_cast", 2, &sd->bl, &mob->bl);
             }
           }
         }
 
-        for (x = 0; x < MAX_SPELLS; x++) {
-          if (sd->status.skill[x] > 0) {
+        for (x = 0; x < MAX_SPELLS; x++)
+        {
+          if (sd->status.skill[x] > 0)
+          {
             sl_doscript_blargs(magicdb_yname(sd->status.skill[x]),
                                "passive_on_kill", 2, &sd->bl, &mob->bl);
           }
         }
       }
 
-      for (x = 0; x < MAX_THREATCOUNT; x++) {
-        if (mob->dmggrptable[x][1] / mob->maxdmg > dmgpct) {
+      for (x = 0; x < MAX_THREATCOUNT; x++)
+      {
+        if (mob->dmggrptable[x][1] / mob->maxdmg > dmgpct)
+        {
           dropid = mob->dmggrptable[x][0];
           dmgpct = mob->dmggrptable[x][1] / mob->maxdmg;
         }
 
-        if (mob->dmgindtable[x][1] / mob->maxdmg > dmgpct) {
+        if (mob->dmgindtable[x][1] / mob->maxdmg > dmgpct)
+        {
           dropid = mob->dmgindtable[x][0];
           dmgpct = mob->dmgindtable[x][1] / mob->maxdmg;
           droptype = 1;
         }
       }
 
-      if (droptype == 1) {
+      if (droptype == 1)
+      {
         tsd = map_id2sd(dropid);
-      } else {
+      }
+      else
+      {
         tsd = map_id2sd(groups[dropid][0]);
       }
 
-      if (tsd != NULL) {
+      if (tsd != NULL)
+      {
         mobdb_drops(mob, tsd);
-      } else {
+      }
+      else
+      {
         mobdb_drops(mob, sd);
       }
 
       // get experience from mobs..
 
-      if (sd->group_count == 0) {
-        if (mob->exp) addtokillreg(sd, mob->mobid);
-      } else if (sd->group_count > 0) {
+      if (sd->group_count == 0)
+      {
+        if (mob->exp)
+          addtokillreg(sd, mob->mobid);
+      }
+      else if (sd->group_count > 0)
+      {
         clif_addtokillreg(sd, mob->mobid);
       }
 
       sl_doscript_blargs("onGetExp", NULL, 2, &sd->bl, &mob->bl);
 
-      if (sd->group_count == 0) {
+      if (sd->group_count == 0)
+      {
         pc_checklevel(sd);
-      } else if (sd->group_count > 0) {
-        for (x = 0; x < sd->group_count; x++) {
+      }
+      else if (sd->group_count > 0)
+      {
+        for (x = 0; x < sd->group_count; x++)
+        {
           tsd = map_id2sd(groups[sd->groupid][x]);
-          if (!tsd) continue;
-          if (tsd->bl.m == sd->bl.m && tsd->status.state != 1) {
+          if (!tsd)
+            continue;
+          if (tsd->bl.m == sd->bl.m && tsd->status.state != 1)
+          {
             pc_checklevel(tsd);
           }
         }
@@ -2385,8 +2767,10 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
       sl_doscript_blargs("onKill", NULL, 2, &mob->bl, &sd->bl);
     }
 
-    for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-      if (mob->da[x].id > 0) {
+    for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+    {
+      if (mob->da[x].id > 0)
+      {
         sl_doscript_blargs(magicdb_yname(mob->da[x].id),
                            "after_death_while_cast", 2, &mob->bl, bl);
       }
@@ -2399,10 +2783,12 @@ int clif_send_mob_healthscript(MOB *mob, int damage, int critical) {
   return 0;
 }
 
-int clif_mob_kill(MOB *mob) {
+int clif_mob_kill(MOB *mob)
+{
   int x;
   // remove threat I had a <= MAX; so made it <
-  for (x = 0; x < MAX_THREATCOUNT; x++) {
+  for (x = 0; x < MAX_THREATCOUNT; x++)
+  {
     mob->threat[x].user = 0;
     mob->threat[x].amount = 0;
     mob->dmggrptable[x][0] = 0;
@@ -2417,7 +2803,8 @@ int clif_mob_kill(MOB *mob) {
   mob->state = MOB_DEAD;
   mob->last_death = time(NULL);
   // Do a check for 30 MINIMUM
-  if (!mob->onetime) map_lastdeath_mob(mob);
+  if (!mob->onetime)
+    map_lastdeath_mob(mob);
   // map_delblock(&mob->bl);
   map_foreachinarea(clif_send_destroy, mob->bl.m, mob->bl.x, mob->bl.y, AREA,
                     BL_PC, LOOK_GET, &mob->bl);
@@ -2425,20 +2812,23 @@ int clif_mob_kill(MOB *mob) {
   return 0;
 }
 
-int clif_send_destroy(struct block_list *bl, va_list ap) {
+int clif_send_destroy(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   MOB *mob = NULL;
-  va_arg(ap, int);  // type
+  va_arg(ap, int); // type
 
   nullpo_ret(0, sd = (USER *)bl);
   nullpo_ret(0, mob = va_arg(ap, MOB *));
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (mob->data->mobtype == 1) {
+  if (mob->data->mobtype == 1)
+  {
     WFIFOHEAD(sd->fd, 9);
     WFIFOB(sd->fd, 0) = 0xAA;
     WFIFOW(sd->fd, 1) = SWAP16(6);
@@ -2446,7 +2836,9 @@ int clif_send_destroy(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 4) = 0x03;
     WFIFOL(sd->fd, 5) = SWAP32(mob->bl.id);
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-  } else {
+  }
+  else
+  {
     WFIFOHEAD(sd->fd, 9);
     WFIFOB(sd->fd, 0) = 0xAA;
     WFIFOW(sd->fd, 1) = SWAP16(6);
@@ -2458,8 +2850,10 @@ int clif_send_destroy(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-void clif_send_timer(USER *sd, char type, unsigned int length) {
-  if (!session[sd->fd]) {
+void clif_send_timer(USER *sd, char type, unsigned int length)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return;
   }
@@ -2473,41 +2867,45 @@ void clif_send_timer(USER *sd, char type, unsigned int length) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 }
 
-int clif_parsenpcdialog(USER *sd) {
-  int npc_choice = RFIFOB(sd->fd, 13);  // 2
+int clif_parsenpcdialog(USER *sd)
+{
+  int npc_choice = RFIFOB(sd->fd, 13); // 2
   // unsigned int npc_id=sd->last_click; // this is for debugging so we know
   // which npc for crash
   int npc_menu = 0;
   char input[100];
   memset(input, 0, 80);
 
-  switch (RFIFOB(sd->fd, 5)) {
-    case 0x01:  // Dialog
-      sl_resumedialog(npc_choice, sd);
-      break;
-    case 0x02:  // Special menu
-      // clif_debug(RFIFOP(sd->fd, 5), SWAP16(RFIFOW(sd->fd, 1)) - 5);
+  switch (RFIFOB(sd->fd, 5))
+  {
+  case 0x01: // Dialog
+    sl_resumedialog(npc_choice, sd);
+    break;
+  case 0x02: // Special menu
+    // clif_debug(RFIFOP(sd->fd, 5), SWAP16(RFIFOW(sd->fd, 1)) - 5);
 
-      npc_menu = RFIFOB(sd->fd, 15);
-      sl_resumemenuseq(npc_choice, npc_menu, sd);
-      break;
-    case 0x04:  // inputSeq returned input
+    npc_menu = RFIFOB(sd->fd, 15);
+    sl_resumemenuseq(npc_choice, npc_menu, sd);
+    break;
+  case 0x04: // inputSeq returned input
 
-      if (RFIFOB(sd->fd, 13) != 0x02) {
-        sl_async_freeco(sd);
-        return 1;
-      }
+    if (RFIFOB(sd->fd, 13) != 0x02)
+    {
+      sl_async_freeco(sd);
+      return 1;
+    }
 
-      memcpy(input, RFIFOP(sd->fd, 16), RFIFOB(sd->fd, 15));
+    memcpy(input, RFIFOP(sd->fd, 16), RFIFOB(sd->fd, 15));
 
-      sl_resumeinputseq(npc_choice, input, sd);
+    sl_resumeinputseq(npc_choice, input, sd);
 
-      break;
+    break;
   }
 
   return 0;
 }
-int clif_send_sub(struct block_list *bl, va_list ap) {
+int clif_send_sub(struct block_list *bl, va_list ap)
+{
   unsigned char *buf = NULL;
   int len;
   struct block_list *src_bl = NULL;
@@ -2522,241 +2920,295 @@ int clif_send_sub(struct block_list *bl, va_list ap) {
   buf = va_arg(ap, unsigned char *);
   len = va_arg(ap, int);
   nullpo_ret(0, src_bl = va_arg(ap, struct block_list *));
-  if (src_bl->type == BL_PC) tsd = (USER *)src_bl;
+  if (src_bl->type == BL_PC)
+    tsd = (USER *)src_bl;
 
-  if (tsd) {
+  if (tsd)
+  {
     if ((tsd->optFlags & optFlag_stealth) && !sd->status.gm_level &&
-        sd->status.id != tsd->status.id) {
+        sd->status.id != tsd->status.id)
+    {
       return 0;
     }
 
     if (map[tsd->bl.m].show_ghosts && tsd->status.state == 1 &&
         tsd->bl.id != sd->bl.id && sd->status.state != 1 &&
-        !(sd->optFlags & optFlag_ghosts)) {
+        !(sd->optFlags & optFlag_ghosts))
+    {
       return 0;
     }
   }
 
-  if (sd && tsd) {
-    if (RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd)) return 0;
+  if (sd && tsd)
+  {
+    if (RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd))
+      return 0;
   }
 
   type = va_arg(ap, int);
 
-  switch (type) {
-    case AREA_WOS:
-    case SAMEAREA_WOS:
-      if (bl == src_bl) return 0;
-      break;
+  switch (type)
+  {
+  case AREA_WOS:
+  case SAMEAREA_WOS:
+    if (bl == src_bl)
+      return 0;
+    break;
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (RBUFB(buf, 3) == 0x0D && RBUFB(buf, 5) >= 10) {
-    if (pc_readglobalreg(sd, "chann_en") >= 1 && RBUFB(buf, 5) == 10) {
+  if (RBUFB(buf, 3) == 0x0D && RBUFB(buf, 5) >= 10)
+  {
+    if (pc_readglobalreg(sd, "chann_en") >= 1 && RBUFB(buf, 5) == 10)
+    {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+      if (sd)
+        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
       WBUFB(buf, 5) = 10;
-    } else if (pc_readglobalreg(sd, "chann_es") >= 1 && RBUFB(buf, 5) == 11) {
+    }
+    else if (pc_readglobalreg(sd, "chann_es") >= 1 && RBUFB(buf, 5) == 11)
+    {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+      if (sd)
+        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
       WBUFB(buf, 5) = 11;
-    } else if (pc_readglobalreg(sd, "chann_fr") >= 1 && RBUFB(buf, 5) == 12) {
+    }
+    else if (pc_readglobalreg(sd, "chann_fr") >= 1 && RBUFB(buf, 5) == 12)
+    {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+      if (sd)
+        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
       WBUFB(buf, 5) = 12;
-    } else if (pc_readglobalreg(sd, "chann_cn") >= 1 && RBUFB(buf, 5) == 13) {
+    }
+    else if (pc_readglobalreg(sd, "chann_cn") >= 1 && RBUFB(buf, 5) == 13)
+    {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+      if (sd)
+        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
       WBUFB(buf, 5) = 13;
-    } else if (pc_readglobalreg(sd, "chann_pt") >= 1 && RBUFB(buf, 5) == 14) {
+    }
+    else if (pc_readglobalreg(sd, "chann_pt") >= 1 && RBUFB(buf, 5) == 14)
+    {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+      if (sd)
+        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
       WBUFB(buf, 5) = 14;
-    } else if (pc_readglobalreg(sd, "chann_id") >= 1 && RBUFB(buf, 5) == 15) {
+    }
+    else if (pc_readglobalreg(sd, "chann_id") >= 1 && RBUFB(buf, 5) == 15)
+    {
       WBUFB(buf, 5) = 0;
       WFIFOHEAD(sd->fd, len + 3);
       if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
         memcpy(WFIFOP(sd->fd, 0), buf, len);
-      if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+      if (sd)
+        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
       WBUFB(buf, 5) = 15;
     }
-  } else {
+  }
+  else
+  {
     WFIFOHEAD(sd->fd, len + 3);
     if (isActive(sd) && WFIFOP(sd->fd, 0) != (char *)buf)
       memcpy(WFIFOP(sd->fd, 0), buf, len);
-    if (sd) WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+    if (sd)
+      WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   }
 
   return 0;
 }
 
 int clif_send(const unsigned char *buf, int len, struct block_list *bl,
-              int type) {
+              int type)
+{
   USER *sd = NULL;
   USER *tsd = NULL;
   struct socket_data *p = NULL;
   int i;
 
-  switch (type) {
-    case ALL_CLIENT:
-    case SAMESRV:
-      for (i = 0; i < fd_max; i++) {
-        p = session[i];
-        if (p && (sd = p->session_data)) {
-          if (bl->type == BL_PC) tsd = (USER *)bl;
+  switch (type)
+  {
+  case ALL_CLIENT:
+  case SAMESRV:
+    for (i = 0; i < fd_max; i++)
+    {
+      p = session[i];
+      if (p && (sd = p->session_data))
+      {
+        if (bl->type == BL_PC)
+          tsd = (USER *)bl;
 
-          if (tsd && RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd)) continue;
+        if (tsd && RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd))
+          continue;
 
-          WFIFOHEAD(i, len + 3);
-          memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, yuri_encrypt(i));
-        }
+        WFIFOHEAD(i, len + 3);
+        memcpy(WFIFOP(i, 0), buf, len);
+        WFIFOSET(i, yuri_encrypt(i));
       }
-      break;
-    case SAMEMAP:
-      for (i = 0; i < fd_max; i++) {
-        p = session[i];
-        if (p && (sd = p->session_data) && sd->bl.m == bl->m) {
-          if (bl->type == BL_PC) tsd = (USER *)bl;
+    }
+    break;
+  case SAMEMAP:
+    for (i = 0; i < fd_max; i++)
+    {
+      p = session[i];
+      if (p && (sd = p->session_data) && sd->bl.m == bl->m)
+      {
+        if (bl->type == BL_PC)
+          tsd = (USER *)bl;
 
-          if (tsd && RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd)) continue;
+        if (tsd && RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd))
+          continue;
 
-          WFIFOHEAD(i, len + 3);
-          memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, yuri_encrypt(i));
-        }
+        WFIFOHEAD(i, len + 3);
+        memcpy(WFIFOP(i, 0), buf, len);
+        WFIFOSET(i, yuri_encrypt(i));
       }
-      break;
-    case SAMEMAP_WOS:
-      for (i = 0; i < fd_max; i++) {
-        p = session[i];
-        if (p && (sd = p->session_data) && sd->bl.m == bl->m &&
-            sd != (USER *)bl) {
-          if (bl->type == BL_PC) tsd = (USER *)bl;
+    }
+    break;
+  case SAMEMAP_WOS:
+    for (i = 0; i < fd_max; i++)
+    {
+      p = session[i];
+      if (p && (sd = p->session_data) && sd->bl.m == bl->m &&
+          sd != (USER *)bl)
+      {
+        if (bl->type == BL_PC)
+          tsd = (USER *)bl;
 
-          if (tsd && RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd)) continue;
+        if (tsd && RBUFB(buf, 3) == 0x0D && !clif_isignore(tsd, sd))
+          continue;
 
-          WFIFOHEAD(i, len + 3);
-          memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, yuri_encrypt(i));
-        }
+        WFIFOHEAD(i, len + 3);
+        memcpy(WFIFOP(i, 0), buf, len);
+        WFIFOSET(i, yuri_encrypt(i));
       }
-      break;
-    case AREA:
-    case AREA_WOS:
-      map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, AREA, BL_PC, buf,
-                        len, bl, type);
-      break;
-    case SAMEAREA:
-    case SAMEAREA_WOS:
-      map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, SAMEAREA, BL_PC,
-                        buf, len, bl, type);
-      break;
-    case CORNER:
-      map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, CORNER, BL_PC, buf,
-                        len, bl, type);
-      break;
-    case SELF:
-      sd = (USER *)bl;
+    }
+    break;
+  case AREA:
+  case AREA_WOS:
+    map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, AREA, BL_PC, buf,
+                      len, bl, type);
+    break;
+  case SAMEAREA:
+  case SAMEAREA_WOS:
+    map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, SAMEAREA, BL_PC,
+                      buf, len, bl, type);
+    break;
+  case CORNER:
+    map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, CORNER, BL_PC, buf,
+                      len, bl, type);
+    break;
+  case SELF:
+    sd = (USER *)bl;
 
-      WFIFOHEAD(sd->fd, len + 3);
-      memcpy(WFIFOP(sd->fd, 0), buf, len);
-      WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-      break;
+    WFIFOHEAD(sd->fd, len + 3);
+    memcpy(WFIFOP(sd->fd, 0), buf, len);
+    WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+    break;
   }
   return 0;
 }
 
 int clif_sendtogm(unsigned char *buf, int len, struct block_list *bl,
-                  int type) {
+                  int type)
+{
   USER *sd = NULL;
   struct socket_data *p = NULL;
   int i;
 
-  switch (type) {
-    case ALL_CLIENT:
-    case SAMESRV:
-      for (i = 0; i < fd_max; i++) {
-        p = session[i];
-        if (p && (sd = p->session_data)) {
-          WFIFOHEAD(i, len + 3);
-          memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, yuri_encrypt(i));
-        }
+  switch (type)
+  {
+  case ALL_CLIENT:
+  case SAMESRV:
+    for (i = 0; i < fd_max; i++)
+    {
+      p = session[i];
+      if (p && (sd = p->session_data))
+      {
+        WFIFOHEAD(i, len + 3);
+        memcpy(WFIFOP(i, 0), buf, len);
+        WFIFOSET(i, yuri_encrypt(i));
       }
-      break;
-    case SAMEMAP:
-      for (i = 0; i < fd_max; i++) {
-        p = session[i];
-        if (p && (sd = p->session_data) && sd->bl.m == bl->m) {
-          WFIFOHEAD(i, len + 3);
-          memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, yuri_encrypt(i));
-        }
+    }
+    break;
+  case SAMEMAP:
+    for (i = 0; i < fd_max; i++)
+    {
+      p = session[i];
+      if (p && (sd = p->session_data) && sd->bl.m == bl->m)
+      {
+        WFIFOHEAD(i, len + 3);
+        memcpy(WFIFOP(i, 0), buf, len);
+        WFIFOSET(i, yuri_encrypt(i));
       }
-      break;
-    case SAMEMAP_WOS:
-      for (i = 0; i < fd_max; i++) {
-        p = session[i];
-        if (p && (sd = p->session_data) && sd->bl.m == bl->m &&
-            sd != (USER *)bl) {
-          WFIFOHEAD(i, len + 3);
-          memcpy(WFIFOP(i, 0), buf, len);
-          WFIFOSET(i, yuri_encrypt(i));
-        }
+    }
+    break;
+  case SAMEMAP_WOS:
+    for (i = 0; i < fd_max; i++)
+    {
+      p = session[i];
+      if (p && (sd = p->session_data) && sd->bl.m == bl->m &&
+          sd != (USER *)bl)
+      {
+        WFIFOHEAD(i, len + 3);
+        memcpy(WFIFOP(i, 0), buf, len);
+        WFIFOSET(i, yuri_encrypt(i));
       }
-      break;
-    case AREA:
-    case AREA_WOS:
-      map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, AREA, BL_PC, buf,
-                        len, bl, type);
-      break;
-    case SAMEAREA:
-    case SAMEAREA_WOS:
-      map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, SAMEAREA, BL_PC,
-                        buf, len, bl, type);
-      break;
-    case CORNER:
-      map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, CORNER, BL_PC, buf,
-                        len, bl, type);
-      break;
-    case SELF:
-      sd = (USER *)bl;
+    }
+    break;
+  case AREA:
+  case AREA_WOS:
+    map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, AREA, BL_PC, buf,
+                      len, bl, type);
+    break;
+  case SAMEAREA:
+  case SAMEAREA_WOS:
+    map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, SAMEAREA, BL_PC,
+                      buf, len, bl, type);
+    break;
+  case CORNER:
+    map_foreachinarea(clif_send_sub, bl->m, bl->x, bl->y, CORNER, BL_PC, buf,
+                      len, bl, type);
+    break;
+  case SELF:
+    sd = (USER *)bl;
 
-      WFIFOHEAD(sd->fd, len + 3);
-      memcpy(WFIFOP(sd->fd, 0), buf, len);
-      WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-      break;
+    WFIFOHEAD(sd->fd, len + 3);
+    memcpy(WFIFOP(sd->fd, 0), buf, len);
+    WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+    break;
   }
   return 0;
 }
 
-int clif_quit(USER *sd) {
+int clif_quit(USER *sd)
+{
   map_delblock(&sd->bl);
   clif_lookgone(&sd->bl);
   return 0;
 }
 
-unsigned int clif_getlvlxp(int level) {
+unsigned int clif_getlvlxp(int level)
+{
   double constant = 0.2;
 
   float xprequired = pow((level / constant), 2);
@@ -2764,7 +3216,8 @@ unsigned int clif_getlvlxp(int level) {
   return (unsigned int)(xprequired + 0.5);
 }
 
-int clif_mystaytus(USER *sd) {
+int clif_mystaytus(USER *sd)
+{
   // int len;
   int x;
   int count = 0;
@@ -2778,17 +3231,21 @@ int clif_mystaytus(USER *sd) {
   int len = 0;
   nullpo_ret(0, sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (sd->armor < -127) sd->armor = -127;
-  if (sd->armor > 127) sd->armor = 127;
+  if (sd->armor < -127)
+    sd->armor = -127;
+  if (sd->armor > 127)
+    sd->armor = 127;
 
   class_name = classdb_name(sd->status.class, sd->status.mark);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -2796,15 +3253,18 @@ int clif_mystaytus(USER *sd) {
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x39;
-  WFIFOB(sd->fd, 5) = sd->armor;  // AC Value
+  WFIFOB(sd->fd, 5) = sd->armor; // AC Value
   WFIFOB(sd->fd, 6) = sd->dam;
   WFIFOB(sd->fd, 7) = sd->hit;
 
   // clan
-  if (sd->status.clan == 0) {
+  if (sd->status.clan == 0)
+  {
     WFIFOB(sd->fd, 8) = 0;
     len += 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 8) = strlen(clandb_name(sd->status.clan));
     // printf("Clan name length: %d\n",strlen(clandb_name(sd->status.clan)));
     strcpy(WFIFOP(sd->fd, 9), clandb_name(sd->status.clan));
@@ -2812,27 +3272,34 @@ int clif_mystaytus(USER *sd) {
   }
 
   // clan title
-  if (strlen(sd->status.clan_title)) {
+  if (strlen(sd->status.clan_title))
+  {
     WFIFOB(sd->fd, len + 8) = strlen(sd->status.clan_title);
     strcpy(WFIFOP(sd->fd, len + 9), sd->status.clan_title);
     len += strlen(sd->status.clan_title) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 8) = 0;
     len += 1;
   }
 
   // title
-  if (strlen(sd->status.title)) {
+  if (strlen(sd->status.title))
+  {
     WFIFOB(sd->fd, len + 8) = strlen(sd->status.title);
     strcpy(WFIFOP(sd->fd, len + 9), sd->status.title);
     len += strlen(sd->status.title) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 8) = 0;
     len += 1;
   }
 
   // partner
-  if (sd->status.partner) {
+  if (sd->status.partner)
+  {
     partner = map_id2name(sd->status.partner);
     sprintf(buf, "Partner: %s", map_id2name(sd->status.partner));
     FREE(partner);
@@ -2840,47 +3307,63 @@ int clif_mystaytus(USER *sd) {
     WFIFOB(sd->fd, len + 8) = strlen(buf);
     strcpy(WFIFOP(sd->fd, len + 9), buf);
     len += strlen(buf) + 1;
-  } else {
-    WFIFOB(sd->fd, len + 8) = 0;  // this is where partner goes
+  }
+  else
+  {
+    WFIFOB(sd->fd, len + 8) = 0; // this is where partner goes
     // strcpy(WFIFOP(sd->fd,len+10),"Partner: TheStalker");
     len += 1;
   }
 
-  if (sd->status.settingFlags & FLAG_GROUP) {
-    WFIFOB(sd->fd, len + 8) = 1;  // group
-  } else {
+  if (sd->status.settingFlags & FLAG_GROUP)
+  {
+    WFIFOB(sd->fd, len + 8) = 1; // group
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 8) = 0;
   }
 
-  WFIFOL(sd->fd, len + 9) = SWAP32(tnl);  // TNL
+  WFIFOL(sd->fd, len + 9) = SWAP32(tnl); // TNL
   len += 5;
 
-  if (class_name) {
-    WFIFOB(sd->fd, len + 8) = strlen(class_name);  // Class name length
+  if (class_name)
+  {
+    WFIFOB(sd->fd, len + 8) = strlen(class_name); // Class name length
     strcpy(WFIFOP(sd->fd, len + 9), class_name);
     len += strlen(class_name) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 8) = 0;
     len += 1;
   }
 
-  for (x = 0; x < 14; x++) {
+  for (x = 0; x < 14; x++)
+  {
     // if(x==EQ_MANTLE) printf("Mantle: %d\n",sd->status.equip[x].id);
-    if (sd->status.equip[x].id > 0) {
-      if (sd->status.equip[x].customIcon != 0) {
+    if (sd->status.equip[x].id > 0)
+    {
+      if (sd->status.equip[x].customIcon != 0)
+      {
         WFIFOW(sd->fd, len + 8) =
             SWAP16(sd->status.equip[x].customIcon + 49152);
         WFIFOB(sd->fd, len + 10) = sd->status.equip[x].customIconColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(sd->fd, len + 8) = SWAP16(itemdb_icon(sd->status.equip[x].id));
         WFIFOB(sd->fd, len + 10) = itemdb_iconcolor(sd->status.equip[x].id);
       }
 
       len += 3;
 
-      if (strlen(sd->status.equip[x].real_name)) {
+      if (strlen(sd->status.equip[x].real_name))
+      {
         name = sd->status.equip[x].real_name;
-      } else {
+      }
+      else
+      {
         name = itemdb_name(sd->status.equip[x].id);
       }
 
@@ -2900,15 +3383,17 @@ int clif_mystaytus(USER *sd) {
           itemdb_protected(sd->status.equip[x].id))
         WFIFOB(sd->fd, len + 12) =
             sd->status.equip[x]
-                .protected;  // This is the default item protection from the
-                             // database. it will always override the custom
-                             // item protection that can be added to items.
+                .protected; // This is the default item protection from the
+                            // database. it will always override the custom
+                            // item protection that can be added to items.
       if (itemdb_protected(sd->status.equip[x].id) >=
           sd->status.equip[x].protected)
         WFIFOB(sd->fd, len + 12) = itemdb_protected(sd->status.equip[x].id);
 
       len += 5;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 8) = SWAP16(0);
       WFIFOB(sd->fd, len + 10) = 0;
       WFIFOB(sd->fd, len + 11) = 0;
@@ -2919,23 +3404,31 @@ int clif_mystaytus(USER *sd) {
     }
   }
 
-  if (sd->status.settingFlags & FLAG_EXCHANGE) {
+  if (sd->status.settingFlags & FLAG_EXCHANGE)
+  {
     WFIFOB(sd->fd, len + 8) = 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 8) = 0;
   }
 
-  if (sd->status.settingFlags & FLAG_GROUP) {
+  if (sd->status.settingFlags & FLAG_GROUP)
+  {
     WFIFOB(sd->fd, len + 9) = 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 9) = 0;
   }
 
   len += 1;
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strlen(sd->status.legends[x].text) &&
-        strlen(sd->status.legends[x].name)) {
+        strlen(sd->status.legends[x].name))
+    {
       count++;
     }
   }
@@ -2943,19 +3436,24 @@ int clif_mystaytus(USER *sd) {
   WFIFOW(sd->fd, len + 9) = SWAP16(count);
   len += 3;
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strlen(sd->status.legends[x].text) &&
-        strlen(sd->status.legends[x].name)) {
+        strlen(sd->status.legends[x].name))
+    {
       WFIFOB(sd->fd, len + 8) = sd->status.legends[x].icon;
       WFIFOB(sd->fd, len + 9) = sd->status.legends[x].color;
 
-      if (sd->status.legends[x].tchaid > 0) {
+      if (sd->status.legends[x].tchaid > 0)
+      {
         char *name = clif_getName(sd->status.legends[x].tchaid);
         char *buff = replace_str(sd->status.legends[x].text, "$player", name);
         WFIFOB(sd->fd, len + 10) = strlen(buff);
         strcpy(WFIFOP(sd->fd, len + 11), buff);
         len += strlen(buff) + 3;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, len + 10) = strlen(sd->status.legends[x].text);
         strcpy(WFIFOP(sd->fd, len + 11), sd->status.legends[x].text);
         len += strlen(sd->status.legends[x].text) + 3;
@@ -2968,7 +3466,8 @@ int clif_mystaytus(USER *sd) {
   return 0;
 }
 
-int clif_lookgone(struct block_list *bl) {
+int clif_lookgone(struct block_list *bl)
+{
   unsigned char buf[16];
 
   if (bl->type == BL_PC || (bl->type == BL_NPC && ((NPC *)bl)->npctype == 1) ||
@@ -2982,7 +3481,9 @@ int clif_lookgone(struct block_list *bl) {
     WBUFL(buf, 5) = SWAP32(bl->id);
     // crypt(WBUFP(buf, 0));
     clif_send(buf, 16, bl, AREA_WOS);
-  } else {
+  }
+  else
+  {
     WBUFB(buf, 0) = 0xAA;
     WBUFW(buf, 1) = SWAP16(6);
     WBUFB(buf, 3) = 0x5F;
@@ -2994,7 +3495,8 @@ int clif_lookgone(struct block_list *bl) {
   return 0;
 }
 
-int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
+int clif_cnpclook_sub(struct block_list *bl, va_list ap)
+{
   int len;
   int type;
   NPC *nd = NULL;
@@ -3002,19 +3504,24 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
 
   type = va_arg(ap, int);
 
-  if (type == LOOK_GET) {
+  if (type == LOOK_GET)
+  {
     nullpo_ret(0, nd = (NPC *)bl);
     nullpo_ret(0, sd = va_arg(ap, USER *));
-  } else if (type == LOOK_SEND) {
+  }
+  else if (type == LOOK_SEND)
+  {
     nullpo_ret(0, nd = va_arg(ap, NPC *));
     nullpo_ret(0, sd = (USER *)bl);
   }
 
-  if (nd->bl.m != sd->bl.m || nd->npctype != 1) {
+  if (nd->bl.m != sd->bl.m || nd->npctype != 1)
+  {
     return 0;
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -3028,135 +3535,180 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
   WFIFOB(sd->fd, 9) = nd->side;
   WFIFOL(sd->fd, 10) = SWAP32(nd->bl.id);
 
-  if (nd->state < 4) {
+  if (nd->state < 4)
+  {
     WFIFOW(sd->fd, 14) = SWAP16(nd->sex);
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 14) = 1;
     WFIFOB(sd->fd, 15) = 15;
   }
 
-  if (nd->state == 2 && sd->status.gm_level) {
-    WFIFOB(sd->fd, 16) = 5;  // Gm's need to see invis
-  } else {
+  if (nd->state == 2 && sd->status.gm_level)
+  {
+    WFIFOB(sd->fd, 16) = 5; // Gm's need to see invis
+  }
+  else
+  {
     WFIFOB(sd->fd, 16) = nd->state;
   }
 
   WFIFOB(sd->fd, 19) = 80;
 
-  if (nd->state == 3) {
+  if (nd->state == 3)
+  {
     WFIFOW(sd->fd, 17) = SWAP16(nd->bl.graphic_id);
-  } else if (nd->state == 4) {
+  }
+  else if (nd->state == 4)
+  {
     WFIFOW(sd->fd, 17) = SWAP16(nd->bl.graphic_id + 32768);
     WFIFOB(sd->fd, 19) = nd->bl.graphic_color;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 17) = 0;
   }
 
   WFIFOB(sd->fd, 20) = 0;
-  WFIFOB(sd->fd, 21) = nd->face;        // face
-  WFIFOB(sd->fd, 22) = nd->hair;        // hair
-  WFIFOB(sd->fd, 23) = nd->hair_color;  // hair color
+  WFIFOB(sd->fd, 21) = nd->face;       // face
+  WFIFOB(sd->fd, 22) = nd->hair;       // hair
+  WFIFOB(sd->fd, 23) = nd->hair_color; // hair color
   WFIFOB(sd->fd, 24) = nd->face_color;
   WFIFOB(sd->fd, 25) = nd->skin_color;
 
   // armor
-  if (!nd->equip[EQ_ARMOR].amount) {
+  if (!nd->equip[EQ_ARMOR].amount)
+  {
     WFIFOW(sd->fd, 26) = SWAP16(nd->sex);
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 26) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-    if (nd->armor_color > 0) {
+    if (nd->armor_color > 0)
+    {
       WFIFOB(sd->fd, 28) = nd->armor_color;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 28) = nd->equip[EQ_ARMOR].customLookColor;
     }
   }
 
   // coat
-  if (nd->equip[EQ_COAT].amount > 0) {
+  if (nd->equip[EQ_COAT].amount > 0)
+  {
     WFIFOW(sd->fd, 26) = SWAP16(nd->equip[EQ_COAT].id);
     WFIFOB(sd->fd, 28) = nd->equip[EQ_COAT].customLookColor;
   }
 
   // weapon
-  if (!nd->equip[EQ_WEAP].amount) {
+  if (!nd->equip[EQ_WEAP].amount)
+  {
     WFIFOW(sd->fd, 29) = 0xFFFF;
     WFIFOB(sd->fd, 31) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 29) = SWAP16(nd->equip[EQ_WEAP].id);
     WFIFOB(sd->fd, 31) = nd->equip[EQ_WEAP].customLookColor;
   }
 
   // shield
-  if (!nd->equip[EQ_SHIELD].amount) {
+  if (!nd->equip[EQ_SHIELD].amount)
+  {
     WFIFOW(sd->fd, 32) = 0xFFFF;
     WFIFOB(sd->fd, 34) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 32) = SWAP16(nd->equip[EQ_SHIELD].id);
     WFIFOB(sd->fd, 34) = nd->equip[EQ_SHIELD].customLookColor;
   }
 
   // helm
-  if (!nd->equip[EQ_HELM].amount) {
-    WFIFOB(sd->fd, 35) = 0;     // supposed to be 1=Helm, 0=No helm
-    WFIFOW(sd->fd, 36) = 0xFF;  // supposed to be Helm num
-  } else {
+  if (!nd->equip[EQ_HELM].amount)
+  {
+    WFIFOB(sd->fd, 35) = 0;    // supposed to be 1=Helm, 0=No helm
+    WFIFOW(sd->fd, 36) = 0xFF; // supposed to be Helm num
+  }
+  else
+  {
     WFIFOB(sd->fd, 35) = 1;
     WFIFOB(sd->fd, 36) = nd->equip[EQ_HELM].id;
     WFIFOB(sd->fd, 37) = nd->equip[EQ_HELM].customLookColor;
   }
 
   // beard stuff
-  if (!nd->equip[EQ_FACEACC].amount) {
+  if (!nd->equip[EQ_FACEACC].amount)
+  {
     WFIFOW(sd->fd, 38) = 0xFFFF;
     WFIFOB(sd->fd, 40) = 0;
-  } else {
-    WFIFOW(sd->fd, 38) = SWAP16(nd->equip[EQ_FACEACC].id);       // beard num
-    WFIFOB(sd->fd, 40) = nd->equip[EQ_FACEACC].customLookColor;  // beard color
+  }
+  else
+  {
+    WFIFOW(sd->fd, 38) = SWAP16(nd->equip[EQ_FACEACC].id);      // beard num
+    WFIFOB(sd->fd, 40) = nd->equip[EQ_FACEACC].customLookColor; // beard color
   }
 
   // crown
-  if (!nd->equip[EQ_CROWN].amount) {
+  if (!nd->equip[EQ_CROWN].amount)
+  {
     WFIFOW(sd->fd, 41) = 0xFFFF;
     WFIFOB(sd->fd, 43) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 35) = 0;
-    WFIFOW(sd->fd, 41) = SWAP16(nd->equip[EQ_CROWN].id);       // Crown
-    WFIFOB(sd->fd, 43) = nd->equip[EQ_CROWN].customLookColor;  // Crown color
+    WFIFOW(sd->fd, 41) = SWAP16(nd->equip[EQ_CROWN].id);      // Crown
+    WFIFOB(sd->fd, 43) = nd->equip[EQ_CROWN].customLookColor; // Crown color
   }
 
-  if (!nd->equip[EQ_FACEACCTWO].amount) {
-    WFIFOW(sd->fd, 44) = 0xFFFF;  // second face acc
-    WFIFOB(sd->fd, 46) = 0;       //" color
-  } else {
+  if (!nd->equip[EQ_FACEACCTWO].amount)
+  {
+    WFIFOW(sd->fd, 44) = 0xFFFF; // second face acc
+    WFIFOB(sd->fd, 46) = 0;      //" color
+  }
+  else
+  {
     WFIFOW(sd->fd, 44) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
     WFIFOB(sd->fd, 46) = nd->equip[EQ_FACEACCTWO].customLookColor;
   }
 
   // mantle
-  if (!nd->equip[EQ_MANTLE].amount) {
+  if (!nd->equip[EQ_MANTLE].amount)
+  {
     WFIFOW(sd->fd, 47) = 0xFFFF;
     WFIFOB(sd->fd, 49) = 0xFF;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 47) = SWAP16(nd->equip[EQ_MANTLE].id);
     WFIFOB(sd->fd, 49) = nd->equip[EQ_MANTLE].customLookColor;
   }
 
   // necklace
-  if (!nd->equip[EQ_NECKLACE].amount) {
+  if (!nd->equip[EQ_NECKLACE].amount)
+  {
     WFIFOW(sd->fd, 50) = 0xFFFF;
     WFIFOB(sd->fd, 52) = 0;
-  } else {
-    WFIFOW(sd->fd, 50) = SWAP16(nd->equip[EQ_NECKLACE].id);  // necklace
+  }
+  else
+  {
+    WFIFOW(sd->fd, 50) = SWAP16(nd->equip[EQ_NECKLACE].id); // necklace
     WFIFOB(sd->fd, 52) =
-        nd->equip[EQ_NECKLACE].customLookColor;  // neckalce color
+        nd->equip[EQ_NECKLACE].customLookColor; // neckalce color
   }
 
   // boots
-  if (!nd->equip[EQ_BOOTS].amount) {
+  if (!nd->equip[EQ_BOOTS].amount)
+  {
     WFIFOW(sd->fd, 53) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 55) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 53) = SWAP16(nd->equip[EQ_BOOTS].id);
     WFIFOB(sd->fd, 55) = nd->equip[EQ_BOOTS].customLookColor;
   }
@@ -3167,24 +3719,31 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
 
   len = strlen(nd->npc_name);
 
-  if (nd->state != 2) {
+  if (nd->state != 2)
+  {
     WFIFOB(sd->fd, 59) = len;
     strcpy(WFIFOP(sd->fd, 60), nd->npc_name);
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 59) = 0;
     len = 1;
   }
 
-  if (nd->clone) {
+  if (nd->clone)
+  {
     WFIFOB(sd->fd, 21) = nd->gfx.face;
     WFIFOB(sd->fd, 22) = nd->gfx.hair;
     WFIFOB(sd->fd, 23) = nd->gfx.chair;
     WFIFOB(sd->fd, 24) = nd->gfx.cface;
     WFIFOB(sd->fd, 25) = nd->gfx.cskin;
     WFIFOW(sd->fd, 26) = SWAP16(nd->gfx.armor);
-    if (nd->gfx.dye > 0) {
+    if (nd->gfx.dye > 0)
+    {
       WFIFOB(sd->fd, 28) = nd->gfx.dye;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 28) = nd->gfx.carmor;
     }
     WFIFOW(sd->fd, 29) = SWAP16(nd->gfx.weapon);
@@ -3192,11 +3751,16 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
     WFIFOW(sd->fd, 32) = SWAP16(nd->gfx.shield);
     WFIFOB(sd->fd, 34) = nd->gfx.cshield;
 
-    if (nd->gfx.helm < 255) {
+    if (nd->gfx.helm < 255)
+    {
       WFIFOB(sd->fd, 35) = 1;
-    } else if (nd->gfx.crown < 65535) {
+    }
+    else if (nd->gfx.crown < 65535)
+    {
       WFIFOB(sd->fd, 35) = 0xFF;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 35) = 0;
     }
 
@@ -3220,10 +3784,13 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 58) = 0;
 
     len = strlen(nd->gfx.name);
-    if (strcasecmp(nd->gfx.name, "")) {
+    if (strcasecmp(nd->gfx.name, ""))
+    {
       WFIFOB(sd->fd, 59) = len;
       strcpy(WFIFOP(sd->fd, 60), nd->gfx.name);
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 59) = 0;
       len = 1;
     }
@@ -3237,7 +3804,8 @@ int clif_cnpclook_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
+int clif_cmoblook_sub(struct block_list *bl, va_list ap)
+{
   int len;
   int type;
   MOB *mob = NULL;
@@ -3245,19 +3813,24 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
 
   type = va_arg(ap, int);
 
-  if (type == LOOK_GET) {
+  if (type == LOOK_GET)
+  {
     nullpo_ret(0, mob = (MOB *)bl);
     nullpo_ret(0, sd = va_arg(ap, USER *));
-  } else if (type == LOOK_SEND) {
+  }
+  else if (type == LOOK_SEND)
+  {
     nullpo_ret(0, mob = va_arg(ap, MOB *));
     nullpo_ret(0, sd = (USER *)bl);
   }
 
-  if (mob->bl.m != sd->bl.m || mob->data->mobtype != 1 || mob->state == 1) {
+  if (mob->bl.m != sd->bl.m || mob->data->mobtype != 1 || mob->state == 1)
+  {
     return 0;
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -3271,137 +3844,182 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
   WFIFOB(sd->fd, 9) = mob->side;
   WFIFOL(sd->fd, 10) = SWAP32(mob->bl.id);
 
-  if (mob->charstate < 4) {
+  if (mob->charstate < 4)
+  {
     WFIFOW(sd->fd, 14) = SWAP16(mob->data->sex);
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 14) = 1;
     WFIFOB(sd->fd, 15) = 15;
   }
 
-  if (mob->charstate == 2 && (sd->status.gm_level)) {
-    WFIFOB(sd->fd, 16) = 5;  // Gm's need to see invis
-  } else {
+  if (mob->charstate == 2 && (sd->status.gm_level))
+  {
+    WFIFOB(sd->fd, 16) = 5; // Gm's need to see invis
+  }
+  else
+  {
     WFIFOB(sd->fd, 16) = mob->charstate;
   }
 
   WFIFOB(sd->fd, 19) = 80;
 
-  if (mob->charstate == 3) {
+  if (mob->charstate == 3)
+  {
     WFIFOW(sd->fd, 17) = SWAP16(mob->look);
-  } else if (mob->charstate == 4) {
+  }
+  else if (mob->charstate == 4)
+  {
     WFIFOW(sd->fd, 17) = SWAP16(mob->look + 32768);
     WFIFOB(sd->fd, 19) = mob->look_color;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 17) = 0;
   }
 
   WFIFOB(sd->fd, 20) = 0;
-  WFIFOB(sd->fd, 21) = mob->data->face;        // face
-  WFIFOB(sd->fd, 22) = mob->data->hair;        // hair
-  WFIFOB(sd->fd, 23) = mob->data->hair_color;  // hair color
+  WFIFOB(sd->fd, 21) = mob->data->face;       // face
+  WFIFOB(sd->fd, 22) = mob->data->hair;       // hair
+  WFIFOB(sd->fd, 23) = mob->data->hair_color; // hair color
   WFIFOB(sd->fd, 24) = mob->data->face_color;
   WFIFOB(sd->fd, 25) = mob->data->skin_color;
 
   // armor
-  if (!mob->data->equip[EQ_ARMOR].amount) {
+  if (!mob->data->equip[EQ_ARMOR].amount)
+  {
     WFIFOW(sd->fd, 26) = SWAP16(mob->data->sex);
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 26) = SWAP16(mob->data->equip[EQ_ARMOR].id);
 
-    if (mob->data->armor_color > 0) {
+    if (mob->data->armor_color > 0)
+    {
       WFIFOB(sd->fd, 28) = mob->data->armor_color;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 28) = mob->data->equip[EQ_ARMOR].customLookColor;
     }
   }
 
   // coat
-  if (mob->data->equip[EQ_COAT].amount > 0) {
+  if (mob->data->equip[EQ_COAT].amount > 0)
+  {
     WFIFOW(sd->fd, 26) = SWAP16(mob->data->equip[EQ_COAT].id);
     WFIFOB(sd->fd, 28) = mob->data->equip[EQ_COAT].customLookColor;
   }
 
   // weapon
-  if (!mob->data->equip[EQ_WEAP].amount) {
+  if (!mob->data->equip[EQ_WEAP].amount)
+  {
     WFIFOW(sd->fd, 29) = 0xFFFF;
     WFIFOB(sd->fd, 31) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 29) = SWAP16(mob->data->equip[EQ_WEAP].id);
     WFIFOB(sd->fd, 31) = mob->data->equip[EQ_WEAP].customLookColor;
   }
 
   // shield
-  if (!mob->data->equip[EQ_SHIELD].amount) {
+  if (!mob->data->equip[EQ_SHIELD].amount)
+  {
     WFIFOW(sd->fd, 32) = 0xFFFF;
     WFIFOB(sd->fd, 34) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 32) = SWAP16(mob->data->equip[EQ_SHIELD].id);
     WFIFOB(sd->fd, 34) = mob->data->equip[EQ_SHIELD].customLookColor;
   }
 
   // helm
-  if (!mob->data->equip[EQ_HELM].amount) {
-    WFIFOB(sd->fd, 35) = 0;     // supposed to be 1=Helm, 0=No helm
-    WFIFOW(sd->fd, 36) = 0xFF;  // supposed to be Helm num
-  } else {
+  if (!mob->data->equip[EQ_HELM].amount)
+  {
+    WFIFOB(sd->fd, 35) = 0;    // supposed to be 1=Helm, 0=No helm
+    WFIFOW(sd->fd, 36) = 0xFF; // supposed to be Helm num
+  }
+  else
+  {
     WFIFOB(sd->fd, 35) = 1;
     WFIFOB(sd->fd, 36) = mob->data->equip[EQ_HELM].id;
     WFIFOB(sd->fd, 37) = mob->data->equip[EQ_HELM].customLookColor;
   }
 
   // beard stuff
-  if (!mob->data->equip[EQ_FACEACC].amount) {
+  if (!mob->data->equip[EQ_FACEACC].amount)
+  {
     WFIFOW(sd->fd, 38) = 0xFFFF;
     WFIFOB(sd->fd, 40) = 0;
-  } else {
-    WFIFOW(sd->fd, 38) = SWAP16(mob->data->equip[EQ_FACEACC].id);  // beard num
+  }
+  else
+  {
+    WFIFOW(sd->fd, 38) = SWAP16(mob->data->equip[EQ_FACEACC].id); // beard num
     WFIFOB(sd->fd, 40) =
-        mob->data->equip[EQ_FACEACC].customLookColor;  // beard color
+        mob->data->equip[EQ_FACEACC].customLookColor; // beard color
   }
 
   // crown
-  if (!mob->data->equip[EQ_CROWN].amount) {
+  if (!mob->data->equip[EQ_CROWN].amount)
+  {
     WFIFOW(sd->fd, 41) = 0xFFFF;
     WFIFOB(sd->fd, 43) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 35) = 0;
-    WFIFOW(sd->fd, 41) = SWAP16(mob->data->equip[EQ_CROWN].id);  // Crown
+    WFIFOW(sd->fd, 41) = SWAP16(mob->data->equip[EQ_CROWN].id); // Crown
     WFIFOB(sd->fd, 43) =
-        mob->data->equip[EQ_CROWN].customLookColor;  // Crown color
+        mob->data->equip[EQ_CROWN].customLookColor; // Crown color
   }
 
-  if (!mob->data->equip[EQ_FACEACCTWO].amount) {
-    WFIFOW(sd->fd, 44) = 0xFFFF;  // second face acc
-    WFIFOB(sd->fd, 46) = 0;       //" color
-  } else {
+  if (!mob->data->equip[EQ_FACEACCTWO].amount)
+  {
+    WFIFOW(sd->fd, 44) = 0xFFFF; // second face acc
+    WFIFOB(sd->fd, 46) = 0;      //" color
+  }
+  else
+  {
     WFIFOW(sd->fd, 44) = SWAP16(mob->data->equip[EQ_FACEACCTWO].id);
     WFIFOB(sd->fd, 46) = mob->data->equip[EQ_FACEACCTWO].customLookColor;
   }
 
   // mantle
-  if (!mob->data->equip[EQ_MANTLE].amount) {
+  if (!mob->data->equip[EQ_MANTLE].amount)
+  {
     WFIFOW(sd->fd, 47) = 0xFFFF;
     WFIFOB(sd->fd, 49) = 0xFF;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 47) = SWAP16(mob->data->equip[EQ_MANTLE].id);
     WFIFOB(sd->fd, 49) = mob->data->equip[EQ_MANTLE].customLookColor;
   }
 
   // necklace
-  if (!mob->data->equip[EQ_NECKLACE].amount) {
+  if (!mob->data->equip[EQ_NECKLACE].amount)
+  {
     WFIFOW(sd->fd, 50) = 0xFFFF;
     WFIFOB(sd->fd, 52) = 0;
-  } else {
-    WFIFOW(sd->fd, 50) = SWAP16(mob->data->equip[EQ_NECKLACE].id);  // necklace
+  }
+  else
+  {
+    WFIFOW(sd->fd, 50) = SWAP16(mob->data->equip[EQ_NECKLACE].id); // necklace
     WFIFOB(sd->fd, 52) =
-        mob->data->equip[EQ_NECKLACE].customLookColor;  // neckalce color
+        mob->data->equip[EQ_NECKLACE].customLookColor; // neckalce color
   }
 
   // boots
-  if (!mob->data->equip[EQ_BOOTS].amount) {
+  if (!mob->data->equip[EQ_BOOTS].amount)
+  {
     WFIFOW(sd->fd, 53) = SWAP16(mob->data->sex);
     WFIFOB(sd->fd, 55) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 53) = SWAP16(mob->data->equip[EQ_BOOTS].id);
     WFIFOB(sd->fd, 55) = mob->data->equip[EQ_BOOTS].customLookColor;
   }
@@ -3412,24 +4030,31 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
 
   len = strlen(mob->data->name);
 
-  if (mob->state != 2) {
+  if (mob->state != 2)
+  {
     WFIFOB(sd->fd, 59) = len;
     strcpy(WFIFOP(sd->fd, 60), mob->data->name);
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 59) = 0;
     len = 1;
   }
 
-  if (mob->clone) {
+  if (mob->clone)
+  {
     WFIFOB(sd->fd, 21) = mob->gfx.face;
     WFIFOB(sd->fd, 22) = mob->gfx.hair;
     WFIFOB(sd->fd, 23) = mob->gfx.chair;
     WFIFOB(sd->fd, 24) = mob->gfx.cface;
     WFIFOB(sd->fd, 25) = mob->gfx.cskin;
     WFIFOW(sd->fd, 26) = SWAP16(mob->gfx.armor);
-    if (mob->gfx.dye > 0) {
+    if (mob->gfx.dye > 0)
+    {
       WFIFOB(sd->fd, 28) = mob->gfx.dye;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 28) = mob->gfx.carmor;
     }
     WFIFOW(sd->fd, 29) = SWAP16(mob->gfx.weapon);
@@ -3437,11 +4062,16 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
     WFIFOW(sd->fd, 32) = SWAP16(mob->gfx.shield);
     WFIFOB(sd->fd, 34) = mob->gfx.cshield;
 
-    if (mob->gfx.helm < 255) {
+    if (mob->gfx.helm < 255)
+    {
       WFIFOB(sd->fd, 35) = 1;
-    } else if (mob->gfx.crown < 65535) {
+    }
+    else if (mob->gfx.crown < 65535)
+    {
       WFIFOB(sd->fd, 35) = 0xFF;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 35) = 0;
     }
 
@@ -3465,10 +4095,13 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
     WFIFOB(sd->fd, 58) = 0;
 
     len = strlen(mob->gfx.name);
-    if (strcasecmp(mob->gfx.name, "")) {
+    if (strcasecmp(mob->gfx.name, ""))
+    {
       WFIFOB(sd->fd, 59) = len;
       strcpy(WFIFOP(sd->fd, 60), mob->gfx.name);
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 59) = 0;
       len = 1;
     }
@@ -3479,7 +4112,8 @@ int clif_cmoblook_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_show_ghost(USER *sd, USER *tsd) {
+int clif_show_ghost(USER *sd, USER *tsd)
+{
   /*if(map[sd->bl.m].show_ghosts && tsd->status.state==1 &&
   (sd->bl.id!=tsd->bl.id)) { if(sd->status.state!=1 && !(sd->optFlags &
   optFlag_ghosts)) { return 0;
@@ -3490,15 +4124,19 @@ int clif_show_ghost(USER *sd, USER *tsd) {
   // path arena/clan & pc subpath areas) Default setting for ALL maps is to have
   // Show Ghosts set to 0 (off).
 
-  if (!sd->status.gm_level) {  // This set of rules ONLY applies to non GMs
+  if (!sd->status.gm_level)
+  { // This set of rules ONLY applies to non GMs
     if (!map[sd->bl.m].show_ghosts && tsd->status.state == 1 &&
-        sd->bl.id != tsd->bl.id) {
-      if (map[sd->bl.m].pvp) {
+        sd->bl.id != tsd->bl.id)
+    {
+      if (map[sd->bl.m].pvp)
+      {
         if (sd->status.state == 1 && sd->optFlags & optFlag_ghosts)
           return 1;
         else
           return 0;
-      } else
+      }
+      else
         return 1;
     }
   }
@@ -3506,7 +4144,8 @@ int clif_show_ghost(USER *sd, USER *tsd) {
   return 1;
 }
 
-int clif_charlook_sub(struct block_list *bl, va_list ap) {
+int clif_charlook_sub(struct block_list *bl, va_list ap)
+{
   char buf[64];
   USER *src_sd = NULL;
   USER *sd = NULL;
@@ -3515,30 +4154,37 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
 
   type = va_arg(ap, int);
 
-  if (type == LOOK_GET) {
+  if (type == LOOK_GET)
+  {
     nullpo_ret(0, sd = (USER *)bl);
     nullpo_ret(0, src_sd = va_arg(ap, USER *));
-    if (src_sd == sd) return 0;
-  } else {
+    if (src_sd == sd)
+      return 0;
+  }
+  else
+  {
     nullpo_ret(0, src_sd = (USER *)bl);
     nullpo_ret(0, sd = va_arg(ap, USER *));
   }
 
   if (sd->bl.m != src_sd->bl.m)
-    return 0;  // Hopefully this'll cure seeing ppl on the map who arent there.
+    return 0; // Hopefully this'll cure seeing ppl on the map who arent there.
 
   if ((sd->optFlags & optFlag_stealth) && !src_sd->status.gm_level &&
       (sd->status.id != src_sd->status.id))
     return 0;
 
   if (map[sd->bl.m].show_ghosts && sd->status.state == 1 &&
-      (sd->bl.id != src_sd->bl.id)) {
-    if (src_sd->status.state != 1 && !(src_sd->optFlags & optFlag_ghosts)) {
+      (sd->bl.id != src_sd->bl.id))
+  {
+    if (src_sd->status.state != 1 && !(src_sd->optFlags & optFlag_ghosts))
+    {
       return 0;
     }
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -3552,9 +4198,12 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
   WFIFOB(src_sd->fd, 9) = sd->status.side;
   WFIFOL(src_sd->fd, 10) = SWAP32(sd->status.id);
 
-  if (sd->status.state < 4) {
+  if (sd->status.state < 4)
+  {
     WFIFOW(src_sd->fd, 14) = SWAP16(sd->status.sex);
-  } else {
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 14) = 1;
     WFIFOB(src_sd->fd, 15) = 15;
   }
@@ -3563,9 +4212,12 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
       sd->bl.id != src_sd->bl.id &&
       (src_sd->status.gm_level || clif_isingroup(src_sd, sd) ||
        (sd->gfx.dye == src_sd->gfx.dye && sd->gfx.dye != 0 &&
-        src_sd->gfx.dye != 0))) {
-    WFIFOB(src_sd->fd, 16) = 5;  // Gm's need to see invis
-  } else {
+        src_sd->gfx.dye != 0)))
+  {
+    WFIFOB(src_sd->fd, 16) = 5; // Gm's need to see invis
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 16) = sd->status.state;
   }
 
@@ -3575,162 +4227,225 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
 
   WFIFOB(src_sd->fd, 19) = sd->speed;
 
-  if (sd->status.state == 3) {
+  if (sd->status.state == 3)
+  {
     WFIFOW(src_sd->fd, 17) = SWAP16(sd->disguise);
     // WFIFOB(src_sd->fd,19)=sd->disguise_color;
-  } else if (sd->status.state == 4) {
+  }
+  else if (sd->status.state == 4)
+  {
     WFIFOW(src_sd->fd, 17) = SWAP16(sd->disguise + 32768);
     WFIFOB(src_sd->fd, 19) = sd->disguise_color;
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 17) = SWAP16(0);
     // WFIFOB(src_sd->fd,19)=0;
   }
 
   WFIFOB(src_sd->fd, 20) = 0;
 
-  WFIFOB(src_sd->fd, 21) = sd->status.face;        // face
-  WFIFOB(src_sd->fd, 22) = sd->status.hair;        // hair
-  WFIFOB(src_sd->fd, 23) = sd->status.hair_color;  // hair color
+  WFIFOB(src_sd->fd, 21) = sd->status.face;       // face
+  WFIFOB(src_sd->fd, 22) = sd->status.hair;       // hair
+  WFIFOB(src_sd->fd, 23) = sd->status.hair_color; // hair color
   WFIFOB(src_sd->fd, 24) = sd->status.face_color;
   WFIFOB(src_sd->fd, 25) = sd->status.skin_color;
 
   // armor
-  if (!pc_isequip(sd, EQ_ARMOR)) {
+  if (!pc_isequip(sd, EQ_ARMOR))
+  {
     WFIFOW(src_sd->fd, 26) = SWAP16(sd->status.sex);
-  } else {
-    if (sd->status.equip[EQ_ARMOR].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_ARMOR].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 26) = SWAP16(sd->status.equip[EQ_ARMOR].customLook);
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 26) = SWAP16(itemdb_look(pc_isequip(sd, EQ_ARMOR)));
     }
 
-    if (sd->status.armor_color > 0) {
+    if (sd->status.armor_color > 0)
+    {
       WFIFOB(src_sd->fd, 28) = sd->status.armor_color;
-    } else {
-      if (sd->status.equip[EQ_ARMOR].customLook != 0) {
+    }
+    else
+    {
+      if (sd->status.equip[EQ_ARMOR].customLook != 0)
+      {
         WFIFOB(src_sd->fd, 28) = sd->status.equip[EQ_ARMOR].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 28) = itemdb_lookcolor(pc_isequip(sd, EQ_ARMOR));
       }
     }
   }
   // coat
-  if (pc_isequip(sd, EQ_COAT)) {
+  if (pc_isequip(sd, EQ_COAT))
+  {
     WFIFOW(src_sd->fd, 26) = SWAP16(itemdb_look(pc_isequip(sd, EQ_COAT)));
 
-    if (sd->status.armor_color > 0) {
+    if (sd->status.armor_color > 0)
+    {
       WFIFOB(src_sd->fd, 28) = sd->status.armor_color;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 28) = itemdb_lookcolor(pc_isequip(sd, EQ_COAT));
     }
   }
 
   // weapon
-  if (!pc_isequip(sd, EQ_WEAP)) {
+  if (!pc_isequip(sd, EQ_WEAP))
+  {
     WFIFOW(src_sd->fd, 29) = 0xFFFF;
     WFIFOB(src_sd->fd, 31) = 0x0;
-  } else {
-    if (sd->status.equip[EQ_WEAP].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_WEAP].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 29) = SWAP16(sd->status.equip[EQ_WEAP].customLook);
       WFIFOB(src_sd->fd, 31) = sd->status.equip[EQ_WEAP].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 29) = SWAP16(itemdb_look(pc_isequip(sd, EQ_WEAP)));
       WFIFOB(src_sd->fd, 31) = itemdb_lookcolor(pc_isequip(sd, EQ_WEAP));
     }
   }
 
   // shield
-  if (!pc_isequip(sd, EQ_SHIELD)) {
+  if (!pc_isequip(sd, EQ_SHIELD))
+  {
     WFIFOW(src_sd->fd, 32) = 0xFFFF;
     WFIFOB(src_sd->fd, 34) = 0;
-  } else {
-    if (sd->status.equip[EQ_SHIELD].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_SHIELD].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 32) = SWAP16(sd->status.equip[EQ_SHIELD].customLook);
       WFIFOB(src_sd->fd, 34) = sd->status.equip[EQ_SHIELD].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 32) = SWAP16(itemdb_look(pc_isequip(sd, EQ_SHIELD)));
       WFIFOB(src_sd->fd, 34) = itemdb_lookcolor(pc_isequip(sd, EQ_SHIELD));
     }
   }
 
   if (!pc_isequip(sd, EQ_HELM) || !(sd->status.settingFlags & FLAG_HELM) ||
-      (itemdb_look(pc_isequip(sd, EQ_HELM)) == -1)) {
+      (itemdb_look(pc_isequip(sd, EQ_HELM)) == -1))
+  {
     // helm stuff goes here
-    WFIFOB(src_sd->fd, 35) = 0;       // supposed to be 1=Helm, 0=No helm
-    WFIFOW(src_sd->fd, 36) = 0xFFFF;  // supposed to be Helm num
-  } else {
+    WFIFOB(src_sd->fd, 35) = 0;      // supposed to be 1=Helm, 0=No helm
+    WFIFOW(src_sd->fd, 36) = 0xFFFF; // supposed to be Helm num
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 35) = 1;
-    if (sd->status.equip[EQ_HELM].customLook != 0) {
+    if (sd->status.equip[EQ_HELM].customLook != 0)
+    {
       WFIFOB(src_sd->fd, 36) = sd->status.equip[EQ_HELM].customLook;
       WFIFOB(src_sd->fd, 37) = sd->status.equip[EQ_HELM].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 36) = itemdb_look(pc_isequip(sd, EQ_HELM));
       WFIFOB(src_sd->fd, 37) = itemdb_lookcolor(pc_isequip(sd, EQ_HELM));
     }
   }
 
-  if (!pc_isequip(sd, EQ_FACEACC)) {
+  if (!pc_isequip(sd, EQ_FACEACC))
+  {
     // beard stuff
     WFIFOW(src_sd->fd, 38) = 0xFFFF;
     WFIFOB(src_sd->fd, 40) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 38) =
-        SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACC)));  // beard num
+        SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACC))); // beard num
     WFIFOB(src_sd->fd, 40) =
-        itemdb_lookcolor(pc_isequip(sd, EQ_FACEACC));  // beard color
+        itemdb_lookcolor(pc_isequip(sd, EQ_FACEACC)); // beard color
   }
   // crown
-  if (!pc_isequip(sd, EQ_CROWN)) {
+  if (!pc_isequip(sd, EQ_CROWN))
+  {
     WFIFOW(src_sd->fd, 41) = 0xFFFF;
     WFIFOB(src_sd->fd, 43) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 35) = 0xFF;
 
-    if (sd->status.equip[EQ_CROWN].customLook != 0) {
+    if (sd->status.equip[EQ_CROWN].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 41) = SWAP16(sd->status.equip[EQ_CROWN].customLook);
       WFIFOB(src_sd->fd, 43) = sd->status.equip[EQ_CROWN].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 41) =
-          SWAP16(itemdb_look(pc_isequip(sd, EQ_CROWN)));  // Crown
+          SWAP16(itemdb_look(pc_isequip(sd, EQ_CROWN))); // Crown
       WFIFOB(src_sd->fd, 43) =
-          itemdb_lookcolor(pc_isequip(sd, EQ_CROWN));  // Crown color
+          itemdb_lookcolor(pc_isequip(sd, EQ_CROWN)); // Crown color
     }
   }
 
-  if (!pc_isequip(sd, EQ_FACEACCTWO)) {
-    WFIFOW(src_sd->fd, 44) = 0xFFFF;  // second face acc
-    WFIFOB(src_sd->fd, 46) = 0;       //" color
-  } else {
+  if (!pc_isequip(sd, EQ_FACEACCTWO))
+  {
+    WFIFOW(src_sd->fd, 44) = 0xFFFF; // second face acc
+    WFIFOB(src_sd->fd, 46) = 0;      //" color
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 44) = SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACCTWO)));
     WFIFOB(src_sd->fd, 46) = itemdb_lookcolor(pc_isequip(sd, EQ_FACEACCTWO));
   }
 
-  if (!pc_isequip(sd, EQ_MANTLE)) {
+  if (!pc_isequip(sd, EQ_MANTLE))
+  {
     WFIFOW(src_sd->fd, 47) = 0xFFFF;
     WFIFOB(src_sd->fd, 49) = 0xFF;
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 47) = SWAP16(itemdb_look(pc_isequip(sd, EQ_MANTLE)));
     WFIFOB(src_sd->fd, 49) = itemdb_lookcolor(pc_isequip(sd, EQ_MANTLE));
   }
   if (!pc_isequip(sd, EQ_NECKLACE) ||
       !(sd->status.settingFlags & FLAG_NECKLACE) ||
-      (itemdb_look(pc_isequip(sd, EQ_NECKLACE)) == -1)) {
+      (itemdb_look(pc_isequip(sd, EQ_NECKLACE)) == -1))
+  {
     WFIFOW(src_sd->fd, 50) = 0xFFFF;
     WFIFOB(src_sd->fd, 52) = 0;
-  } else {
-    WFIFOW(src_sd->fd, 50) =
-        SWAP16(itemdb_look(pc_isequip(sd, EQ_NECKLACE)));  // necklace
-    WFIFOB(src_sd->fd, 52) =
-        itemdb_lookcolor(pc_isequip(sd, EQ_NECKLACE));  // neckalce color
   }
-  if (!pc_isequip(sd, EQ_BOOTS)) {
-    WFIFOW(src_sd->fd, 53) = SWAP16(sd->status.sex);  // boots
+  else
+  {
+    WFIFOW(src_sd->fd, 50) =
+        SWAP16(itemdb_look(pc_isequip(sd, EQ_NECKLACE))); // necklace
+    WFIFOB(src_sd->fd, 52) =
+        itemdb_lookcolor(pc_isequip(sd, EQ_NECKLACE)); // neckalce color
+  }
+  if (!pc_isequip(sd, EQ_BOOTS))
+  {
+    WFIFOW(src_sd->fd, 53) = SWAP16(sd->status.sex); // boots
     WFIFOB(src_sd->fd, 55) = 0;
-  } else {
-    if (sd->status.equip[EQ_BOOTS].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_BOOTS].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 53) = SWAP16(sd->status.equip[EQ_BOOTS].customLook);
       WFIFOB(src_sd->fd, 55) = sd->status.equip[EQ_BOOTS].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 53) = SWAP16(itemdb_look(pc_isequip(sd, EQ_BOOTS)));
       WFIFOB(src_sd->fd, 55) = itemdb_lookcolor(pc_isequip(sd, EQ_BOOTS));
     }
@@ -3748,9 +4463,12 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
       sd->bl.id != src_sd->bl.id &&
       (src_sd->status.gm_level || clif_isingroup(src_sd, sd) ||
        (sd->gfx.dye == src_sd->gfx.dye && sd->gfx.dye != 0 &&
-        src_sd->gfx.dye != 0))) {
+        src_sd->gfx.dye != 0)))
+  {
     WFIFOB(src_sd->fd, 56) = 0;
-  } else {
+  }
+  else
+  {
     if (sd->gfx.dye)
       WFIFOB(src_sd->fd, 56) = sd->gfx.titleColor;
     else
@@ -3760,47 +4478,61 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
   sprintf(buf, "%s", sd->status.name);
   len = strlen(buf);
 
-  if (src_sd->status.clan == sd->status.clan) {
-    if (src_sd->status.clan > 0) {
-      if (src_sd->status.id != sd->status.id) {
+  if (src_sd->status.clan == sd->status.clan)
+  {
+    if (src_sd->status.clan > 0)
+    {
+      if (src_sd->status.id != sd->status.id)
+      {
         WFIFOB(src_sd->fd, 58) = 3;
       }
     }
   }
 
-  if (clif_isingroup(src_sd, sd)) {
+  if (clif_isingroup(src_sd, sd))
+  {
     WFIFOB(src_sd->fd, 58) = 2;
   }
 
-  for (x = 0; x < 20; x++) {
-    if (src_sd->pvp[x][0] == sd->bl.id) {
+  for (x = 0; x < 20; x++)
+  {
+    if (src_sd->pvp[x][0] == sd->bl.id)
+    {
       exist = x;
       break;
     }
   }
 
-  if (sd->status.pk > 0 || exist != -1) {
+  if (sd->status.pk > 0 || exist != -1)
+  {
     WFIFOB(src_sd->fd, 58) = 1;
   }
 
-  if ((sd->status.state != 2) && (sd->status.state != 5)) {
+  if ((sd->status.state != 2) && (sd->status.state != 5))
+  {
     WFIFOB(src_sd->fd, 59) = len;
     strcpy(WFIFOP(src_sd->fd, 60), buf);
-  } else {
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 59) = 0;
     len = 0;
   }
 
-  if ((sd->status.gm_level && sd->gfx.toggle) || sd->clone) {
+  if ((sd->status.gm_level && sd->gfx.toggle) || sd->clone)
+  {
     WFIFOB(src_sd->fd, 21) = sd->gfx.face;
     WFIFOB(src_sd->fd, 22) = sd->gfx.hair;
     WFIFOB(src_sd->fd, 23) = sd->gfx.chair;
     WFIFOB(src_sd->fd, 24) = sd->gfx.cface;
     WFIFOB(src_sd->fd, 25) = sd->gfx.cskin;
     WFIFOW(src_sd->fd, 26) = SWAP16(sd->gfx.armor);
-    if (sd->gfx.dye > 0) {
+    if (sd->gfx.dye > 0)
+    {
       WFIFOB(src_sd->fd, 28) = sd->gfx.dye;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 28) = sd->gfx.carmor;
     }
     WFIFOW(src_sd->fd, 29) = SWAP16(sd->gfx.weapon);
@@ -3808,11 +4540,16 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
     WFIFOW(src_sd->fd, 32) = SWAP16(sd->gfx.shield);
     WFIFOB(src_sd->fd, 34) = sd->gfx.cshield;
 
-    if (sd->gfx.helm < 255) {
+    if (sd->gfx.helm < 255)
+    {
       WFIFOB(src_sd->fd, 35) = 1;
-    } else if (sd->gfx.crown < 65535) {
+    }
+    else if (sd->gfx.crown < 65535)
+    {
       WFIFOB(src_sd->fd, 35) = 0xFF;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 35) = 0;
     }
 
@@ -3839,9 +4576,12 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
         sd->bl.id != src_sd->bl.id &&
         (src_sd->status.gm_level || clif_isingroup(src_sd, sd) ||
          (sd->gfx.dye == src_sd->gfx.dye && sd->gfx.dye != 0 &&
-          src_sd->gfx.dye != 0))) {
+          src_sd->gfx.dye != 0)))
+    {
       WFIFOB(src_sd->fd, 56) = 0;
-    } else {
+    }
+    else
+    {
       if (sd->gfx.dye)
         WFIFOB(src_sd->fd, 56) = sd->gfx.titleColor;
       else
@@ -3869,10 +4609,13 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
 
     len = strlen(sd->gfx.name);
     if ((sd->status.state != 2) && (sd->status.state != 5) &&
-        strcasecmp(sd->gfx.name, "")) {
+        strcasecmp(sd->gfx.name, ""))
+    {
       WFIFOB(src_sd->fd, 59) = len;
       strcpy(WFIFOP(src_sd->fd, 60), sd->gfx.name);
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 59) = 0;
       len = 1;
     }
@@ -3896,10 +4639,12 @@ int clif_charlook_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_blockmovement(USER *sd, int flag) {
+int clif_blockmovement(USER *sd, int flag)
+{
   nullpo_ret(0, sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -3912,7 +4657,8 @@ int clif_blockmovement(USER *sd, int flag) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
-int clif_getchararea(USER *sd) {
+int clif_getchararea(USER *sd)
+{
   map_foreachinarea(clif_charlook_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA,
                     BL_PC, LOOK_GET, sd);
   map_foreachinarea(clif_cnpclook_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA,
@@ -3922,18 +4668,21 @@ int clif_getchararea(USER *sd) {
   return 0;
 }
 
-int clif_getitemarea(USER *sd) {
+int clif_getitemarea(USER *sd)
+{
   // map_foreachinarea(clif_object_look_sub,sd->bl.m,sd->bl.x,sd->bl.y,SAMEAREA,BL_ITEM,LOOK_GET,sd);
 
   return 0;
 }
 
-int clif_sendchararea(USER *sd) {
+int clif_sendchararea(USER *sd)
+{
   map_foreachinarea(clif_charlook_sub, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                     BL_PC, LOOK_SEND, sd);
   return 0;
 }
-int clif_charspecific(int sender, int id) {
+int clif_charspecific(int sender, int id)
+{
   char buf[64];
   int len;
   USER *sd = NULL;
@@ -3958,15 +4707,18 @@ int clif_charspecific(int sender, int id) {
     return 0;
 
   if (map[sd->bl.m].show_ghosts && sd->status.state == 1 &&
-      (sd->bl.id != src_sd->bl.id)) {
-    if (src_sd->status.state != 1 && !(src_sd->optFlags & optFlag_ghosts)) {
+      (sd->bl.id != src_sd->bl.id))
+  {
+    if (src_sd->status.state != 1 && !(src_sd->optFlags & optFlag_ghosts))
+    {
       return 0;
     }
   }
 
   // if (!clif_show_ghost(src_sd,sd)) return 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -3979,9 +4731,12 @@ int clif_charspecific(int sender, int id) {
   WFIFOW(src_sd->fd, 7) = SWAP16(sd->bl.y);
   WFIFOB(src_sd->fd, 9) = sd->status.side;
   WFIFOL(src_sd->fd, 10) = SWAP32(sd->status.id);
-  if (sd->status.state < 4) {
+  if (sd->status.state < 4)
+  {
     WFIFOW(src_sd->fd, 14) = SWAP16(sd->status.sex);
-  } else {
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 14) = 1;
     WFIFOB(src_sd->fd, 15) = 15;
   }
@@ -3990,9 +4745,12 @@ int clif_charspecific(int sender, int id) {
       sd->bl.id != src_sd->bl.id &&
       (src_sd->status.gm_level || clif_isingroup(src_sd, sd) ||
        (sd->gfx.dye == src_sd->gfx.dye && sd->gfx.dye != 0 &&
-        src_sd->gfx.dye != 0))) {
-    WFIFOB(src_sd->fd, 16) = 5;  // Gm's need to see invis
-  } else {
+        src_sd->gfx.dye != 0)))
+  {
+    WFIFOB(src_sd->fd, 16) = 5; // Gm's need to see invis
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 16) = sd->status.state;
   }
 
@@ -4002,160 +4760,219 @@ int clif_charspecific(int sender, int id) {
 
   WFIFOB(src_sd->fd, 19) = sd->speed;
 
-  if (sd->status.state == 3) {
+  if (sd->status.state == 3)
+  {
     WFIFOW(src_sd->fd, 17) = SWAP16(sd->disguise);
     // WFIFOB(src_sd->fd,19)=sd->disguise_color;
-  } else if (sd->status.state == 4) {
+  }
+  else if (sd->status.state == 4)
+  {
     WFIFOW(src_sd->fd, 17) = SWAP16(sd->disguise + 32768);
     WFIFOB(src_sd->fd, 19) = sd->disguise_color;
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 17) = 0;
   }
 
   WFIFOB(src_sd->fd, 20) = 0;
-  WFIFOB(src_sd->fd, 21) = sd->status.face;        // face
-  WFIFOB(src_sd->fd, 22) = sd->status.hair;        // hair
-  WFIFOB(src_sd->fd, 23) = sd->status.hair_color;  // hair color
+  WFIFOB(src_sd->fd, 21) = sd->status.face;       // face
+  WFIFOB(src_sd->fd, 22) = sd->status.hair;       // hair
+  WFIFOB(src_sd->fd, 23) = sd->status.hair_color; // hair color
   WFIFOB(src_sd->fd, 24) = sd->status.face_color;
   WFIFOB(src_sd->fd, 25) = sd->status.skin_color;
   // WFIFOB(src_sd->fd,26)=0;
   // armor
-  if (!pc_isequip(sd, EQ_ARMOR)) {
+  if (!pc_isequip(sd, EQ_ARMOR))
+  {
     WFIFOW(src_sd->fd, 26) = SWAP16(sd->status.sex);
-
-  } else {
-    if (sd->status.equip[EQ_ARMOR].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_ARMOR].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 26) = SWAP16(sd->status.equip[EQ_ARMOR].customLook);
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 26) =
-          SWAP16(itemdb_look(pc_isequip(sd, EQ_ARMOR)));  //-10000+16;
+          SWAP16(itemdb_look(pc_isequip(sd, EQ_ARMOR))); //-10000+16;
     }
 
-    if (sd->status.armor_color > 0) {
+    if (sd->status.armor_color > 0)
+    {
       WFIFOB(src_sd->fd, 28) = sd->status.armor_color;
-    } else {
-      if (sd->status.equip[EQ_ARMOR].customLook != 0) {
+    }
+    else
+    {
+      if (sd->status.equip[EQ_ARMOR].customLook != 0)
+      {
         WFIFOB(src_sd->fd, 28) = sd->status.equip[EQ_ARMOR].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 28) = itemdb_lookcolor(pc_isequip(sd, EQ_ARMOR));
       }
     }
   }
-  if (pc_isequip(sd, EQ_COAT)) {
+  if (pc_isequip(sd, EQ_COAT))
+  {
     WFIFOW(src_sd->fd, 26) =
-        SWAP16(itemdb_look(pc_isequip(sd, EQ_COAT)));  //-10000+16;
+        SWAP16(itemdb_look(pc_isequip(sd, EQ_COAT))); //-10000+16;
     WFIFOB(src_sd->fd, 28) = itemdb_lookcolor(pc_isequip(sd, EQ_COAT));
   }
 
   // weapon
-  if (!pc_isequip(sd, EQ_WEAP)) {
+  if (!pc_isequip(sd, EQ_WEAP))
+  {
     WFIFOW(src_sd->fd, 29) = 0xFFFF;
     WFIFOB(src_sd->fd, 31) = 0x0;
-  } else {
-    if (sd->status.equip[EQ_WEAP].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_WEAP].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 29) = SWAP16(sd->status.equip[EQ_WEAP].customLook);
       WFIFOB(src_sd->fd, 31) = sd->status.equip[EQ_WEAP].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 29) = SWAP16(itemdb_look(pc_isequip(sd, EQ_WEAP)));
       WFIFOB(src_sd->fd, 31) = itemdb_lookcolor(pc_isequip(sd, EQ_WEAP));
     }
   }
 
   // shield
-  if (!pc_isequip(sd, EQ_SHIELD)) {
+  if (!pc_isequip(sd, EQ_SHIELD))
+  {
     WFIFOW(src_sd->fd, 32) = 0xFFFF;
     WFIFOB(src_sd->fd, 34) = 0;
-  } else {
-    if (sd->status.equip[EQ_SHIELD].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_SHIELD].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 32) = SWAP16(sd->status.equip[EQ_SHIELD].customLook);
       WFIFOB(src_sd->fd, 34) = sd->status.equip[EQ_SHIELD].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 32) = SWAP16(itemdb_look(pc_isequip(sd, EQ_SHIELD)));
       WFIFOB(src_sd->fd, 34) = itemdb_lookcolor(pc_isequip(sd, EQ_SHIELD));
     }
   }
 
   if (!pc_isequip(sd, EQ_HELM) || !(sd->status.settingFlags & FLAG_HELM) ||
-      (itemdb_look(pc_isequip(sd, EQ_HELM)) == -1)) {
+      (itemdb_look(pc_isequip(sd, EQ_HELM)) == -1))
+  {
     // helm stuff goes here
-    WFIFOB(src_sd->fd, 35) = 0;       // supposed to be 1=Helm, 0=No helm
-    WFIFOW(src_sd->fd, 36) = 0xFFFF;  // supposed to be Helm num
-  } else {
+    WFIFOB(src_sd->fd, 35) = 0;      // supposed to be 1=Helm, 0=No helm
+    WFIFOW(src_sd->fd, 36) = 0xFFFF; // supposed to be Helm num
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 35) = 1;
 
-    if (sd->status.equip[EQ_HELM].customLook != 0) {
+    if (sd->status.equip[EQ_HELM].customLook != 0)
+    {
       WFIFOB(src_sd->fd, 36) = sd->status.equip[EQ_HELM].customLook;
       WFIFOB(src_sd->fd, 37) = sd->status.equip[EQ_HELM].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 36) = itemdb_look(pc_isequip(sd, EQ_HELM));
       WFIFOB(src_sd->fd, 37) = itemdb_lookcolor(pc_isequip(sd, EQ_HELM));
     }
   }
 
-  if (!pc_isequip(sd, EQ_FACEACC)) {
+  if (!pc_isequip(sd, EQ_FACEACC))
+  {
     // beard stuff
     WFIFOW(src_sd->fd, 38) = 0xFFFF;
     WFIFOB(src_sd->fd, 40) = 0x0;
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 38) =
-        SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACC)));  // beard num
+        SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACC))); // beard num
     WFIFOB(src_sd->fd, 40) =
-        itemdb_lookcolor(pc_isequip(sd, EQ_FACEACC));  // beard color
+        itemdb_lookcolor(pc_isequip(sd, EQ_FACEACC)); // beard color
   }
   // crown
-  if (!pc_isequip(sd, EQ_CROWN)) {
+  if (!pc_isequip(sd, EQ_CROWN))
+  {
     WFIFOW(src_sd->fd, 41) = 0xFFFF;
     WFIFOB(src_sd->fd, 43) = 0x0;
-  } else {
+  }
+  else
+  {
     WFIFOB(src_sd->fd, 35) = 0;
 
-    if (sd->status.equip[EQ_CROWN].customLook != 0) {
+    if (sd->status.equip[EQ_CROWN].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 41) =
-          SWAP16(sd->status.equip[EQ_CROWN].customLook);  // Crown
+          SWAP16(sd->status.equip[EQ_CROWN].customLook); // Crown
       WFIFOB(src_sd->fd, 43) =
-          sd->status.equip[EQ_CROWN].customLookColor;  // Crown color
-    } else {
+          sd->status.equip[EQ_CROWN].customLookColor; // Crown color
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 41) =
-          SWAP16(itemdb_look(pc_isequip(sd, EQ_CROWN)));  // Crown
+          SWAP16(itemdb_look(pc_isequip(sd, EQ_CROWN))); // Crown
       WFIFOB(src_sd->fd, 43) =
-          itemdb_lookcolor(pc_isequip(sd, EQ_CROWN));  // Crown color
+          itemdb_lookcolor(pc_isequip(sd, EQ_CROWN)); // Crown color
     }
   }
 
-  if (!pc_isequip(sd, EQ_FACEACCTWO)) {
-    WFIFOW(src_sd->fd, 44) = 0xFFFF;  // second face acc
-    WFIFOB(src_sd->fd, 46) = 0x0;     //" color
-  } else {
+  if (!pc_isequip(sd, EQ_FACEACCTWO))
+  {
+    WFIFOW(src_sd->fd, 44) = 0xFFFF; // second face acc
+    WFIFOB(src_sd->fd, 46) = 0x0;    //" color
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 44) = SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACCTWO)));
     WFIFOB(src_sd->fd, 46) = itemdb_lookcolor(pc_isequip(sd, EQ_FACEACCTWO));
   }
 
-  if (!pc_isequip(sd, EQ_MANTLE)) {
+  if (!pc_isequip(sd, EQ_MANTLE))
+  {
     WFIFOW(src_sd->fd, 47) = 0xFFFF;
     WFIFOB(src_sd->fd, 49) = 0xFF;
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 47) = SWAP16(itemdb_look(pc_isequip(sd, EQ_MANTLE)));
     WFIFOB(src_sd->fd, 49) = itemdb_lookcolor(pc_isequip(sd, EQ_MANTLE));
   }
   if (!pc_isequip(sd, EQ_NECKLACE) ||
       !(sd->status.settingFlags & FLAG_NECKLACE) ||
-      (itemdb_look(pc_isequip(sd, EQ_NECKLACE)) == -1)) {
+      (itemdb_look(pc_isequip(sd, EQ_NECKLACE)) == -1))
+  {
     WFIFOW(src_sd->fd, 50) = 0xFFFF;
     WFIFOB(src_sd->fd, 52) = 0x0;
-  } else {
-    WFIFOW(src_sd->fd, 50) =
-        SWAP16(itemdb_look(pc_isequip(sd, EQ_NECKLACE)));  // necklace
-    WFIFOB(src_sd->fd, 52) =
-        itemdb_lookcolor(pc_isequip(sd, EQ_NECKLACE));  // neckalce color
   }
-  if (!pc_isequip(sd, EQ_BOOTS)) {
-    WFIFOW(src_sd->fd, 53) = SWAP16(sd->status.sex);  // boots
+  else
+  {
+    WFIFOW(src_sd->fd, 50) =
+        SWAP16(itemdb_look(pc_isequip(sd, EQ_NECKLACE))); // necklace
+    WFIFOB(src_sd->fd, 52) =
+        itemdb_lookcolor(pc_isequip(sd, EQ_NECKLACE)); // neckalce color
+  }
+  if (!pc_isequip(sd, EQ_BOOTS))
+  {
+    WFIFOW(src_sd->fd, 53) = SWAP16(sd->status.sex); // boots
     WFIFOB(src_sd->fd, 55) = 0x0;
-  } else {
-    if (sd->status.equip[EQ_BOOTS].customLook != 0) {
+  }
+  else
+  {
+    if (sd->status.equip[EQ_BOOTS].customLook != 0)
+    {
       WFIFOW(src_sd->fd, 53) = SWAP16(sd->status.equip[EQ_BOOTS].customLook);
       WFIFOB(src_sd->fd, 55) = sd->status.equip[EQ_BOOTS].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 53) = SWAP16(itemdb_look(pc_isequip(sd, EQ_BOOTS)));
       WFIFOB(src_sd->fd, 55) = itemdb_lookcolor(pc_isequip(sd, EQ_BOOTS));
     }
@@ -4169,9 +4986,12 @@ int clif_charspecific(int sender, int id) {
       sd->bl.id != src_sd->bl.id &&
       (src_sd->status.gm_level || clif_isingroup(src_sd, sd) ||
        (sd->gfx.dye == src_sd->gfx.dye && sd->gfx.dye != 0 &&
-        src_sd->gfx.dye != 0))) {
+        src_sd->gfx.dye != 0)))
+  {
     WFIFOB(src_sd->fd, 56) = 0;
-  } else {
+  }
+  else
+  {
     if (sd->gfx.dye)
       WFIFOB(src_sd->fd, 56) = sd->gfx.titleColor;
     else
@@ -4201,39 +5021,50 @@ int clif_charspecific(int sender, int id) {
 
   len = strlen(buf);
 
-  if (src_sd->status.clan == sd->status.clan) {
-    if (src_sd->status.clan > 0) {
-      if (src_sd->status.id != sd->status.id) {
+  if (src_sd->status.clan == sd->status.clan)
+  {
+    if (src_sd->status.clan > 0)
+    {
+      if (src_sd->status.id != sd->status.id)
+      {
         WFIFOB(src_sd->fd, 56) = 3;
       }
     }
   }
 
-  if (clif_isingroup(src_sd, sd)) {
+  if (clif_isingroup(src_sd, sd))
+  {
     WFIFOB(src_sd->fd, 56) = 2;
   }
   // if(sd->status.gm_level>1) {
   //		WFIFOB(src_sd->fd,56)=1;
   //	}
 
-  if ((sd->status.state != 2) && (sd->status.state != 5)) {
+  if ((sd->status.state != 2) && (sd->status.state != 5))
+  {
     WFIFOB(src_sd->fd, 57) = len;
     strcpy(WFIFOP(src_sd->fd, 58), buf);
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 57) = 0;
     len = 1;
   }
 
-  if ((sd->status.gm_level && sd->gfx.toggle) || sd->clone) {
+  if ((sd->status.gm_level && sd->gfx.toggle) || sd->clone)
+  {
     WFIFOB(src_sd->fd, 21) = sd->gfx.face;
     WFIFOB(src_sd->fd, 22) = sd->gfx.hair;
     WFIFOB(src_sd->fd, 23) = sd->gfx.chair;
     WFIFOB(src_sd->fd, 24) = sd->gfx.cface;
     WFIFOB(src_sd->fd, 25) = sd->gfx.cskin;
     WFIFOW(src_sd->fd, 26) = SWAP16(sd->gfx.armor);
-    if (sd->gfx.dye > 0) {
+    if (sd->gfx.dye > 0)
+    {
       WFIFOB(src_sd->fd, 28) = sd->gfx.dye;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 28) = sd->gfx.carmor;
     }
     WFIFOW(src_sd->fd, 29) = SWAP16(sd->gfx.weapon);
@@ -4241,11 +5072,16 @@ int clif_charspecific(int sender, int id) {
     WFIFOW(src_sd->fd, 32) = SWAP16(sd->gfx.shield);
     WFIFOB(src_sd->fd, 34) = sd->gfx.cshield;
 
-    if (sd->gfx.helm < 65535) {
+    if (sd->gfx.helm < 65535)
+    {
       WFIFOB(src_sd->fd, 35) = 1;
-    } else if (sd->gfx.crown < 65535) {
+    }
+    else if (sd->gfx.crown < 65535)
+    {
       WFIFOB(src_sd->fd, 35) = 0xFF;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 35) = 0;
     }
 
@@ -4267,10 +5103,13 @@ int clif_charspecific(int sender, int id) {
 
     len = strlen(sd->gfx.name);
     if ((sd->status.state != 2) && (sd->status.state != 5) &&
-        strcasecmp(sd->gfx.name, "")) {
+        strcasecmp(sd->gfx.name, ""))
+    {
       WFIFOB(src_sd->fd, 57) = len;
       strcpy(WFIFOP(src_sd->fd, 58), sd->gfx.name);
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 57) = 0;
       len = 1;
     }
@@ -4291,8 +5130,10 @@ int clif_charspecific(int sender, int id) {
   return 0;
 }
 
-int clif_sendack(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendack(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4314,7 +5155,8 @@ int clif_sendack(USER *sd) {
   return 0;
 }
 
-int clif_retrieveprofile(USER *sd) {
+int clif_retrieveprofile(USER *sd)
+{
   // retrieve profile
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 1) = 0x00;
@@ -4327,8 +5169,10 @@ int clif_retrieveprofile(USER *sd) {
   return 0;
 }
 
-int clif_screensaver(USER *sd, int screen) {
-  if (!session[sd->fd]) {
+int clif_screensaver(USER *sd, int screen)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4339,14 +5183,16 @@ int clif_screensaver(USER *sd, int screen) {
   WFIFOB(sd->fd, 3) = 0x5A;
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = 0x00;
-  WFIFOB(sd->fd, 6) = screen;  // screensaver
+  WFIFOB(sd->fd, 6) = screen; // screensaver
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
   return 0;
 }
 
-int clif_sendtime(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendtime(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4357,14 +5203,16 @@ int clif_sendtime(USER *sd) {
   WFIFOB(sd->fd, 2) = 0x04;
   WFIFOB(sd->fd, 3) = 0x20;
   WFIFOB(sd->fd, 4) = 0x03;
-  WFIFOB(sd->fd, 5) = cur_time;  // current time
-  WFIFOB(sd->fd, 6) = cur_year;  // current year
+  WFIFOB(sd->fd, 5) = cur_time; // current time
+  WFIFOB(sd->fd, 6) = cur_year; // current year
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 
-int clif_sendid(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendid(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4384,8 +5232,10 @@ int clif_sendid(USER *sd) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
-int clif_sendweather(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendweather(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4399,12 +5249,15 @@ int clif_sendweather(USER *sd) {
   return 0;
 }
 
-int clif_sendmapinfo(USER *sd) {
+int clif_sendmapinfo(USER *sd)
+{
   char len;
 
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
   // Map Title and Map X-Y
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4419,11 +5272,14 @@ int clif_sendmapinfo(USER *sd) {
   WFIFOB(sd->fd, 11) = 5;
 
   if (sd->status.settingFlags & FLAG_WEATHER)
-    WFIFOB(sd->fd, 11) = 4;  // Weather
+    WFIFOB(sd->fd, 11) = 4; // Weather
   // if(!sd->status.gm_level) WFIFOB(sd->fd,11)=5;
-  if (sd->status.settingFlags & FLAG_REALM) {
+  if (sd->status.settingFlags & FLAG_REALM)
+  {
     WFIFOB(sd->fd, 12) = 0x01;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 12) = 0x00;
   }
   len = strlen(map[sd->bl.m].title);
@@ -4431,7 +5287,8 @@ int clif_sendmapinfo(USER *sd) {
   memcpy(WFIFOP(sd->fd, 14), map[sd->bl.m].title, len);
 
   WFIFOW(sd->fd, len + 14) = SWAP16(map[sd->bl.m].light);
-  if (!map[sd->bl.m].light) WFIFOW(sd->fd, len + 14) = SWAP16(232);
+  if (!map[sd->bl.m].light)
+    WFIFOW(sd->fd, len + 14) = SWAP16(232);
 
   /*WFIFOB(sd->fd,len+14)= 0x00;
   WFIFOB(sd->fd,len+15)=map[sd->bl.m].light;
@@ -4472,24 +5329,26 @@ int clif_sendmapinfo(USER *sd) {
   WFIFOB(sd->fd, 1) = 0x00;
   WFIFOB(sd->fd, 2) = 0x12;
   WFIFOB(sd->fd, 3) = 0x19;
-  WFIFOB(sd->fd, 5) = map[sd->bl.m].bgmtype;  // 1  1 = mp3/lsr, 2 = mid
+  WFIFOB(sd->fd, 5) = map[sd->bl.m].bgmtype; // 1  1 = mp3/lsr, 2 = mid
   // WFIFOB(sd->fd, 6) = 5;//0 // doesnt appear to do anything but who knows
   WFIFOW(sd->fd, 7) = SWAP16(map[sd->bl.m].bgm);
   WFIFOW(sd->fd, 9) = SWAP16(
-      map[sd->bl.m].bgm);  // this had the same exact field info as field 7,8..
-                           // not sure why they are doing this twice.   (might
-                           // be to tell it to play the next song?)
+      map[sd->bl.m].bgm); // this had the same exact field info as field 7,8..
+                          // not sure why they are doing this twice.   (might
+                          // be to tell it to play the next song?)
   WFIFOB(sd->fd, 11) = 0x64;
   WFIFOL(sd->fd, 12) = SWAP32(sd->status.settingFlags);
-  WFIFOB(sd->fd, 16) = 0;  // 1
-  WFIFOB(sd->fd, 17) = 0;  // 0
+  WFIFOB(sd->fd, 16) = 0; // 1
+  WFIFOB(sd->fd, 17) = 0; // 0
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
   return 0;
 }
 
-int clif_sendxy(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendxy(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4505,24 +5364,28 @@ int clif_sendxy(USER *sd) {
   // WFIFOW(sd->fd,9) = SWAP16(  (int)((16-map[sd->bl.m].xs)/2) + sd->bl.x );
   // WFIFOW(sd->fd,11) = SWAP16(  (int)((14-map[sd->bl.m].ys)/2) + sd->bl.y );
 
-  if (map[sd->bl.m].xs >= 16) {
+  if (map[sd->bl.m].xs >= 16)
+  {
     if (sd->bl.x < 8)
       WFIFOW(sd->fd, 9) = SWAP16(sd->bl.x);
     else if (sd->bl.x >= map[sd->bl.m].xs - 8)
       WFIFOW(sd->fd, 9) = SWAP16(sd->bl.x - map[sd->bl.m].xs + 17);
     else
       WFIFOW(sd->fd, 9) = SWAP16(8);
-  } else
+  }
+  else
     WFIFOW(sd->fd, 9) = SWAP16((int)((16 - map[sd->bl.m].xs) / 2) + sd->bl.x);
 
-  if (map[sd->bl.m].ys >= 14) {
+  if (map[sd->bl.m].ys >= 14)
+  {
     if (sd->bl.y < 7)
       WFIFOW(sd->fd, 11) = SWAP16(sd->bl.y);
     else if (sd->bl.y >= map[sd->bl.m].ys - 7)
       WFIFOW(sd->fd, 11) = SWAP16(sd->bl.y - map[sd->bl.m].ys + 15);
     else
       WFIFOW(sd->fd, 11) = SWAP16(7);
-  } else
+  }
+  else
     WFIFOW(sd->fd, 11) = SWAP16((int)((14 - map[sd->bl.m].ys) / 2) + sd->bl.y);
 
   WFIFOB(sd->fd, 13) = 0x00;
@@ -4533,8 +5396,10 @@ int clif_sendxy(USER *sd) {
   return 0;
 }
 
-int clif_sendxynoclick(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendxynoclick(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4547,24 +5412,28 @@ int clif_sendxynoclick(USER *sd) {
   WFIFOW(sd->fd, 5) = SWAP16(sd->bl.x);
   WFIFOW(sd->fd, 7) = SWAP16(sd->bl.y);
 
-  if (map[sd->bl.m].xs >= 16) {
+  if (map[sd->bl.m].xs >= 16)
+  {
     if (sd->bl.x < 8)
       WFIFOW(sd->fd, 9) = SWAP16(sd->bl.x);
     else if (sd->bl.x >= map[sd->bl.m].xs - 8)
       WFIFOW(sd->fd, 9) = SWAP16(sd->bl.x - map[sd->bl.m].xs + 17);
     else
       WFIFOW(sd->fd, 9) = SWAP16(8);
-  } else
+  }
+  else
     WFIFOW(sd->fd, 9) = SWAP16((int)((16 - map[sd->bl.m].xs) / 2) + sd->bl.x);
 
-  if (map[sd->bl.m].ys >= 14) {
+  if (map[sd->bl.m].ys >= 14)
+  {
     if (sd->bl.y < 7)
       WFIFOW(sd->fd, 11) = SWAP16(sd->bl.y);
     else if (sd->bl.y >= map[sd->bl.m].ys - 7)
       WFIFOW(sd->fd, 11) = SWAP16(sd->bl.y - map[sd->bl.m].ys + 15);
     else
       WFIFOW(sd->fd, 11) = SWAP16(7);
-  } else
+  }
+  else
     WFIFOW(sd->fd, 11) = SWAP16((int)((14 - map[sd->bl.m].ys) / 2) + sd->bl.y);
 
   WFIFOB(sd->fd, 13) = 0x00;
@@ -4575,10 +5444,12 @@ int clif_sendxynoclick(USER *sd) {
   return 0;
 }
 
-int clif_sendxychange(USER *sd, int dx, int dy) {
+int clif_sendxychange(USER *sd, int dx, int dy)
+{
   nullpo_ret(0, sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4612,7 +5483,8 @@ int clif_sendxychange(USER *sd, int dx, int dy) {
   return 0;
 }
 
-int clif_sendstatus(USER *sd, int flags) {
+int clif_sendstatus(USER *sd, int flags)
+{
   int f = flags | SFLAG_ALWAYSON;
   int len = 0;
   nullpo_ret(0, sd);
@@ -4623,7 +5495,8 @@ int clif_sendstatus(USER *sd, int flags) {
   if (sd->status.gm_level && sd->optFlags & optFlag_walkthrough)
     f |= SFLAG_GMON;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4634,13 +5507,14 @@ int clif_sendstatus(USER *sd, int flags) {
   // WFIFOB(sd->fd,4)=0x03;
   WFIFOB(sd->fd, 5) = f;
 
-  if (f & SFLAG_FULLSTATS) {
-    WFIFOB(sd->fd, 6) = 0;                   // Unknown
-    WFIFOB(sd->fd, 7) = sd->status.country;  // Nation
+  if (f & SFLAG_FULLSTATS)
+  {
+    WFIFOB(sd->fd, 6) = 0;                  // Unknown
+    WFIFOB(sd->fd, 7) = sd->status.country; // Nation
     WFIFOB(sd->fd, 8) =
-        sd->status.totem;   // -- Totem -- 0=JuJak, 1= Baekho, 2=Hyun Moo,
-                            // 3=Chung Ryong, 4=Nothing
-    WFIFOB(sd->fd, 9) = 0;  // Unknown
+        sd->status.totem;  // -- Totem -- 0=JuJak, 1= Baekho, 2=Hyun Moo,
+                           // 3=Chung Ryong, 4=Nothing
+    WFIFOB(sd->fd, 9) = 0; // Unknown
     WFIFOB(sd->fd, 10) = sd->status.level;
     WFIFOL(sd->fd, 11) = SWAP32(sd->max_hp);
     WFIFOL(sd->fd, 15) = SWAP32(sd->max_mp);
@@ -4651,7 +5525,7 @@ int clif_sendstatus(USER *sd, int flags) {
     WFIFOB(sd->fd, 23) = sd->grace;
     WFIFOB(sd->fd, 24) = 0;
     WFIFOB(sd->fd, 25) = 0;
-    WFIFOB(sd->fd, 26) = sd->armor;  // AC
+    WFIFOB(sd->fd, 26) = sd->armor; // AC
     WFIFOB(sd->fd, 27) = 0;
     WFIFOB(sd->fd, 28) = 0;
     WFIFOB(sd->fd, 29) = 0;
@@ -4663,42 +5537,47 @@ int clif_sendstatus(USER *sd, int flags) {
     len += 29;
   }
 
-  if (f & SFLAG_HPMP) {
+  if (f & SFLAG_HPMP)
+  {
     WFIFOL(sd->fd, len + 6) = SWAP32(sd->status.hp);
     WFIFOL(sd->fd, len + 10) = SWAP32(sd->status.mp);
     len += 8;
   }
 
-  if (f & SFLAG_XPMONEY) {
+  if (f & SFLAG_XPMONEY)
+  {
     WFIFOL(sd->fd, len + 6) = SWAP32(sd->status.exp);
     WFIFOL(sd->fd, len + 10) = SWAP32(sd->status.money);
-    WFIFOB(sd->fd, len + 14) = (int)percentage;  // exp percent
+    WFIFOB(sd->fd, len + 14) = (int)percentage; // exp percent
     len += 9;
   }
 
-  WFIFOB(sd->fd, len + 6) = sd->drunk;  // drunk
-  WFIFOB(sd->fd, len + 7) = sd->blind;  // blind
+  WFIFOB(sd->fd, len + 6) = sd->drunk; // drunk
+  WFIFOB(sd->fd, len + 7) = sd->blind; // blind
   WFIFOB(sd->fd, len + 8) = 0;
-  WFIFOB(sd->fd, len + 9) = 0;  // hear self/others
+  WFIFOB(sd->fd, len + 9) = 0; // hear self/others
   WFIFOB(sd->fd, len + 10) = 0;
   WFIFOB(sd->fd, len + 11) =
-      sd->flags;  // 1=New parcel, 16=new Message, 17=New Parcel + Message
-  WFIFOB(sd->fd, len + 12) = 0;  // nothing
+      sd->flags;                // 1=New parcel, 16=new Message, 17=New Parcel + Message
+  WFIFOB(sd->fd, len + 12) = 0; // nothing
   WFIFOL(sd->fd, len + 13) = SWAP32(sd->status.settingFlags);
   len += 11;
 
   WFIFOW(sd->fd, 1) = SWAP16(len + 3);
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
-  if (sd->group_count > 0) {
+  if (sd->group_count > 0)
+  {
     clif_grouphealth_update(sd);
   }
 
   return 0;
 }
 
-int clif_sendoptions(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendoptions(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -4709,30 +5588,40 @@ int clif_sendoptions(USER *sd) {
   WFIFOB(sd->fd, 3) = 0x23;
   WFIFOB(sd->fd, 4) = 0x03;
   WFIFOB(sd->fd, 5) = 0;
-  if (sd->status.settingFlags & FLAG_WEATHER) WFIFOB(sd->fd, 5) = 1;  // Weather
+  if (sd->status.settingFlags & FLAG_WEATHER)
+    WFIFOB(sd->fd, 5) = 1; // Weather
   WFIFOB(sd->fd, 6) = 0;
-  if (sd->status.settingFlags & FLAG_MAGIC) WFIFOB(sd->fd, 6) = 1;  // magic
+  if (sd->status.settingFlags & FLAG_MAGIC)
+    WFIFOB(sd->fd, 6) = 1; // magic
   WFIFOB(sd->fd, 7) = 0;
-  if (sd->status.settingFlags & FLAG_ADVICE) WFIFOB(sd->fd, 7) = 1;  // Advice
+  if (sd->status.settingFlags & FLAG_ADVICE)
+    WFIFOB(sd->fd, 7) = 1; // Advice
   WFIFOB(sd->fd, 8) = 0;
-  if (sd->status.settingFlags & FLAG_FASTMOVE) WFIFOB(sd->fd, 8) = 1;
+  if (sd->status.settingFlags & FLAG_FASTMOVE)
+    WFIFOB(sd->fd, 8) = 1;
   WFIFOB(sd->fd, 9) = 0;
-  if (sd->status.settingFlags & FLAG_SOUND) WFIFOB(sd->fd, 9) = 1;  // sound!
+  if (sd->status.settingFlags & FLAG_SOUND)
+    WFIFOB(sd->fd, 9) = 1; // sound!
   WFIFOB(sd->fd, 10) = 0;
-  if (sd->status.settingFlags & FLAG_HELM) WFIFOB(sd->fd, 10) = 1;  // Helm
+  if (sd->status.settingFlags & FLAG_HELM)
+    WFIFOB(sd->fd, 10) = 1; // Helm
   WFIFOB(sd->fd, 11) = 0;
-  if (sd->status.settingFlags & FLAG_REALM) WFIFOB(sd->fd, 11) = 1;  // realm?
+  if (sd->status.settingFlags & FLAG_REALM)
+    WFIFOB(sd->fd, 11) = 1; // realm?
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
 
-int clif_spawn(USER *sd) {
-  if (map_addblock(&sd->bl)) printf("Error Spawn\n");
+int clif_spawn(USER *sd)
+{
+  if (map_addblock(&sd->bl))
+    printf("Error Spawn\n");
   clif_sendchararea(sd);
   return 0;
 }
 
-int clif_parsewalk(USER *sd) {
+int clif_parsewalk(USER *sd)
+{
   int dx, dy, xold, yold, c = 0;
   struct warp_list *x = NULL;
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0, direction = 0;
@@ -4773,7 +5662,8 @@ int clif_parsewalk(USER *sd) {
   xold = dx = SWAP16(RFIFOW(sd->fd, 8));
   yold = dy = SWAP16(RFIFOW(sd->fd, 10));
 
-  if (RFIFOB(sd->fd, 3) == 6) {
+  if (RFIFOB(sd->fd, 3) == 6)
+  {
     x0 = SWAP16(RFIFOW(sd->fd, 12));
     y0 = SWAP16(RFIFOW(sd->fd, 14));
     x1 = RFIFOB(sd->fd, 16);
@@ -4781,7 +5671,8 @@ int clif_parsewalk(USER *sd) {
     checksum = SWAP16(RFIFOW(sd->fd, 18));
   }
 
-  if (dx != sd->bl.x) {
+  if (dx != sd->bl.x)
+  {
     clif_blockmovement(sd, 0);
     map_moveblock(&sd->bl, sd->bl.x, sd->bl.y);
     clif_sendxy(sd);
@@ -4789,7 +5680,8 @@ int clif_parsewalk(USER *sd) {
     return 0;
   }
 
-  if (dy != sd->bl.y) {
+  if (dy != sd->bl.y)
+  {
     clif_blockmovement(sd, 0);
     map_moveblock(&sd->bl, sd->bl.x, sd->bl.y);
     clif_sendxy(sd);
@@ -4799,36 +5691,44 @@ int clif_parsewalk(USER *sd) {
 
   sd->canmove = 0;
 
-  switch (direction) {
-    case 0:
-      dy--;
-      break;
-    case 1:
-      dx++;
-      break;
-    case 2:
-      dy++;
-      break;
-    case 3:
-      dx--;
-      break;
+  switch (direction)
+  {
+  case 0:
+    dy--;
+    break;
+  case 1:
+    dx++;
+    break;
+  case 2:
+    dy++;
+    break;
+  case 3:
+    dx--;
+    break;
   }
 
-  if (dx < 0) dx = 0;
-  if (dx >= map[sd->bl.m].xs) dx = map[sd->bl.m].xs - 1;
-  if (dy < 0) dy = 0;
-  if (dy >= map[sd->bl.m].ys) dy = map[sd->bl.m].ys - 1;
+  if (dx < 0)
+    dx = 0;
+  if (dx >= map[sd->bl.m].xs)
+    dx = map[sd->bl.m].xs - 1;
+  if (dy < 0)
+    dy = 0;
+  if (dy >= map[sd->bl.m].ys)
+    dy = map[sd->bl.m].ys - 1;
 
-  if (!sd->status.gm_level) {
+  if (!sd->status.gm_level)
+  {
     map_foreachincell(clif_canmove_sub, sd->bl.m, dx, dy, BL_PC, sd);
     map_foreachincell(clif_canmove_sub, sd->bl.m, dx, dy, BL_MOB, sd);
     map_foreachincell(clif_canmove_sub, sd->bl.m, dx, dy, BL_NPC, sd);
-    if (read_pass(sd->bl.m, dx, dy)) sd->canmove = 1;
+    if (read_pass(sd->bl.m, dx, dy))
+      sd->canmove = 1;
   }
 
   // map_foreachincell(clif_canmove_sub,sd->bl.m,dx,dy,BL_NPC,sd);
   if ((sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare) &&
-      !sd->status.gm_level) {
+      !sd->status.gm_level)
+  {
     clif_blockmovement(sd, 0);
     clif_sendxy(sd);
     clif_blockmovement(sd, 1);
@@ -4847,14 +5747,20 @@ int clif_parsewalk(USER *sd) {
   if (direction == 3 &&
       (dx <= sd->viewx || ((map[sd->bl.m].xs - 1 - dx) < 8 && sd->viewx > 8)))
     sd->viewx--;
-  if (sd->viewx < 0) sd->viewx = 0;
-  if (sd->viewx > 16) sd->viewx = 16;
-  if (sd->viewy < 0) sd->viewy = 0;
-  if (sd->viewy > 14) sd->viewy = 14;
+  if (sd->viewx < 0)
+    sd->viewx = 0;
+  if (sd->viewx > 16)
+    sd->viewx = 16;
+  if (sd->viewy < 0)
+    sd->viewy = 0;
+  if (sd->viewy > 14)
+    sd->viewy = 14;
 
   // Fast Walk, will flag later.
-  if (!(sd->status.settingFlags & FLAG_FASTMOVE)) {
-    if (!session[sd->fd]) {
+  if (!(sd->status.settingFlags & FLAG_FASTMOVE))
+  {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -4894,7 +5800,8 @@ int clif_parsewalk(USER *sd) {
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   }
 
-  if (dx == sd->bl.x && dy == sd->bl.y) return 0;
+  if (dx == sd->bl.x && dy == sd->bl.y)
+    return 0;
 
   CALLOC(buf, unsigned char, 32);
   WBUFB(buf, 0) = 0xAA;
@@ -4908,10 +5815,13 @@ int clif_parsewalk(USER *sd) {
   WBUFB(buf, 13) = direction;
   WBUFB(buf, 14) = 0x00;
   // crypt(WBUFP(buf, 0));
-  if (sd->optFlags & optFlag_stealth) {
+  if (sd->optFlags & optFlag_stealth)
+  {
     clif_sendtogm(buf, 32, &sd->bl, AREA_WOS);
-  } else {
-    clif_send(buf, 32, &sd->bl, AREA_WOS);  // come back
+  }
+  else
+  {
+    clif_send(buf, 32, &sd->bl, AREA_WOS); // come back
   }
   FREE(buf);
 
@@ -4922,7 +5832,8 @@ int clif_parsewalk(USER *sd) {
   map_moveblock(&sd->bl, dx, dy);
   // if(moveblock) map_addblock(&sd->bl);
 
-  if (RFIFOB(sd->fd, 3) == 0x06) {
+  if (RFIFOB(sd->fd, 3) == 0x06)
+  {
     clif_sendmapdata(sd, sd->bl.m, x0, y0, x1, y1, checksum);
     // this is where all the "finding" code goes
 
@@ -4944,25 +5855,32 @@ int clif_parsewalk(USER *sd) {
                        y0 + (y1 - 1), BL_PC, LOOK_SEND, sd);
   }
 
-  if (session[sd->fd]->eof) printf("%s eof set on.  19", sd->status.name);
+  if (session[sd->fd]->eof)
+    printf("%s eof set on.  19", sd->status.name);
 
-  for (i = 0; i < 14; i++) {
-    if (sd->status.equip[i].id > 0) {
+  for (i = 0; i < 14; i++)
+  {
+    if (sd->status.equip[i].id > 0)
+    {
       sl_doscript_blargs(itemdb_yname(sd->status.equip[i].id), "on_walk", 1,
                          &sd->bl);
     }
   }
 
-  for (i = 0; i < MAX_SPELLS; i++) {
-    if (sd->status.skill[i] > 0) {
+  for (i = 0; i < MAX_SPELLS; i++)
+  {
+    if (sd->status.skill[i] > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.skill[i]), "on_walk_passive",
                          1, &sd->bl);
     }
   }
 
-  for (i = 0; i < MAX_MAGIC_TIMERS; i++) {
+  for (i = 0; i < MAX_MAGIC_TIMERS; i++)
+  {
     if (sd->status.dura_aether[i].id > 0 &&
-        sd->status.dura_aether[i].duration > 0) {
+        sd->status.dura_aether[i].duration > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[i].id),
                          "on_walk_while_cast", 1, &sd->bl);
     }
@@ -4976,11 +5894,15 @@ int clif_parsewalk(USER *sd) {
   fm = sd->bl.m;
   fx = sd->bl.x;
   fy = sd->bl.y;
-  if (fx >= map[fm].xs) fx = map[fm].xs - 1;
-  if (fy >= map[fm].ys) fy = map[fm].ys - 1;
+  if (fx >= map[fm].xs)
+    fx = map[fm].xs - 1;
+  if (fy >= map[fm].ys)
+    fy = map[fm].ys - 1;
   for (x = map[fm].warp[fx / BLOCK_SIZE + (fy / BLOCK_SIZE) * map[fm].bxs];
-       x && !c; x = x->next) {
-    if (x->x == fx && x->y == fy) {
+       x && !c; x = x->next)
+  {
+    if (x->x == fx && x->y == fy)
+    {
       zm = x->tm;
       zx = x->tx;
       zy = x->ty;
@@ -4992,33 +5914,49 @@ int clif_parsewalk(USER *sd) {
   zx=map[fm].warp[fx+fy*map[fm].xs].tx;
   zy=map[fm].warp[fx+fy*map[fm].xs].ty;
   */
-  if (zx || zy || zm) {
+  if (zx || zy || zm)
+  {
     if ((sd->status.level < map[zm].reqlvl ||
          (sd->status.basehp < map[zm].reqvita &&
           sd->status.basemp < map[zm].reqmana) ||
          sd->status.mark < map[zm].reqmark ||
          (map[zm].reqpath > 0 && sd->status.class != map[zm].reqpath)) &&
-        sd->status.gm_level == 0) {
+        sd->status.gm_level == 0)
+    {
       clif_pushback(sd);
 
-      if (strcasecmp(map[zm].maprejectmsg, "") == 0) {
-        if (abs(map[zm].reqlvl - sd->status.level) >= 10) {
+      if (strcasecmp(map[zm].maprejectmsg, "") == 0)
+      {
+        if ((int)abs((int)map[zm].reqlvl - (int)sd->status.level) >= 10)
+        {
           clif_sendminitext(sd,
                             "Nightmarish visions of your own death repel you.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) >= 5 &&
-                   map[zm].reqlvl - sd->status.level < 10) {
+        }
+        else if ((int)abs((int)map[zm].reqlvl - (int)sd->status.level) >= 5 &&
+                 (int)map[zm].reqlvl - (int)sd->status.level < 10)
+        {
           clif_sendminitext(sd, "You're not quite ready to enter yet.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) < 5) {
+        }
+        else if ((int)abs((int)map[zm].reqlvl - (int)sd->status.level) < 5)
+        {
           clif_sendminitext(
               sd, "You almost understand the secrets to this entrance.");
-        } else if (sd->status.mark < map[zm].reqmark) {
+        }
+        else if (sd->status.mark < map[zm].reqmark)
+        {
           clif_sendminitext(sd, "You do not understand the secrets to enter.");
-        } else if (map[zm].reqpath > 0 && sd->status.class != map[zm].reqpath) {
+        }
+        else if (map[zm].reqpath > 0 && sd->status.class != map[zm].reqpath)
+        {
           clif_sendminitext(sd, "Your path forbids it.");
-        } else {
+        }
+        else
+        {
           clif_sendminitext(sd, "A powerful force repels you.");
         }
-      } else {
+      }
+      else
+      {
         clif_sendminitext(sd, map[zm].maprejectmsg);
       }
 
@@ -5027,7 +5965,8 @@ int clif_parsewalk(USER *sd) {
     if ((sd->status.level > map[zm].lvlmax ||
          (sd->status.basehp > map[zm].vitamax &&
           sd->status.basemp > map[zm].manamax)) &&
-        sd->status.gm_level == 0) {
+        sd->status.gm_level == 0)
+    {
       clif_pushback(sd);
       clif_sendminitext(sd, "A magical barrier prevents you from entering.");
       return 0;
@@ -5043,7 +5982,8 @@ int clif_parsewalk(USER *sd) {
   return 0;
 }
 
-int clif_noparsewalk(USER *sd, char speed) {
+int clif_noparsewalk(USER *sd, char speed)
+{
   char flag;
   int dx, dy, xold, yold, c = 0;
   struct warp_list *x = NULL;
@@ -5054,7 +5994,8 @@ int clif_noparsewalk(USER *sd, char speed) {
   xold = dx = sd->bl.x;
   yold = dy = sd->bl.y;
 
-  if (dx != sd->bl.x) {
+  if (dx != sd->bl.x)
+  {
     clif_blockmovement(sd, 0);
     map_moveblock(&sd->bl, sd->bl.x, sd->bl.y);
     clif_sendxy(sd);
@@ -5062,7 +6003,8 @@ int clif_noparsewalk(USER *sd, char speed) {
     return 0;
   }
 
-  if (dy != sd->bl.y) {
+  if (dy != sd->bl.y)
+  {
     clif_blockmovement(sd, 0);
     map_moveblock(&sd->bl, sd->bl.x, sd->bl.y);
     clif_sendxy(sd);
@@ -5078,58 +6020,67 @@ int clif_noparsewalk(USER *sd, char speed) {
 
   direction = sd->status.side;
 
-  switch (direction) {
-    case 0:
-      dy--;
-      x0 = sd->bl.x - (sd->viewx + 1);
-      y0 = dy - (sd->viewy + 1);
-      x1 = 19;
-      y1 = 1;
-      break;
-    case 1:
-      dx++;
-      x0 = dx + (18 - (sd->viewx + 1));
-      y0 = sd->bl.y - (sd->viewy + 1);
-      x1 = 1;
-      y1 = 17;
-      break;
-    case 2:
-      dy++;
-      x0 = sd->bl.x - (sd->viewx + 1);
-      y0 = dy + (16 - (sd->viewy + 1));
-      x1 = 19;
-      y1 = 1;
-      break;
-    case 3:
-      dx--;
-      x0 = dx - (sd->viewx + 1);
-      y0 = sd->bl.y - (sd->viewy + 1);
-      x1 = 1;
-      y1 = 17;
-      break;
+  switch (direction)
+  {
+  case 0:
+    dy--;
+    x0 = sd->bl.x - (sd->viewx + 1);
+    y0 = dy - (sd->viewy + 1);
+    x1 = 19;
+    y1 = 1;
+    break;
+  case 1:
+    dx++;
+    x0 = dx + (18 - (sd->viewx + 1));
+    y0 = sd->bl.y - (sd->viewy + 1);
+    x1 = 1;
+    y1 = 17;
+    break;
+  case 2:
+    dy++;
+    x0 = sd->bl.x - (sd->viewx + 1);
+    y0 = dy + (16 - (sd->viewy + 1));
+    x1 = 19;
+    y1 = 1;
+    break;
+  case 3:
+    dx--;
+    x0 = dx - (sd->viewx + 1);
+    y0 = sd->bl.y - (sd->viewy + 1);
+    x1 = 1;
+    y1 = 17;
+    break;
   }
 
-  if (dx < 0) dx = 0;
-  if (dx >= map[m].xs) dx = map[m].xs - 1;
-  if (dy < 0) dy = 0;
-  if (dy >= map[m].ys) dy = map[m].ys - 1;
+  if (dx < 0)
+    dx = 0;
+  if (dx >= map[m].xs)
+    dx = map[m].xs - 1;
+  if (dy < 0)
+    dy = 0;
+  if (dy >= map[m].ys)
+    dy = map[m].ys - 1;
   sd->canmove = 0;
 
-  if (!sd->status.gm_level) {
+  if (!sd->status.gm_level)
+  {
     map_foreachincell(clif_canmove_sub, m, dx, dy, BL_PC, sd);
     map_foreachincell(clif_canmove_sub, m, dx, dy, BL_MOB, sd);
     map_foreachincell(clif_canmove_sub, m, dx, dy, BL_NPC, sd);
-    if (read_pass(m, dx, dy)) sd->canmove = 1;
+    if (read_pass(m, dx, dy))
+      sd->canmove = 1;
   }
 
-  if (sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare) {
+  if (sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare)
+  {
     clif_blockmovement(sd, 0);
     clif_sendxy(sd);
     clif_blockmovement(sd, 1);
     return 0;
   }
 
-  if (dx == sd->bl.x && dy == sd->bl.y) return 0;
+  if (dx == sd->bl.x && dy == sd->bl.y)
+    return 0;
 
   if (direction == 0 &&
       (dy <= sd->viewy || ((map[m].ys - 1 - dy) < 7 && sd->viewy > 7)))
@@ -5143,18 +6094,24 @@ int clif_noparsewalk(USER *sd, char speed) {
   if (direction == 3 &&
       (dx <= sd->viewx || ((map[m].xs - 1 - dx) < 8 && sd->viewx > 8)))
     sd->viewx--;
-  if (sd->viewx < 0) sd->viewx = 0;
-  if (sd->viewx > 16) sd->viewx = 16;
-  if (sd->viewy < 0) sd->viewy = 0;
-  if (sd->viewy > 14) sd->viewy = 14;
+  if (sd->viewx < 0)
+    sd->viewx = 0;
+  if (sd->viewx > 16)
+    sd->viewx = 16;
+  if (sd->viewy < 0)
+    sd->viewy = 0;
+  if (sd->viewy > 14)
+    sd->viewy = 14;
 
-  if (sd->status.settingFlags & FLAG_FASTMOVE) {
+  if (sd->status.settingFlags & FLAG_FASTMOVE)
+  {
     sd->status.settingFlags ^= FLAG_FASTMOVE;
     clif_sendstatus(sd, 0);
     flag = 1;
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -5173,7 +6130,8 @@ int clif_noparsewalk(USER *sd, char speed) {
   WFIFOB(sd->fd, 14) = 0x00;
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
-  if (flag == 1) {
+  if (flag == 1)
+  {
     sd->status.settingFlags ^= FLAG_FASTMOVE;
     clif_sendstatus(sd, 0);
     flag = 0;
@@ -5190,9 +6148,12 @@ int clif_noparsewalk(USER *sd, char speed) {
   WBUFB(buf, 13) = direction;
   WBUFB(buf, 14) = 0x00;
 
-  if (sd->optFlags & optFlag_stealth) {
+  if (sd->optFlags & optFlag_stealth)
+  {
     clif_sendtogm(buf, 32, &sd->bl, AREA_WOS);
-  } else {
+  }
+  else
+  {
     clif_send(buf, 32, &sd->bl, AREA_WOS);
   }
   FREE(buf);
@@ -5200,7 +6161,8 @@ int clif_noparsewalk(USER *sd, char speed) {
   map_moveblock(&sd->bl, dx, dy);
 
   if (x0 >= 0 && y0 >= 0 && x0 + (x1 - 1) < map[m].xs &&
-      y0 + (y1 - 1) < map[m].ys) {
+      y0 + (y1 - 1) < map[m].ys)
+  {
     clif_sendmapdata(sd, m, x0, y0, x1, y1, 0);
     clif_mob_look_start(sd);
     map_foreachinblock(clif_object_look_sub, m, x0, y0, x0 + (x1 - 1),
@@ -5216,7 +6178,8 @@ int clif_noparsewalk(USER *sd, char speed) {
                        y0 + (y1 - 1), BL_PC, LOOK_SEND, sd);
   }
 
-  if (session[sd->fd]->eof) printf("%s eof set on.  19", sd->status.name);
+  if (session[sd->fd]->eof)
+    printf("%s eof set on.  19", sd->status.name);
 
   sl_doscript_blargs("onScriptedTile", NULL, 1, &sd->bl);
   pc_runfloor_sub(sd);
@@ -5227,11 +6190,15 @@ int clif_noparsewalk(USER *sd, char speed) {
   fm = sd->bl.m;
   fx = sd->bl.x;
   fy = sd->bl.y;
-  if (fx >= map[fm].xs) fx = map[fm].xs - 1;
-  if (fy >= map[fm].ys) fy = map[fm].ys - 1;
+  if (fx >= map[fm].xs)
+    fx = map[fm].xs - 1;
+  if (fy >= map[fm].ys)
+    fy = map[fm].ys - 1;
   for (x = map[fm].warp[fx / BLOCK_SIZE + (fy / BLOCK_SIZE) * map[fm].bxs];
-       x && !c; x = x->next) {
-    if (x->x == fx && x->y == fy) {
+       x && !c; x = x->next)
+  {
+    if (x->x == fx && x->y == fy)
+    {
       zm = x->tm;
       zx = x->tx;
       zy = x->ty;
@@ -5239,33 +6206,49 @@ int clif_noparsewalk(USER *sd, char speed) {
     }
   }
 
-  if (zx || zy || zm) {
+  if (zx || zy || zm)
+  {
     if ((sd->status.level < map[zm].reqlvl ||
          (sd->status.basehp < map[zm].reqvita &&
           sd->status.basemp < map[zm].reqmana) ||
          sd->status.mark < map[zm].reqmark ||
          (map[zm].reqpath > 0 && sd->status.class != map[zm].reqpath)) &&
-        sd->status.gm_level == 0) {
+        sd->status.gm_level == 0)
+    {
       clif_pushback(sd);
 
-      if (strcasecmp(map[zm].maprejectmsg, "") == 0) {
-        if (abs(map[zm].reqlvl - sd->status.level) >= 10) {
+      if (strcasecmp(map[zm].maprejectmsg, "") == 0)
+      {
+        if ((int)abs((int)map[zm].reqlvl - (int)sd->status.level) >= 10)
+        {
           clif_sendminitext(sd,
                             "Nightmarish visions of your own death repel you.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) >= 5 &&
-                   map[zm].reqlvl - sd->status.level < 10) {
+        }
+        else if ((int)abs((int)map[zm].reqlvl - (int)sd->status.level) >= 5 &&
+                 (int)map[zm].reqlvl - (int)sd->status.level < 10)
+        {
           clif_sendminitext(sd, "You're not quite ready to enter yet.");
-        } else if (abs(map[zm].reqlvl - sd->status.level) < 5) {
+        }
+        else if ((int)abs((int)map[zm].reqlvl - (int)sd->status.level) < 5)
+        {
           clif_sendminitext(
               sd, "You almost understand the secrets to this entrance.");
-        } else if (sd->status.mark < map[zm].reqmark) {
+        }
+        else if (sd->status.mark < map[zm].reqmark)
+        {
           clif_sendminitext(sd, "You do not understand the secrets to enter.");
-        } else if (map[zm].reqpath > 0 && sd->status.class != map[zm].reqpath) {
+        }
+        else if (map[zm].reqpath > 0 && sd->status.class != map[zm].reqpath)
+        {
           clif_sendminitext(sd, "Your path forbids it.");
-        } else {
+        }
+        else
+        {
           clif_sendminitext(sd, "A powerful force repels you.");
         }
-      } else {
+      }
+      else
+      {
         clif_sendminitext(sd, map[zm].maprejectmsg);
       }
 
@@ -5274,7 +6257,8 @@ int clif_noparsewalk(USER *sd, char speed) {
     if ((sd->status.level > map[zm].lvlmax ||
          (sd->status.basehp > map[zm].vitamax &&
           sd->status.basemp > map[zm].manamax)) &&
-        sd->status.gm_level == 0) {
+        sd->status.gm_level == 0)
+    {
       clif_pushback(sd);
       clif_sendminitext(sd, "A magical barrier prevents you from entering.");
       return 0;
@@ -5287,18 +6271,20 @@ int clif_noparsewalk(USER *sd, char speed) {
   return 1;
 }
 
-int clif_guitextsd(const char *msg, USER *sd) {
-  if (!session[sd->fd]) {
+int clif_guitextsd(const char *msg, USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 0);
-  WFIFOB(sd->fd, 0) = 0xAA;  // Packet Delimiter
-  WFIFOB(sd->fd, 1) = 0x00;  // Always 0
-  WFIFOB(sd->fd, 3) = 0x58;  // Packet ID
+  WFIFOB(sd->fd, 0) = 0xAA; // Packet Delimiter
+  WFIFOB(sd->fd, 1) = 0x00; // Always 0
+  WFIFOB(sd->fd, 3) = 0x58; // Packet ID
   // WFIFOB(fd, 4) = 0x00; // Always 0
-  WFIFOB(sd->fd, 5) = 0x06;  // Always 6
+  WFIFOB(sd->fd, 5) = 0x06; // Always 6
   // WFIFOB(sd->fd, 6) = 0x00; // Always 0
   // WFIFOB(sd->fd, 7) = strlen(msg);
 
@@ -5312,7 +6298,8 @@ int clif_guitextsd(const char *msg, USER *sd) {
   return 0;
 }
 
-int clif_guitext(struct block_list *bl, va_list ap) {
+int clif_guitext(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   const char *msg = NULL;
   // char buf[256];
@@ -5321,17 +6308,18 @@ int clif_guitext(struct block_list *bl, va_list ap) {
 
   msg = va_arg(ap, char *);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 0);
-  WFIFOB(sd->fd, 0) = 0xAA;  // Packet Delimiter
-  WFIFOB(sd->fd, 1) = 0x00;  // Always 0
-  WFIFOB(sd->fd, 3) = 0x58;  // Packet ID
+  WFIFOB(sd->fd, 0) = 0xAA; // Packet Delimiter
+  WFIFOB(sd->fd, 1) = 0x00; // Always 0
+  WFIFOB(sd->fd, 3) = 0x58; // Packet ID
   // WFIFOB(fd, 4) = 0x00; // Always 0
-  WFIFOB(sd->fd, 5) = 0x06;  // Always 6
+  WFIFOB(sd->fd, 5) = 0x06; // Always 6
   // WFIFOB(sd->fd, 6) = 0x00; // Always 0
   // WFIFOB(sd->fd, 7) = strlen(msg);
 
@@ -5345,7 +6333,8 @@ int clif_guitext(struct block_list *bl, va_list ap) {
 }
 
 int sendRewardParcel(USER *sd, int eventid, int rank, int rewarditem,
-                     int rewardamount) {
+                     int rewardamount)
+{
   // printf("eventid: %i, rank: %i, rewardname: %s, rewarditmid: %i,
   // rewardamount: %i\n",eventid,rank,reward,rewarditem,rewardamount);
 
@@ -5371,7 +6360,8 @@ int sendRewardParcel(USER *sd, int eventid, int rank, int rewarditem,
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 1;
   }
@@ -5382,16 +6372,20 @@ int sendRewardParcel(USER *sd, int eventid, int rank, int rewarditem,
                                    receiver) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &pos, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &pos, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     return 1;
   }
 
-  if (SqlStmt_NumRows(stmt) > 0) {
+  if (SqlStmt_NumRows(stmt) > 0)
+  {
     for (i = 0;
          i < SqlStmt_NumRows(stmt) && SQL_SUCCESS == SqlStmt_NextRow(stmt);
-         i++) {
-      if (pos > newest) {
+         i++)
+    {
+      if (pos > newest)
+      {
         newest = pos;
       }
     }
@@ -5408,7 +6402,8 @@ int sendRewardParcel(USER *sd, int eventid, int rank, int rewarditem,
                 "`ParPosition`, `ParNpc`) VALUES ('%u', '%u', '%u', '%u', "
                 "'%u', '%s', '%d', '%d')",
                 receiver, sender, rewarditem, rewardamount, owner, engrave,
-                newest, npcflag)) {
+                newest, npcflag))
+  {
     Sql_ShowDebug(sql_handle);
     success = 0;
     return 1;
@@ -5430,7 +6425,8 @@ int sendRewardParcel(USER *sd, int eventid, int rank, int rewarditem,
   return success;
 }
 
-int clif_getReward(USER *sd, int fd) {
+int clif_getReward(USER *sd, int fd)
+{
   int eventid = RFIFOB(fd, 7);
 
   char legend[17];
@@ -5467,7 +6463,8 @@ int clif_getReward(USER *sd, int fd) {
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -5570,13 +6567,15 @@ int clif_getReward(USER *sd, int fd) {
                                       &_5thPlaceReward2_ItmId, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 33, SQLDT_INT,
                                       &_5thPlaceReward2_Amount, 0, NULL,
-                                      NULL)) {
+                                      NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
-  }  // end if statement
+  } // end if statement
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -5590,13 +6589,15 @@ int clif_getReward(USER *sd, int fd) {
                                    sd->status.id, eventid) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &rank, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &rank, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
-  }  // end if statement
+  } // end if statement
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -5604,92 +6605,105 @@ int clif_getReward(USER *sd, int fd) {
 
   SqlStmt_Free(stmt);
 
-  if (cur_season == 1) {
+  if (cur_season == 1)
+  {
     strcpy(season, "Winter");
   }
-  if (cur_season == 2) {
+  if (cur_season == 2)
+  {
     strcpy(season, "Spring");
   }
-  if (cur_season == 3) {
+  if (cur_season == 3)
+  {
     strcpy(season, "Summer");
   }
-  if (cur_season == 4) {
+  if (cur_season == 4)
+  {
     strcpy(season, "Fall");
   }
 
-  if (rank == 1) strcpy(rankname, "1st");
-  if (rank == 2) strcpy(rankname, "2nd");
-  if (rank == 3) strcpy(rankname, "3rd");
-  if (rank == 4) strcpy(rankname, "4th");
-  if (rank == 5) strcpy(rankname, "5th");
-  if (rank == 6) strcpy(rankname, "6th");
+  if (rank == 1)
+    strcpy(rankname, "1st");
+  if (rank == 2)
+    strcpy(rankname, "2nd");
+  if (rank == 3)
+    strcpy(rankname, "3rd");
+  if (rank == 4)
+    strcpy(rankname, "4th");
+  if (rank == 5)
+    strcpy(rankname, "5th");
+  if (rank == 6)
+    strcpy(rankname, "6th");
 
-  switch (rank) {
-    case 1:
-      sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
-              season);
-      legendicon = legendicon1;
-      legendiconcolor = legendicon1color;
-      reward1item = _1stPlaceReward1_ItmId;
-      reward1amount = _1stPlaceReward1_Amount;
-      reward2item = _1stPlaceReward2_ItmId;
-      reward2amount = _1stPlaceReward2_Amount;
-      break;
-    case 2:
-      sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
-              season);
-      legendicon = legendicon2;
-      legendiconcolor = legendicon2color;
-      reward1item = _2ndPlaceReward1_ItmId;
-      reward1amount = _2ndPlaceReward1_Amount;
-      reward2item = _2ndPlaceReward2_ItmId;
-      reward2amount = _2ndPlaceReward2_Amount;
-      break;
-    case 3:
-      sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
-              season);
-      legendicon = legendicon3;
-      legendiconcolor = legendicon3color;
-      reward1item = _3rdPlaceReward1_ItmId;
-      reward1amount = _3rdPlaceReward1_Amount;
-      reward2item = _3rdPlaceReward2_ItmId;
-      reward2amount = _3rdPlaceReward2_Amount;
-      break;
-    case 4:
-      sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
-              season);
-      legendicon = legendicon4;
-      legendiconcolor = legendicon4color;
-      reward1item = _4thPlaceReward1_ItmId;
-      reward1amount = _4thPlaceReward1_Amount;
-      reward2item = _4thPlaceReward2_ItmId;
-      reward2amount = _4thPlaceReward2_Amount;
-      break;
-    case 5:
-      sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
-              season);
-      legendicon = legendicon5;
-      legendiconcolor = legendicon5color;
-      reward1item = _5thPlaceReward1_ItmId;
-      reward1amount = _5thPlaceReward1_Amount;
-      reward2item = _5thPlaceReward2_ItmId;
-      reward2amount = _5thPlaceReward2_Amount;
-      break;
-    default:
-      sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
-              season);
-      legendicon = legendicon5;
-      legendiconcolor = legendicon5color;
-      reward1item = _5thPlaceReward1_ItmId;
-      reward1amount = _5thPlaceReward1_Amount;
-      reward2item = _5thPlaceReward2_ItmId;
-      reward2amount = _5thPlaceReward2_Amount;
-      break;
+  switch (rank)
+  {
+  case 1:
+    sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
+            season);
+    legendicon = legendicon1;
+    legendiconcolor = legendicon1color;
+    reward1item = _1stPlaceReward1_ItmId;
+    reward1amount = _1stPlaceReward1_Amount;
+    reward2item = _1stPlaceReward2_ItmId;
+    reward2amount = _1stPlaceReward2_Amount;
+    break;
+  case 2:
+    sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
+            season);
+    legendicon = legendicon2;
+    legendiconcolor = legendicon2color;
+    reward1item = _2ndPlaceReward1_ItmId;
+    reward1amount = _2ndPlaceReward1_Amount;
+    reward2item = _2ndPlaceReward2_ItmId;
+    reward2amount = _2ndPlaceReward2_Amount;
+    break;
+  case 3:
+    sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
+            season);
+    legendicon = legendicon3;
+    legendiconcolor = legendicon3color;
+    reward1item = _3rdPlaceReward1_ItmId;
+    reward1amount = _3rdPlaceReward1_Amount;
+    reward2item = _3rdPlaceReward2_ItmId;
+    reward2amount = _3rdPlaceReward2_Amount;
+    break;
+  case 4:
+    sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
+            season);
+    legendicon = legendicon4;
+    legendiconcolor = legendicon4color;
+    reward1item = _4thPlaceReward1_ItmId;
+    reward1amount = _4thPlaceReward1_Amount;
+    reward2item = _4thPlaceReward2_ItmId;
+    reward2amount = _4thPlaceReward2_Amount;
+    break;
+  case 5:
+    sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
+            season);
+    legendicon = legendicon5;
+    legendiconcolor = legendicon5color;
+    reward1item = _5thPlaceReward1_ItmId;
+    reward1amount = _5thPlaceReward1_Amount;
+    reward2item = _5thPlaceReward2_ItmId;
+    reward2amount = _5thPlaceReward2_Amount;
+    break;
+  default:
+    sprintf(legendbuf, "%s [%s] (Moon %i, %s)", legend, rankname, cur_year,
+            season);
+    legendicon = legendicon5;
+    legendiconcolor = legendicon5color;
+    reward1item = _5thPlaceReward1_ItmId;
+    reward1amount = _5thPlaceReward1_Amount;
+    reward2item = _5thPlaceReward2_ItmId;
+    reward2amount = _5thPlaceReward2_Amount;
+    break;
   }
 
-  for (int i = 0; i < MAX_LEGENDS; i++) {
+  for (int i = 0; i < MAX_LEGENDS; i++)
+  {
     if (strcmp(sd->status.legends[i].name, "") == 0 &&
-        strcasecmp(sd->status.legends[i + 1].name, "") == 0) {
+        strcasecmp(sd->status.legends[i + 1].name, "") == 0)
+    {
       strcpy(sd->status.legends[i].text, legendbuf);
       sprintf(sd->status.legends[i].name, "Event %i Place: %i", eventid, rank);
       sd->status.legends[i].icon = legendicon;
@@ -5702,20 +6716,24 @@ int clif_getReward(USER *sd, int fd) {
 
   int sentParcelSuccess = 0;
 
-  if (reward1amount >= 1 && reward2amount >= 1) {
+  if (reward1amount >= 1 && reward2amount >= 1)
+  {
     sentParcelSuccess =
         sendRewardParcel(sd, eventid, rank, reward1item, reward1amount);
     sentParcelSuccess +=
         sendRewardParcel(sd, eventid, rank, reward2item, reward2amount);
   }
-  if (reward1amount >= 1 && reward2amount == 0) {
+  if (reward1amount >= 1 && reward2amount == 0)
+  {
     sentParcelSuccess =
         sendRewardParcel(sd, eventid, rank, reward1item, reward1amount);
   }
 
   // printf("parcelsuccess: %i\n",sentParcelSuccess);
-  if (sentParcelSuccess == 2) {
-    if (rank == 1) {
+  if (sentParcelSuccess == 2)
+  {
+    if (rank == 1)
+    {
       sprintf(message,
               "Congratulations on winning the %s Event, %s!\n\nYou have been "
               "rewarded: (%i) %s, (%i) %s.\n\nPlease continue to play for more "
@@ -5730,7 +6748,8 @@ int clif_getReward(USER *sd, int fd) {
       nmail_sendmail(sd, sd->status.name, topic, message);
     }
 
-    else {
+    else
+    {
       sprintf(message,
               "Thanks for participating in the %s Event, %s.\n\nRank:%s "
               "Place\n\nYou have been rewarded: (%i) %s, (%i) %s.\n\nPlease "
@@ -5746,8 +6765,10 @@ int clif_getReward(USER *sd, int fd) {
     }
   }
 
-  if (sentParcelSuccess == 1) {
-    if (rank == 1) {
+  if (sentParcelSuccess == 1)
+  {
+    if (rank == 1)
+    {
       sprintf(message,
               "Congratulations on winning the %s Event, %s!\n\nYou have been "
               "rewarded: (%i) %s.\n\nPlease continue to play for more great "
@@ -5761,7 +6782,8 @@ int clif_getReward(USER *sd, int fd) {
       nmail_sendmail(sd, sd->status.name, topic, message);
     }
 
-    else {
+    else
+    {
       sprintf(message,
               "Thanks for participating in the %s Event, %s.\n\nRank:%s "
               "Place\n\nYou have been rewarded: (%i) %s.\n\nPlease continue to "
@@ -5785,27 +6807,31 @@ int clif_getReward(USER *sd, int fd) {
   clif_sendmsg(sd, 0, msg);
 
   if (sentParcelSuccess >=
-      1) {  // This function disables the reward after character claims. Will
-            // only function if items were claimed successfully prior
+      1)
+  { // This function disables the reward after character claims. Will
+    // only function if items were claimed successfully prior
 
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "UPDATE `RankingScores` SET `EventClaim` = 2 "
                                "WHERE `EventId` = '%u' AND `ChaId` = '%u'",
-                               eventid, sd->status.id)) {
+                               eventid, sd->status.id))
+    {
       Sql_ShowDebug(sql_handle);
-      return -1;  // db error
+      return -1; // db error
     }
-    if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
+    if (SQL_SUCCESS != Sql_NextRow(sql_handle))
+    {
       Sql_FreeResult(sql_handle);
       clif_parseranking(sd, fd);
-      return 0;  // name is free
+      return 0; // name is free
     }
   }
 
   return 0;
 }
 
-int clif_sendRewardInfo(USER *sd, int fd) {
+int clif_sendRewardInfo(USER *sd, int fd)
+{
   WFIFOHEAD(fd, 0);
   WFIFOB(fd, 0) = 0xAA;
   WFIFOB(fd, 1) = 0x01;
@@ -5873,7 +6899,8 @@ int clif_sendRewardInfo(USER *sd, int fd) {
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -5971,13 +6998,15 @@ int clif_sendRewardInfo(USER *sd, int fd) {
                                       &_5thPlaceReward2_ItmId, 0, NULL, NULL) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 31, SQLDT_INT,
                                       &_5thPlaceReward2_Amount, 0, NULL,
-                                      NULL)) {
+                                      NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     rewardranks = 0;
@@ -5987,156 +7016,169 @@ int clif_sendRewardInfo(USER *sd, int fd) {
   SqlStmt_Free(stmt);
 
   if (rewardranks == 0)
-    goto end;  // This is the `EventRewardRanks_Display` integer in the
-               // database. Setting it to 0 will deactivate the event so that it
-               // will not show a reward. this stops the rest of this function
-               // so a blank page will be shown instead.
+    goto end; // This is the `EventRewardRanks_Display` integer in the
+              // database. Setting it to 0 will deactivate the event so that it
+              // will not show a reward. this stops the rest of this function
+              // so a blank page will be shown instead.
 
-  for (i = 13; i < 900; i++) {
+  for (i = 13; i < 900; i++)
+  {
     WFIFOB(fd, i) = 0;
-  }  // Set our packets to 0. Minimizes erroneous data that may have been missed
-     // during deciphering packets
+  } // Set our packets to 0. Minimizes erroneous data that may have been missed
+    // during deciphering packets
 
   WFIFOB(fd, 11) = rewardranks;
 
   pos += 13;
 
-  for (i = 0; i < rewardranks; i++) {
+  for (i = 0; i < rewardranks; i++)
+  {
     rank = i + 49;
     rank_num = i + 1;
 
-    WFIFOB(fd, pos) = rank;      // Rank 1st #
-    WFIFOB(fd, pos + 1) = 1;     // Squigley or no squigley
-    WFIFOB(fd, pos + 2) = rank;  // Rank #
+    WFIFOB(fd, pos) = rank;     // Rank 1st #
+    WFIFOB(fd, pos + 1) = 1;    // Squigley or no squigley
+    WFIFOB(fd, pos + 2) = rank; // Rank #
 
     pos += 3;
 
-    switch (rank_num) {
-      case 1:
-        sprintf(buf, "%s [%ist] %s", legend, rank_num, monthyear);
-        legendicon = legendicon1;
-        legendiconcolor = legendicon1color;
-        rewarditm = _1stPlaceReward1_ItmId;
-        rewardamount = _1stPlaceReward1_Amount;
-        reward2itm = _1stPlaceReward2_ItmId;
-        reward2amount = _1stPlaceReward2_Amount;
-        break;
-      case 2:
-        sprintf(buf, "%s [%ind] %s", legend, rank_num, monthyear);
-        legendicon = legendicon2;
-        legendiconcolor = legendicon2color;
-        rewarditm = _2ndPlaceReward1_ItmId;
-        rewardamount = _2ndPlaceReward1_Amount;
-        reward2itm = _2ndPlaceReward2_ItmId;
-        reward2amount = _2ndPlaceReward2_Amount;
-        break;
-      case 3:
-        sprintf(buf, "%s [%ird] %s", legend, rank_num, monthyear);
-        legendicon = legendicon3;
-        legendiconcolor = legendicon3color;
-        rewarditm = _3rdPlaceReward1_ItmId;
-        rewardamount = _3rdPlaceReward1_Amount;
-        reward2itm = _3rdPlaceReward2_ItmId;
-        reward2amount = _3rdPlaceReward2_Amount;
-        break;
-      case 4:
-        sprintf(buf, "%s [%ith] %s", legend, rank_num, monthyear);
-        legendicon = legendicon4;
-        legendiconcolor = legendicon4color;
-        rewarditm = _4thPlaceReward1_ItmId;
-        rewardamount = _4thPlaceReward1_Amount;
-        reward2itm = _4thPlaceReward2_ItmId;
-        reward2amount = _4thPlaceReward2_Amount;
-        break;
-      case 5:
-        sprintf(buf, "%s [%ith] %s", legend, rank_num, monthyear);
-        legendicon = legendicon5;
-        legendiconcolor = legendicon5color;
-        rewarditm = _5thPlaceReward1_ItmId;
-        rewardamount = _5thPlaceReward1_Amount;
-        reward2itm = _5thPlaceReward2_ItmId;
-        reward2amount = _5thPlaceReward2_Amount;
-        break;
-      default:
-        sprintf(buf, "%s [%ith] %s", legend, rank_num, monthyear);
-        legendicon = legendicon5;
-        legendiconcolor = legendicon5color;
-        rewarditm = _5thPlaceReward1_ItmId;
-        rewardamount = _5thPlaceReward1_Amount;
-        reward2itm = _5thPlaceReward2_ItmId;
-        reward2amount = _5thPlaceReward2_Amount;
-        break;
+    switch (rank_num)
+    {
+    case 1:
+      sprintf(buf, "%s [%ist] %s", legend, rank_num, monthyear);
+      legendicon = legendicon1;
+      legendiconcolor = legendicon1color;
+      rewarditm = _1stPlaceReward1_ItmId;
+      rewardamount = _1stPlaceReward1_Amount;
+      reward2itm = _1stPlaceReward2_ItmId;
+      reward2amount = _1stPlaceReward2_Amount;
+      break;
+    case 2:
+      sprintf(buf, "%s [%ind] %s", legend, rank_num, monthyear);
+      legendicon = legendicon2;
+      legendiconcolor = legendicon2color;
+      rewarditm = _2ndPlaceReward1_ItmId;
+      rewardamount = _2ndPlaceReward1_Amount;
+      reward2itm = _2ndPlaceReward2_ItmId;
+      reward2amount = _2ndPlaceReward2_Amount;
+      break;
+    case 3:
+      sprintf(buf, "%s [%ird] %s", legend, rank_num, monthyear);
+      legendicon = legendicon3;
+      legendiconcolor = legendicon3color;
+      rewarditm = _3rdPlaceReward1_ItmId;
+      rewardamount = _3rdPlaceReward1_Amount;
+      reward2itm = _3rdPlaceReward2_ItmId;
+      reward2amount = _3rdPlaceReward2_Amount;
+      break;
+    case 4:
+      sprintf(buf, "%s [%ith] %s", legend, rank_num, monthyear);
+      legendicon = legendicon4;
+      legendiconcolor = legendicon4color;
+      rewarditm = _4thPlaceReward1_ItmId;
+      rewardamount = _4thPlaceReward1_Amount;
+      reward2itm = _4thPlaceReward2_ItmId;
+      reward2amount = _4thPlaceReward2_Amount;
+      break;
+    case 5:
+      sprintf(buf, "%s [%ith] %s", legend, rank_num, monthyear);
+      legendicon = legendicon5;
+      legendiconcolor = legendicon5color;
+      rewarditm = _5thPlaceReward1_ItmId;
+      rewardamount = _5thPlaceReward1_Amount;
+      reward2itm = _5thPlaceReward2_ItmId;
+      reward2amount = _5thPlaceReward2_Amount;
+      break;
+    default:
+      sprintf(buf, "%s [%ith] %s", legend, rank_num, monthyear);
+      legendicon = legendicon5;
+      legendiconcolor = legendicon5color;
+      rewarditm = _5thPlaceReward1_ItmId;
+      rewardamount = _5thPlaceReward1_Amount;
+      reward2itm = _5thPlaceReward2_ItmId;
+      reward2amount = _5thPlaceReward2_Amount;
+      break;
     }
 
     WFIFOB(fd, pos) = strlen(buf);
     pos += 1;
     strncpy(WFIFOP(fd, pos), buf, strlen(buf));
     pos += strlen(buf);
-    WFIFOB(fd, pos) = legendicon;       // ICON
-    pos += 1;                           // pos 39
-    WFIFOB(fd, pos) = legendiconcolor;  // COLOR
+    WFIFOB(fd, pos) = legendicon;      // ICON
+    pos += 1;                          // pos 39
+    WFIFOB(fd, pos) = legendiconcolor; // COLOR
     pos += 1;
-    if (reward2amount == 0) {
+    if (reward2amount == 0)
+    {
       WFIFOB(fd, pos) = 1;
-    }  // How many rewards for for rank 1
-    else {
+    } // How many rewards for for rank 1
+    else
+    {
       WFIFOB(fd, pos) = 2;
     }
-    pos += 1;  // pos+=1 = 41
+    pos += 1; // pos+=1 = 41
     sprintf(buf, "%s", itemdb_name(rewarditm));
     WFIFOB(fd, pos) = strlen(buf);
     pos++;
     strncpy(WFIFOP(fd, pos), buf, strlen(buf));
     pos += strlen(buf);
-    pos += 3;  // 63
+    pos += 3; // 63
     clif_intcheck(rewardamount, pos, fd);
-    pos += 2;  // Now 65
+    pos += 2; // Now 65
     clif_intcheck((itemdb_icon(rewarditm) - 49152), pos,
-                  fd);  // Icon 2232 looks like black sack (Dark AMber bag)
+                  fd); // Icon 2232 looks like black sack (Dark AMber bag)
     pos += 1;
-    WFIFOB(fd, pos) = itemdb_iconcolor(rewarditm);  // ICon Look
+    WFIFOB(fd, pos) = itemdb_iconcolor(rewarditm); // ICon Look
     pos += 1;
-    if (reward2amount == 0) {
+    if (reward2amount == 0)
+    {
       WFIFOB(fd, pos) = 1;
       pos += 1;
       continue;
-    }  // This prevents Reward 2 from being displayed if a value of 0 is set
+    } // This prevents Reward 2 from being displayed if a value of 0 is set
     sprintf(buf, "%s", itemdb_name(reward2itm));
     WFIFOB(fd, pos) = strlen(buf);
     pos++;
     strncpy(WFIFOP(fd, pos), buf, strlen(buf));
     pos += strlen(buf);
     pos += 3;
-    clif_intcheck(reward2amount, pos, fd);  // 86
+    clif_intcheck(reward2amount, pos, fd); // 86
     pos += 2;
     clif_intcheck((itemdb_icon(reward2itm) - 49152), pos, fd);
-    ;  // 88
+    ; // 88
     pos += 1;
-    WFIFOB(fd, pos) = itemdb_iconcolor(reward2itm);  // 89
+    WFIFOB(fd, pos) = itemdb_iconcolor(reward2itm); // 89
     pos += 1;
     WFIFOB(fd, pos) = 1;
     pos += 1;
-  }  // end For loop
+  } // end For loop
 
   WFIFOB(fd, 2) =
-      pos - 3;  // packetsize data packet. The -3 is because the encryption
-                // algorithm appends 3 bytes onto the data stream
+      pos - 3; // packetsize data packet. The -3 is because the encryption
+               // algorithm appends 3 bytes onto the data stream
   WFIFOSET(fd, yuri_encrypt(fd));
 
 end:
   return 0;
 }
 
-void clif_intcheck(int number, int field, int fd) {
-  if (field != 0) {
-    if (number > 254) {
-      if (number > 65535) {
+void clif_intcheck(int number, int field, int fd)
+{
+  if (field != 0)
+  {
+    if (number > 254)
+    {
+      if (number > 65535)
+      {
         WFIFOL(fd, field - 3) = SWAP32(number);
       }
-      if (number <= 65535) {
+      if (number <= 65535)
+      {
         WFIFOW(fd, field - 1) = SWAP16(number);
       }
-    } else {
+    }
+    else
+    {
       WFIFOB(fd, field) = number;
     }
   }
@@ -6144,12 +7186,14 @@ void clif_intcheck(int number, int field, int fd) {
 
 /// RANKING SYSTEM HANDLING - ADDED IN V749 CLIENT ////
 
-void retrieveEventDates(int eventid, int pos, int fd) {
+void retrieveEventDates(int eventid, int pos, int fd)
+{
   int FromDate, FromTime, ToDate, ToTime;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return;
   }
@@ -6166,13 +7210,15 @@ void retrieveEventDates(int eventid, int pos, int fd) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &ToDate, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &ToTime, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 3, SQLDT_INT, &ToTime, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     FromDate = 0;
@@ -6185,22 +7231,24 @@ void retrieveEventDates(int eventid, int pos, int fd) {
   SqlStmt_Free(stmt);
 
   // FROM DATE
-  clif_intcheck(FromDate, pos + 7, fd);   // DATE-- Format: YYYY-MM-DD
-  clif_intcheck(FromTime, pos + 11, fd);  // This will display as Hour:Min:Secs.
+  clif_intcheck(FromDate, pos + 7, fd);  // DATE-- Format: YYYY-MM-DD
+  clif_intcheck(FromTime, pos + 11, fd); // This will display as Hour:Min:Secs.
 
   // TO DATE
-  clif_intcheck(ToDate, pos + 15, fd);  // DATE-- Format: YYYY-MM-DD
+  clif_intcheck(ToDate, pos + 15, fd); // DATE-- Format: YYYY-MM-DD
   clif_intcheck(ToTime, pos + 19,
-                fd);  // This will display as Hour:Min:Secs, for example using
-                      // 235959 yields 23:59:59
+                fd); // This will display as Hour:Min:Secs, for example using
+                     // 235959 yields 23:59:59
 }
 
-int checkPlayerScore(int eventid, USER *sd) {
+int checkPlayerScore(int eventid, USER *sd)
+{
   int score = 0;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -6210,13 +7258,15 @@ int checkPlayerScore(int eventid, USER *sd) {
                                    eventid, sd->status.id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &score, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &score, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     // SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -6227,10 +7277,12 @@ int checkPlayerScore(int eventid, USER *sd) {
   return score;
 }
 
-void updateRanks(int eventid) {
+void updateRanks(int eventid)
+{
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return;
@@ -6240,13 +7292,15 @@ void updateRanks(int eventid) {
                                    "SELECT `Rank` FROM `RankingScores` WHERE "
                                    "`EventId` = '%i' ORDER BY `Score` DESC",
                                    eventid) ||
-      SQL_ERROR == SqlStmt_Execute(stmt)) {
+      SQL_ERROR == SqlStmt_Execute(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return;
   }
 
-  if (SQL_ERROR == Sql_Query(sql_handle, "SET @r=0")) {
+  if (SQL_ERROR == Sql_Query(sql_handle, "SET @r=0"))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return;
@@ -6255,19 +7309,22 @@ void updateRanks(int eventid) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `RankingScores` SET `Rank`= @r:= (@r+1) "
                              "WHERE `EventId` = '%i' ORDER BY `Score` DESC",
-                             eventid)) {
+                             eventid))
+  {
     Sql_ShowDebug(sql_handle);
     Sql_FreeResult(sql_handle);
     return;
   }
 }
 
-int checkPlayerRank(int eventid, USER *sd) {
+int checkPlayerRank(int eventid, USER *sd)
+{
   int rank = 0;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -6278,13 +7335,15 @@ int checkPlayerRank(int eventid, USER *sd) {
                                    eventid, sd->status.id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &rank, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &rank, 0, NULL, NULL))
+  {
     // SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
     // SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -6292,12 +7351,14 @@ int checkPlayerRank(int eventid, USER *sd) {
   return rank;
 }
 
-int checkevent_claim(int eventid, int fd, USER *sd) {
+int checkevent_claim(int eventid, int fd, USER *sd)
+{
   int claim = 0;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -6307,15 +7368,17 @@ int checkevent_claim(int eventid, int fd, USER *sd) {
                                    eventid, sd->status.id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &claim, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &claim, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return claim;
   }
 
   if (SQL_SUCCESS !=
-      SqlStmt_NextRow(stmt)) {  // If no record found, set claim=2 (no icon,
-                                // disabled getreward)
+      SqlStmt_NextRow(stmt))
+  { // If no record found, set claim=2 (no icon,
+    // disabled getreward)
     // SqlStmt_ShowDebug(stmt);
     claim = 2;
   }
@@ -6324,40 +7387,44 @@ int checkevent_claim(int eventid, int fd, USER *sd) {
   return claim;
 }
 
-void dateevent_block(int pos, int eventid, int fd, USER *sd) {
-  WFIFOB(fd, pos) = 0;  // Always 0
+void dateevent_block(int pos, int eventid, int fd, USER *sd)
+{
+  WFIFOB(fd, pos) = 0; // Always 0
   WFIFOB(fd, pos + 1) = eventid;
-  WFIFOB(fd, pos + 2) = 142;  // 142
-  WFIFOB(fd, pos + 3) = 227;  // 227
+  WFIFOB(fd, pos + 2) = 142; // 142
+  WFIFOB(fd, pos + 3) = 227; // 227
   retrieveEventDates(eventid, pos, fd);
   WFIFOB(fd, pos + 20) = checkevent_claim(
-      eventid, fd, sd);  // Envelope.  0 = new, 1 = read/unclaimed, 2 = no
-                         // reward -- enables/disables the GetReward button
+      eventid, fd, sd); // Envelope.  0 = new, 1 = read/unclaimed, 2 = no
+                        // reward -- enables/disables the GetReward button
 }
 
-void filler_block(int pos, int eventid, int fd, USER *sd) {
+void filler_block(int pos, int eventid, int fd, USER *sd)
+{
   int player_score = checkPlayerScore(eventid, sd);
   int player_rank = checkPlayerRank(eventid, sd);
 
   WFIFOB(fd, pos + 1) =
-      RFIFOB(fd, 7);  // This controls which event is displayed. It is the event
-                      // request id packet
+      RFIFOB(fd, 7); // This controls which event is displayed. It is the event
+                     // request id packet
   WFIFOB(fd, pos + 2) = 142;
   WFIFOB(fd, pos + 3) = 227;
   WFIFOB(fd, pos + 4) =
-      1;  // show self score - Leave to always enabled. If player does not have
-          // a score or is equal to 0, the client automatically blanks it out
-  clif_intcheck(player_rank, pos + 8, fd);    // Self rank
-  clif_intcheck(player_score, pos + 12, fd);  // Self score
+      1;                                     // show self score - Leave to always enabled. If player does not have
+                                             // a score or is equal to 0, the client automatically blanks it out
+  clif_intcheck(player_rank, pos + 8, fd);   // Self rank
+  clif_intcheck(player_score, pos + 12, fd); // Self score
   WFIFOB(fd, pos + 13) = checkevent_claim(eventid, fd, sd);
 }
 
-int gettotalscores(int eventid) {
+int gettotalscores(int eventid)
+{
   int scores;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -6366,7 +7433,8 @@ int gettotalscores(int eventid) {
               stmt,
               "SELECT `ChaId` FROM `RankingScores` WHERE `EventId` = '%u'",
               eventid) ||
-      SQL_ERROR == SqlStmt_Execute(stmt)) {
+      SQL_ERROR == SqlStmt_Execute(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -6377,17 +7445,20 @@ int gettotalscores(int eventid) {
   return scores;
 }
 
-int getevents() {
+int getevents()
+{
   int events;
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
   if (SQL_ERROR ==
           SqlStmt_Prepare(stmt, "SELECT `EventId` FROM `RankingEvents`") ||
-      SQL_ERROR == SqlStmt_Execute(stmt)) {
+      SQL_ERROR == SqlStmt_Execute(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -6397,14 +7468,16 @@ int getevents() {
   return events;
 }
 
-int getevent_name(int pos, int fd, USER *sd) {
+int getevent_name(int pos, int fd, USER *sd)
+{
   char name[40];
   char buf[40];
   int i = 0;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -6413,7 +7486,8 @@ int getevent_name(int pos, int fd, USER *sd) {
           SqlStmt_Prepare(stmt, "SELECT `EventName` FROM `RankingEvents`") ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &name,
-                                      sizeof(name), NULL, NULL)) {
+                                      sizeof(name), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -6421,7 +7495,8 @@ int getevent_name(int pos, int fd, USER *sd) {
 
   for (i = 0;
        (i < SqlStmt_NumRows(stmt)) && (SQL_SUCCESS == SqlStmt_NextRow(stmt));
-       i++) {
+       i++)
+  {
     dateevent_block(pos, i, fd, sd);
     pos += 21;
     sprintf(buf, "%s", name);
@@ -6434,32 +7509,37 @@ int getevent_name(int pos, int fd, USER *sd) {
   return pos;
 }
 
-int getevent_playerscores(int eventid, int totalscores, int pos, int fd) {
+int getevent_playerscores(int eventid, int totalscores, int pos, int fd)
+{
   char name[16];
   int score;
   int rank;
   char buf[40];
   int offset =
       RFIFOB(fd, 17) -
-      10;  // The purpose of this -10 is because the packet request is value 10
-           // for page 1. Because of mysql integration, we want to offset so we
-           // start on row 0 for player scores loading
+      10; // The purpose of this -10 is because the packet request is value 10
+          // for page 1. Because of mysql integration, we want to offset so we
+          // start on row 0 for player scores loading
   int i = 0;
 
   SqlStmt *stmt;
   stmt = SqlStmt_Malloc(sql_handle);
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
 
-  if (totalscores > 10) {
+  if (totalscores > 10)
+  {
     SqlStmt_Prepare(
         stmt,
         "SELECT `ChaName`, `Score`, `Rank` FROM `RankingScores` WHERE "
         "`EventId` = '%u' ORDER BY `Rank` ASC LIMIT 10 OFFSET %u",
         eventid, offset);
-  } else {
+  }
+  else
+  {
     SqlStmt_Prepare(stmt,
                     "SELECT `ChaName`, `Score`, `Rank` FROM `RankingScores` "
                     "WHERE `EventId` = '%u' ORDER BY `Rank` ASC LIMIT 10",
@@ -6472,20 +7552,23 @@ int getevent_playerscores(int eventid, int totalscores, int pos, int fd) {
       SQL_ERROR ==
           SqlStmt_BindColumn(stmt, 1, SQLDT_INT, &score, 0, NULL, NULL) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &rank, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 2, SQLDT_INT, &rank, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SqlStmt_NumRows(stmt) < 10) {
+  if (SqlStmt_NumRows(stmt) < 10)
+  {
     WFIFOB(fd, pos - 1) = SqlStmt_NumRows(stmt);
-  }  // added 04-26-2017 removes trailing zeros that were present in the ranking
-     // feature
+  } // added 04-26-2017 removes trailing zeros that were present in the ranking
+    // feature
 
   for (i = 0;
        (i < SqlStmt_NumRows(stmt)) && (SQL_SUCCESS == SqlStmt_NextRow(stmt));
-       i++) {
+       i++)
+  {
     sprintf(buf, "%s", name);
     WFIFOB(fd, pos) = strlen(buf);
     pos++;
@@ -6493,7 +7576,7 @@ int getevent_playerscores(int eventid, int totalscores, int pos, int fd) {
     pos += strlen(buf);
     pos += 3;
 
-    WFIFOB(fd, pos) = rank;  // # of rank
+    WFIFOB(fd, pos) = rank; // # of rank
     pos += 4;
     clif_intcheck(score, pos, fd);
     pos++;
@@ -6502,13 +7585,14 @@ int getevent_playerscores(int eventid, int totalscores, int pos, int fd) {
   return pos;
 }
 
-int clif_parseranking(USER *sd, int fd) {
+int clif_parseranking(USER *sd, int fd)
+{
   WFIFOHEAD(fd, 0);
-  WFIFOB(fd, 0) = 0xAA;  // Packet Delimiter
-  WFIFOB(fd, 1) = 0x02;  //  Paacket header
-  WFIFOB(fd, 3) = 0x7D;  // Packet ID
-  WFIFOB(fd, 5) = 0x03;  // Directs packets into the main window.
-  WFIFOB(fd, 6) = 0;     // Always set to 0
+  WFIFOB(fd, 0) = 0xAA; // Packet Delimiter
+  WFIFOB(fd, 1) = 0x02; //  Paacket header
+  WFIFOB(fd, 3) = 0x7D; // Packet ID
+  WFIFOB(fd, 5) = 0x03; // Directs packets into the main window.
+  WFIFOB(fd, 6) = 0;    // Always set to 0
 
   // Original Packet = { 0xAA, 0x02, 0x95, 0x7D, 0x26, 0x03, 0x00, 0x0D, 0x01,
   // 0x03, 0x8E, 0xE3, 0x01, 0x33, 0xC5, 0x78, 0x00, 0x00, 0x00, 0x00, 0x01,
@@ -6570,10 +7654,11 @@ int clif_parseranking(USER *sd, int fd) {
   // %i\n",psize); for (i=0;i<660;i++) { WFIFOB(fd, i) = cappacket[i]; }
 
   int i = 0;
-  for (i = 8; i < 1500; i++) {
+  for (i = 8; i < 1500; i++)
+  {
     WFIFOB(fd, i) = 0x00;
-  }  // Write Zero's to all fields that we won't be using.
-  WFIFOB(fd, 7) = getevents();  // number of events  * affirmed
+  } // Write Zero's to all fields that we won't be using.
+  WFIFOB(fd, 7) = getevents(); // number of events  * affirmed
   int chosen_event = RFIFOB(fd, 7);
 
   updateRanks(chosen_event);
@@ -6582,34 +7667,38 @@ int clif_parseranking(USER *sd, int fd) {
 
   pos = getevent_name(pos, fd, sd);
   filler_block(pos, chosen_event, fd, sd);
-  pos += 15;             // was a 6
-  WFIFOB(fd, pos) = 10;  // # of scores to display on page. max 10
+  pos += 15;            // was a 6
+  WFIFOB(fd, pos) = 10; // # of scores to display on page. max 10
   int totalscores = gettotalscores(chosen_event);
   pos++;
   pos = getevent_playerscores(chosen_event, totalscores, pos, fd);
   pos += 3;
   WFIFOB(fd, pos) =
-      totalscores;  // This number displays in the top right of the popup and
-                    // indicates how many users played in specific event
+      totalscores; // This number displays in the top right of the popup and
+                   // indicates how many users played in specific event
   pos += 1;
 
-  WFIFOB(fd, 2) = pos - 3;  // packetsize packet. The -3 is because the
-                            // encryption algorithm ends 3 bytes onto the end
+  WFIFOB(fd, 2) = pos - 3; // packetsize packet. The -3 is because the
+                           // encryption algorithm ends 3 bytes onto the end
   WFIFOSET(fd, yuri_encrypt(fd));
 
   return 0;
 }
 
-int clif_parsewalkpong(USER *sd) {
+int clif_parsewalkpong(USER *sd)
+{
   // int HASH = SWAP32(RFIFOL(sd->fd, 5));
   unsigned long TS = SWAP32(RFIFOL(sd->fd, 9));
 
-  if (sd->LastPingTick) sd->msPing = gettick() - sd->LastPingTick;
+  if (sd->LastPingTick)
+    sd->msPing = gettick() - sd->LastPingTick;
 
-  if (sd->LastPongStamp) {
+  if (sd->LastPongStamp)
+  {
     int Difference = TS - sd->LastPongStamp;
 
-    if (Difference > 43000) {
+    if (Difference > 43000)
+    {
       //	 clif_Hacker(sd->status.name,"Virtually overclocked.
       //(Speedhack). Booted.");
       //		 session[sd->fd]->eof=1;
@@ -6620,7 +7709,8 @@ int clif_parsewalkpong(USER *sd) {
   return 0;
 }
 
-int clif_parsemap(USER *sd) {
+int clif_parsemap(USER *sd)
+{
   int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
   unsigned short checksum;
   sd->loaded = 1;
@@ -6631,7 +7721,8 @@ int clif_parsemap(USER *sd) {
   y1 = RFIFOB(sd->fd, 10);
   checksum = SWAP16(RFIFOW(sd->fd, 11));
 
-  if (RFIFOB(sd->fd, 3) == 5) {
+  if (RFIFOB(sd->fd, 3) == 5)
+  {
     checksum = 0;
   }
 
@@ -6641,17 +7732,20 @@ int clif_parsemap(USER *sd) {
 }
 
 int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
-                     unsigned short check) {
+                     unsigned short check)
+{
   int x, y, pos;
   short checksum;
   short buf[65536];
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (map_readglobalreg(m, "blackout") != 0) {
+  if (map_readglobalreg(m, "blackout") != 0)
+  {
     sl_doscript_blargs("sendMapData", NULL, 1, &sd->bl);
     return 0;
   }
@@ -6663,16 +7757,21 @@ int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
   checksum = 0;
 
   // if(((y1-y0)*(x1-x0)*6)>65535) {
-  if ((x1 * y1) > 323) {
+  if ((x1 * y1) > 323)
+  {
     printf("eof bug encountered by %s\n %u %u to %u %u\n", sd->status.name, x0,
            y0, x1, y1);
     // session[sd->fd]->eof=1;
     return 0;
   }
-  if (x0 < 0) x0 = 0;
-  if (y0 < 0) y0 = 0;
-  if (x1 > map[m].xs) x1 = map[m].xs;
-  if (y1 > map[m].ys) y1 = map[m].ys;
+  if (x0 < 0)
+    x0 = 0;
+  if (y0 < 0)
+    y0 = 0;
+  if (x1 > map[m].xs)
+    x1 = map[m].xs;
+  if (y1 > map[m].ys)
+    y1 = map[m].ys;
   WBUFB(buf2, 0) = 0xAA;
   WBUFB(buf2, 3) = 0x06;
   WBUFB(buf2, 4) = 0x03;
@@ -6684,10 +7783,14 @@ int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
   pos = 12;
   len = 0;
 
-  for (y = 0; y < y1; y++) {
-    if (y + y0 >= map[m].ys) break;
-    for (x = 0; x < x1; x++) {
-      if (x + x0 >= map[m].xs) break;
+  for (y = 0; y < y1; y++)
+  {
+    if (y + y0 >= map[m].ys)
+      break;
+    for (x = 0; x < x1; x++)
+    {
+      if (x + x0 >= map[m].xs)
+        break;
       buf[a] = read_tile(m, x0 + x, y0 + y);
       buf[a + 1] = read_pass(m, x0 + x, y0 + y);
       buf[a + 2] = read_obj(m, x0 + x, y0 + y);
@@ -6706,9 +7809,11 @@ int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
 
   checksum = nexCRCC(buf, len);
 
-  if (pos <= 12) return 0;
+  if (pos <= 12)
+    return 0;
 
-  if (checksum == check) {
+  if (checksum == check)
+  {
     return 0;
   }
 
@@ -6719,17 +7824,23 @@ int clif_sendmapdata(USER *sd, int m, int x0, int y0, int x1, int y1,
   return 0;
 }
 
-int clif_sendside(struct block_list *bl) {
+int clif_sendside(struct block_list *bl)
+{
   unsigned char buf[32];
   USER *sd = NULL;
   MOB *mob = NULL;
   NPC *nd = NULL;
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     nullpo_ret(0, sd = (USER *)bl);
-  } else if (bl->type == BL_MOB) {
+  }
+  else if (bl->type == BL_MOB)
+  {
     nullpo_ret(0, mob = (MOB *)bl);
-  } else if (bl->type == BL_NPC) {
+  }
+  else if (bl->type == BL_NPC)
+  {
     nullpo_ret(0, nd = (NPC *)bl);
   }
 
@@ -6740,24 +7851,33 @@ int clif_sendside(struct block_list *bl) {
   // WBUFB(buf, 4) = 0x03;
   WBUFL(buf, 5) = SWAP32(bl->id);
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     WBUFB(buf, 9) = sd->status.side;
-  } else if (bl->type == BL_MOB) {
+  }
+  else if (bl->type == BL_MOB)
+  {
     WBUFB(buf, 9) = mob->side;
-  } else if (bl->type == BL_NPC) {
+  }
+  else if (bl->type == BL_NPC)
+  {
     WBUFB(buf, 9) = nd->side;
   }
 
   WBUFB(buf, 10) = 0;
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     clif_send(buf, 32, bl, AREA);
-  } else {
+  }
+  else
+  {
     clif_send(buf, 32, bl, AREA_WOS);
   }
   return 0;
 }
-int clif_sendmob_side(MOB *mob) {
+int clif_sendmob_side(MOB *mob)
+{
   unsigned char buf[16];
   WBUFB(buf, 0) = 0xAA;
   WBUFB(buf, 1) = 0x00;
@@ -6770,20 +7890,23 @@ int clif_sendmob_side(MOB *mob) {
   clif_send(buf, 16, &mob->bl, AREA_WOS);
   return 0;
 }
-int clif_runfloor_sub(struct block_list *bl, va_list ap) {
+int clif_runfloor_sub(struct block_list *bl, va_list ap)
+{
   NPC *nd = NULL;
   USER *sd = NULL;
 
   nullpo_ret(0, nd = (NPC *)bl);
   nullpo_ret(0, sd = va_arg(ap, USER *));
 
-  if (bl->subtype != FLOOR) return 0;
+  if (bl->subtype != FLOOR)
+    return 0;
 
   sl_async_freeco(sd);
   sl_doscript_blargs(nd->name, "click2", 2, &sd->bl, &nd->bl);
   return 0;
 }
-int clif_parseside(USER *sd) {
+int clif_parseside(USER *sd)
+{
   sd->status.side = RFIFOB(sd->fd, 5);
   clif_sendside(&sd->bl);
   sl_doscript_blargs("onTurn", NULL, 1, &sd->bl);
@@ -6791,14 +7914,17 @@ int clif_parseside(USER *sd) {
   return 0;
 }
 
-int clif_parseemotion(USER *sd) {
-  if (sd->status.state == 0) {
+int clif_parseemotion(USER *sd)
+{
+  if (sd->status.state == 0)
+  {
     clif_sendaction(&sd->bl, RFIFOB(sd->fd, 5) + 11, 0x4E, 0);
   }
   return 0;
 }
 
-int clif_sendmsg(USER *sd, int type, const char *buf) {
+int clif_sendmsg(USER *sd, int type, const char *buf)
+{
   /*	Type:
           0 = Wisp (blue text)
           3 = Mini Text/Status Text
@@ -6818,10 +7944,12 @@ int clif_sendmsg(USER *sd, int type, const char *buf) {
 
   int len = strlen(buf);
 
-  if (len > strlen(buf)) len = strlen(buf);
+  if (len > strlen(buf))
+    len = strlen(buf);
 
   WFIFOHEAD(sd->fd, 8 + len);
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -6838,26 +7966,34 @@ int clif_sendmsg(USER *sd, int type, const char *buf) {
   return 0;
 }
 
-int clif_sendminitext(USER *sd, const char *msg) {
+int clif_sendminitext(USER *sd, const char *msg)
+{
   nullpo_ret(0, sd);
-  if (!strlen(msg)) return 0;
+  if (!strlen(msg))
+    return 0;
   clif_sendmsg(sd, 3, msg);
   return 0;
 }
 
-int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
+int clif_sendwisp(USER *sd, const char *srcname, const char *msg)
+{
   int msglen = strlen(msg);
   int srclen = strlen(srcname);
   int newlen = 0;
   char *buf;
   char buf2[255];
   USER *src_sd = map_name2sd(srcname);
-  if (strlen(msg) < msglen) msglen = strlen(msg);
-  if (src_sd) {
-    if (classdb_name(src_sd->status.class, src_sd->status.mark)) {
+  if (strlen(msg) < msglen)
+    msglen = strlen(msg);
+  if (src_sd)
+  {
+    if (classdb_name(src_sd->status.class, src_sd->status.mark))
+    {
       newlen = sprintf(buf2, "\" (%s) ",
                        classdb_name(src_sd->status.class, src_sd->status.mark));
-    } else {
+    }
+    else
+    {
       newlen = sprintf(buf2, "\" () ");
     }
 
@@ -6866,7 +8002,8 @@ int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
     strcpy((char *)WBUFP(buf, srclen), buf2);
     memcpy(WBUFP(buf, srclen + newlen), msg, msglen);
 
-    if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+    if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+    {
       clif_sendminitext(sd, "Your voice is carried away.");
       FREE(buf);
       return 0;
@@ -6880,7 +8017,8 @@ int clif_sendwisp(USER *sd, const char *srcname, const char *msg) {
   return 0;
 }
 
-int clif_retrwisp(USER *sd, char *dstname, char *msg) {
+int clif_retrwisp(USER *sd, char *dstname, char *msg)
+{
   int msglen = strlen(msg);
 
   int dstlen = strlen(dstname);
@@ -6900,26 +8038,32 @@ int clif_retrwisp(USER *sd, char *dstname, char *msg) {
   return 0;
 }
 
-int clif_failwisp(USER *sd) {
+int clif_failwisp(USER *sd)
+{
   clif_sendmsg(sd, 0, map_msg[MAP_WHISPFAIL].message);
   return 0;
 }
 
-int clif_parsedropitem(USER *sd) {
+int clif_parsedropitem(USER *sd)
+{
   char RegStr[] = "goldbardupe";
   int DupeTimes = pc_readglobalreg(sd, RegStr);
-  if (DupeTimes) {
+  if (DupeTimes)
+  {
     // char minibuf[]="Character under quarentine.";
     // clif_sendminitext(sd,minibuf);
     return 0;
   }
 
-  if (sd->status.gm_level == 0) {
-    if (sd->status.state == 3) {
+  if (sd->status.gm_level == 0)
+  {
+    if (sd->status.state == 3)
+    {
       clif_sendminitext(sd, "You cannot do that while riding a mount.");
       return 0;
     }
-    if (sd->status.state == 1) {
+    if (sd->status.state == 1)
+    {
       clif_sendminitext(sd, "Spirits can't do that.");
       return 0;
     }
@@ -6929,9 +8073,12 @@ int clif_parsedropitem(USER *sd) {
 
   int id = RFIFOB(sd->fd, 5) - 1;
   int all = RFIFOB(sd->fd, 6);
-  if (id >= sd->status.maxinv) return 0;
-  if (sd->status.inventory[id].id) {
-    if (itemdb_droppable(sd->status.inventory[id].id)) {
+  if (id >= sd->status.maxinv)
+    return 0;
+  if (sd->status.inventory[id].id)
+  {
+    if (itemdb_droppable(sd->status.inventory[id].id))
+    {
       clif_sendminitext(sd, "You can't drop this item.");
       return 0;
     }
@@ -6939,53 +8086,65 @@ int clif_parsedropitem(USER *sd) {
 
   clif_sendaction(&sd->bl, 5, 20, 0);
 
-  sd->invslot = id;  // this sets player.invSlot so that we can access it in the
-                     // on_drop_while_cast func
+  sd->invslot = id; // this sets player.invSlot so that we can access it in the
+                    // on_drop_while_cast func
 
   sl_doscript_blargs(
       itemdb_yname(sd->status.inventory[id].id), "on_drop", 1,
-      &sd->bl);  // running this before pc_dropitemmap allows us to simulate a
-                 // drop (fake) as seen on ntk. prevents abuse.
+      &sd->bl); // running this before pc_dropitemmap allows us to simulate a
+                // drop (fake) as seen on ntk. prevents abuse.
 
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  { // Spell stuff
     if (sd->status.dura_aether[x].id > 0 &&
-        sd->status.dura_aether[x].duration > 0) {
+        sd->status.dura_aether[x].duration > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                          "on_drop_while_cast", 1, &sd->bl);
     }
   }
 
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  { // Spell stuff
     if (sd->status.dura_aether[x].id > 0 &&
-        sd->status.dura_aether[x].aether > 0) {
+        sd->status.dura_aether[x].aether > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                          "on_drop_while_aether", 1, &sd->bl);
     }
   }
 
-  if (sd->fakeDrop) return 0;
+  if (sd->fakeDrop)
+    return 0;
 
   pc_dropitemmap(sd, id, all);
 
   return 0;
 }
-int clif_deductdura(USER *sd, int equip, int val) {
+int clif_deductdura(USER *sd, int equip, int val)
+{
   unsigned char eth;
   nullpo_ret(0, sd);
-  if (!sd->status.equip[equip].id) return 0;
-  if (map[sd->bl.m].pvp) return 0;  // disable dura loss from mobs on pvp map
+  if (!sd->status.equip[equip].id)
+    return 0;
+  if (map[sd->bl.m].pvp)
+    return 0; // disable dura loss from mobs on pvp map
 
   eth = itemdb_ethereal(sd->status.equip[equip].id);
 
-  if (!eth) {
+  if (!eth)
+  {
     sd->status.equip[equip].dura -= val;
     clif_checkdura(sd, equip);
   }
   return 0;
 }
-int clif_deductweapon(USER *sd, int hit) {
-  if (pc_isequip(sd, EQ_WEAP)) {
-    if (rnd(100) > 50) {
+int clif_deductweapon(USER *sd, int hit)
+{
+  if (pc_isequip(sd, EQ_WEAP))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_WEAP, hit);
     }
   }
@@ -6993,123 +8152,159 @@ int clif_deductweapon(USER *sd, int hit) {
   return 0;
 }
 
-int clif_deductarmor(USER *sd, int hit) {
-  if (pc_isequip(sd, EQ_WEAP)) {
-    if (rnd(100) > 50) {
+int clif_deductarmor(USER *sd, int hit)
+{
+  if (pc_isequip(sd, EQ_WEAP))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_WEAP, hit);
     }
   }
-  if (pc_isequip(sd, EQ_HELM)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_HELM))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_HELM, hit);
     }
   }
-  if (pc_isequip(sd, EQ_ARMOR)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_ARMOR))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_ARMOR, hit);
     }
   }
-  if (pc_isequip(sd, EQ_LEFT)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_LEFT))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_LEFT, hit);
     }
   }
-  if (pc_isequip(sd, EQ_RIGHT)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_RIGHT))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_RIGHT, hit);
     }
   }
-  if (pc_isequip(sd, EQ_SUBLEFT)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_SUBLEFT))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_SUBLEFT, hit);
     }
   }
-  if (pc_isequip(sd, EQ_SUBRIGHT)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_SUBRIGHT))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_SUBRIGHT, hit);
     }
   }
-  if (pc_isequip(sd, EQ_BOOTS)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_BOOTS))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_BOOTS, hit);
     }
   }
-  if (pc_isequip(sd, EQ_MANTLE)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_MANTLE))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_MANTLE, hit);
     }
   }
-  if (pc_isequip(sd, EQ_COAT)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_COAT))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_COAT, hit);
     }
   }
-  if (pc_isequip(sd, EQ_SHIELD)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_SHIELD))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_SHIELD, hit);
     }
   }
-  if (pc_isequip(sd, EQ_FACEACC)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_FACEACC))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_FACEACC, hit);
     }
   }
-  if (pc_isequip(sd, EQ_CROWN)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_CROWN))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_CROWN, hit);
     }
   }
-  if (pc_isequip(sd, EQ_NECKLACE)) {
-    if (rnd(100) > 50) {
+  if (pc_isequip(sd, EQ_NECKLACE))
+  {
+    if (rnd(100) > 50)
+    {
       clif_deductdura(sd, EQ_NECKLACE, hit);
     }
   }
   return 0;
 }
 
-int clif_checkdura(USER *sd, int equip) {
+int clif_checkdura(USER *sd, int equip)
+{
   float percentage;
   int id;
   char buf[255];
   char escape[255];
 
   nullpo_ret(0, sd);
-  if (!sd->status.equip[equip].id) return 0;
+  if (!sd->status.equip[equip].id)
+    return 0;
   id = sd->status.equip[equip].id;
 
   sd->equipslot = equip;
 
   percentage = (float)sd->status.equip[equip].dura / (float)itemdb_dura(id);
 
-  if (percentage <= .5 && sd->status.equip[equip].repair == 0) {
+  if (percentage <= .5 && sd->status.equip[equip].repair == 0)
+  {
     sprintf(buf, "Your %s is at 50%%.", itemdb_name(id));
     clif_sendmsg(sd, 5, buf);
     // clif_sendminitext(sd, buf);
     sd->status.equip[equip].repair = 1;
   }
 
-  if (percentage <= .25 && sd->status.equip[equip].repair == 1) {
+  if (percentage <= .25 && sd->status.equip[equip].repair == 1)
+  {
     sprintf(buf, "Your %s is at 25%%.", itemdb_name(id));
     clif_sendmsg(sd, 5, buf);
     // clif_sendminitext(sd, buf,strlen(buf));
     sd->status.equip[equip].repair = 2;
   }
 
-  if (percentage <= .1 && sd->status.equip[equip].repair == 2) {
+  if (percentage <= .1 && sd->status.equip[equip].repair == 2)
+  {
     sprintf(buf, "Your %s is at 10%%.", itemdb_name(id));
     clif_sendmsg(sd, 5, buf);
     // clif_sendminitext(sd, buf);
     sd->status.equip[equip].repair = 3;
   }
 
-  if (percentage <= .05 && sd->status.equip[equip].repair == 3) {
+  if (percentage <= .05 && sd->status.equip[equip].repair == 3)
+  {
     sprintf(buf, "Your %s is at 5%%.", itemdb_name(id));
     clif_sendmsg(sd, 5, buf);
     // clif_sendminitext(sd, buf);
     sd->status.equip[equip].repair = 4;
   }
 
-  if (percentage <= .01 && sd->status.equip[equip].repair == 4) {
+  if (percentage <= .01 && sd->status.equip[equip].repair == 4)
+  {
     sprintf(buf, "Your %s is at 1%%.", itemdb_name(id));
     clif_sendmsg(sd, 5, buf);
     // clif_sendminitext(sd, buf);
@@ -7118,12 +8313,14 @@ int clif_checkdura(USER *sd, int equip) {
 
   if (sd->status.equip[equip].dura <= 0 ||
       (sd->status.state == 1 &&
-       itemdb_breakondeath(sd->status.equip[equip].id) == 1)) {
+       itemdb_breakondeath(sd->status.equip[equip].id) == 1))
+  {
     if (itemdb_protected(sd->status.equip[equip].id) ||
-        sd->status.equip[equip].protected >= 1) {
+        sd->status.equip[equip].protected >= 1)
+    {
       sd->status.equip[equip].protected -= 1;
       sd->status.equip[equip].dura =
-          itemdb_dura(sd->status.equip[equip].id);  // recharge dura
+          itemdb_dura(sd->status.equip[equip].id); // recharge dura
       sprintf(buf, "Your %s has been restored!", itemdb_name(id));
       clif_sendstatus(sd, SFLAG_FULLSTATS | SFLAG_HPMP);
       clif_sendmsg(sd, 5, buf);
@@ -7175,7 +8372,8 @@ int clif_checkdura(USER *sd, int equip) {
   return 0;
 }
 
-int clif_deductduraequip(USER *sd) {
+int clif_deductduraequip(USER *sd)
+{
   float percentage;
   int id;
   char buf[255];
@@ -7183,18 +8381,23 @@ int clif_deductduraequip(USER *sd) {
 
   nullpo_ret(0, sd);
 
-  for (int equip = 0; equip < 14; equip++) {
-    if (!sd->status.equip[equip].id) continue;
+  for (int equip = 0; equip < 14; equip++)
+  {
+    if (!sd->status.equip[equip].id)
+      continue;
     id = sd->status.equip[equip].id;
 
     unsigned char eth;
     nullpo_ret(0, sd);
-    if (!sd->status.equip[equip].id) return 0;
-    if (map[sd->bl.m].pvp) return 0;
+    if (!sd->status.equip[equip].id)
+      return 0;
+    if (map[sd->bl.m].pvp)
+      return 0;
 
     eth = itemdb_ethereal(sd->status.equip[equip].id);
 
-    if (eth) continue;
+    if (eth)
+      continue;
 
     sd->equipslot = equip;
 
@@ -7203,35 +8406,40 @@ int clif_deductduraequip(USER *sd) {
 
     percentage = (float)sd->status.equip[equip].dura / (float)itemdb_dura(id);
 
-    if (percentage <= .5 && sd->status.equip[equip].repair == 0) {
+    if (percentage <= .5 && sd->status.equip[equip].repair == 0)
+    {
       sprintf(buf, "Your %s is at 50%%.", itemdb_name(id));
       clif_sendmsg(sd, 5, buf);
       // clif_sendminitext(sd, buf);
       sd->status.equip[equip].repair = 1;
     }
 
-    if (percentage <= .25 && sd->status.equip[equip].repair == 1) {
+    if (percentage <= .25 && sd->status.equip[equip].repair == 1)
+    {
       sprintf(buf, "Your %s is at 25%%.", itemdb_name(id));
       clif_sendmsg(sd, 5, buf);
       // clif_sendminitext(sd, buf);
       sd->status.equip[equip].repair = 2;
     }
 
-    if (percentage <= .1 && sd->status.equip[equip].repair == 2) {
+    if (percentage <= .1 && sd->status.equip[equip].repair == 2)
+    {
       sprintf(buf, "Your %s is at 10%%.", itemdb_name(id));
       clif_sendmsg(sd, 5, buf);
       // clif_sendminitext(sd, buf);
       sd->status.equip[equip].repair = 3;
     }
 
-    if (percentage <= .05 && sd->status.equip[equip].repair == 3) {
+    if (percentage <= .05 && sd->status.equip[equip].repair == 3)
+    {
       sprintf(buf, "Your %s is at 5%%.", itemdb_name(id));
       clif_sendmsg(sd, 5, buf);
       // clif_sendminitext(sd, buf);
       sd->status.equip[equip].repair = 4;
     }
 
-    if (percentage <= .01 && sd->status.equip[equip].repair == 4) {
+    if (percentage <= .01 && sd->status.equip[equip].repair == 4)
+    {
       sprintf(buf, "Your %s is at 1%%.", itemdb_name(id));
       clif_sendmsg(sd, 5, buf);
       // clif_sendminitext(sd, buf);
@@ -7240,12 +8448,14 @@ int clif_deductduraequip(USER *sd) {
 
     if (sd->status.equip[equip].dura <= 0 ||
         (sd->status.state == 1 &&
-         itemdb_breakondeath(sd->status.equip[equip].id) == 1)) {
+         itemdb_breakondeath(sd->status.equip[equip].id) == 1))
+    {
       if (itemdb_protected(sd->status.equip[equip].id) ||
-          sd->status.equip[equip].protected >= 1) {
+          sd->status.equip[equip].protected >= 1)
+      {
         sd->status.equip[equip].protected -= 1;
         sd->status.equip[equip].dura =
-            itemdb_dura(sd->status.equip[equip].id);  // recharge dura
+            itemdb_dura(sd->status.equip[equip].id); // recharge dura
         sprintf(buf, "Your %s has been restored!", itemdb_name(id));
         clif_sendstatus(sd, SFLAG_FULLSTATS | SFLAG_HPMP);
         clif_sendmsg(sd, 5, buf);
@@ -7305,27 +8515,32 @@ int clif_deductduraequip(USER *sd) {
   return 0;
 }
 
-int clif_checkinvbod(USER *sd) {  // handles items in inventory
+int clif_checkinvbod(USER *sd)
+{ // handles items in inventory
   int id;
   char buf[255];
   char escape[255];
 
   nullpo_ret(0, sd);
 
-  for (int x = 0; x < 52; x++) {
+  for (int x = 0; x < 52; x++)
+  {
     sd->invslot = x;
 
-    if (!sd->status.inventory[x].id) continue;
+    if (!sd->status.inventory[x].id)
+      continue;
 
     id = sd->status.inventory[x].id;
 
     if (sd->status.state == 1 &&
-        itemdb_breakondeath(sd->status.inventory[x].id) == 1) {
+        itemdb_breakondeath(sd->status.inventory[x].id) == 1)
+    {
       if (itemdb_protected(sd->status.inventory[x].id) ||
-          sd->status.inventory[x].protected >= 1) {
+          sd->status.inventory[x].protected >= 1)
+      {
         sd->status.inventory[x].protected -= 1;
         sd->status.inventory[x].dura =
-            itemdb_dura(sd->status.inventory[x].id);  // recharge dura
+            itemdb_dura(sd->status.inventory[x].id); // recharge dura
         sprintf(buf, "Your %s has been restored!", itemdb_name(id));
         clif_sendstatus(sd, SFLAG_FULLSTATS | SFLAG_HPMP);
         // clif_sendminitext(sd,buf);
@@ -7368,7 +8583,8 @@ int clif_checkinvbod(USER *sd) {  // handles items in inventory
   return 0;
 }
 
-int clif_senddelitem(USER *sd, int num, int type) {
+int clif_senddelitem(USER *sd, int num, int type)
+{
   /*	Type:
           0 = Remove	5 = Shot	10 = Sold
           1 = Drop	6 = Used	11 = Removed
@@ -7391,7 +8607,8 @@ int clif_senddelitem(USER *sd, int num, int type) {
   sd->status.inventory[num].time = 0;
   strcpy(sd->status.inventory[num].real_name, "");
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -7411,7 +8628,8 @@ int clif_senddelitem(USER *sd, int num, int type) {
   return 0;
 }
 
-int clif_sendadditem(USER *sd, int num) {
+int clif_sendadditem(USER *sd, int num)
+{
   char buf[128];
   char *name = NULL;
   char *owner = NULL;
@@ -7420,38 +8638,55 @@ int clif_sendadditem(USER *sd, int num) {
 
   id = sd->status.inventory[num].id;
 
-  if (id < 4) {
+  if (id < 4)
+  {
     memset(&sd->status.inventory[num], 0, sizeof(sd->status.inventory[num]));
     return 0;
   }
 
-  if (id > 0 && (!strcasecmp(itemdb_name(id), "??"))) {
+  if (id > 0 && (!strcasecmp(itemdb_name(id), "??")))
+  {
     memset(&sd->status.inventory[num], 0, sizeof(sd->status.inventory[num]));
     return 0;
   }
 
-  if (strlen(sd->status.inventory[num].real_name)) {
+  if (strlen(sd->status.inventory[num].real_name))
+  {
     name = sd->status.inventory[num].real_name;
-  } else {
+  }
+  else
+  {
     name = itemdb_name(id);
   }
 
-  if (sd->status.inventory[num].amount > 1) {
+  if (sd->status.inventory[num].amount > 1)
+  {
     sprintf(buf, "%s (%d)", name, sd->status.inventory[num].amount);
-  } else if (itemdb_type(sd->status.inventory[num].id) == ITM_SMOKE) {
+  }
+  else if (itemdb_type(sd->status.inventory[num].id) == ITM_SMOKE)
+  {
     sprintf(buf, "%s [%d %s]", name, sd->status.inventory[num].dura,
             itemdb_text(sd->status.inventory[num].id));
-  } else if (itemdb_type(sd->status.inventory[num].id) == ITM_BAG) {
+  }
+  else if (itemdb_type(sd->status.inventory[num].id) == ITM_BAG)
+  {
     sprintf(buf, "%s [%d]", name, sd->status.inventory[num].dura);
-  } else if (itemdb_type(sd->status.inventory[num].id) == ITM_MAP) {
+  }
+  else if (itemdb_type(sd->status.inventory[num].id) == ITM_MAP)
+  {
     sprintf(buf, "[T%d] %s", sd->status.inventory[num].dura, name);
-  } else if (itemdb_type(sd->status.inventory[num].id) == ITM_QUIVER) {
+  }
+  else if (itemdb_type(sd->status.inventory[num].id) == ITM_QUIVER)
+  {
     sprintf(buf, "%s [%d]", name, sd->status.inventory[num].dura);
-  } else {
+  }
+  else
+  {
     sprintf(buf, "%s", name);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -7461,10 +8696,13 @@ int clif_sendadditem(USER *sd, int num) {
   WFIFOB(sd->fd, 3) = 0x0F;
   WFIFOB(sd->fd, 5) = num + 1;
 
-  if (sd->status.inventory[num].customIcon != 0) {
+  if (sd->status.inventory[num].customIcon != 0)
+  {
     WFIFOW(sd->fd, 6) = SWAP16(sd->status.inventory[num].customIcon + 49152);
     WFIFOB(sd->fd, 8) = sd->status.inventory[num].customIconColor;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 6) = SWAP16(itemdb_icon(id));
     WFIFOB(sd->fd, 8) = itemdb_iconcolor(id);
   }
@@ -7481,26 +8719,29 @@ int clif_sendadditem(USER *sd, int num) {
   WFIFOL(sd->fd, len) = SWAP32(sd->status.inventory[num].amount);
   len += 4;
 
-  if (itemdb_type(id) >= 3 && itemdb_type(id) <= 17) {
+  if (itemdb_type(id) >= 3 && itemdb_type(id) <= 17)
+  {
     WFIFOB(sd->fd, len) = 0;
     WFIFOL(sd->fd, len + 1) = SWAP32(sd->status.inventory[num].dura);
-    WFIFOB(sd->fd, len + 5) = 0;  // REPLACE WITH PROTECTED
+    WFIFOB(sd->fd, len + 5) = 0; // REPLACE WITH PROTECTED
 
     if (sd->status.inventory[num].protected >=
         itemdb_protected(sd->status.inventory[num].id))
       WFIFOB(sd->fd, len + 5) =
           sd->status.inventory[num]
-              .protected;  // This is the default item protection from the
-                           // database. it will always override the custom item
-                           // protection that can be added to items.
+              .protected; // This is the default item protection from the
+                          // database. it will always override the custom item
+                          // protection that can be added to items.
     if (itemdb_protected(sd->status.inventory[num].id) >=
         sd->status.inventory[num].protected)
       WFIFOB(sd->fd, len + 5) = itemdb_protected(sd->status.inventory[num].id);
 
     len += 6;
-  } else {
+  }
+  else
+  {
     if (itemdb_stackamount(sd->status.inventory[num].id) > 1)
-      WFIFOB(sd->fd, len) = 1;  // this is for stack
+      WFIFOB(sd->fd, len) = 1; // this is for stack
     else
       WFIFOB(sd->fd, len) = 0;
 
@@ -7511,9 +8752,9 @@ int clif_sendadditem(USER *sd, int num) {
         itemdb_protected(sd->status.inventory[num].id))
       WFIFOB(sd->fd, len + 5) =
           sd->status.inventory[num]
-              .protected;  // This is the default item protection from the
-                           // database. it will always override the custom item
-                           // protection that can be added to items.
+              .protected; // This is the default item protection from the
+                          // database. it will always override the custom item
+                          // protection that can be added to items.
     if (itemdb_protected(sd->status.inventory[num].id) >=
         sd->status.inventory[num].protected)
       WFIFOB(sd->fd, len + 5) = itemdb_protected(sd->status.inventory[num].id);
@@ -7521,14 +8762,17 @@ int clif_sendadditem(USER *sd, int num) {
     len += 6;
   }
 
-  if (sd->status.inventory[num].owner) {
+  if (sd->status.inventory[num].owner)
+  {
     owner = map_id2name(sd->status.inventory[num].owner);
     WFIFOB(sd->fd, len) = strlen(owner);
     strcpy(WFIFOP(sd->fd, len + 1), owner);
     len += strlen(owner) + 1;
     FREE(owner);
-  } else {
-    WFIFOB(sd->fd, len) = 0;  // len of owner
+  }
+  else
+  {
+    WFIFOB(sd->fd, len) = 0; // len of owner
     len += 1;
   }
   WFIFOW(sd->fd, len) = 0x00;
@@ -7543,17 +8787,22 @@ int clif_sendadditem(USER *sd, int num) {
   return 0;
 }
 
-int clif_equipit(USER *sd, int id) {
+int clif_equipit(USER *sd, int id)
+{
   int len = 0;
   char *nameof = NULL;
 
-  if (strlen(sd->status.equip[id].real_name)) {
+  if (strlen(sd->status.equip[id].real_name))
+  {
     nameof = sd->status.equip[id].real_name;
-  } else {
+  }
+  else
+  {
     nameof = itemdb_name(sd->status.equip[id].id);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -7561,10 +8810,13 @@ int clif_equipit(USER *sd, int id) {
   WFIFOHEAD(sd->fd, 255);
   WFIFOB(sd->fd, 5) = clif_getequiptype(id);
 
-  if (sd->status.equip[id].customIcon != 0) {
+  if (sd->status.equip[id].customIcon != 0)
+  {
     WFIFOW(sd->fd, 6) = SWAP16(sd->status.equip[id].customIcon + 49152);
     WFIFOB(sd->fd, 8) = sd->status.equip[id].customIconColor;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, 6) = SWAP16(itemdb_icon(sd->status.equip[id].id));
     WFIFOB(sd->fd, 8) = itemdb_iconcolor(sd->status.equip[id].id);
   }
@@ -7585,69 +8837,75 @@ int clif_equipit(USER *sd, int id) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
-int clif_sendequip(USER *sd, int id) {
+int clif_sendequip(USER *sd, int id)
+{
   char buff[256];
   char *name = NULL;
   int msgnum = 0;
 
-  switch (id) {
-    case EQ_HELM:
-      msgnum = MAP_EQHELM;
-      break;
-    case EQ_WEAP:
-      msgnum = MAP_EQWEAP;
-      break;
-    case EQ_ARMOR:
-      msgnum = MAP_EQARMOR;
-      break;
-    case EQ_SHIELD:
-      msgnum = MAP_EQSHIELD;
-      break;
-    case EQ_RIGHT:
-      msgnum = MAP_EQRIGHT;
-      break;
-    case EQ_LEFT:
-      msgnum = MAP_EQLEFT;
-      break;
-    case EQ_SUBLEFT:
-      msgnum = MAP_EQSUBLEFT;
-      break;
-    case EQ_SUBRIGHT:
-      msgnum = MAP_EQSUBRIGHT;
-      break;
-    case EQ_FACEACC:
-      msgnum = MAP_EQFACEACC;
-      break;
-    case EQ_CROWN:
-      msgnum = MAP_EQCROWN;
-      break;
-    case EQ_BOOTS:
-      msgnum = MAP_EQBOOTS;
-      break;
-    case EQ_MANTLE:
-      msgnum = MAP_EQMANTLE;
-      break;
-    case EQ_COAT:
-      msgnum = MAP_EQCOAT;
-      break;
-    case EQ_NECKLACE:
-      msgnum = MAP_EQNECKLACE;
-      break;
+  switch (id)
+  {
+  case EQ_HELM:
+    msgnum = MAP_EQHELM;
+    break;
+  case EQ_WEAP:
+    msgnum = MAP_EQWEAP;
+    break;
+  case EQ_ARMOR:
+    msgnum = MAP_EQARMOR;
+    break;
+  case EQ_SHIELD:
+    msgnum = MAP_EQSHIELD;
+    break;
+  case EQ_RIGHT:
+    msgnum = MAP_EQRIGHT;
+    break;
+  case EQ_LEFT:
+    msgnum = MAP_EQLEFT;
+    break;
+  case EQ_SUBLEFT:
+    msgnum = MAP_EQSUBLEFT;
+    break;
+  case EQ_SUBRIGHT:
+    msgnum = MAP_EQSUBRIGHT;
+    break;
+  case EQ_FACEACC:
+    msgnum = MAP_EQFACEACC;
+    break;
+  case EQ_CROWN:
+    msgnum = MAP_EQCROWN;
+    break;
+  case EQ_BOOTS:
+    msgnum = MAP_EQBOOTS;
+    break;
+  case EQ_MANTLE:
+    msgnum = MAP_EQMANTLE;
+    break;
+  case EQ_COAT:
+    msgnum = MAP_EQCOAT;
+    break;
+  case EQ_NECKLACE:
+    msgnum = MAP_EQNECKLACE;
+    break;
 
-    default:
-      return -1;
-      break;
+  default:
+    return -1;
+    break;
   }
 
   if (sd->status.equip[id].id > 0 &&
-      !strcasecmp(itemdb_name(sd->status.equip[id].id), "??")) {
+      !strcasecmp(itemdb_name(sd->status.equip[id].id), "??"))
+  {
     memset(&sd->status.equip[id], 0, sizeof(sd->status.equip[id]));
     return 0;
   }
 
-  if (strlen(sd->status.equip[id].real_name)) {
+  if (strlen(sd->status.equip[id].real_name))
+  {
     name = sd->status.equip[id].real_name;
-  } else {
+  }
+  else
+  {
     name = itemdb_name(sd->status.equip[id].id);
   }
 
@@ -7657,60 +8915,63 @@ int clif_sendequip(USER *sd, int id) {
   return 0;
 }
 
-int clif_mapmsgnum(USER *sd, int id) {
+int clif_mapmsgnum(USER *sd, int id)
+{
   int msgnum = 0;
-  switch (id) {
-    case EQ_HELM:
-      msgnum = MAP_EQHELM;
-      break;
-    case EQ_WEAP:
-      msgnum = MAP_EQWEAP;
-      break;
-    case EQ_ARMOR:
-      msgnum = MAP_EQARMOR;
-      break;
-    case EQ_SHIELD:
-      msgnum = MAP_EQSHIELD;
-      break;
-    case EQ_RIGHT:
-      msgnum = MAP_EQRIGHT;
-      break;
-    case EQ_LEFT:
-      msgnum = MAP_EQLEFT;
-      break;
-    case EQ_SUBLEFT:
-      msgnum = MAP_EQSUBLEFT;
-      break;
-    case EQ_SUBRIGHT:
-      msgnum = MAP_EQSUBRIGHT;
-      break;
-    case EQ_FACEACC:
-      msgnum = MAP_EQFACEACC;
-      break;
-    case EQ_CROWN:
-      msgnum = MAP_EQCROWN;
-      break;
-    case EQ_BOOTS:
-      msgnum = MAP_EQBOOTS;
-      break;
-    case EQ_MANTLE:
-      msgnum = MAP_EQMANTLE;
-      break;
-    case EQ_COAT:
-      msgnum = MAP_EQCOAT;
-      break;
-    case EQ_NECKLACE:
-      msgnum = MAP_EQNECKLACE;
-      break;
+  switch (id)
+  {
+  case EQ_HELM:
+    msgnum = MAP_EQHELM;
+    break;
+  case EQ_WEAP:
+    msgnum = MAP_EQWEAP;
+    break;
+  case EQ_ARMOR:
+    msgnum = MAP_EQARMOR;
+    break;
+  case EQ_SHIELD:
+    msgnum = MAP_EQSHIELD;
+    break;
+  case EQ_RIGHT:
+    msgnum = MAP_EQRIGHT;
+    break;
+  case EQ_LEFT:
+    msgnum = MAP_EQLEFT;
+    break;
+  case EQ_SUBLEFT:
+    msgnum = MAP_EQSUBLEFT;
+    break;
+  case EQ_SUBRIGHT:
+    msgnum = MAP_EQSUBRIGHT;
+    break;
+  case EQ_FACEACC:
+    msgnum = MAP_EQFACEACC;
+    break;
+  case EQ_CROWN:
+    msgnum = MAP_EQCROWN;
+    break;
+  case EQ_BOOTS:
+    msgnum = MAP_EQBOOTS;
+    break;
+  case EQ_MANTLE:
+    msgnum = MAP_EQMANTLE;
+    break;
+  case EQ_COAT:
+    msgnum = MAP_EQCOAT;
+    break;
+  case EQ_NECKLACE:
+    msgnum = MAP_EQNECKLACE;
+    break;
 
-    default:
-      return -1;
-      break;
+  default:
+    return -1;
+    break;
   }
 
   return msgnum;
 }
-int clif_sendgroupmessage(USER *sd, unsigned char *msg, int msglen) {
+int clif_sendgroupmessage(USER *sd, unsigned char *msg, int msglen)
+{
   char buf2[65535];
   int i;
   char message[256];
@@ -7720,32 +8981,40 @@ int clif_sendgroupmessage(USER *sd, unsigned char *msg, int msglen) {
   memcpy(message, msg, msglen);
   USER *tsd;
 
-  if (classdb_name(sd->status.class, sd->status.mark)) {
+  if (classdb_name(sd->status.class, sd->status.mark))
+  {
     sprintf(buf2, "[!%s] (%s) %s", sd->status.name,
             classdb_name(sd->status.class, sd->status.mark), message);
-  } else {
+  }
+  else
+  {
     sprintf(buf2, "[!%s] () %s", sd->status.name, message);
   }
 
-  if (sd->uFlags & uFlag_silenced) {
+  if (sd->uFlags & uFlag_silenced)
+  {
     clif_sendbluemessage(sd, "You are silenced.");
     return 0;
   }
 
-  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "Your voice is swept away by a strange wind.");
     return 0;
   }
 
-  for (i = 0; i < sd->group_count; i++) {
+  for (i = 0; i < sd->group_count; i++)
+  {
     tsd = map_id2sd(groups[sd->groupid][i]);
-    if (tsd && clif_isignore(sd, tsd)) {
+    if (tsd && clif_isignore(sd, tsd))
+    {
       clif_sendmsg(tsd, 11, buf2);
     }
   }
   return 0;
 }
-int clif_sendsubpathmessage(USER *sd, unsigned char *msg, int msglen) {
+int clif_sendsubpathmessage(USER *sd, unsigned char *msg, int msglen)
+{
   char buf2[65535];
   int i;
   char message[256];
@@ -7755,28 +9024,37 @@ int clif_sendsubpathmessage(USER *sd, unsigned char *msg, int msglen) {
   memcpy(message, msg, msglen);
   USER *tsd;
 
-  if (classdb_name(sd->status.class, sd->status.mark)) {
+  if (classdb_name(sd->status.class, sd->status.mark))
+  {
     sprintf(buf2, "<@%s> (%s) %s", sd->status.name,
             classdb_name(sd->status.class, sd->status.mark), message);
-  } else {
+  }
+  else
+  {
     sprintf(buf2, "<@%s> () %s", sd->status.name, message);
   }
 
-  if (sd->uFlags & uFlag_silenced) {
+  if (sd->uFlags & uFlag_silenced)
+  {
     clif_sendbluemessage(sd, "You are silenced.");
     return 0;
   }
 
-  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "Your voice is swept away by a strange wind.");
     return 0;
   }
 
-  for (i = 0; i < fd_max; i++) {
+  for (i = 0; i < fd_max; i++)
+  {
     if (session[i] && (tsd = session[i]->session_data) &&
-        clif_isignore(sd, tsd)) {
-      if (tsd->status.class == sd->status.class) {
-        if (tsd->status.subpath_chat) {
+        clif_isignore(sd, tsd))
+    {
+      if (tsd->status.class == sd->status.class)
+      {
+        if (tsd->status.subpath_chat)
+        {
           clif_sendmsg(tsd, 11, buf2);
         }
       }
@@ -7786,7 +9064,8 @@ int clif_sendsubpathmessage(USER *sd, unsigned char *msg, int msglen) {
   return 0;
 }
 
-int clif_sendclanmessage(USER *sd, unsigned char *msg, int msglen) {
+int clif_sendclanmessage(USER *sd, unsigned char *msg, int msglen)
+{
   char buf2[65535];
   int i;
   char message[256];
@@ -7795,28 +9074,37 @@ int clif_sendclanmessage(USER *sd, unsigned char *msg, int msglen) {
   memcpy(message, msg, msglen);
   USER *tsd = NULL;
 
-  if (classdb_name(sd->status.class, sd->status.mark)) {
+  if (classdb_name(sd->status.class, sd->status.mark))
+  {
     sprintf(buf2, "<!%s> (%s) %s", sd->status.name,
             classdb_name(sd->status.class, sd->status.mark), message);
-  } else {
+  }
+  else
+  {
     sprintf(buf2, "<!%s> () %s", sd->status.name, message);
   }
 
-  if (sd->uFlags & uFlag_silenced) {
+  if (sd->uFlags & uFlag_silenced)
+  {
     clif_sendbluemessage(sd, "You are silenced.");
     return 0;
   }
 
-  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "Your voice is swept away by a strange wind.");
     return 0;
   }
 
-  for (i = 0; i < fd_max; i++) {
+  for (i = 0; i < fd_max; i++)
+  {
     if (session[i] && (tsd = session[i]->session_data) &&
-        clif_isignore(sd, tsd)) {
-      if (tsd->status.clan == sd->status.clan) {
-        if (tsd->status.clan_chat) {
+        clif_isignore(sd, tsd))
+    {
+      if (tsd->status.clan == sd->status.clan)
+      {
+        if (tsd->status.clan_chat)
+        {
           clif_sendmsg(tsd, 12, buf2);
         }
       }
@@ -7826,7 +9114,8 @@ int clif_sendclanmessage(USER *sd, unsigned char *msg, int msglen) {
   return 0;
 }
 
-int clif_sendnovicemessage(USER *sd, unsigned char *msg, int msglen) {
+int clif_sendnovicemessage(USER *sd, unsigned char *msg, int msglen)
+{
   char buf2[65535];
   int i;
   char message[256];
@@ -7839,28 +9128,34 @@ int clif_sendnovicemessage(USER *sd, unsigned char *msg, int msglen) {
           classdb_name(sd->status.class, sd->status.mark), sd->status.name,
           message);
 
-  if (sd->uFlags & uFlag_silenced) {
+  if (sd->uFlags & uFlag_silenced)
+  {
     clif_sendbluemessage(sd, "You are silenced.");
     return 0;
   }
 
-  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "Your voice is swept away by a strange wind.");
     return 0;
   }
 
   if (sd->status.tutor ==
-      0) {  // Added to simulate to a non-tutor that their message was indeed
-            // sent (since they won't be able to see it)
+      0)
+  { // Added to simulate to a non-tutor that their message was indeed
+    // sent (since they won't be able to see it)
     clif_sendmsg(sd, 11,
-                 buf2);  // This function will make it appear on their screen
+                 buf2); // This function will make it appear on their screen
   }
 
-  for (i = 0; i < fd_max; i++) {
+  for (i = 0; i < fd_max; i++)
+  {
     if (session[i] && (tsd = session[i]->session_data) &&
-        clif_isignore(sd, tsd)) {
+        clif_isignore(sd, tsd))
+    {
       if ((tsd->status.tutor || tsd->status.gm_level > 0) &&
-          tsd->status.novice_chat) {
+          tsd->status.novice_chat)
+      {
         clif_sendmsg(tsd, 12, buf2);
       }
     }
@@ -7869,14 +9164,17 @@ int clif_sendnovicemessage(USER *sd, unsigned char *msg, int msglen) {
   return 0;
 }
 
-int ignorelist_add(USER *sd, const char *name) {
+int ignorelist_add(USER *sd, const char *name)
+{
   // return 0;
   // int ret=0;
 
   struct sd_ignorelist *Current = sd->IgnoreList;
   // Make sure name isnt already on list
-  while (Current) {
-    if (strcasecmp(Current->name, name) == 0) return 1;
+  while (Current)
+  {
+    if (strcasecmp(Current->name, name) == 0)
+      return 1;
 
     Current = Current->Next;
   }
@@ -7895,23 +9193,27 @@ int ignorelist_add(USER *sd, const char *name) {
   return 0;
 }
 
-int ignorelist_remove(USER *sd, const char *name) {
+int ignorelist_remove(USER *sd, const char *name)
+{
   char IgBuffer[32];
   char IgCmp[32];
 
   strcpy(IgBuffer, name);
   // strlwr(IgBuffer);
 
-  int ret = 1;  // Default error = name not found on list
+  int ret = 1; // Default error = name not found on list
 
-  if (sd->IgnoreList) {
+  if (sd->IgnoreList)
+  {
     struct sd_ignorelist *Current = sd->IgnoreList;
     struct sd_ignorelist *Prev = NULL;
-    while (Current) {
+    while (Current)
+    {
       strcpy(IgCmp, Current->name);
       // strlwr(IgCmp);
 
-      if (strcasecmp(IgCmp, IgBuffer) == 0) {
+      if (strcasecmp(IgCmp, IgBuffer) == 0)
+      {
         ret = 0;
         break;
       }
@@ -7921,35 +9223,42 @@ int ignorelist_remove(USER *sd, const char *name) {
     }
 
     // If found name to delete
-    if (ret == 0) {
-      if (Prev) {
+    if (ret == 0)
+    {
+      if (Prev)
+      {
         Prev->Next = Current->Next;
         // Current->Next=NULL;
         // Current->Prev=NULL;
         FREE(Current);
-      } else {
+      }
+      else
+      {
         FREE(sd->IgnoreList);
         sd->IgnoreList = NULL;
       }
     }
-
-  } else
-    ret = 2;  // Set error to empty ignore list, therefore name not on list
+  }
+  else
+    ret = 2; // Set error to empty ignore list, therefore name not on list
 
   return ret;
 }
 
-int clif_isignore(USER *sd, USER *dst_sd) {
+int clif_isignore(USER *sd, USER *dst_sd)
+{
   struct sd_ignorelist *Current = dst_sd->IgnoreList;
   char LowerName[32];
   char IgCmp[32];
 
   strcpy(LowerName, sd->status.name);
 
-  while (Current) {
+  while (Current)
+  {
     strcpy(IgCmp, Current->name);
 
-    if (strcasecmp(IgCmp, LowerName) == 0) return 0;
+    if (strcasecmp(IgCmp, LowerName) == 0)
+      return 0;
 
     Current = Current->Next;
   }
@@ -7957,10 +9266,12 @@ int clif_isignore(USER *sd, USER *dst_sd) {
   Current = sd->IgnoreList;
   strcpy(LowerName, dst_sd->status.name);
 
-  while (Current) {
+  while (Current)
+  {
     strcpy(IgCmp, Current->name);
 
-    if (strcasecmp(IgCmp, LowerName) == 0) return 0;
+    if (strcasecmp(IgCmp, LowerName) == 0)
+      return 0;
 
     Current = Current->Next;
   }
@@ -7968,22 +9279,28 @@ int clif_isignore(USER *sd, USER *dst_sd) {
   return 1;
 }
 
-int canwhisper(USER *sd, USER *dst_sd) {
-  if (!dst_sd) return 0;
+int canwhisper(USER *sd, USER *dst_sd)
+{
+  if (!dst_sd)
+    return 0;
 
   // int ret=1;
   if (sd->uFlags & uFlag_silenced)
     return 0;
   else if (!sd->status.gm_level &&
-           !(dst_sd->status.settingFlags & FLAG_WHISPER)) {
+           !(dst_sd->status.settingFlags & FLAG_WHISPER))
+  {
     return 0;
-  } else if (!sd->status.gm_level) {
+  }
+  else if (!sd->status.gm_level)
+  {
     return clif_isignore(sd, dst_sd);
   }
 
   return 1;
 }
-int clif_parsewisp(USER *sd) {
+int clif_parsewisp(USER *sd)
+{
   char dst_name[100];
   char strText[255];
   USER *dst_sd = NULL;
@@ -7995,17 +9312,20 @@ int clif_parsewisp(USER *sd) {
 
   // StringBuf_Init(&buf);
 
-  if (!(sd->status.settingFlags & FLAG_WHISPER) && !(sd->status.gm_level)) {
+  if (!(sd->status.settingFlags & FLAG_WHISPER) && !(sd->status.gm_level))
+  {
     clif_sendbluemessage(sd, "You have whispering turned off.");
     return 0;
   }
 
-  if (sd->uFlags & uFlag_silenced) {
+  if (sd->uFlags & uFlag_silenced)
+  {
     clif_sendbluemessage(sd, "You are silenced.");
     return 0;
   }
 
-  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "Your voice is swept away by a strange wind.");
     return 0;
   }
@@ -8017,7 +9337,8 @@ int clif_parsewisp(USER *sd) {
 
   if ((msglen > 80) || (dstlen > 80) || (dstlen > RFIFOREST(sd->fd)) ||
       (dstlen > SWAP16(RFIFOW(sd->fd, 1))) || (msglen > RFIFOREST(sd->fd)) ||
-      (msglen > SWAP16(RFIFOW(sd->fd, 1)))) {
+      (msglen > SWAP16(RFIFOW(sd->fd, 1))))
+  {
     clif_Hacker(sd->status.name, "Whisper packet");
     return 0;
   }
@@ -8038,82 +9359,124 @@ int clif_parsewisp(USER *sd) {
   */
   Sql_EscapeString(sql_handle, escape, msg);
 
-  if (!strcmp(dst_name, "!")) {
-    if (sd->status.clan == 0) {
+  if (!strcmp(dst_name, "!"))
+  {
+    if (sd->status.clan == 0)
+    {
       clif_sendbluemessage(sd, "You are not in a clan");
-    } else {
-      if (sd->status.clan_chat) {
+    }
+    else
+    {
+      if (sd->status.clan_chat)
+      {
         sl_doscript_strings("characterLog", "clanChatLog", 2, sd->status.name,
                             msg);
         clif_sendclanmessage(sd, RFIFOP(sd->fd, 7 + dstlen), msglen);
-      } else {
+      }
+      else
+      {
         clif_sendbluemessage(sd, "Clan chat is off.");
       }
     }
-  } else if (!strcmp(dst_name, "!!")) {
-    if (sd->group_count == 0) {
+  }
+  else if (!strcmp(dst_name, "!!"))
+  {
+    if (sd->group_count == 0)
+    {
       clif_sendbluemessage(sd, "You are not in a group");
-    } else {
+    }
+    else
+    {
       sl_doscript_strings("characterLog", "groupChatLog", 2, sd->status.name,
                           msg);
       clif_sendgroupmessage(sd, RFIFOP(sd->fd, 7 + dstlen), msglen);
     }
-  } else if (!strcmp(dst_name, "@")) {
-    if (classdb_chat(sd->status.class)) {
+  }
+  else if (!strcmp(dst_name, "@"))
+  {
+    if (classdb_chat(sd->status.class))
+    {
       sl_doscript_strings("characterLog", "subPathChatLog", 2, sd->status.name,
                           msg);
       clif_sendsubpathmessage(sd, RFIFOP(sd->fd, 7 + dstlen), msglen);
-    } else {
+    }
+    else
+    {
       clif_sendbluemessage(sd, "You cannot do that.");
     }
-  } else if (!strcmp(dst_name, "?")) {
-    if (sd->status.tutor == 0 && sd->status.gm_level == 0) {
-      if (sd->status.level < 99) {
+  }
+  else if (!strcmp(dst_name, "?"))
+  {
+    if (sd->status.tutor == 0 && sd->status.gm_level == 0)
+    {
+      if (sd->status.level < 99)
+      {
         sl_doscript_strings("characterLog", "noviceChatLog", 2, sd->status.name,
                             msg);
         clif_sendnovicemessage(sd, RFIFOP(sd->fd, 7 + dstlen), msglen);
-      } else {
+      }
+      else
+      {
         clif_sendbluemessage(sd, "You cannot do that.");
       }
-    } else {
+    }
+    else
+    {
       sl_doscript_strings("characterLog", "noviceChatLog", 2, sd->status.name,
                           msg);
       clif_sendnovicemessage(sd, RFIFOP(sd->fd, 7 + dstlen), msglen);
     }
-  } else {
+  }
+  else
+  {
     dst_sd = map_name2sd(dst_name);
-    if (!dst_sd) {
+    if (!dst_sd)
+    {
       sprintf(strText, "%s is nowhere to be found.", dst_name);
       clif_sendbluemessage(sd, strText);
-    } else {
-      if (canwhisper(sd, dst_sd)) {
-        if (dst_sd->afk && strcmp(dst_sd->afkmessage, "") != 0) {
+    }
+    else
+    {
+      if (canwhisper(sd, dst_sd))
+      {
+        if (dst_sd->afk && strcmp(dst_sd->afkmessage, "") != 0)
+        {
           sl_doscript_strings("characterLog", "whisperLog", 3,
                               dst_sd->status.name, sd->status.name, msg);
 
           clif_sendwisp(dst_sd, sd->status.name, msg);
           clif_sendwisp(dst_sd, dst_sd->status.name, dst_sd->afkmessage);
 
-          if (!sd->status.gm_level && (dst_sd->optFlags & optFlag_stealth)) {
+          if (!sd->status.gm_level && (dst_sd->optFlags & optFlag_stealth))
+          {
             sprintf(strText, "%s is nowhere to be found.", dst_name);
-          } else {
+          }
+          else
+          {
             clif_retrwisp(sd, dst_sd->status.name, msg);
             clif_retrwisp(sd, dst_sd->status.name, dst_sd->afkmessage);
           }
-        } else {
+        }
+        else
+        {
           sl_doscript_strings("characterLog", "whisperLog", 3,
                               dst_sd->status.name, sd->status.name, msg);
 
           clif_sendwisp(dst_sd, sd->status.name, msg);
 
-          if (!sd->status.gm_level && (dst_sd->optFlags & optFlag_stealth)) {
+          if (!sd->status.gm_level && (dst_sd->optFlags & optFlag_stealth))
+          {
             sprintf(strText, "%s is nowhere to be found.", dst_name);
             clif_sendbluemessage(sd, strText);
-          } else {
+          }
+          else
+          {
             clif_retrwisp(sd, dst_sd->status.name, msg);
           }
         }
-      } else {
+      }
+      else
+      {
         clif_sendbluemessage(sd, "They cannot hear you right now.");
       }
     }
@@ -8121,22 +9484,28 @@ int clif_parsewisp(USER *sd) {
   return 0;
 }
 
-int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
+int clif_sendsay(USER *sd, char *msg, int msglen, int type)
+{
   /*	Type:
           0 = Talk
           1 = Shout
           2 = Skill
   */
-  if (type == 1) {
+  if (type == 1)
+  {
     sd->talktype = 1;
     strcpy(sd->speech, msg);
-  } else {
+  }
+  else
+  {
     sd->talktype = 0;
     strcpy(sd->speech, msg);
   }
 
-  for (int i = 0; i < MAX_SPELLS; i++) {
-    if (sd->status.skill[i] > 0) {
+  for (int i = 0; i < MAX_SPELLS; i++)
+  {
+    if (sd->status.skill[i] > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.skill[i]), "on_say", 1,
                          &sd->bl);
     }
@@ -8145,20 +9514,23 @@ int clif_sendsay(USER *sd, char *msg, int msglen, int type) {
   return 0;
 }
 
-int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
+int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type)
+{
   unsigned char *buf;
   char name[25];
   char escape[255];
   int namelen = strlen(sd->status.name);
 
-  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level) {
+  if (map[sd->bl.m].cantalk == 1 && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "Your voice is swept away by a strange wind.");
     return 0;
   }
 
   Sql_EscapeString(sql_handle, escape, msg);
 
-  if (is_command(sd, msg, msglen)) {
+  if (is_command(sd, msg, msglen))
+  {
     /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SayLogs` (`SayChaId`,
     `SayMessage`, `SayType`) VALUES ('%u', '%s', '%s')", sd->status.id, escape,
     "Slash")) { Sql_ShowDebug(sql_handle);
@@ -8167,7 +9539,8 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
     return 0;
   }
 
-  if (sd->uFlags & uFlag_silenced) {
+  if (sd->uFlags & uFlag_silenced)
+  {
     clif_sendminitext(sd, "Shut up for now. ^^");
     return 0;
   }
@@ -8239,10 +9612,12 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
                   break;
   }*/
 
-  if (type >= 10) {
+  if (type >= 10)
+  {
     namelen += 4;
 
-    if (!session[sd->fd]) {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -8256,27 +9631,28 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
     WBUFB(buf, 5) = type;
     WBUFL(buf, 6) = SWAP32(sd->status.id);
     WBUFB(buf, 10) = namelen + msglen + 2;
-    switch (type) {
-      case 10:
-        sprintf(name, "EN[%s]", sd->status.name);
-        break;
-      case 11:
-        sprintf(name, "ES[%s]", sd->status.name);
-        break;
-      case 12:
-        sprintf(name, "FR[%s]", sd->status.name);
-        break;
-      case 13:
-        sprintf(name, "CN[%s]", sd->status.name);
-        break;
-      case 14:
-        sprintf(name, "PT[%s]", sd->status.name);
-        break;
-      case 15:
-        sprintf(name, "ID[%s]", sd->status.name);
-        break;
-      default:
-        break;
+    switch (type)
+    {
+    case 10:
+      sprintf(name, "EN[%s]", sd->status.name);
+      break;
+    case 11:
+      sprintf(name, "ES[%s]", sd->status.name);
+      break;
+    case 12:
+      sprintf(name, "FR[%s]", sd->status.name);
+      break;
+    case 13:
+      sprintf(name, "CN[%s]", sd->status.name);
+      break;
+    case 14:
+      sprintf(name, "PT[%s]", sd->status.name);
+      break;
+    case 15:
+      sprintf(name, "ID[%s]", sd->status.name);
+      break;
+    default:
+      break;
     }
     memcpy(WBUFP(buf, 11), name, namelen);
     WBUFB(buf, 11 + namelen) = ':';
@@ -8284,8 +9660,11 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
     memcpy(WBUFP(buf, 13 + namelen), msg, msglen);
     // crypt(WBUFP(buf, 0));
     clif_send(buf, 16 + namelen + msglen, &sd->bl, SAMEAREA);
-  } else {
-    if (!session[sd->fd]) {
+  }
+  else
+  {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -8307,21 +9686,27 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
     WBUFB(buf, 12 + namelen) = ' ';
     memcpy(WBUFP(buf, 13 + namelen), msg, msglen);
     // crypt(WBUFP(buf, 0));
-    if (type == 1) {
+    if (type == 1)
+    {
       clif_send(buf, 16 + namelen + msglen, &sd->bl, SAMEMAP);
-    } else {
+    }
+    else
+    {
       clif_send(buf, 16 + namelen + msglen, &sd->bl, SAMEAREA);
     }
   }
 
   strcpy(sd->speech, msg);
 
-  if (type == 1) {
+  if (type == 1)
+  {
     map_foreachinarea(clif_sendnpcyell, sd->bl.m, sd->bl.x, sd->bl.y, SAMEMAP,
                       BL_NPC, msg, sd);
     map_foreachinarea(clif_sendmobyell, sd->bl.m, sd->bl.x, sd->bl.y, SAMEMAP,
                       BL_MOB, msg, sd);
-  } else {
+  }
+  else
+  {
     map_foreachinarea(clif_sendnpcsay, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_NPC, msg, sd);
     map_foreachinarea(clif_sendmobsay, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
@@ -8331,7 +9716,8 @@ int clif_sendscriptsay(USER *sd, const char *msg, int msglen, int type) {
   return 0;
 }
 
-int clif_distance(struct block_list *bl, struct block_list *bl2) {
+int clif_distance(struct block_list *bl, struct block_list *bl2)
+{
   int distance = 0;
 
   distance += abs(bl->x - bl2->x);
@@ -8341,17 +9727,20 @@ int clif_distance(struct block_list *bl, struct block_list *bl2) {
   return distance;
 }
 
-int clif_sendnpcsay(struct block_list *bl, va_list ap) {
+int clif_sendnpcsay(struct block_list *bl, va_list ap)
+{
   NPC *nd = NULL;
   USER *sd = NULL;
 
-  if (bl->subtype != SCRIPT) return 0;
+  if (bl->subtype != SCRIPT)
+    return 0;
 
-  va_arg(ap, char *);  // msg
+  va_arg(ap, char *); // msg
   nullpo_ret(0, sd = va_arg(ap, USER *));
   nullpo_ret(0, nd = (NPC *)bl);
 
-  if (clif_distance(&sd->bl, &nd->bl) <= 10) {
+  if (clif_distance(&sd->bl, &nd->bl) <= 10)
+  {
     sd->last_click = bl->id;
     sl_async_freeco(sd);
     sl_doscript_blargs(nd->name, "onSayClick", 2, &sd->bl, &nd->bl);
@@ -8360,7 +9749,8 @@ int clif_sendnpcsay(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_sendmobsay(struct block_list *bl, va_list ap) {
+int clif_sendmobsay(struct block_list *bl, va_list ap)
+{
   /*MOB* mob = NULL;
   USER* sd = NULL;
   char* msg = NULL;
@@ -8386,29 +9776,33 @@ int clif_sendmobsay(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_sendnpcyell(struct block_list *bl, va_list ap) {
+int clif_sendnpcyell(struct block_list *bl, va_list ap)
+{
   NPC *nd = NULL;
   USER *sd = NULL;
   // char *msg = NULL;
 
-  if (bl->subtype != SCRIPT) return 0;
+  if (bl->subtype != SCRIPT)
+    return 0;
 
-  va_arg(ap, char *);  // msg;
+  va_arg(ap, char *); // msg;
   nullpo_ret(0, sd = va_arg(ap, USER *));
   nullpo_ret(0, nd = (NPC *)bl);
 
-  if (clif_distance(&sd->bl, &nd->bl) <= 20) {
+  if (clif_distance(&sd->bl, &nd->bl) <= 20)
+  {
     sd->last_click = bl->id;
     sl_async_freeco(sd);
     sl_doscript_blargs(nd->name, "onSayClick", 2, &sd->bl,
-                       &nd->bl);  // calls same speech script as everything
-                                  // else, just within range now
+                       &nd->bl); // calls same speech script as everything
+                                 // else, just within range now
   }
 
   return 0;
 }
 
-int clif_sendmobyell(struct block_list *bl, va_list ap) {
+int clif_sendmobyell(struct block_list *bl, va_list ap)
+{
   /*MOB* mob = NULL;
   USER* sd = NULL;
   char* msg = NULL;
@@ -8435,7 +9829,8 @@ int clif_sendmobyell(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_speak(struct block_list *bl, va_list ap) {
+int clif_speak(struct block_list *bl, va_list ap)
+{
   struct block_list *nd = NULL;
   USER *sd = NULL;
   const char *msg = NULL;
@@ -8448,7 +9843,8 @@ int clif_speak(struct block_list *bl, va_list ap) {
   nullpo_ret(0, sd = (USER *)bl);
   len = strlen(msg);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8465,40 +9861,45 @@ int clif_speak(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_parseignore(USER *sd) {
+int clif_parseignore(USER *sd)
+{
   unsigned char iCmd = RFIFOB(sd->fd, 5);
   unsigned char nLen = RFIFOB(sd->fd, 6);
   char nameBuf[32];
 
   memset(nameBuf, 0, 32);
-  if (nLen <= 16) switch (iCmd) {
-        // Add name
-      case 0x02:
+  if (nLen <= 16)
+    switch (iCmd)
+    {
+      // Add name
+    case 0x02:
 
-        memcpy(nameBuf, RFIFOP(sd->fd, 7), nLen);
-        // nameBuf[nLen]=0x00;
-        ignorelist_add(sd, nameBuf);
+      memcpy(nameBuf, RFIFOP(sd->fd, 7), nLen);
+      // nameBuf[nLen]=0x00;
+      ignorelist_add(sd, nameBuf);
 
-        break;
+      break;
 
-      // Remove name
-      case 0x03:
-        memcpy(nameBuf, RFIFOP(sd->fd, 7), nLen);
-        // nameBuf[nLen]=0x00;
-        ignorelist_remove(sd, nameBuf);
+    // Remove name
+    case 0x03:
+      memcpy(nameBuf, RFIFOP(sd->fd, 7), nLen);
+      // nameBuf[nLen]=0x00;
+      ignorelist_remove(sd, nameBuf);
 
-        break;
+      break;
     }
 
   return 0;
 }
 
-int clif_parsesay(USER *sd) {
+int clif_parsesay(USER *sd)
+{
   char *msg = (char *)RFIFOP(sd->fd, 7);
 
   sd->talktype = RFIFOB(sd->fd, 5);
 
-  if (sd->talktype > 1 || RFIFOB(sd->fd, 6) > 100) {
+  if (sd->talktype > 1 || RFIFOB(sd->fd, 6) > 100)
+  {
     clif_sendminitext(sd, "I just told the GM on you!");
     printf("Talk Hacker: %s\n", sd->status.name);
     return 0;
@@ -8506,8 +9907,10 @@ int clif_parsesay(USER *sd) {
 
   // memcpy(msg,RFIFOP(sd->fd, 7),RFIFOB(sd->fd, 6));
   strcpy(sd->speech, msg);
-  for (int i = 0; i < MAX_SPELLS; i++) {
-    if (sd->status.skill[i] > 0) {
+  for (int i = 0; i < MAX_SPELLS; i++)
+  {
+    if (sd->status.skill[i] > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.skill[i]), "on_say", 1,
                          &sd->bl);
     }
@@ -8531,8 +9934,10 @@ int clif_parsesay(USER *sd) {
  clif_sendsay(sd, RFIFOP(sd->fd, 7), RFIFOB(sd->fd, 6), tMode);*/
   return 0;
 }
-int clif_destroyold(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_destroyold(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8548,7 +9953,8 @@ int clif_destroyold(USER *sd) {
   return 0;
 }
 
-int clif_refresh(USER *sd) {
+int clif_refresh(USER *sd)
+{
   clif_sendmapinfo(sd);
   clif_sendxy(sd);
   clif_mob_look_start(sd);
@@ -8559,7 +9965,8 @@ int clif_refresh(USER *sd) {
   clif_sendchararea(sd);
   clif_getchararea(sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8573,14 +9980,19 @@ int clif_refresh(USER *sd) {
   WFIFOSET(sd->fd, 5 + 3);
   // sd->refresh_check=1;
 
-  if (!map[sd->bl.m].canGroup) {
+  if (!map[sd->bl.m].canGroup)
+  {
     char buff[256];
     sd->status.settingFlags ^= FLAG_GROUP;
 
-    if (sd->status.settingFlags & FLAG_GROUP) {  // not enabled
+    if (sd->status.settingFlags & FLAG_GROUP)
+    { // not enabled
       // sprintf(buff,"Join a group     :ON");
-    } else {
-      if (sd->group_count > 0) {
+    }
+    else
+    {
+      if (sd->group_count > 0)
+      {
         clif_leavegroup(sd);
       }
 
@@ -8593,7 +10005,8 @@ int clif_refresh(USER *sd) {
   return 0;
 }
 
-int clif_refreshnoclick(USER *sd) {
+int clif_refreshnoclick(USER *sd)
+{
   clif_sendmapinfo(sd);
   clif_sendxynoclick(sd);
   clif_mob_look_start(sd);
@@ -8604,7 +10017,8 @@ int clif_refreshnoclick(USER *sd) {
   clif_sendchararea(sd);
   clif_getchararea(sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8617,14 +10031,19 @@ int clif_refreshnoclick(USER *sd) {
   set_packet_indexes((unsigned char *)WFIFOP(sd->fd, 0));
   WFIFOSET(sd->fd, 5 + 3);
 
-  if (!map[sd->bl.m].canGroup) {
+  if (!map[sd->bl.m].canGroup)
+  {
     char buff[256];
     sd->status.settingFlags ^= FLAG_GROUP;
 
-    if (sd->status.settingFlags & FLAG_GROUP) {  // not enabled
+    if (sd->status.settingFlags & FLAG_GROUP)
+    { // not enabled
       // sprintf(buff,"Join a group     :ON");
-    } else {
-      if (sd->group_count > 0) {
+    }
+    else
+    {
+      if (sd->group_count > 0)
+      {
         clif_leavegroup(sd);
       }
 
@@ -8638,8 +10057,10 @@ int clif_refreshnoclick(USER *sd) {
   return 0;
 }
 
-int clif_sendupdatestatus(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendupdatestatus(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8667,8 +10088,10 @@ int clif_sendupdatestatus(USER *sd) {
   return 0;
 }
 
-int clif_sendupdatestatus2(USER *sd) {
-  if (!session[sd->fd]) {
+int clif_sendupdatestatus2(USER *sd)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8685,7 +10108,7 @@ int clif_sendupdatestatus2(USER *sd) {
   WFIFOB(sd->fd, 15) = sd->drunk;
   WFIFOB(sd->fd, 16) = sd->blind;
   WFIFOB(sd->fd, 17) = 0x00;
-  WFIFOB(sd->fd, 18) = 0x00;  // hear others
+  WFIFOB(sd->fd, 18) = 0x00; // hear others
   WFIFOB(sd->fd, 19) = 0x00;
   WFIFOB(sd->fd, 20) = sd->flags;
   WFIFOB(sd->fd, 21) = 0x01;
@@ -8694,12 +10117,14 @@ int clif_sendupdatestatus2(USER *sd) {
   return 0;
 }
 
-int clif_sendupdatestatus_onkill(USER *sd) {
+int clif_sendupdatestatus_onkill(USER *sd)
+{
   int tnl = clif_getLevelTNL(sd);
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8709,21 +10134,21 @@ int clif_sendupdatestatus_onkill(USER *sd) {
   WFIFOB(sd->fd, 1) = 0x00;
   WFIFOB(sd->fd, 2) = 0x1C;
   WFIFOB(sd->fd, 3) = 0x08;
-  WFIFOB(sd->fd, 5) = 0x19;  // packet subtype 24 = take damage, 25 = onKill, 88
-                             // = unEquip, 89 = Equip
+  WFIFOB(sd->fd, 5) = 0x19; // packet subtype 24 = take damage, 25 = onKill, 88
+                            // = unEquip, 89 = Equip
 
   WFIFOL(sd->fd, 6) = SWAP32(sd->status.exp);
   WFIFOL(sd->fd, 10) = SWAP32(sd->status.money);
 
-  WFIFOB(sd->fd, 14) = (int)percentage;  // exp percent
+  WFIFOB(sd->fd, 14) = (int)percentage; // exp percent
   WFIFOB(sd->fd, 15) = sd->drunk;
   WFIFOB(sd->fd, 16) = sd->blind;
   WFIFOB(sd->fd, 17) = 0;
-  WFIFOB(sd->fd, 18) = 0;  // hear others
-  WFIFOB(sd->fd, 19) = 0;  // seeminly nothing
+  WFIFOB(sd->fd, 18) = 0; // hear others
+  WFIFOB(sd->fd, 19) = 0; // seeminly nothing
   WFIFOB(sd->fd, 20) =
-      sd->flags;  // 1=New parcel, 16=new Message, 17=New Parcel + Message
-  WFIFOB(sd->fd, 21) = 0;  // seemingly nothing
+      sd->flags;          // 1=New parcel, 16=new Message, 17=New Parcel + Message
+  WFIFOB(sd->fd, 21) = 0; // seemingly nothing
   WFIFOL(sd->fd, 22) = SWAP32(sd->status.settingFlags);
   WFIFOL(sd->fd, 26) = SWAP32(tnl);
   WFIFOB(sd->fd, 30) = sd->armor;
@@ -8734,19 +10159,23 @@ int clif_sendupdatestatus_onkill(USER *sd) {
   return 0;
 }
 
-int clif_getLevelTNL(USER *sd) {
+int clif_getLevelTNL(USER *sd)
+{
   int tnl = 0;
 
   int path = sd->status.class;
   int level = sd->status.level;
-  if (path > 5) path = classdb_path(path);
+  if (path > 5)
+    path = classdb_path(path);
 
-  if (level < 99) tnl = classdb_level(path, level) - sd->status.exp;
+  if (level < 99)
+    tnl = classdb_level(path, level) - sd->status.exp;
 
   return tnl;
 }
 
-float clif_getXPBarPercent(USER *sd) {
+float clif_getXPBarPercent(USER *sd)
+{
   float percentage;
 
   int path = sd->status.class;
@@ -8754,12 +10183,15 @@ float clif_getXPBarPercent(USER *sd) {
   int expInLevel = 0;
   int tnl = 0;
 
-  if (path > 5) path = classdb_path(path);
+  if (path > 5)
+    path = classdb_path(path);
 
   path = sd->status.class;
   level = sd->status.level;
-  if (path > 5) path = classdb_path(path);
-  if (level < 99) {
+  if (path > 5)
+    path = classdb_path(path);
+  if (level < 99)
+  {
     expInLevel = classdb_level(path, level);
     expInLevel -= classdb_level(path, level - 1);
     tnl = classdb_level(path, level) - (sd->status.exp);
@@ -8769,23 +10201,27 @@ float clif_getXPBarPercent(USER *sd) {
       sd->underLevelFlag = sd->status.level;
 
     if (sd->underLevelFlag != sd->status.level)
-      sd->underLevelFlag = 0;  // means we leveled, unset flag
+      sd->underLevelFlag = 0; // means we leveled, unset flag
 
     if (sd->underLevelFlag)
       percentage = ((float)sd->status.exp / classdb_level(path, level)) * 100;
-  } else {
+  }
+  else
+  {
     percentage = ((float)sd->status.exp / 4294967295) * 100;
   }
 
   return percentage;
 }
 
-int clif_sendupdatestatus_onequip(USER *sd) {
+int clif_sendupdatestatus_onequip(USER *sd)
+{
   int tnl = clif_getLevelTNL(sd);
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8795,8 +10231,8 @@ int clif_sendupdatestatus_onequip(USER *sd) {
   WFIFOB(sd->fd, 1) = 0x00;
   WFIFOB(sd->fd, 2) = 65;
   WFIFOB(sd->fd, 3) = 0x08;
-  WFIFOB(sd->fd, 5) = 89;  // packet subtype 24 = take damage, 25 = onKill,  88
-                           // = unEquip, 89 = Equip
+  WFIFOB(sd->fd, 5) = 89; // packet subtype 24 = take damage, 25 = onKill,  88
+                          // = unEquip, 89 = Equip
 
   WFIFOB(sd->fd, 6) = 0x00;
   WFIFOB(sd->fd, 7) = sd->status.country;
@@ -8825,10 +10261,10 @@ int clif_sendupdatestatus_onequip(USER *sd) {
   WFIFOL(sd->fd, 39) = SWAP32(sd->status.money);
   WFIFOB(sd->fd, 43) = (int)percentage;
 
-  WFIFOB(sd->fd, 44) = sd->drunk;  // drunk
-  WFIFOB(sd->fd, 45) = sd->blind;  // blind
+  WFIFOB(sd->fd, 44) = sd->drunk; // drunk
+  WFIFOB(sd->fd, 45) = sd->blind; // blind
   WFIFOB(sd->fd, 46) = 0x00;
-  WFIFOB(sd->fd, 47) = 0x00;  // hear others
+  WFIFOB(sd->fd, 47) = 0x00; // hear others
   WFIFOB(sd->fd, 48) = 0x00;
   WFIFOB(sd->fd, 49) = sd->flags;
   WFIFOB(sd->fd, 50) = 0x00;
@@ -8843,12 +10279,14 @@ int clif_sendupdatestatus_onequip(USER *sd) {
   return 0;
 }
 
-int clif_sendupdatestatus_onunequip(USER *sd) {
+int clif_sendupdatestatus_onunequip(USER *sd)
+{
   int tnl = clif_getLevelTNL(sd);
   nullpo_ret(0, sd);
   float percentage = clif_getXPBarPercent(sd);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8858,14 +10296,14 @@ int clif_sendupdatestatus_onunequip(USER *sd) {
   WFIFOB(sd->fd, 1) = 0x00;
   WFIFOB(sd->fd, 2) = 55;
   WFIFOB(sd->fd, 3) = 0x08;
-  WFIFOB(sd->fd, 5) = 88;  // packet subtype 24 = take damage, 25 = onKill,  88
-                           // = unEquip, 89 = Equip
+  WFIFOB(sd->fd, 5) = 88; // packet subtype 24 = take damage, 25 = onKill,  88
+                          // = unEquip, 89 = Equip
 
   WFIFOB(sd->fd, 6) = 0x00;
-  WFIFOB(sd->fd, 7) = 20;    // dam?
-  WFIFOB(sd->fd, 8) = 0x00;  // hit?
+  WFIFOB(sd->fd, 7) = 20;   // dam?
+  WFIFOB(sd->fd, 8) = 0x00; // hit?
   WFIFOB(sd->fd, 9) = 0x00;
-  WFIFOB(sd->fd, 10) = 0x00;  // might?
+  WFIFOB(sd->fd, 10) = 0x00; // might?
   WFIFOL(sd->fd, 11) = sd->status.hp;
   WFIFOL(sd->fd, 15) = sd->status.mp;
   WFIFOB(sd->fd, 19) = 0;
@@ -8890,7 +10328,7 @@ int clif_sendupdatestatus_onunequip(USER *sd) {
   WFIFOB(sd->fd, 44) = sd->drunk;
   WFIFOB(sd->fd, 45) = sd->blind;
   WFIFOB(sd->fd, 46) = 0x00;
-  WFIFOB(sd->fd, 47) = 0x00;  // hear others
+  WFIFOB(sd->fd, 47) = 0x00; // hear others
   WFIFOB(sd->fd, 48) = 0x00;
   WFIFOB(sd->fd, 49) = sd->flags;
   WFIFOL(sd->fd, 50) = tnl;
@@ -8900,8 +10338,10 @@ int clif_sendupdatestatus_onunequip(USER *sd) {
   return 0;
 }
 
-int clif_sendbluemessage(USER *sd, char *msg) {
-  if (!session[sd->fd]) {
+int clif_sendbluemessage(USER *sd, char *msg)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -8918,7 +10358,8 @@ int clif_sendbluemessage(USER *sd, char *msg) {
   return 0;
 }
 
-int clif_playsound(struct block_list *bl, int sound) {
+int clif_playsound(struct block_list *bl, int sound)
+{
   unsigned char buf2[32];
   WBUFB(buf2, 0) = 0xAA;
   WBUFW(buf2, 1) = SWAP16(0x14);
@@ -8939,7 +10380,8 @@ int clif_playsound(struct block_list *bl, int sound) {
   clif_send(buf2, 32, bl, SAMEAREA);
   return 0;
 }
-int clif_sendaction(struct block_list *bl, int type, int time, int sound) {
+int clif_sendaction(struct block_list *bl, int type, int time, int sound)
+{
   /*	Type:
           0 = Stand/None	6 = Magic
           1 = Attack	7 = Eat*
@@ -8964,9 +10406,11 @@ int clif_sendaction(struct block_list *bl, int type, int time, int sound) {
   // crypt(WBUFP(buf, 0));
   clif_send(buf, 32, bl, SAMEAREA);
 
-  if (sound > 0) clif_playsound(bl, sound);
+  if (sound > 0)
+    clif_playsound(bl, sound);
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     sd = (USER *)bl;
     sd->action = type;
     sl_doscript_blargs("onAction", NULL, 1, &sd->bl);
@@ -8974,7 +10418,8 @@ int clif_sendaction(struct block_list *bl, int type, int time, int sound) {
 
   return 0;
 }
-int clif_sendmob_action(MOB *mob, int type, int time, int sound) {
+int clif_sendmob_action(MOB *mob, int type, int time, int sound)
+{
   /*	Type:
           0 = Stand/None	6 = Magic
           1 = Attack	7 = Eat*
@@ -8997,11 +10442,13 @@ int clif_sendmob_action(MOB *mob, int type, int time, int sound) {
   // crypt(WBUFP(buf, 0));
   clif_send(buf, 32, &mob->bl, SAMEAREA);
 
-  if (sound > 0) clif_playsound(&mob->bl, sound);
+  if (sound > 0)
+    clif_playsound(&mob->bl, sound);
 
   return 0;
 }
-int clif_sendanimation_xy(struct block_list *bl, va_list ap) {
+int clif_sendanimation_xy(struct block_list *bl, va_list ap)
+{
   USER *src = NULL;
   int anim, times, x, y;
 
@@ -9011,7 +10458,8 @@ int clif_sendanimation_xy(struct block_list *bl, va_list ap) {
   y = va_arg(ap, int);
   nullpo_ret(0, src = (USER *)bl);
 
-  if (!session[src->fd]) {
+  if (!session[src->fd])
+  {
     session[src->fd]->eof = 8;
     return 0;
   }
@@ -9029,7 +10477,8 @@ int clif_sendanimation_xy(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_sendanimation(struct block_list *bl, va_list ap) {
+int clif_sendanimation(struct block_list *bl, va_list ap)
+{
   struct block_list *t = NULL;
   USER *sd = NULL;
   int anim, times;
@@ -9039,8 +10488,10 @@ int clif_sendanimation(struct block_list *bl, va_list ap) {
   nullpo_ret(0, sd = (USER *)bl);
   times = va_arg(ap, int);
 
-  if (sd->status.settingFlags & FLAG_MAGIC) {
-    if (!session[sd->fd]) {
+  if (sd->status.settingFlags & FLAG_MAGIC)
+  {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -9058,14 +10509,17 @@ int clif_sendanimation(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_animation(USER *src, USER *sd, int animation, int duration) {
-  if (!session[sd->fd]) {
+int clif_animation(USER *src, USER *sd, int animation, int duration)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(src->fd, 0x0A + 3);
-  if (src->status.settingFlags & FLAG_MAGIC) {
+  if (src->status.settingFlags & FLAG_MAGIC)
+  {
     WFIFOB(src->fd, 0) = 0xAA;
     WFIFOW(src->fd, 1) = SWAP16(0x0A);
     WFIFOB(src->fd, 3) = 0x29;
@@ -9078,11 +10532,14 @@ int clif_animation(USER *src, USER *sd, int animation, int duration) {
   return 0;
 }
 
-int clif_sendanimations(USER *src, USER *sd) {
+int clif_sendanimations(USER *src, USER *sd)
+{
   int x;
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
     if (sd->status.dura_aether[x].duration > 0 &&
-        sd->status.dura_aether[x].animation) {
+        sd->status.dura_aether[x].animation)
+    {
       clif_animation(src, sd, sd->status.dura_aether[x].animation,
                      sd->status.dura_aether[x].duration);
     }
@@ -9090,7 +10547,8 @@ int clif_sendanimations(USER *src, USER *sd) {
   return 0;
 }
 
-int clif_sendmagic(USER *sd, int pos) {
+int clif_sendmagic(USER *sd, int pos)
+{
   int len;
   int id;
   int type;
@@ -9102,7 +10560,8 @@ int clif_sendmagic(USER *sd, int pos) {
   question = magicdb_question(id);
   type = magicdb_type(id);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -9112,7 +10571,7 @@ int clif_sendmagic(USER *sd, int pos) {
   WFIFOB(sd->fd, 3) = 0x17;
   // WFIFOB(sd->fd,4)=0x03;
   WFIFOB(sd->fd, 5) = pos + 1;
-  WFIFOB(sd->fd, 6) = type;  // this is type
+  WFIFOB(sd->fd, 6) = type; // this is type
   WFIFOB(sd->fd, 7) = strlen(name);
   len = strlen(name);
   strcpy(WFIFOP(sd->fd, 8), name);
@@ -9125,7 +10584,8 @@ int clif_sendmagic(USER *sd, int pos) {
   return 0;
 }
 
-int clif_parsemagic(USER *sd) {
+int clif_parsemagic(USER *sd)
+{
   struct block_list *bl = NULL;
   int pos;
   int time;
@@ -9150,7 +10610,8 @@ int clif_parsemagic(USER *sd) {
 
   i = clif_has_aethers(sd, sd->status.skill[pos]);
 
-  if (i > 0) {
+  if (i > 0)
+  {
     time = i / 1000;
     sl_doscript_blargs(magicdb_yname(sd->status.skill[pos]), "on_aethers", 1,
                        &sd->bl);
@@ -9159,7 +10620,8 @@ int clif_parsemagic(USER *sd) {
     return 0;
   }
 
-  if (sd->silence > 0 && magicdb_mute(sd->status.skill[pos]) <= sd->silence) {
+  if (sd->silence > 0 && magicdb_mute(sd->status.skill[pos]) <= sd->silence)
+  {
     sl_doscript_blargs(magicdb_yname(sd->status.skill[pos]), "on_mute", 1,
                        &sd->bl);
     clif_sendminitext(sd, "You have been silenced.");
@@ -9169,70 +10631,78 @@ int clif_parsemagic(USER *sd) {
   sd->target = 0;
   sd->attacker = 0;
 
-  switch (magicdb_type(sd->status.skill[pos])) {
-    case 1:
-      memset(sd->question, 0, 64);
-      // for(x=0;x<64;x++) {
-      //	if(RFIFOB(sd->fd,x+6)) {
-      //		q_len++;
-      //	} else {
-      //		break;
-      //	}
-      //}
-      // memcpy(sd->question,RFIFOP(sd->fd,6),q_len);
-      strcpy(sd->question, (char *)RFIFOP(sd->fd, 6));
-      Sql_EscapeString(sql_handle, escape, sd->question);
+  switch (magicdb_type(sd->status.skill[pos]))
+  {
+  case 1:
+    memset(sd->question, 0, 64);
+    // for(x=0;x<64;x++) {
+    //	if(RFIFOB(sd->fd,x+6)) {
+    //		q_len++;
+    //	} else {
+    //		break;
+    //	}
+    //}
+    // memcpy(sd->question,RFIFOP(sd->fd,6),q_len);
+    strcpy(sd->question, (char *)RFIFOP(sd->fd, 6));
+    Sql_EscapeString(sql_handle, escape, sd->question);
 
-      /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SpellLogs`
-      (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`, `SlgText`)
-      VALUES ('%u', '%u', '%u', '%u', '%u', '%s', '%s')", sd->status.id,
-      sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Question", escape))
-      { Sql_ShowDebug(sql_handle);
-      }*/
-      break;
-    case 2:
-      sd->target = SWAP32(RFIFOL(sd->fd, 6));
-      sd->attacker = SWAP32(RFIFOL(sd->fd, 6));
-      bl = map_id2bl(sd->target);
+    /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SpellLogs`
+    (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`, `SlgText`)
+    VALUES ('%u', '%u', '%u', '%u', '%u', '%s', '%s')", sd->status.id,
+    sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Question", escape))
+    { Sql_ShowDebug(sql_handle);
+    }*/
+    break;
+  case 2:
+    sd->target = SWAP32(RFIFOL(sd->fd, 6));
+    sd->attacker = SWAP32(RFIFOL(sd->fd, 6));
+    bl = map_id2bl(sd->target);
 
-      if (bl) {
-        /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SpellLogs`
-        (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
-        ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
-        sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Target")) {
-                Sql_ShowDebug(sql_handle);
-        }*/
-      } else {
-        // printf("User %s has an invalid target with ID: %u\n",
-        // sd->status.name, sd->target); // disabled on 12-21-2018. annoying af
-      }
-      break;
-    case 5:
+    if (bl)
+    {
       /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SpellLogs`
       (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
       ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
-      sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Self")) {
+      sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Target")) {
               Sql_ShowDebug(sql_handle);
       }*/
+    }
+    else
+    {
+      // printf("User %s has an invalid target with ID: %u\n",
+      // sd->status.name, sd->target); // disabled on 12-21-2018. annoying af
+    }
+    break;
+  case 5:
+    /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `SpellLogs`
+    (`SlgChaId`, `SlgSplId`, `SlgMapId`, `SlgX`, `SlgY`, `SlgType`) VALUES
+    ('%u', '%u', '%u', '%u', '%u', '%s')", sd->status.id,
+    sd->status.skill[pos], sd->bl.m, sd->bl.x, sd->bl.y, "Self")) {
+            Sql_ShowDebug(sql_handle);
+    }*/
 
-      break;
-    default:
-      return 0;
-      break;
+    break;
+  default:
+    return 0;
+    break;
   }
 
   sl_doscript_blargs("onCast", NULL, 1, &sd->bl);
 
-  if (sd->target) {
+  if (sd->target)
+  {
     MOB *TheMob = NULL;
     struct block_list *tbl = map_id2bl(sd->target);
     nullpo_ret(0, tbl);
 
     struct map_sessiondata *tsd = map_id2sd(tbl->id);
 
-    if (tbl) {
-      if (tbl->type == BL_PC) {
-        if ((tsd->optFlags & optFlag_stealth)) {
+    if (tbl)
+    {
+      if (tbl->type == BL_PC)
+      {
+        if ((tsd->optFlags & optFlag_stealth))
+        {
           return 0;
         }
       }
@@ -9240,30 +10710,37 @@ int clif_parsemagic(USER *sd) {
       struct point one = {tbl->m, tbl->x, tbl->y};
       struct point two = {sd->bl.m, sd->bl.x, sd->bl.y};
 
-      if (CheckProximity(one, two, 21) == 1) {
+      if (CheckProximity(one, two, 21) == 1)
+      {
         long health = 0;
         int twill = 0;
         int tprotection = 0;
 
-        if (tbl->type == BL_PC) {
+        if (tbl->type == BL_PC)
+        {
           health = tsd->status.hp;
           twill = tsd->will;
           tprotection = tsd->protection;
-        } else if (tbl->type == BL_MOB) {
+        }
+        else if (tbl->type == BL_MOB)
+        {
           TheMob = (MOB *)map_id2mob(tbl->id);
           health = TheMob->current_vita;
           twill = TheMob->will;
           tprotection = TheMob->protection;
         }
 
-        if (magicdb_canfail(sd->status.skill[pos]) == 1) {
+        if (magicdb_canfail(sd->status.skill[pos]) == 1)
+        {
           // printf("\n");
           int willDiff = twill - sd->will;
 
-          if (willDiff < 0) willDiff = 0;
+          if (willDiff < 0)
+            willDiff = 0;
 
           int prot = tprotection + (int)((willDiff / 10) + 0.5);
-          if (prot < 0) prot = 0;
+          if (prot < 0)
+            prot = 0;
 
           // printf("prot: %i\n",prot);
           int failChance = (int)(100 - (pow(0.9, prot) * 100) + 0.5);
@@ -9272,22 +10749,27 @@ int clif_parsemagic(USER *sd) {
 
           int castTest = rand() % 100;
           // printf("castTest: %i\n",castTest);
-          if (castTest < failChance) {
+          if (castTest < failChance)
+          {
             clif_sendminitext(sd, "The magic has been deflected.");
             return 0;
           }
         }
 
-        if (health > 0 || tbl->type == BL_PC) {
+        if (health > 0 || tbl->type == BL_PC)
+        {
           sl_async_freeco(sd);
           sl_doscript_blargs(magicdb_yname(sd->status.skill[pos]), "cast", 2,
                              &sd->bl, tbl);
-        } else if (tbl->type == BL_MOB) {
+        }
+        else if (tbl->type == BL_MOB)
+        {
         }
       }
     }
-
-  } else {
+  }
+  else
+  {
     sl_async_freeco(sd);
     sl_doscript_blargs(magicdb_yname(sd->status.skill[pos]), "cast", 2, &sd->bl,
                        NULL);
@@ -9332,17 +10814,20 @@ int clif_parsemagic(USER *sd) {
   return 0;
 }
 
-int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
+int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next)
+{
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   NPC *nd = map_id2npc((unsigned int)id);
   int type = sd->dialogtype;
 
-  if (nd) {
+  if (nd)
+  {
     nd->lastaction = time(NULL);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -9355,28 +10840,36 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
   // WFIFOB(sd->fd,5)=val[0];
   WFIFOL(sd->fd, 7) = SWAP32(id);
 
-  if (type == 0) {
-    if (graphic_id == 0) {
+  if (type == 0)
+  {
+    if (graphic_id == 0)
+    {
       WFIFOB(sd->fd, 11) = 0;
-    } else if (graphic_id >= 49152) {
+    }
+    else if (graphic_id >= 49152)
+    {
       WFIFOB(sd->fd, 11) = 2;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 11) = 1;
     }
 
     WFIFOB(sd->fd, 12) = 1;
-    WFIFOW(sd->fd, 13) = SWAP16(graphic_id);  // graphic id
-    WFIFOB(sd->fd, 15) = color;               // graphic color
+    WFIFOW(sd->fd, 13) = SWAP16(graphic_id); // graphic id
+    WFIFOB(sd->fd, 15) = color;              // graphic color
     WFIFOB(sd->fd, 16) = 1;
     WFIFOW(sd->fd, 17) = SWAP16(graphic_id);
     WFIFOB(sd->fd, 19) = color;
     WFIFOL(sd->fd, 20) = SWAP32(1);
-    WFIFOB(sd->fd, 24) = previous;  // Previous
-    WFIFOB(sd->fd, 25) = next;      // Next
+    WFIFOB(sd->fd, 24) = previous; // Previous
+    WFIFOB(sd->fd, 25) = next;     // Next
     WFIFOW(sd->fd, 26) = SWAP16(strlen(msg));
     strcpy(WFIFOP(sd->fd, 28), msg);
     WFIFOW(sd->fd, 1) = SWAP16(strlen(msg) + 25);
-  } else if (type == 1) {
+  }
+  else if (type == 1)
+  {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -9390,104 +10883,138 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
     WFIFOB(sd->fd, 23) = nd->skin_color;
 
     // armor
-    if (!nd->equip[EQ_ARMOR].id) {
+    if (!nd->equip[EQ_ARMOR].id)
+    {
       WFIFOW(sd->fd, 24) = 0xFFFF;
       WFIFOB(sd->fd, 26) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-      if (nd->armor_color) {
+      if (nd->armor_color)
+      {
         WFIFOB(sd->fd, 26) = nd->armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, 26) = nd->equip[EQ_ARMOR].customLookColor;
       }
     }
 
     // coat
-    if (nd->equip[EQ_COAT].id) {
+    if (nd->equip[EQ_COAT].id)
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_COAT].id);
       WFIFOB(sd->fd, 26) = nd->equip[EQ_COAT].customLookColor;
     }
 
     // weap
-    if (!nd->equip[EQ_WEAP].id) {
+    if (!nd->equip[EQ_WEAP].id)
+    {
       WFIFOW(sd->fd, 27) = 0xFFFF;
       WFIFOB(sd->fd, 29) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 27) = SWAP16(nd->equip[EQ_WEAP].id);
       WFIFOB(sd->fd, 29) = nd->equip[EQ_WEAP].customLookColor;
     }
 
     // shield
-    if (!nd->equip[EQ_SHIELD].id) {
+    if (!nd->equip[EQ_SHIELD].id)
+    {
       WFIFOW(sd->fd, 30) = 0xFFFF;
       WFIFOB(sd->fd, 32) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 30) = SWAP16(nd->equip[EQ_SHIELD].id);
       WFIFOB(sd->fd, 32) = nd->equip[EQ_SHIELD].customLookColor;
     }
 
     // helm
-    if (!nd->equip[EQ_HELM].id) {
+    if (!nd->equip[EQ_HELM].id)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->equip[EQ_HELM].id;
       WFIFOB(sd->fd, 35) = nd->equip[EQ_HELM].customLookColor;
     }
 
     // faceacc
-    if (!nd->equip[EQ_FACEACC].id) {
+    if (!nd->equip[EQ_FACEACC].id)
+    {
       WFIFOW(sd->fd, 36) = 0xFFFF;
       WFIFOB(sd->fd, 38) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 36) = SWAP16(nd->equip[EQ_FACEACC].id);
       WFIFOB(sd->fd, 38) = nd->equip[EQ_FACEACC].customLookColor;
     }
 
     // crown
-    if (!nd->equip[EQ_CROWN].id) {
+    if (!nd->equip[EQ_CROWN].id)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->equip[EQ_CROWN].id);
       WFIFOB(sd->fd, 41) = nd->equip[EQ_CROWN].customLookColor;
     }
 
-    if (!nd->equip[EQ_FACEACCTWO].id) {
+    if (!nd->equip[EQ_FACEACCTWO].id)
+    {
       WFIFOW(sd->fd, 42) = 0xFFFF;
       WFIFOB(sd->fd, 44) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 42) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
       WFIFOB(sd->fd, 44) = nd->equip[EQ_FACEACCTWO].customLookColor;
     }
 
     // mantle
-    if (!nd->equip[EQ_MANTLE].id) {
+    if (!nd->equip[EQ_MANTLE].id)
+    {
       WFIFOW(sd->fd, 45) = 0xFFFF;
       WFIFOB(sd->fd, 47) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 45) = SWAP16(nd->equip[EQ_MANTLE].id);
       WFIFOB(sd->fd, 47) = nd->equip[EQ_MANTLE].customLookColor;
     }
 
     // necklace
-    if (!nd->equip[EQ_NECKLACE].id) {
+    if (!nd->equip[EQ_NECKLACE].id)
+    {
       WFIFOW(sd->fd, 48) = 0xFFFF;
       WFIFOB(sd->fd, 50) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 48) = SWAP16(nd->equip[EQ_NECKLACE].id);
       WFIFOB(sd->fd, 50) = nd->equip[EQ_NECKLACE].customLookColor;
     }
 
     // boots
-    if (!nd->equip[EQ_BOOTS].id) {
+    if (!nd->equip[EQ_BOOTS].id)
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->sex);
       WFIFOB(sd->fd, 53) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->equip[EQ_BOOTS].id);
       WFIFOB(sd->fd, 53) = nd->equip[EQ_BOOTS].customLookColor;
     }
@@ -9501,7 +11028,9 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
     WFIFOW(sd->fd, 64) = SWAP16(strlen(msg));
     strcpy(WFIFOP(sd->fd, 66), msg);
     WFIFOW(sd->fd, 1) = SWAP16(strlen(msg) + 63);
-  } else if (type == 2) {
+  }
+  else if (type == 2)
+  {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -9527,11 +11056,14 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
     WFIFOB(sd->fd, 32) = nd->gfx.cshield;
 
     // helm
-    if (nd->gfx.helm == 65535) {
+    if (nd->gfx.helm == 65535)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->gfx.helm;
       WFIFOB(sd->fd, 35) = nd->gfx.chelm;
@@ -9542,10 +11074,13 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
     WFIFOB(sd->fd, 38) = nd->gfx.cfaceAcc;
 
     // crown
-    if (nd->gfx.crown == 65535) {
+    if (nd->gfx.crown == 65535)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->gfx.crown);
       WFIFOB(sd->fd, 41) = nd->gfx.ccrown;
@@ -9584,7 +11119,8 @@ int clif_scriptmes(USER *sd, int id, const char *msg, int previous, int next) {
 }
 int clif_scriptmenu(
     USER *sd, int id, char *dialog, char *menu[],
-    int size) {  // this function does not appear to get called any where at all
+    int size)
+{ // this function does not appear to get called any where at all
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
   int x;
@@ -9592,29 +11128,37 @@ int clif_scriptmenu(
   NPC *nd = map_id2npc((unsigned int)id);
   int type = sd->dialogtype;
 
-  if (nd) {
+  if (nd)
+  {
     nd->lastaction = time(NULL);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 0x2F;  // THis is a menu packet
-                             // WFIFOB(sd->fd,4)=3;
+  WFIFOB(sd->fd, 3) = 0x2F; // THis is a menu packet
+                            // WFIFOB(sd->fd,4)=3;
   WFIFOW(sd->fd, 5) = SWAP16(1);
   // WFIFOB(sd->fd,5)=1;
   WFIFOL(sd->fd, 7) = SWAP32(id);
 
-  if (type == 0) {
-    if (graphic == 0) {
+  if (type == 0)
+  {
+    if (graphic == 0)
+    {
       WFIFOB(sd->fd, 11) = 0;
-    } else if (graphic >= 49152) {
+    }
+    else if (graphic >= 49152)
+    {
       WFIFOB(sd->fd, 11) = 2;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 11) = 1;
     }
 
@@ -9629,7 +11173,8 @@ int clif_scriptmenu(
     WFIFOB(sd->fd, strlen(dialog) + 22) = size;
     len = strlen(dialog);
 
-    for (x = 1; x < size + 1; x++) {
+    for (x = 1; x < size + 1; x++)
+    {
       WFIFOB(sd->fd, len + 23) = strlen(menu[x]);
       strcpy(WFIFOP(sd->fd, len + 24), menu[x]);
       len += strlen(menu[x]) + 1;
@@ -9638,7 +11183,9 @@ int clif_scriptmenu(
     }
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 20);
-  } else if (type == 1) {
+  }
+  else if (type == 1)
+  {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -9652,104 +11199,138 @@ int clif_scriptmenu(
     WFIFOB(sd->fd, 23) = nd->skin_color;
 
     // armor
-    if (!nd->equip[EQ_ARMOR].id) {
+    if (!nd->equip[EQ_ARMOR].id)
+    {
       WFIFOW(sd->fd, 24) = 0xFFFF;
       WFIFOB(sd->fd, 26) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-      if (nd->armor_color) {
+      if (nd->armor_color)
+      {
         WFIFOB(sd->fd, 26) = nd->armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, 26) = nd->equip[EQ_ARMOR].customLookColor;
       }
     }
 
     // coat
-    if (nd->equip[EQ_COAT].id) {
+    if (nd->equip[EQ_COAT].id)
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_COAT].id);
       WFIFOB(sd->fd, 26) = nd->equip[EQ_COAT].customLookColor;
     }
 
     // weap
-    if (!nd->equip[EQ_WEAP].id) {
+    if (!nd->equip[EQ_WEAP].id)
+    {
       WFIFOW(sd->fd, 27) = 0xFFFF;
       WFIFOB(sd->fd, 29) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 27) = SWAP16(nd->equip[EQ_WEAP].id);
       WFIFOB(sd->fd, 29) = nd->equip[EQ_WEAP].customLookColor;
     }
 
     // shield
-    if (!nd->equip[EQ_SHIELD].id) {
+    if (!nd->equip[EQ_SHIELD].id)
+    {
       WFIFOW(sd->fd, 30) = 0xFFFF;
       WFIFOB(sd->fd, 32) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 30) = SWAP16(nd->equip[EQ_SHIELD].id);
       WFIFOB(sd->fd, 32) = nd->equip[EQ_SHIELD].customLookColor;
     }
 
     // helm
-    if (!nd->equip[EQ_HELM].id) {
+    if (!nd->equip[EQ_HELM].id)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->equip[EQ_HELM].id;
       WFIFOB(sd->fd, 35) = nd->equip[EQ_HELM].customLookColor;
     }
 
     // faceacc
-    if (!nd->equip[EQ_FACEACC].id) {
+    if (!nd->equip[EQ_FACEACC].id)
+    {
       WFIFOW(sd->fd, 36) = 0xFFFF;
       WFIFOB(sd->fd, 38) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 36) = SWAP16(nd->equip[EQ_FACEACC].id);
       WFIFOB(sd->fd, 38) = nd->equip[EQ_FACEACC].customLookColor;
     }
 
     // crown
-    if (!nd->equip[EQ_CROWN].id) {
+    if (!nd->equip[EQ_CROWN].id)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->equip[EQ_CROWN].id);
       WFIFOB(sd->fd, 41) = nd->equip[EQ_CROWN].customLookColor;
     }
 
-    if (!nd->equip[EQ_FACEACCTWO].id) {
+    if (!nd->equip[EQ_FACEACCTWO].id)
+    {
       WFIFOW(sd->fd, 42) = 0xFFFF;
       WFIFOB(sd->fd, 44) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 42) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
       WFIFOB(sd->fd, 44) = nd->equip[EQ_FACEACCTWO].customLookColor;
     }
 
     // mantle
-    if (!nd->equip[EQ_MANTLE].id) {
+    if (!nd->equip[EQ_MANTLE].id)
+    {
       WFIFOW(sd->fd, 45) = 0xFFFF;
       WFIFOB(sd->fd, 47) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 45) = SWAP16(nd->equip[EQ_MANTLE].id);
       WFIFOB(sd->fd, 47) = nd->equip[EQ_MANTLE].customLookColor;
     }
 
     // necklace
-    if (!nd->equip[EQ_NECKLACE].id) {
+    if (!nd->equip[EQ_NECKLACE].id)
+    {
       WFIFOW(sd->fd, 48) = 0xFFFF;
       WFIFOB(sd->fd, 50) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 48) = SWAP16(nd->equip[EQ_NECKLACE].id);
       WFIFOB(sd->fd, 50) = nd->equip[EQ_NECKLACE].customLookColor;
     }
 
     // boots
-    if (!nd->equip[EQ_BOOTS].id) {
+    if (!nd->equip[EQ_BOOTS].id)
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->sex);
       WFIFOB(sd->fd, 53) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->equip[EQ_BOOTS].id);
       WFIFOB(sd->fd, 53) = nd->equip[EQ_BOOTS].customLookColor;
     }
@@ -9762,7 +11343,8 @@ int clif_scriptmenu(
     WFIFOB(sd->fd, strlen(dialog) + 60) = size;
     len = strlen(dialog);
 
-    for (x = 1; x < size + 1; x++) {
+    for (x = 1; x < size + 1; x++)
+    {
       WFIFOB(sd->fd, len + 61) = strlen(menu[x]);
       strcpy(WFIFOP(sd->fd, len + 62), menu[x]);
       len += strlen(menu[x]) + 1;
@@ -9771,7 +11353,9 @@ int clif_scriptmenu(
     }
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 58);
-  } else if (type == 2) {
+  }
+  else if (type == 2)
+  {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -9797,11 +11381,14 @@ int clif_scriptmenu(
     WFIFOB(sd->fd, 32) = nd->gfx.cshield;
 
     // helm
-    if (nd->gfx.helm == 65535) {
+    if (nd->gfx.helm == 65535)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->gfx.helm;
       WFIFOB(sd->fd, 35) = nd->gfx.chelm;
@@ -9812,10 +11399,13 @@ int clif_scriptmenu(
     WFIFOB(sd->fd, 38) = nd->gfx.cfaceAcc;
 
     // crown
-    if (nd->gfx.crown == 65535) {
+    if (nd->gfx.crown == 65535)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->gfx.crown);
       WFIFOB(sd->fd, 41) = nd->gfx.ccrown;
@@ -9845,7 +11435,8 @@ int clif_scriptmenu(
     WFIFOB(sd->fd, strlen(dialog) + 60) = size;
     len = strlen(dialog);
 
-    for (x = 1; x < size + 1; x++) {
+    for (x = 1; x < size + 1; x++)
+    {
       WFIFOB(sd->fd, len + 61) = strlen(menu[x]);
       strcpy(WFIFOP(sd->fd, len + 62), menu[x]);
       len += strlen(menu[x]) + 1;
@@ -9861,7 +11452,8 @@ int clif_scriptmenu(
 }
 
 int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
-                       int size, int previous, int next) {
+                       int size, int previous, int next)
+{
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int x;
@@ -9869,11 +11461,13 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
   NPC *nd = map_id2npc((unsigned int)id);
   int type = sd->dialogtype;
 
-  if (nd) {
+  if (nd)
+  {
     nd->lastaction = time(NULL);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -9888,7 +11482,8 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
   // WFIFOW(sd->fd,5)=SWAP16(1);
   WFIFOL(sd->fd, 7) = SWAP32(id);
 
-  if (type == 0) {
+  if (type == 0)
+  {
     if (graphic_id == 0)
       WFIFOB(sd->fd, 11) = 0;
     else if (graphic_id >= 49152)
@@ -9897,27 +11492,30 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
       WFIFOB(sd->fd, 11) = 1;
 
     WFIFOB(sd->fd, 12) = 1;
-    WFIFOW(sd->fd, 13) = SWAP16(graphic_id);  // graphic id
+    WFIFOW(sd->fd, 13) = SWAP16(graphic_id); // graphic id
 
-    WFIFOB(sd->fd, 15) = color;  // graphic color
+    WFIFOB(sd->fd, 15) = color; // graphic color
     WFIFOB(sd->fd, 16) = 1;
     WFIFOW(sd->fd, 17) = SWAP16(graphic_id);
     WFIFOB(sd->fd, 19) = color;
     WFIFOL(sd->fd, 20) = SWAP32(1);
-    WFIFOB(sd->fd, 24) = previous;  // Previous
-    WFIFOB(sd->fd, 25) = next;      // Next
+    WFIFOB(sd->fd, 24) = previous; // Previous
+    WFIFOB(sd->fd, 25) = next;     // Next
     WFIFOW(sd->fd, 26) = SWAP16(strlen(dialog));
     strcpy(WFIFOP(sd->fd, 28), dialog);
     len = strlen(dialog) + 1;
     WFIFOB(sd->fd, len + 27) = size;
     len += 1;
-    for (x = 1; x < size + 1; x++) {
+    for (x = 1; x < size + 1; x++)
+    {
       WFIFOB(sd->fd, len + 27) = strlen(menu[x]);
       strcpy(WFIFOP(sd->fd, len + 28), menu[x]);
       len += strlen(menu[x]) + 1;
     }
     WFIFOW(sd->fd, 1) = SWAP16(len + 24);
-  } else if (type == 1) {  // showing NPC look
+  }
+  else if (type == 1)
+  { // showing NPC look
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -9931,104 +11529,138 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
     WFIFOB(sd->fd, 23) = nd->skin_color;
 
     // armor
-    if (!nd->equip[EQ_ARMOR].id) {
+    if (!nd->equip[EQ_ARMOR].id)
+    {
       WFIFOW(sd->fd, 24) = 0xFFFF;
       WFIFOB(sd->fd, 26) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-      if (nd->armor_color) {
+      if (nd->armor_color)
+      {
         WFIFOB(sd->fd, 26) = nd->armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, 26) = nd->equip[EQ_ARMOR].customLookColor;
       }
     }
 
     // coat
-    if (nd->equip[EQ_COAT].id) {
+    if (nd->equip[EQ_COAT].id)
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_COAT].id);
       WFIFOB(sd->fd, 26) = nd->equip[EQ_COAT].customLookColor;
     }
 
     // weap
-    if (!nd->equip[EQ_WEAP].id) {
+    if (!nd->equip[EQ_WEAP].id)
+    {
       WFIFOW(sd->fd, 27) = 0xFFFF;
       WFIFOB(sd->fd, 29) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 27) = SWAP16(nd->equip[EQ_WEAP].id);
       WFIFOB(sd->fd, 29) = nd->equip[EQ_WEAP].customLookColor;
     }
 
     // shield
-    if (!nd->equip[EQ_SHIELD].id) {
+    if (!nd->equip[EQ_SHIELD].id)
+    {
       WFIFOW(sd->fd, 30) = 0xFFFF;
       WFIFOB(sd->fd, 32) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 30) = SWAP16(nd->equip[EQ_SHIELD].id);
       WFIFOB(sd->fd, 32) = nd->equip[EQ_SHIELD].customLookColor;
     }
 
     // helm
-    if (!nd->equip[EQ_HELM].id) {
+    if (!nd->equip[EQ_HELM].id)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->equip[EQ_HELM].id;
       WFIFOB(sd->fd, 35) = nd->equip[EQ_HELM].customLookColor;
     }
 
     // faceacc
-    if (!nd->equip[EQ_FACEACC].id) {
+    if (!nd->equip[EQ_FACEACC].id)
+    {
       WFIFOW(sd->fd, 36) = 0xFFFF;
       WFIFOB(sd->fd, 38) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 36) = SWAP16(nd->equip[EQ_FACEACC].id);
       WFIFOB(sd->fd, 38) = nd->equip[EQ_FACEACC].customLookColor;
     }
 
     // crown
-    if (!nd->equip[EQ_CROWN].id) {
+    if (!nd->equip[EQ_CROWN].id)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->equip[EQ_CROWN].id);
       WFIFOB(sd->fd, 41) = nd->equip[EQ_CROWN].customLookColor;
     }
 
-    if (!nd->equip[EQ_FACEACCTWO].id) {
+    if (!nd->equip[EQ_FACEACCTWO].id)
+    {
       WFIFOW(sd->fd, 42) = 0xFFFF;
       WFIFOB(sd->fd, 44) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 42) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
       WFIFOB(sd->fd, 44) = nd->equip[EQ_FACEACCTWO].customLookColor;
     }
 
     // mantle
-    if (!nd->equip[EQ_MANTLE].id) {
+    if (!nd->equip[EQ_MANTLE].id)
+    {
       WFIFOW(sd->fd, 45) = 0xFFFF;
       WFIFOB(sd->fd, 47) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 45) = SWAP16(nd->equip[EQ_MANTLE].id);
       WFIFOB(sd->fd, 47) = nd->equip[EQ_MANTLE].customLookColor;
     }
 
     // necklace
-    if (!nd->equip[EQ_NECKLACE].id) {
+    if (!nd->equip[EQ_NECKLACE].id)
+    {
       WFIFOW(sd->fd, 48) = 0xFFFF;
       WFIFOB(sd->fd, 50) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 48) = SWAP16(nd->equip[EQ_NECKLACE].id);
       WFIFOB(sd->fd, 50) = nd->equip[EQ_NECKLACE].customLookColor;
     }
 
     // boots
-    if (!nd->equip[EQ_BOOTS].id) {
+    if (!nd->equip[EQ_BOOTS].id)
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->sex);
       WFIFOB(sd->fd, 53) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->equip[EQ_BOOTS].id);
       WFIFOB(sd->fd, 53) = nd->equip[EQ_BOOTS].customLookColor;
     }
@@ -10038,22 +11670,24 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
     WFIFOW(sd->fd, 55) = SWAP16(graphic_id);
     WFIFOB(sd->fd, 59) = color;
     WFIFOL(sd->fd, 60) = SWAP32(1);
-    WFIFOB(sd->fd, 64) = previous;  // Previous
-    WFIFOB(sd->fd, 65) = next;      // Next
+    WFIFOB(sd->fd, 64) = previous; // Previous
+    WFIFOB(sd->fd, 65) = next;     // Next
     WFIFOW(sd->fd, 66) = SWAP16(strlen(dialog));
     strcpy(WFIFOP(sd->fd, 68), dialog);
     len = strlen(dialog) + 68;
     WFIFOB(sd->fd, len) = size;
     len += 1;
-    for (x = 1; x < size + 1; x++) {
+    for (x = 1; x < size + 1; x++)
+    {
       WFIFOB(sd->fd, len) = strlen(menu[x]);
       strcpy(WFIFOP(sd->fd, len + 1), menu[x]);
       len += strlen(menu[x]) + 1;
     }
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 68);
-
-  } else if (type == 2) {  // showing player gfx look
+  }
+  else if (type == 2)
+  { // showing player gfx look
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(sd->status.sex);
     WFIFOB(sd->fd, 14) = sd->status.state;
@@ -10079,11 +11713,14 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
     WFIFOB(sd->fd, 32) = sd->gfx.cshield;
 
     // helm
-    if (sd->gfx.helm == 65535) {
+    if (sd->gfx.helm == 65535)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = sd->gfx.helm;
       WFIFOB(sd->fd, 35) = sd->gfx.chelm;
@@ -10094,10 +11731,13 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
     WFIFOB(sd->fd, 38) = sd->gfx.cfaceAcc;
 
     // crown
-    if (sd->gfx.crown == 65535) {
+    if (sd->gfx.crown == 65535)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(sd->gfx.crown);
       WFIFOB(sd->fd, 41) = sd->gfx.ccrown;
@@ -10124,14 +11764,15 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
     WFIFOW(sd->fd, 55) = SWAP16(graphic_id);
     WFIFOB(sd->fd, 59) = color;
     WFIFOL(sd->fd, 60) = SWAP32(1);
-    WFIFOB(sd->fd, 64) = previous;  // Previous
-    WFIFOB(sd->fd, 65) = next;      // Next
+    WFIFOB(sd->fd, 64) = previous; // Previous
+    WFIFOB(sd->fd, 65) = next;     // Next
     WFIFOW(sd->fd, 66) = SWAP16(strlen(dialog));
     strcpy(WFIFOP(sd->fd, 68), dialog);
     len = strlen(dialog) + 68;
     WFIFOB(sd->fd, len) = size;
     len += 1;
-    for (x = 1; x < size + 1; x++) {
+    for (x = 1; x < size + 1; x++)
+    {
       WFIFOB(sd->fd, len) = strlen(menu[x]);
       strcpy(WFIFOP(sd->fd, len + 1), menu[x]);
       len += strlen(menu[x]) + 1;
@@ -10146,18 +11787,21 @@ int clif_scriptmenuseq(USER *sd, int id, const char *dialog, const char *menu[],
 
 int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
                   const char *dialog3, const char *menu[], int size,
-                  int previous, int next) {
+                  int previous, int next)
+{
   int graphic_id = sd->npc_g;
   int color = sd->npc_gc;
   int len = 0;
 
   NPC *nd = map_id2npc((unsigned int)id);
 
-  if (nd) {
+  if (nd)
+  {
     nd->lastaction = time(NULL);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -10179,15 +11823,15 @@ int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
     WFIFOB(sd->fd, 11) = 1;
 
   WFIFOB(sd->fd, 12) = 1;
-  WFIFOW(sd->fd, 13) = SWAP16(graphic_id);  // graphic id
+  WFIFOW(sd->fd, 13) = SWAP16(graphic_id); // graphic id
 
-  WFIFOB(sd->fd, 15) = color;  // graphic color
+  WFIFOB(sd->fd, 15) = color; // graphic color
   WFIFOB(sd->fd, 16) = 1;
   WFIFOW(sd->fd, 17) = SWAP16(graphic_id);
   WFIFOB(sd->fd, 19) = color;
   WFIFOL(sd->fd, 20) = SWAP32(1);
-  WFIFOB(sd->fd, 24) = previous;  // Previous
-  WFIFOB(sd->fd, 25) = next;      // Next
+  WFIFOB(sd->fd, 24) = previous; // Previous
+  WFIFOB(sd->fd, 25) = next;     // Next
 
   WFIFOW(sd->fd, 26) = SWAP16(strlen(dialog));
   strcpy(WFIFOP(sd->fd, 28), dialog);
@@ -10210,26 +11854,33 @@ int clif_inputseq(USER *sd, int id, const char *dialog, const char *dialog2,
   return 0;
 }
 
-int clif_parseuseitem(USER *sd) {
+int clif_parseuseitem(USER *sd)
+{
   pc_useitem(sd, RFIFOB(sd->fd, 5) - 1);
   return 0;
 }
 
-int clif_parseeatitem(USER *sd) {
-  if (itemdb_type(sd->status.inventory[RFIFOB(sd->fd, 5) - 1].id) == ITM_EAT) {
+int clif_parseeatitem(USER *sd)
+{
+  if (itemdb_type(sd->status.inventory[RFIFOB(sd->fd, 5) - 1].id) == ITM_EAT)
+  {
     pc_useitem(sd, RFIFOB(sd->fd, 5) - 1);
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "That item is not edible.");
   }
 
   return 0;
 }
 
-int clif_parsegetitem(USER *sd) {
+int clif_parsegetitem(USER *sd)
+{
   if (sd->status.state == 1 || sd->status.state == 3)
-    return 0;  // Dead people can't pick up
+    return 0; // Dead people can't pick up
 
-  if (sd->status.state == 2) {
+  if (sd->status.state == 2)
+  {
     sd->status.state = 0;
     sl_doscript_blargs("invis_rogue", "uncast", 1, &sd->bl);
     map_foreachinarea(clif_updatestate, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
@@ -10240,9 +11891,11 @@ int clif_parsegetitem(USER *sd) {
 
   sd->pickuptype = RFIFOB(sd->fd, 5);
 
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  { // Spell stuff
     if (sd->status.dura_aether[x].id > 0 &&
-        sd->status.dura_aether[x].duration > 0) {
+        sd->status.dura_aether[x].duration > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                          "on_pickup_while_cast", 1, &sd->bl);
     }
@@ -10253,8 +11906,10 @@ int clif_parsegetitem(USER *sd) {
   return 0;
 }
 
-int clif_unequipit(USER *sd, int spot) {
-  if (!session[sd->fd]) {
+int clif_unequipit(USER *sd, int spot)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -10269,67 +11924,73 @@ int clif_unequipit(USER *sd, int spot) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
-int clif_parseunequip(USER *sd) {
+int clif_parseunequip(USER *sd)
+{
   int type;
   int x;
-  if (!sd) return 0;
+  if (!sd)
+    return 0;
 
-  switch (RFIFOB(sd->fd, 5)) {
-    case 0x01:
-      type = EQ_WEAP;
-      break;
-    case 0x02:
-      type = EQ_ARMOR;
-      break;
-    case 0x03:
-      type = EQ_SHIELD;
-      break;
-    case 0x04:
-      type = EQ_HELM;
-      break;
-    case 0x06:
-      type = EQ_NECKLACE;
-      break;
-    case 0x07:
-      type = EQ_LEFT;
-      break;
-    case 0x08:
-      type = EQ_RIGHT;
-      break;
-    case 13:
-      type = EQ_BOOTS;
-      break;
-    case 14:
-      type = EQ_MANTLE;
-      break;
-    case 16:
-      type = EQ_COAT;
-      break;
-    case 20:
-      type = EQ_SUBLEFT;
-      break;
-    case 21:
-      type = EQ_SUBRIGHT;
-      break;
-    case 22:
-      type = EQ_FACEACC;
-      break;
-    case 23:
-      type = EQ_CROWN;
-      break;
+  switch (RFIFOB(sd->fd, 5))
+  {
+  case 0x01:
+    type = EQ_WEAP;
+    break;
+  case 0x02:
+    type = EQ_ARMOR;
+    break;
+  case 0x03:
+    type = EQ_SHIELD;
+    break;
+  case 0x04:
+    type = EQ_HELM;
+    break;
+  case 0x06:
+    type = EQ_NECKLACE;
+    break;
+  case 0x07:
+    type = EQ_LEFT;
+    break;
+  case 0x08:
+    type = EQ_RIGHT;
+    break;
+  case 13:
+    type = EQ_BOOTS;
+    break;
+  case 14:
+    type = EQ_MANTLE;
+    break;
+  case 16:
+    type = EQ_COAT;
+    break;
+  case 20:
+    type = EQ_SUBLEFT;
+    break;
+  case 21:
+    type = EQ_SUBRIGHT;
+    break;
+  case 22:
+    type = EQ_FACEACC;
+    break;
+  case 23:
+    type = EQ_CROWN;
+    break;
 
-    default:
-      return 0;
+  default:
+    return 0;
   }
 
-  if (itemdb_unequip(sd->status.equip[type].id) == 1 && !sd->status.gm_level) {
+  if (itemdb_unequip(sd->status.equip[type].id) == 1 && !sd->status.gm_level)
+  {
     char text[] = "You are unable to unequip that.";
     clif_sendminitext(sd, text);
     return 0;
   }
 
-  for (x = 0; x < sd->status.maxinv; x++) {
-    if (!sd->status.inventory[x].id) {
+  for (x = 0; x < sd->status.maxinv; x++)
+  {
+    if (!sd->status.inventory[x].id)
+    {
       pc_unequip(sd, type);
       clif_unequipit(sd, RFIFOB(sd->fd, 5));
       return 0;
@@ -10340,7 +12001,8 @@ int clif_parseunequip(USER *sd) {
   return 0;
 }
 
-int clif_parselookat_sub(struct block_list *bl, va_list ap) {
+int clif_parselookat_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   nullpo_ret(0, bl);
   nullpo_ret(0, sd = va_arg(ap, USER *));
@@ -10349,7 +12011,8 @@ int clif_parselookat_sub(struct block_list *bl, va_list ap) {
   return 0;
 }
 
-int clif_parselookat_scriptsub(USER *sd, struct block_list *bl) {
+int clif_parselookat_scriptsub(USER *sd, struct block_list *bl)
+{
   /*MOB* mob = NULL;
   FLOORITEM* fl = NULL;
   USER *tsd = NULL;
@@ -10441,26 +12104,28 @@ int clif_parselookat_scriptsub(USER *sd, struct block_list *bl) {
   }*/
   return 0;
 }
-int clif_parselookat_2(USER *sd) {
+int clif_parselookat_2(USER *sd)
+{
   int dx;
   int dy;
 
   dx = sd->bl.x;
   dy = sd->bl.y;
 
-  switch (sd->status.side) {
-    case 0:
-      dy--;
-      break;
-    case 1:
-      dx++;
-      break;
-    case 2:
-      dy++;
-      break;
-    case 3:
-      dx--;
-      break;
+  switch (sd->status.side)
+  {
+  case 0:
+    dy--;
+    break;
+  case 1:
+    dx++;
+    break;
+  case 2:
+    dy++;
+    break;
+  case 3:
+    dx--;
+    break;
   }
 
   map_foreachincell(clif_parselookat_sub, sd->bl.m, dx, dy, BL_PC, sd);
@@ -10469,7 +12134,8 @@ int clif_parselookat_2(USER *sd) {
   map_foreachincell(clif_parselookat_sub, sd->bl.m, dx, dy, BL_NPC, sd);
   return 0;
 }
-int clif_parselookat(USER *sd) {
+int clif_parselookat(USER *sd)
+{
   int x = 0, y = 0;
 
   x = SWAP16(RFIFOW(sd->fd, 5));
@@ -10482,18 +12148,21 @@ int clif_parselookat(USER *sd) {
   return 0;
 }
 
-int clif_parseattack(USER *sd) {
+int clif_parseattack(USER *sd)
+{
   // int id;
   int attackspeed;
   int x;
 
   attackspeed = sd->attack_speed;
 
-  if (sd->paralyzed || sd->sleep != 1.0f) return 0;
+  if (sd->paralyzed || sd->sleep != 1.0f)
+    return 0;
 
   // id = sd->status.equip[EQ_WEAP].id;
 
-  if (sd->status.state == 1 || sd->status.state == 3) return 0;
+  if (sd->status.state == 1 || sd->status.state == 3)
+    return 0;
 
   // thrown rangeTarget support
   /*if(itemdb_thrown(sd->status.equip[EQ_WEAP].id)) {// && sd->time < 3) {
@@ -10537,9 +12206,12 @@ int clif_parseattack(USER *sd) {
           }
   } else {*/
 
-  if (itemdb_sound(sd->status.equip[EQ_WEAP].id) == 0) {
+  if (itemdb_sound(sd->status.equip[EQ_WEAP].id) == 0)
+  {
     clif_sendaction(&sd->bl, 1, attackspeed, 9);
-  } else {
+  }
+  else
+  {
     clif_sendaction(&sd->bl, 1, attackspeed,
                     itemdb_sound(sd->status.equip[EQ_WEAP].id));
   }
@@ -10550,7 +12222,8 @@ int clif_parseattack(USER *sd) {
   sl_doscript_blargs("onSwing", NULL, 1, &sd->bl);
 
   if (itemdb_look(sd->status.equip[EQ_WEAP].id) >= 20000 &&
-      itemdb_look(sd->status.equip[EQ_WEAP].id) < 30000) {  // bows
+      itemdb_look(sd->status.equip[EQ_WEAP].id) < 30000)
+  { // bows
     sl_doscript_blargs(itemdb_yname(sd->status.equip[EQ_WEAP].id), "shootArrow",
                        1, &sd->bl);
     sl_doscript_blargs("shootArrow", NULL, 1, &sd->bl);
@@ -10559,25 +12232,32 @@ int clif_parseattack(USER *sd) {
   //}
   // on_swing should activate ON SWING as it's called. use on_hit if you want it
   // to activate that way.
-  for (x = 0; x < 14; x++) {
-    if (sd->status.equip[x].id > 0) {
+  for (x = 0; x < 14; x++)
+  {
+    if (sd->status.equip[x].id > 0)
+    {
       sl_doscript_blargs(itemdb_yname(sd->status.equip[x].id), "on_swing", 1,
                          &sd->bl);
     }
   }
 
   // swing to cast
-  for (x = 0; x < MAX_SPELLS; x++) {
-    if (sd->status.skill[x] > 0) {
+  for (x = 0; x < MAX_SPELLS; x++)
+  {
+    if (sd->status.skill[x] > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.skill[x]), "passive_on_swing",
                          1, &sd->bl);
     }
   }
 
   // swing cast handling (has duration)
-  for (x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].id > 0) {
-      if (sd->status.dura_aether[x].duration > 0) {
+  for (x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].id > 0)
+    {
+      if (sd->status.dura_aether[x].duration > 0)
+      {
         sl_doscript_simple(magicdb_yname(sd->status.dura_aether[x].id),
                            "on_swing_while_cast", &sd->bl);
       }
@@ -10587,10 +12267,14 @@ int clif_parseattack(USER *sd) {
   return 0;
 }
 
-int clif_parsechangepos(USER *sd) {
-  if (!RFIFOB(sd->fd, 5)) {
+int clif_parsechangepos(USER *sd)
+{
+  if (!RFIFOB(sd->fd, 5))
+  {
     pc_changeitem(sd, RFIFOB(sd->fd, 6) - 1, RFIFOB(sd->fd, 7) - 1);
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "You are busy.");
   }
   return 0;
@@ -10657,19 +12341,24 @@ int clif_parsechangepos(USER *sd) {
         sl_doscript_blargs(guidedb_yname(SWAP16(RFIFOW(sd->fd,7))),"run",1,&sd->bl);
 
 }*/
-int clif_parsewield(USER *sd) {
+int clif_parsewield(USER *sd)
+{
   int pos = RFIFOB(sd->fd, 5) - 1;
   int id = sd->status.inventory[pos].id;
   int type = itemdb_type(id);
 
-  if (type >= 3 && type <= 16) {
+  if (type >= 3 && type <= 16)
+  {
     pc_useitem(sd, pos);
-  } else {
+  }
+  else
+  {
     clif_sendminitext(sd, "You cannot wield that!");
   }
   return 0;
 }
-int clif_addtocurrent(struct block_list *bl, va_list ap) {
+int clif_addtocurrent(struct block_list *bl, va_list ap)
+{
   int *def = NULL;
   unsigned int amount;
   USER *sd = NULL;
@@ -10681,36 +12370,44 @@ int clif_addtocurrent(struct block_list *bl, va_list ap) {
   amount = va_arg(ap, unsigned int);
   nullpo_ret(0, sd = va_arg(ap, USER *));
 
-  if (def[0]) return 0;
+  if (def[0])
+    return 0;
 
-  if (fl->data.id >= 0 && fl->data.id <= 3) {
+  if (fl->data.id >= 0 && fl->data.id <= 3)
+  {
     fl->data.amount += amount;
     def[0] = 1;
   }
   return 0;
 }
-int clif_dropgold(USER *sd, unsigned int amounts) {
+int clif_dropgold(USER *sd, unsigned int amounts)
+{
   char escape[255];
   char RegStr[] = "goldbardupe";
   int DupeTimes = pc_readglobalreg(sd, RegStr);
-  if (DupeTimes) {
+  if (DupeTimes)
+  {
     // char minibuf[]="Character under quarentine.";
     // clif_sendminitext(sd,minibuf);
     return 0;
   }
 
-  if (sd->status.gm_level == 0) {
+  if (sd->status.gm_level == 0)
+  {
     // dead can't drop gold
-    if (sd->status.state == 1) {
+    if (sd->status.state == 1)
+    {
       clif_sendminitext(sd, "Spirits can't do that.");
       return 0;
     }
-    if (sd->status.state == 3) {
+    if (sd->status.state == 3)
+    {
       clif_sendminitext(sd, "You cannot do that while riding a mount.");
       return 0;
     }
 
-    if (sd->status.state == 4) {
+    if (sd->status.state == 4)
+    {
       clif_sendminitext(sd, "You cannot do that while transformed.");
       return 0;
     }
@@ -10719,8 +12416,10 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   FLOORITEM *fl;
 
   unsigned int amount = amounts;
-  if (!sd->status.money) return 0;
-  if (!amounts) return 0;
+  if (!sd->status.money)
+    return 0;
+  if (!amounts)
+    return 0;
   int def[1];
   clif_sendaction(&sd->bl, 5, 20, 0);
   def[0] = 0;
@@ -10729,48 +12428,63 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   fl->bl.x = sd->bl.x;
   fl->bl.y = sd->bl.y;
 
-  if (sd->status.money < amount) {
+  if (sd->status.money < amount)
+  {
     amount = sd->status.money;
     sd->status.money = 0;
-  } else {
+  }
+  else
+  {
     sd->status.money -= amount;
   }
 
-  if (amount == 1) {
+  if (amount == 1)
+  {
     fl->data.id = 0;
     fl->data.amount = amount;
-  } else if (amount >= 2 && amount <= 99) {
+  }
+  else if (amount >= 2 && amount <= 99)
+  {
     fl->data.id = 1;
     fl->data.amount = amount;
-  } else if (amount >= 100 && amount <= 999) {
+  }
+  else if (amount >= 100 && amount <= 999)
+  {
     fl->data.id = 2;
     fl->data.amount = amount;
-  } else if (amount >= 1000) {
+  }
+  else if (amount >= 1000)
+  {
     fl->data.id = 3;
     fl->data.amount = amount;
   }
 
-  sd->fakeDrop = 0;  // sets initial
+  sd->fakeDrop = 0; // sets initial
 
   sl_doscript_blargs("on_drop_gold", NULL, 2, &sd->bl, &fl->bl);
 
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  { // Spell stuff
     if (sd->status.dura_aether[x].id > 0 &&
-        sd->status.dura_aether[x].duration > 0) {
+        sd->status.dura_aether[x].duration > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                          "on_drop_gold_while_cast", 2, &sd->bl, &fl->bl);
     }
   }
 
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  { // Spell stuff
     if (sd->status.dura_aether[x].id > 0 &&
-        sd->status.dura_aether[x].aether > 0) {
+        sd->status.dura_aether[x].aether > 0)
+    {
       sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                          "on_drop_gold_while_aether", 2, &sd->bl, &fl->bl);
     }
   }
 
-  if (sd->fakeDrop) return 0;
+  if (sd->fakeDrop)
+    return 0;
 
   char mini[64];
   sprintf(mini, "You dropped %d coins", fl->data.amount);
@@ -10787,22 +12501,27 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   fl->data.amount)) { Sql_ShowDebug(sql_handle);
   }*/
 
-  if (!def[0]) {
+  if (!def[0])
+  {
     map_additem(&fl->bl);
 
     sl_doscript_blargs("after_drop_gold", NULL, 2, &sd->bl, &fl->bl);
 
-    for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+    for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+    { // Spell stuff
       if (sd->status.dura_aether[x].id > 0 &&
-          sd->status.dura_aether[x].duration > 0) {
+          sd->status.dura_aether[x].duration > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                            "after_drop_gold_while_cast", 2, &sd->bl, &fl->bl);
       }
     }
 
-    for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {  // Spell stuff
+    for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+    { // Spell stuff
       if (sd->status.dura_aether[x].id > 0 &&
-          sd->status.dura_aether[x].aether > 0) {
+          sd->status.dura_aether[x].aether > 0)
+      {
         sl_doscript_blargs(magicdb_yname(sd->status.dura_aether[x].id),
                            "after_drop_gold_while_aether", 2, &sd->bl, &fl->bl);
       }
@@ -10811,8 +12530,9 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
     sl_doscript_blargs("characterLog", "dropWrite", 2, &sd->bl, &fl->bl);
     map_foreachinarea(clif_object_look_sub2, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_PC, LOOK_SEND, &fl->bl);
-
-  } else {
+  }
+  else
+  {
     FREE(fl);
   }
 
@@ -10821,14 +12541,16 @@ int clif_dropgold(USER *sd, unsigned int amounts) {
   return 0;
 }
 
-int clif_open_sub(USER *sd) {
+int clif_open_sub(USER *sd)
+{
   nullpo_ret(0, sd);
 
   sl_doscript_blargs("onOpen", NULL, 1, &sd->bl);
   return 0;
 }
 
-int clif_parsechangespell(USER *sd) {
+int clif_parsechangespell(USER *sd)
+{
   int start_pos = RFIFOB(sd->fd, 6) - 1;
   int stop_pos = RFIFOB(sd->fd, 7) - 1;
   int start_id = 0;
@@ -10846,8 +12568,10 @@ int clif_parsechangespell(USER *sd) {
   return 0;
 }
 
-int clif_removespell(USER *sd, int pos) {
-  if (!session[sd->fd]) {
+int clif_removespell(USER *sd, int pos)
+{
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -10861,12 +12585,15 @@ int clif_removespell(USER *sd, int pos) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   return 0;
 }
-int clif_throwitem_sub(USER *sd, int id, int type, int x, int y) {
+int clif_throwitem_sub(USER *sd, int id, int type, int x, int y)
+{
   FLOORITEM *fl = NULL;
 
-  if (!sd->status.inventory[id].id) return 0;
+  if (!sd->status.inventory[id].id)
+    return 0;
 
-  if (sd->status.inventory[id].amount <= 0) {
+  if (sd->status.inventory[id].amount <= 0)
+  {
     clif_senddelitem(sd, id, 4);
     return 0;
   }
@@ -10884,7 +12611,8 @@ int clif_throwitem_sub(USER *sd, int id, int type, int x, int y) {
   return 0;
 }
 
-int clif_throwitem_script(USER *sd) {
+int clif_throwitem_script(USER *sd)
+{
   FLOORITEM *fl = NULL;
   unsigned char sndbuf[48];
   int def[1];
@@ -10901,7 +12629,8 @@ int clif_throwitem_script(USER *sd) {
   def[0] = 0;
   // item check goes here(to see if there are previous items added
 
-  if (fl->data.dura == itemdb_dura(fl->data.id)) {
+  if (fl->data.dura == itemdb_dura(fl->data.id))
+  {
     map_foreachincell(pc_addtocurrent, sd->bl.m, x, y, BL_ITEM, def, id, type,
                       sd);
   }
@@ -10915,32 +12644,42 @@ int clif_throwitem_script(USER *sd) {
   fl->bl.m, x, y)) { Sql_ShowDebug(sql_handle);
   }*/
 
-  if (type || !sd->status.inventory[id].amount) {
+  if (type || !sd->status.inventory[id].amount)
+  {
     memset(&sd->status.inventory[id], 0, sizeof(struct item));
     clif_senddelitem(sd, id, 4);
-  } else {
+  }
+  else
+  {
     fl->data.amount = 1;
     clif_sendadditem(sd, id);
   }
 
-  if (sd->bl.x != x) {
+  if (sd->bl.x != x)
+  {
     WBUFB(sndbuf, 0) = 0xAA;
     WBUFW(sndbuf, 1) = SWAP16(0x1B);
     WBUFB(sndbuf, 3) = 0x16;
     WBUFB(sndbuf, 4) = 0x03;
     WBUFL(sndbuf, 5) = SWAP32(sd->bl.id);
 
-    if (fl->data.customIcon != 0) {
+    if (fl->data.customIcon != 0)
+    {
       WBUFW(sndbuf, 9) = SWAP16(fl->data.customIcon + 49152);
       WBUFB(sndbuf, 11) = fl->data.customIconColor;
-    } else {
+    }
+    else
+    {
       WBUFW(sndbuf, 9) = SWAP16(itemdb_icon(fl->data.id));
       WBUFB(sndbuf, 11) = itemdb_iconcolor(fl->data.id);
     }
 
-    if (def[0]) {
+    if (def[0])
+    {
       WBUFL(sndbuf, 12) = (unsigned int)def[0];
-    } else {
+    }
+    else
+    {
       WBUFL(sndbuf, 12) = (unsigned int)fl->bl.id;
     }
     WBUFW(sndbuf, 16) = SWAP16(sd->bl.x);
@@ -10952,45 +12691,59 @@ int clif_throwitem_script(USER *sd) {
     WBUFB(sndbuf, 29) = 0x00;
     // crypt(WBUFP(sndbuf,0));
     clif_send(sndbuf, 48, &sd->bl, SAMEAREA);
-  } else {
+  }
+  else
+  {
     clif_sendaction(&sd->bl, 2, 30, 0);
   }
   // WFIFOSET(sd->fd,30);
 
-  if (!def[0]) {
+  if (!def[0])
+  {
     map_additem(&fl->bl);
     map_foreachinarea(clif_object_look_sub2, sd->bl.m, sd->bl.x, sd->bl.y, AREA,
                       BL_PC, LOOK_SEND, &fl->bl);
-  } else {
+  }
+  else
+  {
     FREE(fl);
   }
 
   return 0;
 }
-int clif_throw_check(struct block_list *bl, va_list ap) {
+int clif_throw_check(struct block_list *bl, va_list ap)
+{
   MOB *mob = NULL;
   USER *sd = NULL;
 
   int *found = NULL;
   found = va_arg(ap, int *);
-  if (found[0]) return 0;
-  if (bl->type == BL_NPC) {
-    if (bl->subtype != SCRIPT) return 0;
+  if (found[0])
+    return 0;
+  if (bl->type == BL_NPC)
+  {
+    if (bl->subtype != SCRIPT)
+      return 0;
   }
-  if (bl->type == BL_MOB) {
+  if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
-    if (mob->state == MOB_DEAD) return 0;
+    if (mob->state == MOB_DEAD)
+      return 0;
   }
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     sd = (USER *)bl;
-    if (sd->status.state == 1 || (sd->optFlags & optFlag_stealth)) return 0;
+    if (sd->status.state == 1 || (sd->optFlags & optFlag_stealth))
+      return 0;
   }
 
   found[0] += 1;
   return 0;
 }
 
-int clif_throwconfirm(USER *sd) {
+int clif_throwconfirm(USER *sd)
+{
   WFIFOHEAD(sd->fd, 7);
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOW(sd->fd, 1) = SWAP16(7);
@@ -11002,36 +12755,43 @@ int clif_throwconfirm(USER *sd) {
   return 0;
 }
 
-int clif_parsethrow(USER *sd) {
+int clif_parsethrow(USER *sd)
+{
   struct warp_list *x = NULL;
 
   char RegStr[] = "goldbardupe";
   int DupeTimes = pc_readglobalreg(sd, RegStr);
-  if (DupeTimes) {
+  if (DupeTimes)
+  {
     // char minibuf[]="Character under quarentine.";
     // clif_sendminitext(sd,minibuf);
     return 0;
   }
 
-  if (sd->status.gm_level == 0) {
+  if (sd->status.gm_level == 0)
+  {
     // dead can't throw
-    if (sd->status.state == 1) {
+    if (sd->status.state == 1)
+    {
       clif_sendminitext(sd, "Spirits can't do that.");
       return 0;
     }
     // mounted can't throw
-    if (sd->status.state == 3) {
+    if (sd->status.state == 3)
+    {
       clif_sendminitext(sd, "You cannot do that while riding a mount.");
       return 0;
     }
-    if (sd->status.state == 4) {
+    if (sd->status.state == 4)
+    {
       clif_sendminitext(sd, "You cannot do that while transformed.");
       return 0;
     }
   }
 
   int pos = RFIFOB(sd->fd, 6) - 1;
-  if (itemdb_droppable(sd->status.inventory[pos].id)) {
+  if (itemdb_droppable(sd->status.inventory[pos].id))
+  {
     clif_sendminitext(sd, "You can't throw this item.");
     return 0;
   }
@@ -11044,28 +12804,34 @@ int clif_parsethrow(USER *sd) {
   int found[1];
   int i;
   found[0] = 0;
-  switch (sd->status.side) {
-    case 0:  // up
-      ymod = -1;
+  switch (sd->status.side)
+  {
+  case 0: // up
+    ymod = -1;
 
-      break;
-    case 1:  // left
-      xmod = 1;
-      break;
-    case 2:  // down
-      ymod = 1;
-      break;
-    case 3:  // right
-      xmod = -1;
-      break;
+    break;
+  case 1: // left
+    xmod = 1;
+    break;
+  case 2: // down
+    ymod = 1;
+    break;
+  case 3: // right
+    xmod = -1;
+    break;
   }
-  for (i = 0; i < max; i++) {
+  for (i = 0; i < max; i++)
+  {
     x1 = sd->bl.x + (i * xmod) + xmod;
     y1 = sd->bl.y + (i * ymod) + ymod;
-    if (x1 < 0) x1 = 0;
-    if (y1 < 0) y1 = 0;
-    if (x1 >= map[sd->bl.m].xs) x1 = map[sd->bl.m].xs - 1;
-    if (y1 >= map[sd->bl.m].ys) y1 = map[sd->bl.m].ys - 1;
+    if (x1 < 0)
+      x1 = 0;
+    if (y1 < 0)
+      y1 = 0;
+    if (x1 >= map[sd->bl.m].xs)
+      x1 = map[sd->bl.m].xs - 1;
+    if (y1 >= map[sd->bl.m].ys)
+      y1 = map[sd->bl.m].ys - 1;
 
     map_foreachincell(clif_throw_check, sd->bl.m, x1, y1, BL_NPC, found);
     map_foreachincell(clif_throw_check, sd->bl.m, x1, y1, BL_PC, found);
@@ -11075,12 +12841,15 @@ int clif_parsethrow(USER *sd) {
     found[0] += clif_object_canmove_from(sd->bl.m, x1, y1, sd->status.side);
     for (x = map[sd->bl.m]
                  .warp[x1 / BLOCK_SIZE + (y1 / BLOCK_SIZE) * map[sd->bl.m].bxs];
-         x && !found[0]; x = x->next) {
-      if (x->x == x1 && x->y == y1) {
+         x && !found[0]; x = x->next)
+    {
+      if (x->x == x1 && x->y == y1)
+      {
         found[0] += 1;
       }
     }
-    if (found[0]) {
+    if (found[0])
+    {
       break;
     }
     newx = x1;
@@ -11089,7 +12858,8 @@ int clif_parsethrow(USER *sd) {
   return clif_throwitem_sub(sd, pos, 0, newx, newy);
 }
 
-int clif_parseviewchange(USER *sd) {
+int clif_parseviewchange(USER *sd)
+{
   int dx = 0, dy = 0;
   int x0, y0, x1, y1, direction = 0;
   // unsigned short checksum;
@@ -11103,26 +12873,28 @@ int clif_parseviewchange(USER *sd) {
   y1 = RFIFOB(sd->fd, 13);
   // checksum = SWAP16(RFIFOW(sd->fd, 14));
 
-  if (sd->status.state == 3) {
+  if (sd->status.state == 3)
+  {
     clif_sendminitext(sd, "You cannot do that while riding a mount.");
     return 0;
   }
 
-  switch (direction) {
-    case 0:
-      dy++;
-      break;
-    case 1:
-      dx--;
-      break;
-    case 2:
-      dy--;
-      break;
-    case 3:
-      dx++;
-      break;
-    default:
-      break;
+  switch (direction)
+  {
+  case 0:
+    dy++;
+    break;
+  case 1:
+    dx--;
+    break;
+  case 2:
+    dy--;
+    break;
+  case 3:
+    dx++;
+    break;
+  default:
+    break;
   }
 
   clif_sendxychange(sd, dx, dy);
@@ -11142,7 +12914,8 @@ int clif_parseviewchange(USER *sd) {
   return 0;
 }
 
-int clif_parsefriends(USER *sd, char *friendList, int len) {
+int clif_parsefriends(USER *sd, char *friendList, int len)
+{
   int i = 0;
   int j = 0;
   char friends[20][16];
@@ -11150,18 +12923,22 @@ int clif_parsefriends(USER *sd, char *friendList, int len) {
   int friendCount = 0;
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
 
   memset(friends, 0, sizeof(char) * 20 * 16);
 
-  do {
+  do
+  {
     j = 0;
 
-    if (friendList[i] == 0x0C) {
-      do {
+    if (friendList[i] == 0x0C)
+    {
+      do
+      {
         i = i + 1;
         friends[friendCount][j] = friendList[i];
         j = j + 1;
@@ -11176,20 +12953,23 @@ int clif_parsefriends(USER *sd, char *friendList, int len) {
   if (SQL_ERROR ==
           SqlStmt_Prepare(stmt, "SELECT * FROM `Friends` WHERE `FndChaId` = %d",
                           sd->status.id) ||
-      SQL_ERROR == SqlStmt_Execute(stmt)) {
+      SQL_ERROR == SqlStmt_Execute(stmt))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SqlStmt_NumRows(stmt) == 0) {
+  if (SqlStmt_NumRows(stmt) == 0)
+  {
     if (SQL_ERROR == Sql_Query(sql_handle,
                                "INSERT INTO `Friends` (`FndChaId`) VALUES (%d)",
                                sd->status.id))
       Sql_ShowDebug(sql_handle);
   }
 
-  for (i = 0; i < 20; i++) {
+  for (i = 0; i < 20; i++)
+  {
     Sql_EscapeString(sql_handle, escape, friends[i]);
 
     if (SQL_ERROR == Sql_Query(sql_handle,
@@ -11203,7 +12983,8 @@ int clif_parsefriends(USER *sd, char *friendList, int len) {
   return 0;
 }
 
-int clif_changeprofile(USER *sd) {
+int clif_changeprofile(USER *sd)
+{
   sd->profilepic_size = SWAP16(RFIFOW(sd->fd, 5)) + 2;
   sd->profile_size = RFIFOB(sd->fd, 5 + sd->profilepic_size) + 1;
 
@@ -11214,12 +12995,15 @@ int clif_changeprofile(USER *sd) {
 }
 
 // this is for preventing hackers
-int check_packet_size(int fd, int len) {
+int check_packet_size(int fd, int len)
+{
   // USER *sd=session[fd]->session_data;
 
   if (session[fd]->rdata_size >
-      len) {  // there is more here, so check for congruity
-    if (RFIFOB(fd, len) != 0xAA) {
+      len)
+  { // there is more here, so check for congruity
+    if (RFIFOB(fd, len) != 0xAA)
+    {
       session[fd]->eof = 1;
       return 1;
     }
@@ -11227,33 +13011,44 @@ int check_packet_size(int fd, int len) {
 
   return 0;
 }
-int canusepowerboards(USER *sd) {
-  if (sd->status.gm_level) return 1;
+int canusepowerboards(USER *sd)
+{
+  if (sd->status.gm_level)
+    return 1;
 
-  if (!pc_readglobalreg(sd, "carnagehost")) return 0;
+  if (!pc_readglobalreg(sd, "carnagehost"))
+    return 0;
 
-  if (sd->bl.m >= 2001 && sd->bl.m <= 2099) return 1;
+  if (sd->bl.m >= 2001 && sd->bl.m <= 2099)
+    return 1;
 
   return 0;
 }
-int clif_stoptimers(USER *sd) {
-  for (int x = 0; x < MAX_MAGIC_TIMERS; x++) {
-    if (sd->status.dura_aether[x].dura_timer) {
+int clif_stoptimers(USER *sd)
+{
+  for (int x = 0; x < MAX_MAGIC_TIMERS; x++)
+  {
+    if (sd->status.dura_aether[x].dura_timer)
+    {
       timer_remove(sd->status.dura_aether[x].dura_timer);
     }
-    if (sd->status.dura_aether[x].aether_timer) {
+    if (sd->status.dura_aether[x].aether_timer)
+    {
       timer_remove(sd->status.dura_aether[x].aether_timer);
     }
   }
   return 0;
 }
-int clif_handle_disconnect(USER *sd) {
+int clif_handle_disconnect(USER *sd)
+{
   USER *tsd = NULL;
-  if (sd->exchange.target) {
+  if (sd->exchange.target)
+  {
     tsd = map_id2sd(sd->exchange.target);
     clif_exchange_close(sd);
 
-    if (tsd && tsd->exchange.target == sd->bl.id) {
+    if (tsd && tsd->exchange.target == sd->bl.id)
+    {
       clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
       clif_exchange_close(tsd);
     }
@@ -11279,15 +13074,20 @@ int clif_handle_disconnect(USER *sd) {
   printf("[map] [handle_disconnect] name=%s\n", sd->status.name);
   return 0;
 }
-int clif_handle_missingobject(USER *sd) {
+int clif_handle_missingobject(USER *sd)
+{
   struct block_list *bl = NULL;
   bl = map_id2bl(SWAP32(RFIFOL(sd->fd, 5)));
 
-  if (bl) {
-    if (bl->type == BL_PC) {
+  if (bl)
+  {
+    if (bl->type == BL_PC)
+    {
       clif_charspecific(sd->status.id, SWAP32(RFIFOL(sd->fd, 5)));
       clif_charspecific(SWAP32(RFIFOL(sd->fd, 5)), sd->status.id);
-    } else {
+    }
+    else
+    {
       // mob=(MOB*)bl;
       clif_object_look_specific(sd, SWAP32(RFIFOL(sd->fd, 5)));
       // clif_mob_look3(sd,mob);
@@ -11295,36 +13095,40 @@ int clif_handle_missingobject(USER *sd) {
   }
   return 0;
 }
-int clif_handle_menuinput(USER *sd) {
+int clif_handle_menuinput(USER *sd)
+{
   int npcinf;
   npcinf = RFIFOB(sd->fd, 5);
 
-  if (!hasCoref(sd)) return 0;
+  if (!hasCoref(sd))
+    return 0;
 
-  switch (npcinf) {
-    case 0:  // menu
-      sl_async_freeco(sd);
-      break;
-    case 1:  // input
-      clif_parsemenu(sd);
-      break;
-    case 2:  // buy
-      clif_parsebuy(sd);
-      break;
-    case 3:  // input
-      clif_parseinput(sd);
-      break;
-    case 4:  // sell
-      clif_parsesell(sd);
-      break;
-    default:
-      sl_async_freeco(sd);
-      break;
+  switch (npcinf)
+  {
+  case 0: // menu
+    sl_async_freeco(sd);
+    break;
+  case 1: // input
+    clif_parsemenu(sd);
+    break;
+  case 2: // buy
+    clif_parsebuy(sd);
+    break;
+  case 3: // input
+    clif_parseinput(sd);
+    break;
+  case 4: // sell
+    clif_parsesell(sd);
+    break;
+  default:
+    sl_async_freeco(sd);
+    break;
   }
 
   return 0;
 }
-int clif_handle_clickgetinfo(USER *sd) {
+int clif_handle_clickgetinfo(USER *sd)
+{
   struct block_list *bl = NULL;
   struct npc_data *nd = NULL;
   USER *tsd = NULL;
@@ -11334,12 +13138,17 @@ int clif_handle_clickgetinfo(USER *sd) {
 
   if (RFIFOL(sd->fd, 6) == 0)
     bl = map_id2bl(sd->last_click);
-  else {
-    if (SWAP32(RFIFOL(sd->fd, 6)) == 0xFFFFFFFE) {  // subpath chat
-      if (!sd->status.subpath_chat) {
+  else
+  {
+    if (SWAP32(RFIFOL(sd->fd, 6)) == 0xFFFFFFFE)
+    { // subpath chat
+      if (!sd->status.subpath_chat)
+      {
         sd->status.subpath_chat = 1;
         clif_sendminitext(sd, "Subpath Chat: ON");
-      } else {
+      }
+      else
+      {
         sd->status.subpath_chat = 0;
         clif_sendminitext(sd, "Subpath Chat: OFF");
       }
@@ -11350,72 +13159,80 @@ int clif_handle_clickgetinfo(USER *sd) {
     bl = map_id2bl(SWAP32(RFIFOL(sd->fd, 6)));
   }
 
-  if (bl) {
+  if (bl)
+  {
     struct point one = {sd->bl.m, sd->bl.x, sd->bl.y};
     struct point two = {bl->m, bl->x, bl->y};
     int Radius = 10;
 
-    switch (bl->type) {
-      case BL_PC:
+    switch (bl->type)
+    {
+    case BL_PC:
 
-        tsd = map_id2sd(bl->id);
-        struct point cone = {sd->bl.m, sd->bl.x, sd->bl.y};
-        struct point ctwo = {tsd->bl.m, tsd->bl.x, tsd->bl.y};
+      tsd = map_id2sd(bl->id);
+      struct point cone = {sd->bl.m, sd->bl.x, sd->bl.y};
+      struct point ctwo = {tsd->bl.m, tsd->bl.x, tsd->bl.y};
 
-        if (CheckProximity(cone, ctwo, 21) == 1)
-          if (sd->status.gm_level || (!(tsd->optFlags & optFlag_noclick) &&
-                                      !(tsd->optFlags & optFlag_stealth)))
-            sl_doscript_blargs("onClick", NULL, 1, &sd->bl);
+      if (CheckProximity(cone, ctwo, 21) == 1)
+        if (sd->status.gm_level || (!(tsd->optFlags & optFlag_noclick) &&
+                                    !(tsd->optFlags & optFlag_stealth)))
+          sl_doscript_blargs("onClick", NULL, 1, &sd->bl);
 
-        clif_clickonplayer(sd, bl);
-        break;
+      clif_clickonplayer(sd, bl);
+      break;
 
-      case BL_NPC:
+    case BL_NPC:
 
-        nd = (NPC *)bl;
+      nd = (NPC *)bl;
 
-        if (bl->subtype == FLOOR) Radius = 0;
+      if (bl->subtype == FLOOR)
+        Radius = 0;
 
-        if (nd->bl.m == 0 || CheckProximity(one, two, Radius) == 1) {  // F1NPC
-          sd->last_click = bl->id;
-          sl_async_freeco(sd);
-          // sd->dialogtype = 0;
+      if (nd->bl.m == 0 || CheckProximity(one, two, Radius) == 1)
+      { // F1NPC
+        sd->last_click = bl->id;
+        sl_async_freeco(sd);
+        // sd->dialogtype = 0;
 
-          if (sd->status.karma <= -3.0f && strcmp(nd->name, "f1npc") != 0 &&
-              strcmp(nd->name, "totem_npc") != 0) {
-            clif_scriptmes(sd, nd->bl.id, "Go away scum!", 0, 0);
-            return 0;
-          }
-
-          /*if (sd->status.state == 1 && strcasecmp(nd->name,"f1npc") != 0 &&
-          strcasecmp(nd->name,"shaman") != 0 &&
-          strcasecmp(nd->name,"arena_shop") != 0) { clif_scriptmes(sd,
-          nd->bl.id, "Go away scum!", 0, 0); return 0;
-          }*/
-
-          sl_doscript_blargs(nd->name, "click", 2, &sd->bl, &nd->bl);
-        }
-        break;
-
-      case BL_MOB:
-        mob = (MOB *)bl;
-
-        if (mob->data->type == 3) Radius = 0;
-
-        if (CheckProximity(one, two, Radius) == 1) {
-          sd->last_click = bl->id;
-          sl_async_freeco(sd);
-          sl_doscript_blargs("onLook", NULL, 2, &sd->bl, &mob->bl);
-          sl_doscript_blargs(mob->data->yname, "click", 2, &sd->bl, &mob->bl);
-          // sl_doscript_blargs("onClick", NULL, 2, &sd->bl, &mob->bl);
+        if (sd->status.karma <= -3.0f && strcmp(nd->name, "f1npc") != 0 &&
+            strcmp(nd->name, "totem_npc") != 0)
+        {
+          clif_scriptmes(sd, nd->bl.id, "Go away scum!", 0, 0);
+          return 0;
         }
 
-        break;
+        /*if (sd->status.state == 1 && strcasecmp(nd->name,"f1npc") != 0 &&
+        strcasecmp(nd->name,"shaman") != 0 &&
+        strcasecmp(nd->name,"arena_shop") != 0) { clif_scriptmes(sd,
+        nd->bl.id, "Go away scum!", 0, 0); return 0;
+        }*/
+
+        sl_doscript_blargs(nd->name, "click", 2, &sd->bl, &nd->bl);
+      }
+      break;
+
+    case BL_MOB:
+      mob = (MOB *)bl;
+
+      if (mob->data->type == 3)
+        Radius = 0;
+
+      if (CheckProximity(one, two, Radius) == 1)
+      {
+        sd->last_click = bl->id;
+        sl_async_freeco(sd);
+        sl_doscript_blargs("onLook", NULL, 2, &sd->bl, &mob->bl);
+        sl_doscript_blargs(mob->data->yname, "click", 2, &sd->bl, &mob->bl);
+        // sl_doscript_blargs("onClick", NULL, 2, &sd->bl, &mob->bl);
+      }
+
+      break;
     }
   }
   return 0;
 }
-int clif_handle_powerboards(USER *sd) {
+int clif_handle_powerboards(USER *sd)
+{
   USER *tsd = NULL;
 
   // if(canusepowerboards(sd))
@@ -11454,8 +13271,10 @@ int clif_handle_powerboards(USER *sd) {
   return 0;
 }
 
-int clif_sendminimap(USER *sd) {
-  if (!sd) return 0;
+int clif_sendminimap(USER *sd)
+{
+  if (!sd)
+    return 0;
 
   WFIFOHEAD(sd->fd, 0);
 
@@ -11463,7 +13282,7 @@ int clif_sendminimap(USER *sd) {
   WFIFOB(sd->fd, 1) = 0x00;
   WFIFOB(sd->fd, 2) = 0x06;
   WFIFOB(sd->fd, 3) = 0x70;
-  WFIFOB(sd->fd, 4) = SWAP16(sd->bl.m);  // 0x1D
+  WFIFOB(sd->fd, 4) = SWAP16(sd->bl.m); // 0x1D
   WFIFOB(sd->fd, 5) = 0x00;
 
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
@@ -11474,129 +13293,140 @@ int clif_sendminimap(USER *sd) {
   return 0;
 }
 
-int clif_handle_boards(USER *sd) {
+int clif_handle_boards(USER *sd)
+{
   int postcolor;
-  switch (RFIFOB(sd->fd, 5)) {
-    case 1:  // Show Board
+  switch (RFIFOB(sd->fd, 5))
+  {
+  case 1: // Show Board
+    sd->bcount = 0;
+    sd->board_popup = 0;
+    clif_showboards(sd);
+    break;
+  case 2: // Show posts from board #
+    if (RFIFOB(sd->fd, 8) == 127)
       sd->bcount = 0;
-      sd->board_popup = 0;
-      clif_showboards(sd);
-      break;
-    case 2:  // Show posts from board #
-      if (RFIFOB(sd->fd, 8) == 127) sd->bcount = 0;
 
-      boards_showposts(sd, SWAP16(RFIFOW(sd->fd, 6)));
+    boards_showposts(sd, SWAP16(RFIFOW(sd->fd, 6)));
 
-      break;
-    case 3:  // Read post/nmail
-      boards_readpost(sd, SWAP16(RFIFOW(sd->fd, 6)), SWAP16(RFIFOW(sd->fd, 8)));
-      break;
-    case 4:  // Make post
-      boards_post(sd, SWAP16(RFIFOW(sd->fd, 6)));
-      break;
-    case 5:  // delete post!
-      boards_delete(sd, SWAP16(RFIFOW(sd->fd, 6)));
-      break;
-    case 6:  // Send nmail
-      if (sd->status.level >= 10)
-        nmail_write(sd);
-      else
-        clif_sendminitext(sd,
-                          "You must be at least level 10 to view/send nmail.");
-      break;
-    case 7:  // Change
-      if (sd->status.gm_level) {
-        postcolor = map_getpostcolor(SWAP16(RFIFOW(sd->fd, 6)),
-                                     SWAP16(RFIFOW(sd->fd, 8)));
-        postcolor ^= 1;
-        map_changepostcolor(SWAP16(RFIFOW(sd->fd, 6)),
-                            SWAP16(RFIFOW(sd->fd, 8)), postcolor);
-        nmail_sendmessage(sd, "Post updated.", 6, 0);
-      }
-      break;
-    case 8:  // SPECIAL WRITE
-      sl_doscript_blargs(boarddb_yname(SWAP16(RFIFOW(sd->fd, 6))), "write", 1,
-                         &sd->bl);
+    break;
+  case 3: // Read post/nmail
+    boards_readpost(sd, SWAP16(RFIFOW(sd->fd, 6)), SWAP16(RFIFOW(sd->fd, 8)));
+    break;
+  case 4: // Make post
+    boards_post(sd, SWAP16(RFIFOW(sd->fd, 6)));
+    break;
+  case 5: // delete post!
+    boards_delete(sd, SWAP16(RFIFOW(sd->fd, 6)));
+    break;
+  case 6: // Send nmail
+    if (sd->status.level >= 10)
+      nmail_write(sd);
+    else
+      clif_sendminitext(sd,
+                        "You must be at least level 10 to view/send nmail.");
+    break;
+  case 7: // Change
+    if (sd->status.gm_level)
+    {
+      postcolor = map_getpostcolor(SWAP16(RFIFOW(sd->fd, 6)),
+                                   SWAP16(RFIFOW(sd->fd, 8)));
+      postcolor ^= 1;
+      map_changepostcolor(SWAP16(RFIFOW(sd->fd, 6)),
+                          SWAP16(RFIFOW(sd->fd, 8)), postcolor);
+      nmail_sendmessage(sd, "Post updated.", 6, 0);
+    }
+    break;
+  case 8: // SPECIAL WRITE
+    sl_doscript_blargs(boarddb_yname(SWAP16(RFIFOW(sd->fd, 6))), "write", 1,
+                       &sd->bl);
 
-    case 9:  // Nmail
+  case 9: // Nmail
 
-      sd->bcount = 0;
-      boards_showposts(sd, 0);
+    sd->bcount = 0;
+    boards_showposts(sd, 0);
 
-      break;
+    break;
   }
   return 0;
 }
 
-int clif_print_disconnect(int fd) {
-  if (session[fd]->eof == 4)  // Ignore this.
+int clif_print_disconnect(int fd)
+{
+  if (session[fd]->eof == 4) // Ignore this.
     return 0;
 
   printf(CL_NORMAL "(Reason: " CL_GREEN);
-  switch (session[fd]->eof) {
-    case 0x00:
-    case 0x01:
-      printf("NORMAL_EOF");
-      break;
-    case 0x02:
-      printf("SOCKET_SEND_ERROR");
-      break;
-    case 0x03:
-      printf("SOCKET_RECV_ERROR");
-      break;
-    case 0x04:
-      printf("ZERO_RECV_ERROR(NORMAL)");
-      break;
-    case 0x05:
-      printf("MISSING_WDATA");
-      break;
-    case 0x06:
-      printf("WDATA_REALLOC");
-      break;
-    case 0x07:
-      printf("NO_MMO_DATA");
-      break;
-    case 0x08:
-      printf("SESSIONDATA_EXISTS");
-      break;
-    case 0x09:
-      printf("PLAYER_CONNECTING");
-      break;
-    case 0x0A:
-      printf("INVALID_EXCHANGE");
-      break;
-    case 0x0B:
-      printf("ACCEPT_NAMELEN_ERROR");
-      break;
-    case 0x0C:
-      printf("PLAYER_TIMEOUT");
-      break;
-    case 0x0D:
-      printf("INVALID_PACKET_HEADER");
-      break;
-    case 0x0E:
-      printf("WPE_HACK");
-      break;
-    default:
-      printf("UNKNOWN");
-      break;
+  switch (session[fd]->eof)
+  {
+  case 0x00:
+  case 0x01:
+    printf("NORMAL_EOF");
+    break;
+  case 0x02:
+    printf("SOCKET_SEND_ERROR");
+    break;
+  case 0x03:
+    printf("SOCKET_RECV_ERROR");
+    break;
+  case 0x04:
+    printf("ZERO_RECV_ERROR(NORMAL)");
+    break;
+  case 0x05:
+    printf("MISSING_WDATA");
+    break;
+  case 0x06:
+    printf("WDATA_REALLOC");
+    break;
+  case 0x07:
+    printf("NO_MMO_DATA");
+    break;
+  case 0x08:
+    printf("SESSIONDATA_EXISTS");
+    break;
+  case 0x09:
+    printf("PLAYER_CONNECTING");
+    break;
+  case 0x0A:
+    printf("INVALID_EXCHANGE");
+    break;
+  case 0x0B:
+    printf("ACCEPT_NAMELEN_ERROR");
+    break;
+  case 0x0C:
+    printf("PLAYER_TIMEOUT");
+    break;
+  case 0x0D:
+    printf("INVALID_PACKET_HEADER");
+    break;
+  case 0x0E:
+    printf("WPE_HACK");
+    break;
+  default:
+    printf("UNKNOWN");
+    break;
   }
   printf(CL_NORMAL ")\n");
   return 0;
 }
-int clif_parse(int fd) {
+int clif_parse(int fd)
+{
   unsigned short len;
   USER *sd = NULL;
   unsigned char CurrentSeed;
 
-  if (fd < 0 || fd > fd_max) return 0;
-  if (!session[fd]) return 0;
+  if (fd < 0 || fd > fd_max)
+    return 0;
+  if (!session[fd])
+    return 0;
 
   sd = (USER *)session[fd]->session_data;
 
   // for(pnum=0;pnum<3 && session[fd] && session[fd]->rdata_size;pnum++) {
-  if (session[fd]->eof) {
-    if (sd) {
+  if (session[fd]->eof)
+  {
+    if (sd)
+    {
       printf("[map] [session_eof] name=%s\n", sd->status.name);
       clif_handle_disconnect(sd);
       clif_closeit(sd);
@@ -11609,32 +13439,37 @@ int clif_parse(int fd) {
   }
 
   // if(!session[fd]->rdata_size) return 0;
-  if (session[fd]->rdata_size > 0 && RFIFOB(fd, 0) != 0xAA) {
+  if (session[fd]->rdata_size > 0 && RFIFOB(fd, 0) != 0xAA)
+  {
     session[fd]->eof = 13;
     return 0;
   }
 
-  if (RFIFOREST(fd) < 3) return 0;
+  if (RFIFOREST(fd) < 3)
+    return 0;
 
   len = SWAP16(RFIFOW(fd, 1)) + 3;
 
   // if(check_packet_size(fd,len)) return 0; //Hacker prevention?
   // ok the biggest packet we might POSSIBLY get wont be bigger than 10k, so set
   // a limit
-  if (RFIFOREST(fd) < len) return 0;
+  if (RFIFOREST(fd) < len)
+    return 0;
 
   // printf("parsing %d\n",fd);
-  if (!sd) {
-    switch (RFIFOB(fd, 3)) {
-      case 0x10:
-        // clif_debug(RFIFOP(sd->fd,4),SWAP16(RFIFOW(sd->fd,1)))
-        clif_accept2(fd, (char *)RFIFOP(fd, 16), RFIFOB(fd, 15));
+  if (!sd)
+  {
+    switch (RFIFOB(fd, 3))
+    {
+    case 0x10:
+      // clif_debug(RFIFOP(sd->fd,4),SWAP16(RFIFOW(sd->fd,1)))
+      clif_accept2(fd, (char *)RFIFOP(fd, 16), RFIFOB(fd, 15));
 
-        break;
+      break;
 
-      default:
-        // session[fd]->eof=1;
-        break;
+    default:
+      // session[fd]->eof=1;
+      break;
     }
 
     RFIFOSKIP(fd, len);
@@ -11663,11 +13498,15 @@ int clif_parse(int fd) {
 
   int logincount = 0;
   USER *tsd = NULL;
-  for (int i = 0; i < fd_max; i++) {
-    if (session[i] && (tsd = session[i]->session_data)) {
-      if (sd->status.id == tsd->status.id) logincount++;
+  for (int i = 0; i < fd_max; i++)
+  {
+    if (session[i] && (tsd = session[i]->session_data))
+    {
+      if (sd->status.id == tsd->status.id)
+        logincount++;
 
-      if (logincount >= 2) {
+      if (logincount >= 2)
+      {
         printf("%s attempted dual login on IP:%s\n", sd->status.name,
                sd->status.ipaddress);
         session[sd->fd]->eof = 1;
@@ -11688,386 +13527,419 @@ printf("%02X ",RFIFOB(fd,i));
 }
 printf("\n");*/
 
-  switch (RFIFOB(fd, 3)) {
-    case 0x05:
-      // clif_cancelafk(sd); -- conflict with light function, causes character
-      // to never enter AFK status
-      clif_parsemap(sd);
-      break;
-    case 0x06:
-      clif_cancelafk(sd);
-      clif_parsewalk(sd);
-      break;
-    case 0x07:
-      clif_cancelafk(sd);
-      sd->time += 1;
-      if (sd->time < 4) {
-        clif_parsegetitem(sd);
-      }
-      break;
-    case 0x08:
-      clif_cancelafk(sd);
-      clif_parsedropitem(sd);
-      break;
-    case 0x09:
-      clif_cancelafk(sd);
-      clif_parselookat_2(sd);
+  switch (RFIFOB(fd, 3))
+  {
+  case 0x05:
+    // clif_cancelafk(sd); -- conflict with light function, causes character
+    // to never enter AFK status
+    clif_parsemap(sd);
+    break;
+  case 0x06:
+    clif_cancelafk(sd);
+    clif_parsewalk(sd);
+    break;
+  case 0x07:
+    clif_cancelafk(sd);
+    sd->time += 1;
+    if (sd->time < 4)
+    {
+      clif_parsegetitem(sd);
+    }
+    break;
+  case 0x08:
+    clif_cancelafk(sd);
+    clif_parsedropitem(sd);
+    break;
+  case 0x09:
+    clif_cancelafk(sd);
+    clif_parselookat_2(sd);
 
-      break;
-    case 0x0A:
-      clif_cancelafk(sd);
+    break;
+  case 0x0A:
+    clif_cancelafk(sd);
 
-      clif_parselookat(sd);
-      break;
-    case 0x0B:
-      clif_cancelafk(sd);
-      clif_closeit(sd);
-      break;
-    case 0x0C:  // < missing object/char/monster
-      clif_handle_missingobject(sd);
-      break;
-    case 0x0D:
-      clif_parseignore(sd);
-      break;
-    case 0x0E:
-      clif_cancelafk(sd);
-      if (sd->status.gm_level) {
+    clif_parselookat(sd);
+    break;
+  case 0x0B:
+    clif_cancelafk(sd);
+    clif_closeit(sd);
+    break;
+  case 0x0C: // < missing object/char/monster
+    clif_handle_missingobject(sd);
+    break;
+  case 0x0D:
+    clif_parseignore(sd);
+    break;
+  case 0x0E:
+    clif_cancelafk(sd);
+    if (sd->status.gm_level)
+    {
+      clif_parsesay(sd);
+    }
+    else
+    {
+      sd->chat_timer += 1;
+      if (sd->chat_timer < 2 && !sd->status.mute)
+      {
         clif_parsesay(sd);
-      } else {
-        sd->chat_timer += 1;
-        if (sd->chat_timer < 2 && !sd->status.mute) {
-          clif_parsesay(sd);
+      }
+    }
+    break;
+
+  case 0x0F: // magic
+    clif_cancelafk(sd);
+    sd->time += 1;
+
+    if (!sd->paralyzed && sd->sleep == 1.0f)
+    {
+      if (sd->time < 4)
+      {
+        if (map[sd->bl.m].spell || sd->status.gm_level)
+        {
+          clif_parsemagic(sd);
         }
-      }
-      break;
-
-    case 0x0F:  // magic
-      clif_cancelafk(sd);
-      sd->time += 1;
-
-      if (!sd->paralyzed && sd->sleep == 1.0f) {
-        if (sd->time < 4) {
-          if (map[sd->bl.m].spell || sd->status.gm_level) {
-            clif_parsemagic(sd);
-          } else {
-            clif_sendminitext(sd, "That doesn't work here.");
-          }
-        }
-      }
-      break;
-    case 0x11:
-      clif_cancelafk(sd);
-      clif_parseside(sd);
-      break;
-    case 0x12:
-      clif_cancelafk(sd);
-      clif_parsewield(sd);
-      break;
-    case 0x13:
-      clif_cancelafk(sd);
-      sd->time++;
-
-      if (sd->attacked != 1 && sd->attack_speed > 0) {
-        sd->attacked = 1;
-        timer_insert(((sd->attack_speed * 1000) / 60),
-                     ((sd->attack_speed * 1000) / 60), pc_atkspeed,
-                     sd->status.id, 0);
-        clif_parseattack(sd);
-      } else {
-        // clif_parseattack(sd);
-      }
-      break;
-    case 0x17:
-      clif_cancelafk(sd);
-
-      int pos = RFIFOB(sd->fd, 6);
-      int confirm = RFIFOB(sd->fd, 5);
-
-      if (itemdb_thrownconfirm(sd->status.inventory[pos - 1].id) == 1) {
-        if (confirm == 1)
-          clif_parsethrow(sd);
         else
-          clif_throwconfirm(sd);
-      } else
+        {
+          clif_sendminitext(sd, "That doesn't work here.");
+        }
+      }
+    }
+    break;
+  case 0x11:
+    clif_cancelafk(sd);
+    clif_parseside(sd);
+    break;
+  case 0x12:
+    clif_cancelafk(sd);
+    clif_parsewield(sd);
+    break;
+  case 0x13:
+    clif_cancelafk(sd);
+    sd->time++;
+
+    if (sd->attacked != 1 && sd->attack_speed > 0)
+    {
+      sd->attacked = 1;
+      timer_insert(((sd->attack_speed * 1000) / 60),
+                   ((sd->attack_speed * 1000) / 60), pc_atkspeed,
+                   sd->status.id, 0);
+      clif_parseattack(sd);
+    }
+    else
+    {
+      // clif_parseattack(sd);
+    }
+    break;
+  case 0x17:
+    clif_cancelafk(sd);
+
+    int pos = RFIFOB(sd->fd, 6);
+    int confirm = RFIFOB(sd->fd, 5);
+
+    if (itemdb_thrownconfirm(sd->status.inventory[pos - 1].id) == 1)
+    {
+      if (confirm == 1)
         clif_parsethrow(sd);
+      else
+        clif_throwconfirm(sd);
+    }
+    else
+      clif_parsethrow(sd);
 
-      /*printf("throw packet\n");
-      for (int i = 0; i< SWAP16(RFIFOW(sd->fd,1));i++) {
-              printf("%02X ",RFIFOB(sd->fd,i));
-      }
-      printf("\n");*/
+    /*printf("throw packet\n");
+    for (int i = 0; i< SWAP16(RFIFOW(sd->fd,1));i++) {
+            printf("%02X ",RFIFOB(sd->fd,i));
+    }
+    printf("\n");*/
 
-      break;
-    case 0x18:
-      clif_cancelafk(sd);
-      // clif_sendtowns(sd);
-      clif_user_list(sd);
-      break;
-    case 0x19:
-      clif_cancelafk(sd);
-      clif_parsewisp(sd);
-      break;
-    case 0x1A:
-      clif_cancelafk(sd);
-      clif_parseeatitem(sd);
+    break;
+  case 0x18:
+    clif_cancelafk(sd);
+    // clif_sendtowns(sd);
+    clif_user_list(sd);
+    break;
+  case 0x19:
+    clif_cancelafk(sd);
+    clif_parsewisp(sd);
+    break;
+  case 0x1A:
+    clif_cancelafk(sd);
+    clif_parseeatitem(sd);
 
-      break;
-    case 0x1B:
-      if (sd->loaded) clif_changestatus(sd, RFIFOB(sd->fd, 6));
+    break;
+  case 0x1B:
+    if (sd->loaded)
+      clif_changestatus(sd, RFIFOB(sd->fd, 6));
 
-      break;
-    case 0x1C:
-      clif_cancelafk(sd);
-      clif_parseuseitem(sd);
+    break;
+  case 0x1C:
+    clif_cancelafk(sd);
+    clif_parseuseitem(sd);
 
-      break;
-    case 0x1D:
-      clif_cancelafk(sd);
-      sd->time++;
-      if (sd->time < 4) {
-        clif_parseemotion(sd);
-      }
-      break;
-    case 0x1E:
-      clif_cancelafk(sd);
-      sd->time++;
-      if (sd->time < 4) clif_parsewield(sd);
-      break;
-    case 0x1F:
-      clif_cancelafk(sd);
-      if (sd->time < 4) clif_parseunequip(sd);
-      break;
-    case 0x20:  // Clicked 'O'
-      clif_cancelafk(sd);
-      clif_open_sub(sd);
-      // map_foreachincell(clif_open_sub,sd->bl.m,sd->bl.x,sd->bl.y,BL_NPC,sd);
-      break;
-    case 0x23:
-      // paperpopupwritable SAVE
-      clif_paperpopupwrite_save(sd);
-      break;
-    case 0x24:
-      clif_cancelafk(sd);
-      clif_dropgold(sd, SWAP32(RFIFOL(sd->fd, 5)));
-      break;
-    case 0x27:  // PACKET SENT WHEN SOMEONE CLICKS QUEST tab or SHIFT Z key
-      clif_cancelafk(sd);
+    break;
+  case 0x1D:
+    clif_cancelafk(sd);
+    sd->time++;
+    if (sd->time < 4)
+    {
+      clif_parseemotion(sd);
+    }
+    break;
+  case 0x1E:
+    clif_cancelafk(sd);
+    sd->time++;
+    if (sd->time < 4)
+      clif_parsewield(sd);
+    break;
+  case 0x1F:
+    clif_cancelafk(sd);
+    if (sd->time < 4)
+      clif_parseunequip(sd);
+    break;
+  case 0x20: // Clicked 'O'
+    clif_cancelafk(sd);
+    clif_open_sub(sd);
+    // map_foreachincell(clif_open_sub,sd->bl.m,sd->bl.x,sd->bl.y,BL_NPC,sd);
+    break;
+  case 0x23:
+    // paperpopupwritable SAVE
+    clif_paperpopupwrite_save(sd);
+    break;
+  case 0x24:
+    clif_cancelafk(sd);
+    clif_dropgold(sd, SWAP32(RFIFOL(sd->fd, 5)));
+    break;
+  case 0x27: // PACKET SENT WHEN SOMEONE CLICKS QUEST tab or SHIFT Z key
+    clif_cancelafk(sd);
 
-      // clif_sendurl(sd,0,"https://www.website.com/questguide/");
+    // clif_sendurl(sd,0,"https://www.website.com/questguide/");
 
-      /*if(SWAP16(RFIFOW(sd->fd,5))==0) {
-              clif_showguide(sd);
-      } else {
-              clif_showguide2(sd);
-      }*/
+    /*if(SWAP16(RFIFOW(sd->fd,5))==0) {
+            clif_showguide(sd);
+    } else {
+            clif_showguide2(sd);
+    }*/
 
-      break;
-    case 0x29:
-      clif_cancelafk(sd);
-      clif_handitem(sd);
-      //	clif_parse_exchange(sd);
-      break;
-    case 0x2A:
-      clif_cancelafk(sd);
-      clif_handgold(sd);
-      break;
-    case 0x2D:
-      clif_cancelafk(sd);
+    break;
+  case 0x29:
+    clif_cancelafk(sd);
+    clif_handitem(sd);
+    //	clif_parse_exchange(sd);
+    break;
+  case 0x2A:
+    clif_cancelafk(sd);
+    clif_handgold(sd);
+    break;
+  case 0x2D:
+    clif_cancelafk(sd);
 
-      if (RFIFOB(sd->fd, 5) == 0) {
-        clif_mystaytus(sd);
-      } else {
-        // clif_startexchange(sd,sd->bl.id);
-        clif_groupstatus(sd);
-      }
+    if (RFIFOB(sd->fd, 5) == 0)
+    {
+      clif_mystaytus(sd);
+    }
+    else
+    {
+      // clif_startexchange(sd,sd->bl.id);
+      clif_groupstatus(sd);
+    }
 
-      break;
-    case 0x2E:
-      clif_cancelafk(sd);
+    break;
+  case 0x2E:
+    clif_cancelafk(sd);
 
-      clif_addgroup(sd);
-      break;
-    case 0x30:
-      clif_cancelafk(sd);
+    clif_addgroup(sd);
+    break;
+  case 0x30:
+    clif_cancelafk(sd);
 
-      if (RFIFOB(sd->fd, 5) == 1) {
-        clif_parsechangespell(sd);
-      } else {
-        clif_parsechangepos(sd);
-      }
-      break;
-    case 0x32:
-      clif_cancelafk(sd);
+    if (RFIFOB(sd->fd, 5) == 1)
+    {
+      clif_parsechangespell(sd);
+    }
+    else
+    {
+      clif_parsechangepos(sd);
+    }
+    break;
+  case 0x32:
+    clif_cancelafk(sd);
 
-      clif_parsewalk(sd);
+    clif_parsewalk(sd);
 
-      break;
-    case 0x34:
-      clif_cancelafk(sd);
+    break;
+  case 0x34:
+    clif_cancelafk(sd);
 
-      clif_postitem(sd);
+    clif_postitem(sd);
 
-      /*case 0x36: -- clan bank packet
-              clif_cancelafk(sd);
-              clif_parseClanBankWithdraw(sd);*/
+    /*case 0x36: -- clan bank packet
+            clif_cancelafk(sd);
+            clif_parseClanBankWithdraw(sd);*/
 
-    case 0x38:
-      clif_cancelafk(sd);
+  case 0x38:
+    clif_cancelafk(sd);
 
-      clif_refresh(sd);
-      break;
+    clif_refresh(sd);
+    break;
 
-    case 0x39:  // menu & input
-      clif_cancelafk(sd);
+  case 0x39: // menu & input
+    clif_cancelafk(sd);
 
-      clif_handle_menuinput(sd);
+    clif_handle_menuinput(sd);
 
-      break;
-    case 0x3A:
-      clif_cancelafk(sd);
+    break;
+  case 0x3A:
+    clif_cancelafk(sd);
 
-      clif_parsenpcdialog(sd);
+    clif_parsenpcdialog(sd);
 
-      // if(hasCoref(sd)) clif_parsenpcdialog(sd);
+    // if(hasCoref(sd)) clif_parsenpcdialog(sd);
 
-      break;
+    break;
 
-    case 0x3B:
-      clif_cancelafk(sd);
+  case 0x3B:
+    clif_cancelafk(sd);
 
-      clif_handle_boards(sd);
+    clif_handle_boards(sd);
 
-      break;
-    case 0x3F:  // Map change packet
-      pc_warp(sd, SWAP16(RFIFOW(sd->fd, 5)), SWAP16(RFIFOW(sd->fd, 7)),
-              SWAP16(RFIFOW(sd->fd, 9)));
-      break;
-    case 0x41:
-      clif_cancelafk(sd);
-      clif_parseparcel(sd);
-      break;
-    case 0x42:  // Client crash debug.
-      break;
-    case 0x43:
-      clif_cancelafk(sd);
-      clif_handle_clickgetinfo(sd);
-      break;
-      // Packet 45 responds from 3B
-    case 0x4A:
-      clif_cancelafk(sd);
-      clif_parse_exchange(sd);
-      break;
-    case 0x4C:
-      clif_cancelafk(sd);
-      clif_handle_powerboards(sd);
-      break;
-    case 0x4F:  // Profile change
-      clif_cancelafk(sd);
-      clif_changeprofile(sd);
-      break;
-    case 0x60:  // PING
-      break;
-    case 0x66:
-      clif_cancelafk(sd);
-      clif_sendtowns(sd);
-      break;
-    case 0x69:  // Obstruction(something blocking movement)
-      // clif_debug(RFIFOP(sd->fd,5),SWAP16(RFIFOW(sd->fd,1))-2);
-      // if(sd->status.gm_level>0) {
-      //	clif_handle_obstruction(sd);
-      //}
-      break;
-    case 0x6B:  // creation system
-      clif_cancelafk(sd);
-      createdb_start(sd);
-      break;
-    case 0x73:  // web board
-      clif_cancelafk(sd);
-      // BOARD AA 00 0B 73 08 00 00 74 32 B1 42
-      // LOOK  AA 00 0B 73 07 04 00 E7 9E 13 16
+    break;
+  case 0x3F: // Map change packet
+    pc_warp(sd, SWAP16(RFIFOW(sd->fd, 5)), SWAP16(RFIFOW(sd->fd, 7)),
+            SWAP16(RFIFOW(sd->fd, 9)));
+    break;
+  case 0x41:
+    clif_cancelafk(sd);
+    clif_parseparcel(sd);
+    break;
+  case 0x42: // Client crash debug.
+    break;
+  case 0x43:
+    clif_cancelafk(sd);
+    clif_handle_clickgetinfo(sd);
+    break;
+    // Packet 45 responds from 3B
+  case 0x4A:
+    clif_cancelafk(sd);
+    clif_parse_exchange(sd);
+    break;
+  case 0x4C:
+    clif_cancelafk(sd);
+    clif_handle_powerboards(sd);
+    break;
+  case 0x4F: // Profile change
+    clif_cancelafk(sd);
+    clif_changeprofile(sd);
+    break;
+  case 0x60: // PING
+    break;
+  case 0x66:
+    clif_cancelafk(sd);
+    clif_sendtowns(sd);
+    break;
+  case 0x69: // Obstruction(something blocking movement)
+    // clif_debug(RFIFOP(sd->fd,5),SWAP16(RFIFOW(sd->fd,1))-2);
+    // if(sd->status.gm_level>0) {
+    //	clif_handle_obstruction(sd);
+    //}
+    break;
+  case 0x6B: // creation system
+    clif_cancelafk(sd);
+    createdb_start(sd);
+    break;
+  case 0x73: // web board
+    clif_cancelafk(sd);
+    // BOARD AA 00 0B 73 08 00 00 74 32 B1 42
+    // LOOK  AA 00 0B 73 07 04 00 E7 9E 13 16
 
-      if (RFIFOB(sd->fd, 5) == 0x04) {  // Userlook
-        clif_sendprofile(sd);
-      }
-      if (RFIFOB(sd->fd, 5) == 0x00) {  // Board
-        clif_sendboard(sd);
-      }
+    if (RFIFOB(sd->fd, 5) == 0x04)
+    { // Userlook
+      clif_sendprofile(sd);
+    }
+    if (RFIFOB(sd->fd, 5) == 0x00)
+    { // Board
+      clif_sendboard(sd);
+    }
 
-      // clif_debug(RFIFOP(sd->fd, 0), SWAP16(RFIFOW(sd->fd, 1)));
+    // clif_debug(RFIFOP(sd->fd, 0), SWAP16(RFIFOW(sd->fd, 1)));
 
-      break;
-    case 0x75:
-      clif_parsewalkpong(sd);
-      break;
+    break;
+  case 0x75:
+    clif_parsewalkpong(sd);
+    break;
 
-    case 0x7B:  // Request Item Information!
-      printf("request: %u\n", RFIFOB(sd->fd, 5));
-      switch (RFIFOB(sd->fd, 5)) {
-        case 0:  // Request the file asking for
-          send_meta(sd);
-          break;
-        case 1:  // Requqest the list to use
-          send_metalist(sd);
-
-          break;
-      }
+  case 0x7B: // Request Item Information!
+    printf("request: %u\n", RFIFOB(sd->fd, 5));
+    switch (RFIFOB(sd->fd, 5))
+    {
+    case 0: // Request the file asking for
+      send_meta(sd);
       break;
-
-    case 0x7C:  // map
-      clif_cancelafk(sd);
-      clif_sendminimap(sd);
-      break;
-
-    case 0x7D:  // Ranking SYSTEM
-      clif_cancelafk(sd);
-      switch (RFIFOB(
-          fd, 5)) {  // Packet fd 5 is the mode choice. 5 = send reward, 6 = get
-                     // reward, everything else is to show the ranking list
-        case 5: {
-          clif_sendRewardInfo(sd, fd);
-          break;
-        }
-        case 6: {
-          clif_getReward(sd, fd);
-          break;
-        }
-        default: {
-          clif_parseranking(sd, fd);
-          break;
-        }
-      }
-      break;
-
-    case 0x77:
-      clif_cancelafk(sd);
-      clif_parsefriends(sd, (char *)RFIFOP(sd->fd, 5),
-                        SWAP16(RFIFOW(sd->fd, 1)) - 5);
-      break;
-    case 0x82:
-      clif_cancelafk(sd);
-      clif_parseviewchange(sd);
-      break;
-    case 0x83:  // screenshots...
-      break;
-
-    case 0x84:  // add to hunter list (new client function)
-      clif_cancelafk(sd);
-      clif_huntertoggle(sd);
+    case 1: // Requqest the list to use
+      send_metalist(sd);
 
       break;
+    }
+    break;
 
-    case 0x85:  // modified for 736  -- this packet is called when you double
-                // click on a hunter on the userlist
-      clif_sendhunternote(sd);
+  case 0x7C: // map
+    clif_cancelafk(sd);
+    clif_sendminimap(sd);
+    break;
 
-      clif_cancelafk(sd);
+  case 0x7D: // Ranking SYSTEM
+    clif_cancelafk(sd);
+    switch (RFIFOB(
+        fd, 5))
+    { // Packet fd 5 is the mode choice. 5 = send reward, 6 = get
+      // reward, everything else is to show the ranking list
+    case 5:
+    {
+      clif_sendRewardInfo(sd, fd);
       break;
-
+    }
+    case 6:
+    {
+      clif_getReward(sd, fd);
+      break;
+    }
     default:
-      printf("[Map] Unknown Packet ID: %02X\nPacket content:\n",
-             RFIFOB(sd->fd, 3));
-      clif_debug(RFIFOP(sd->fd, 0), SWAP16(RFIFOW(sd->fd, 1)));
+    {
+      clif_parseranking(sd, fd);
       break;
+    }
+    }
+    break;
+
+  case 0x77:
+    clif_cancelafk(sd);
+    clif_parsefriends(sd, (char *)RFIFOP(sd->fd, 5),
+                      SWAP16(RFIFOW(sd->fd, 1)) - 5);
+    break;
+  case 0x82:
+    clif_cancelafk(sd);
+    clif_parseviewchange(sd);
+    break;
+  case 0x83: // screenshots...
+    break;
+
+  case 0x84: // add to hunter list (new client function)
+    clif_cancelafk(sd);
+    clif_huntertoggle(sd);
+
+    break;
+
+  case 0x85: // modified for 736  -- this packet is called when you double
+             // click on a hunter on the userlist
+    clif_sendhunternote(sd);
+
+    clif_cancelafk(sd);
+    break;
+
+  default:
+    printf("[Map] Unknown Packet ID: %02X\nPacket content:\n",
+           RFIFOB(sd->fd, 3));
+    clif_debug(RFIFOP(sd->fd, 0), SWAP16(RFIFOW(sd->fd, 1)));
+    break;
   }
 
   RFIFOSKIP(fd, len);
@@ -12075,14 +13947,16 @@ printf("\n");*/
   return 0;
 }
 
-unsigned int metacrc(char *file) {
+unsigned int metacrc(char *file)
+{
   FILE *fp = NULL;
 
   unsigned int checksum = 0;
   unsigned int size;
   Bytef fileinf[196608];
   fp = fopen(file, "rb");
-  if (!fp) return 0;
+  if (!fp)
+    return 0;
   fseek(fp, 0, SEEK_END);
   size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
@@ -12093,7 +13967,8 @@ unsigned int metacrc(char *file) {
   return checksum;
 }
 
-int send_metafile(USER *sd, char *file) {
+int send_metafile(USER *sd, char *file)
+{
   int len = 0;
   unsigned int checksum = 0;
   uLongf clen = 0;
@@ -12109,7 +13984,8 @@ int send_metafile(USER *sd, char *file) {
   checksum = metacrc(filebuf);
 
   fp = fopen(filebuf, "rb");
-  if (!fp) return 0;
+  if (!fp)
+    return 0;
 
   fseek(fp, 0, SEEK_END);
   ulen = ftell(fp);
@@ -12123,12 +13999,13 @@ int send_metafile(USER *sd, char *file) {
 
   retval = compress(cbuf, &clen, ubuf, ulen);
 
-  if (retval != 0) printf("Error retval=%d\n", retval);
+  if (retval != 0)
+    printf("Error retval=%d\n", retval);
   WFIFOHEAD(sd->fd, 65535 * 2);
   WFIFOB(sd->fd, 0) = 0xAA;
   WFIFOB(sd->fd, 3) = 0x6F;
   // WFIFOB(sd->fd,4)=0x08;
-  WFIFOB(sd->fd, 5) = 0;  // this is sending file data
+  WFIFOB(sd->fd, 5) = 0; // this is sending file data
   WFIFOB(sd->fd, 6) = strlen(file);
   strcpy(WFIFOP(sd->fd, 7), file);
   len += strlen(file) + 1;
@@ -12150,7 +14027,8 @@ int send_metafile(USER *sd, char *file) {
   free(ubuf);
   return 0;
 }
-int send_meta(USER *sd) {
+int send_meta(USER *sd)
+{
   char temp[255];
 
   memset(temp, 0, 255);
@@ -12160,7 +14038,8 @@ int send_meta(USER *sd) {
 
   return 0;
 }
-int send_metalist(USER *sd) {
+int send_metalist(USER *sd)
+{
   int len = 0;
   unsigned int checksum;
   char filebuf[6000];
@@ -12173,7 +14052,8 @@ int send_metalist(USER *sd) {
   WFIFOB(sd->fd, 5) = 1;
   WFIFOW(sd->fd, 6) = SWAP16(metamax);
   len += 2;
-  for (x = 0; x < metamax; x++) {
+  for (x = 0; x < metamax; x++)
+  {
     WFIFOB(sd->fd, (len + 6)) = strlen(meta_file[x]);
     memcpy(WFIFOP(sd->fd, len + 7), meta_file[x], strlen(meta_file[x]));
     len += strlen(meta_file[x]) + 1;
@@ -12191,7 +14071,8 @@ int send_metalist(USER *sd) {
   return 0;
 }
 
-int clif_handle_obstruction(USER *sd) {
+int clif_handle_obstruction(USER *sd)
+{
   int xold = 0, yold = 0, nx = 0, ny = 0;
   sd->canmove = 0;
   xold = SWAP16(RFIFOW(sd->fd, 5));
@@ -12199,19 +14080,20 @@ int clif_handle_obstruction(USER *sd) {
   nx = xold;
   ny = yold;
 
-  switch (RFIFOB(sd->fd, 9)) {
-    case 0:  // up
-      ny = yold - 1;
-      break;
-    case 1:  // right
-      nx = xold + 1;
-      break;
-    case 2:  // down
-      ny = yold + 1;
-      break;
-    case 3:  // left
-      nx = xold - 1;
-      break;
+  switch (RFIFOB(sd->fd, 9))
+  {
+  case 0: // up
+    ny = yold - 1;
+    break;
+  case 1: // right
+    nx = xold + 1;
+    break;
+  case 2: // down
+    ny = yold + 1;
+    break;
+  case 3: // left
+    nx = xold - 1;
+    break;
   }
 
   sd->bl.x = nx;
@@ -12226,10 +14108,12 @@ int clif_handle_obstruction(USER *sd) {
   clif_sendxy(sd);
   return 0;
 }
-int clif_sendtest(USER *sd) {
+int clif_sendtest(USER *sd)
+{
   static int number;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -12247,7 +14131,8 @@ int clif_sendtest(USER *sd) {
 
   return 0;
 }
-int clif_parsemenu(USER *sd) {
+int clif_parsemenu(USER *sd)
+{
   int selection;
   // unsigned int id;
   // id = SWAP32(RFIFOL(sd->fd, 6));
@@ -12255,7 +14140,8 @@ int clif_parsemenu(USER *sd) {
   sl_resumemenu(selection, sd);
   return 0;
 }
-int clif_updatestate(struct block_list *bl, va_list ap) {
+int clif_updatestate(struct block_list *bl, va_list ap)
+{
   char buf[64];
   USER *sd = NULL;
   USER *src_sd = NULL;
@@ -12267,7 +14153,8 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
   // if( (sd->optFlags & optFlag_stealth && !src_sd->status.gm_level) &&
   // src_sd->status.id != sd->status.id)return 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -12278,7 +14165,8 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
   // WFIFOB(src_sd->fd,4)=0x03;
   WFIFOL(src_sd->fd, 5) = SWAP32(sd->bl.id);
 
-  if (sd->status.state == 4) {
+  if (sd->status.state == 4)
+  {
     WFIFOB(src_sd->fd, 9) = 1;
     WFIFOB(src_sd->fd, 10) = 15;
     WFIFOB(src_sd->fd, 11) = sd->status.state;
@@ -12293,16 +14181,21 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
 
     WFIFOW(src_sd->fd, 1) = SWAP16(len + 13);
     WFIFOSET(src_sd->fd, yuri_encrypt(src_sd->fd));
-  } else {
+  }
+  else
+  {
     WFIFOW(src_sd->fd, 9) = SWAP16(sd->status.sex);
 
     if ((sd->status.state == 2 || (sd->optFlags & optFlag_stealth)) &&
         sd->bl.id != src_sd->bl.id &&
         (src_sd->status.gm_level || clif_isingroup(src_sd, sd) ||
          (sd->gfx.dye == src_sd->gfx.dye && sd->gfx.dye != 0 &&
-          src_sd->gfx.dye != 0))) {
-      WFIFOB(src_sd->fd, 11) = 5;  // Gm's need to see invis
-    } else {
+          src_sd->gfx.dye != 0)))
+    {
+      WFIFOB(src_sd->fd, 11) = 5; // Gm's need to see invis
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 11) = sd->status.state;
     }
 
@@ -12310,145 +14203,197 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
         !src_sd->status.gm_level)
       WFIFOB(src_sd->fd, 11) = 2;
 
-    if (sd->status.state == 3) {
+    if (sd->status.state == 3)
+    {
       WFIFOW(src_sd->fd, 12) = SWAP16(sd->disguise);
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 12) = SWAP16(0);
     }
 
     WFIFOB(src_sd->fd, 14) = sd->speed;
 
     WFIFOB(src_sd->fd, 15) = 0;
-    WFIFOB(src_sd->fd, 16) = sd->status.face;        // face
-    WFIFOB(src_sd->fd, 17) = sd->status.hair;        // hair
-    WFIFOB(src_sd->fd, 18) = sd->status.hair_color;  // hair color
+    WFIFOB(src_sd->fd, 16) = sd->status.face;       // face
+    WFIFOB(src_sd->fd, 17) = sd->status.hair;       // hair
+    WFIFOB(src_sd->fd, 18) = sd->status.hair_color; // hair color
     WFIFOB(src_sd->fd, 19) = sd->status.face_color;
     WFIFOB(src_sd->fd, 20) = sd->status.skin_color;
     // WFIFOB(src_sd->fd,21)=0;
 
     // armor
-    if (!pc_isequip(sd, EQ_ARMOR)) {
+    if (!pc_isequip(sd, EQ_ARMOR))
+    {
       WFIFOW(src_sd->fd, 21) = SWAP16(sd->status.sex);
-    } else {
-      if (sd->status.equip[EQ_ARMOR].customLook != 0) {
+    }
+    else
+    {
+      if (sd->status.equip[EQ_ARMOR].customLook != 0)
+      {
         WFIFOW(src_sd->fd, 21) = SWAP16(sd->status.equip[EQ_ARMOR].customLook);
-      } else {
+      }
+      else
+      {
         WFIFOW(src_sd->fd, 21) =
-            SWAP16(itemdb_look(pc_isequip(sd, EQ_ARMOR)));  //-10000+16;
+            SWAP16(itemdb_look(pc_isequip(sd, EQ_ARMOR))); //-10000+16;
       }
 
-      if (sd->status.armor_color > 0) {
+      if (sd->status.armor_color > 0)
+      {
         WFIFOB(src_sd->fd, 23) = sd->status.armor_color;
-      } else {
-        if (sd->status.equip[EQ_ARMOR].customLook != 0) {
+      }
+      else
+      {
+        if (sd->status.equip[EQ_ARMOR].customLook != 0)
+        {
           WFIFOB(src_sd->fd, 23) = sd->status.equip[EQ_ARMOR].customLookColor;
-        } else {
+        }
+        else
+        {
           WFIFOB(src_sd->fd, 23) = itemdb_lookcolor(pc_isequip(sd, EQ_ARMOR));
         }
       }
     }
 
     // coat
-    if (pc_isequip(sd, EQ_COAT)) {
+    if (pc_isequip(sd, EQ_COAT))
+    {
       WFIFOW(src_sd->fd, 21) =
-          SWAP16(itemdb_look(pc_isequip(sd, EQ_COAT)));  //-10000+16;
+          SWAP16(itemdb_look(pc_isequip(sd, EQ_COAT))); //-10000+16;
 
-      if (sd->status.armor_color > 0) {
+      if (sd->status.armor_color > 0)
+      {
         WFIFOB(src_sd->fd, 23) = sd->status.armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 23) = itemdb_lookcolor(pc_isequip(sd, EQ_COAT));
       }
     }
 
     // weapon
-    if (!pc_isequip(sd, EQ_WEAP)) {
+    if (!pc_isequip(sd, EQ_WEAP))
+    {
       WFIFOW(src_sd->fd, 24) = 0xFFFF;
       WFIFOB(src_sd->fd, 26) = 0x0;
-    } else {
+    }
+    else
+    {
       if (sd->status.equip[EQ_WEAP].customLook !=
-          0) {  // edited on 07-16-2017 to support custom WEapon Skins
+          0)
+      { // edited on 07-16-2017 to support custom WEapon Skins
         WFIFOW(src_sd->fd, 24) = SWAP16(sd->status.equip[EQ_WEAP].customLook);
         WFIFOB(src_sd->fd, 26) = sd->status.equip[EQ_WEAP].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(src_sd->fd, 24) = SWAP16(itemdb_look(pc_isequip(sd, EQ_WEAP)));
         WFIFOB(src_sd->fd, 26) = itemdb_lookcolor(pc_isequip(sd, EQ_WEAP));
       }
     }
 
     // shield
-    if (!pc_isequip(sd, EQ_SHIELD)) {
+    if (!pc_isequip(sd, EQ_SHIELD))
+    {
       WFIFOW(src_sd->fd, 27) = 0xFFFF;
       WFIFOB(src_sd->fd, 29) = 0;
-    } else {
-      if (sd->status.equip[EQ_SHIELD].customLook != 0) {
+    }
+    else
+    {
+      if (sd->status.equip[EQ_SHIELD].customLook != 0)
+      {
         WFIFOW(src_sd->fd, 27) = SWAP16(sd->status.equip[EQ_SHIELD].customLook);
         WFIFOB(src_sd->fd, 29) = sd->status.equip[EQ_SHIELD].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(src_sd->fd, 27) = SWAP16(itemdb_look(pc_isequip(sd, EQ_SHIELD)));
         WFIFOB(src_sd->fd, 29) = itemdb_lookcolor(pc_isequip(sd, EQ_SHIELD));
       }
     }
 
     if (!pc_isequip(sd, EQ_HELM) || !(sd->status.settingFlags & FLAG_HELM) ||
-        (itemdb_look(pc_isequip(sd, EQ_HELM)) == -1)) {
+        (itemdb_look(pc_isequip(sd, EQ_HELM)) == -1))
+    {
       // helm stuff goes here
-      WFIFOB(src_sd->fd, 30) = 0;       // supposed to be 1=Helm, 0=No helm
-      WFIFOW(src_sd->fd, 31) = 0xFFFF;  // supposed to be Helm num
-    } else {
+      WFIFOB(src_sd->fd, 30) = 0;      // supposed to be 1=Helm, 0=No helm
+      WFIFOW(src_sd->fd, 31) = 0xFFFF; // supposed to be Helm num
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 30) = 1;
 
-      if (sd->status.equip[EQ_HELM].customLook != 0) {
+      if (sd->status.equip[EQ_HELM].customLook != 0)
+      {
         WFIFOB(src_sd->fd, 31) = sd->status.equip[EQ_HELM].customLook;
         WFIFOB(src_sd->fd, 32) = sd->status.equip[EQ_HELM].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 31) = itemdb_look(pc_isequip(sd, EQ_HELM));
         WFIFOB(src_sd->fd, 32) = itemdb_lookcolor(pc_isequip(sd, EQ_HELM));
       }
     }
     // faceacc
-    if (!pc_isequip(sd, EQ_FACEACC)) {
+    if (!pc_isequip(sd, EQ_FACEACC))
+    {
       // beard stuff
       WFIFOW(src_sd->fd, 33) = 0xFFFF;
       WFIFOB(src_sd->fd, 35) = 0x0;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 33) =
-          SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACC)));  // beard num
+          SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACC))); // beard num
       WFIFOB(src_sd->fd, 35) =
-          itemdb_lookcolor(pc_isequip(sd, EQ_FACEACC));  // beard color
+          itemdb_lookcolor(pc_isequip(sd, EQ_FACEACC)); // beard color
     }
     // crown
-    if (!pc_isequip(sd, EQ_CROWN)) {
+    if (!pc_isequip(sd, EQ_CROWN))
+    {
       WFIFOW(src_sd->fd, 36) = 0xFFFF;
       WFIFOB(src_sd->fd, 38) = 0x0;
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 30) = 0;
-      if (sd->status.equip[EQ_CROWN].customLook != 0) {
+      if (sd->status.equip[EQ_CROWN].customLook != 0)
+      {
         WFIFOW(src_sd->fd, 36) =
-            SWAP16(sd->status.equip[EQ_CROWN].customLook);  // Crown
+            SWAP16(sd->status.equip[EQ_CROWN].customLook); // Crown
         WFIFOB(src_sd->fd, 38) =
-            sd->status.equip[EQ_CROWN].customLookColor;  // Crown color
-      } else {
+            sd->status.equip[EQ_CROWN].customLookColor; // Crown color
+      }
+      else
+      {
         WFIFOW(src_sd->fd, 36) =
-            SWAP16(itemdb_look(pc_isequip(sd, EQ_CROWN)));  // Crown
+            SWAP16(itemdb_look(pc_isequip(sd, EQ_CROWN))); // Crown
         WFIFOB(src_sd->fd, 38) =
-            itemdb_lookcolor(pc_isequip(sd, EQ_CROWN));  // Crown color
+            itemdb_lookcolor(pc_isequip(sd, EQ_CROWN)); // Crown color
       }
     }
 
-    if (!pc_isequip(sd, EQ_FACEACCTWO)) {
-      WFIFOW(src_sd->fd, 39) = 0xFFFF;  // second face acc
-      WFIFOB(src_sd->fd, 41) = 0x0;     //" color
-    } else {
+    if (!pc_isequip(sd, EQ_FACEACCTWO))
+    {
+      WFIFOW(src_sd->fd, 39) = 0xFFFF; // second face acc
+      WFIFOB(src_sd->fd, 41) = 0x0;    //" color
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 39) =
           SWAP16(itemdb_look(pc_isequip(sd, EQ_FACEACCTWO)));
       WFIFOB(src_sd->fd, 41) = itemdb_lookcolor(pc_isequip(sd, EQ_FACEACCTWO));
     }
 
     // mantle
-    if (!pc_isequip(sd, EQ_MANTLE)) {
+    if (!pc_isequip(sd, EQ_MANTLE))
+    {
       WFIFOW(src_sd->fd, 42) = 0xFFFF;
       WFIFOB(src_sd->fd, 44) = 0xFF;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 42) = SWAP16(itemdb_look(pc_isequip(sd, EQ_MANTLE)));
       WFIFOB(src_sd->fd, 44) = itemdb_lookcolor(pc_isequip(sd, EQ_MANTLE));
     }
@@ -12457,24 +14402,33 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
     if (!pc_isequip(sd, EQ_NECKLACE) ||
         !(sd->status.settingFlags & FLAG_NECKLACE) ||
         (itemdb_look(pc_isequip(sd, EQ_NECKLACE)) ==
-         -1)) {  // Necklace Toggle bug fix. 07-07-17
+         -1))
+    { // Necklace Toggle bug fix. 07-07-17
       WFIFOW(src_sd->fd, 45) = 0xFFFF;
       WFIFOB(src_sd->fd, 47) = 0x0;
-    } else {
+    }
+    else
+    {
       WFIFOW(src_sd->fd, 45) =
-          SWAP16(itemdb_look(pc_isequip(sd, EQ_NECKLACE)));  // necklace
+          SWAP16(itemdb_look(pc_isequip(sd, EQ_NECKLACE))); // necklace
       WFIFOB(src_sd->fd, 47) =
-          itemdb_lookcolor(pc_isequip(sd, EQ_NECKLACE));  // neckalce color
+          itemdb_lookcolor(pc_isequip(sd, EQ_NECKLACE)); // neckalce color
     }
     // boots
-    if (!pc_isequip(sd, EQ_BOOTS)) {
-      WFIFOW(src_sd->fd, 48) = SWAP16(sd->status.sex);  // boots
+    if (!pc_isequip(sd, EQ_BOOTS))
+    {
+      WFIFOW(src_sd->fd, 48) = SWAP16(sd->status.sex); // boots
       WFIFOB(src_sd->fd, 50) = 0x0;
-    } else {
-      if (sd->status.equip[EQ_BOOTS].customLook != 0) {
+    }
+    else
+    {
+      if (sd->status.equip[EQ_BOOTS].customLook != 0)
+      {
         WFIFOW(src_sd->fd, 48) = SWAP16(sd->status.equip[EQ_BOOTS].customLook);
         WFIFOB(src_sd->fd, 50) = sd->status.equip[EQ_BOOTS].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(src_sd->fd, 48) = SWAP16(itemdb_look(pc_isequip(sd, EQ_BOOTS)));
         WFIFOB(src_sd->fd, 50) = itemdb_lookcolor(pc_isequip(sd, EQ_BOOTS));
       }
@@ -12489,9 +14443,12 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
     WFIFOB(src_sd->fd, 53) = 0;
 
     if (sd->gfx.dye != 0 && src_sd->gfx.dye != 0 &&
-        src_sd->gfx.dye != sd->gfx.dye && sd->status.state == 2) {
+        src_sd->gfx.dye != sd->gfx.dye && sd->status.state == 2)
+    {
       WFIFOB(src_sd->fd, 51) = 0;
-    } else {
+    }
+    else
+    {
       if (sd->gfx.dye)
         WFIFOB(src_sd->fd, 51) = sd->gfx.titleColor;
       else
@@ -12521,38 +14478,50 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
 
     len = strlen(buf);
 
-    if (src_sd->status.clan == sd->status.clan) {
-      if (src_sd->status.clan > 0) {
-        if (src_sd->status.id != sd->status.id) {
+    if (src_sd->status.clan == sd->status.clan)
+    {
+      if (src_sd->status.clan > 0)
+      {
+        if (src_sd->status.id != sd->status.id)
+        {
           WFIFOB(src_sd->fd, 53) = 3;
         }
       }
     }
 
-    if (clif_isingroup(src_sd, sd)) {
-      if (sd->status.id != src_sd->status.id) {
+    if (clif_isingroup(src_sd, sd))
+    {
+      if (sd->status.id != src_sd->status.id)
+      {
         WFIFOB(src_sd->fd, 53) = 2;
       }
     }
 
-    if ((sd->status.state != 5) && (sd->status.state != 2)) {
+    if ((sd->status.state != 5) && (sd->status.state != 2))
+    {
       WFIFOB(src_sd->fd, 54) = len;
       strcpy(WFIFOP(src_sd->fd, 55), buf);
-    } else {
+    }
+    else
+    {
       WFIFOB(src_sd->fd, 54) = 0;
       len = 0;
     }
 
-    if ((sd->status.gm_level && sd->gfx.toggle) || sd->clone) {
+    if ((sd->status.gm_level && sd->gfx.toggle) || sd->clone)
+    {
       WFIFOB(src_sd->fd, 16) = sd->gfx.face;
       WFIFOB(src_sd->fd, 17) = sd->gfx.hair;
       WFIFOB(src_sd->fd, 18) = sd->gfx.chair;
       WFIFOB(src_sd->fd, 19) = sd->gfx.cface;
       WFIFOB(src_sd->fd, 20) = sd->gfx.cskin;
       WFIFOW(src_sd->fd, 21) = SWAP16(sd->gfx.armor);
-      if (sd->gfx.dye > 0) {
+      if (sd->gfx.dye > 0)
+      {
         WFIFOB(src_sd->fd, 23) = sd->gfx.dye;
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 23) = sd->gfx.carmor;
       }
       WFIFOW(src_sd->fd, 24) = SWAP16(sd->gfx.weapon);
@@ -12560,11 +14529,16 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
       WFIFOW(src_sd->fd, 27) = SWAP16(sd->gfx.shield);
       WFIFOB(src_sd->fd, 29) = sd->gfx.cshield;
 
-      if (sd->gfx.helm < 255) {
+      if (sd->gfx.helm < 255)
+      {
         WFIFOB(src_sd->fd, 30) = 1;
-      } else if (sd->gfx.crown < 65535) {
+      }
+      else if (sd->gfx.crown < 65535)
+      {
         WFIFOB(src_sd->fd, 30) = 0xFF;
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 30) = 0;
       }
 
@@ -12586,10 +14560,13 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
 
       len = strlen(sd->gfx.name);
       if ((sd->status.state != 2) && (sd->status.state != 5) &&
-          strcasecmp(sd->gfx.name, "")) {
+          strcasecmp(sd->gfx.name, ""))
+      {
         WFIFOB(src_sd->fd, 52) = len;
         strcpy(WFIFOP(src_sd->fd, 53), sd->gfx.name);
-      } else {
+      }
+      else
+      {
         WFIFOB(src_sd->fd, 52) = 0;
         len = 1;
       }
@@ -12608,9 +14585,12 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
     WFIFOSET(src_sd->fd, yuri_encrypt(src_sd->fd));
   }
 
-  if (map[sd->bl.m].show_ghosts) {
-    if (sd->status.state == 1 && (src_sd->bl.id != sd->bl.id)) {
-      if (src_sd->status.state != 1 && !(src_sd->optFlags & optFlag_ghosts)) {
+  if (map[sd->bl.m].show_ghosts)
+  {
+    if (sd->status.state == 1 && (src_sd->bl.id != sd->bl.id))
+    {
+      if (src_sd->status.state != 1 && !(src_sd->optFlags & optFlag_ghosts))
+      {
         WFIFOB(src_sd->fd, 0) = 0xAA;
         WFIFOB(src_sd->fd, 1) = 0x00;
         WFIFOB(src_sd->fd, 2) = 0x06;
@@ -12620,7 +14600,9 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
         WFIFOSET(src_sd->fd, yuri_encrypt(src_sd->fd));
 
         return 0;
-      } else {
+      }
+      else
+      {
         clif_charspecific(src_sd->bl.id, sd->bl.id);
       }
 
@@ -12643,12 +14625,14 @@ int clif_updatestate(struct block_list *bl, va_list ap) {
 
 /* This is where Board commands go */
 
-int clif_showboards(USER *sd) {
+int clif_showboards(USER *sd)
+{
   int len;
   int x, i;
   int b_count;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -12662,12 +14646,15 @@ int clif_showboards(USER *sd) {
   strcpy(WFIFOP(sd->fd, 7), "YuriBoards");
   len = 15;
   b_count = 0;
-  for (i = 0; i < 256; i++) {
-    for (x = 0; x < 256; x++) {
+  for (i = 0; i < 256; i++)
+  {
+    for (x = 0; x < 256; x++)
+    {
       if (boarddb_sort(x) == i && boarddb_level(x) <= sd->status.level &&
           boarddb_gmlevel(x) <= sd->status.gm_level &&
           (boarddb_path(x) == sd->status.class || boarddb_path(x) == 0) &&
-          (boarddb_clan(x) == sd->status.clan || boarddb_clan(x) == 0)) {
+          (boarddb_clan(x) == sd->status.clan || boarddb_clan(x) == 0))
+      {
         WFIFOW(sd->fd, len + 6) = SWAP16(x);
         WFIFOB(sd->fd, len + 8) = strlen(boarddb_name(x));
         strcpy(WFIFOP(sd->fd, len + 9), boarddb_name(x));
@@ -12684,7 +14671,8 @@ int clif_showboards(USER *sd) {
 }
 
 int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
-                   struct item *item, int price[], int count) {
+                   struct item *item, int price[], int count)
+{
   NPC *nd = NULL;
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
@@ -12694,20 +14682,22 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
   char name[64];
   char buff[64];
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 0x2F;  // THis is a buy packet
+  WFIFOB(sd->fd, 3) = 0x2F; // THis is a buy packet
   // WFIFOB(sd->fd,4)=3;
-  WFIFOB(sd->fd, 5) = 4;  // This is a buy packet(id)
-  WFIFOB(sd->fd, 6) = 2;  // For parsing purposes
+  WFIFOB(sd->fd, 5) = 4; // This is a buy packet(id)
+  WFIFOB(sd->fd, 6) = 2; // For parsing purposes
   WFIFOL(sd->fd, 7) = SWAP32(id);
 
-  if (graphic > 0) {
+  if (graphic > 0)
+  {
     if (graphic > 49152)
       WFIFOB(sd->fd, 11) = 2;
     else
@@ -12728,13 +14718,17 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
     WFIFOW(sd->fd, len + 22) = SWAP16(count);
     len += 2;
 
-    for (x = 0; x < count; x++) {
+    for (x = 0; x < count; x++)
+    {
       memset(name, 0, 64);
 
-      if (item[x].customIcon > 0) {
+      if (item[x].customIcon > 0)
+      {
         WFIFOW(sd->fd, len + 22) = SWAP16(item[x].customIcon + 49152);
         WFIFOB(sd->fd, len + 24) = item[x].customIconColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(sd->fd, len + 22) = SWAP16(itemdb_icon(item[x].id));
         WFIFOB(sd->fd, len + 24) = itemdb_iconcolor(item[x].id);
       }
@@ -12743,15 +14737,19 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
       WFIFOL(sd->fd, len + 22) = SWAP32(price[x]);
       len += 4;
 
-      if (strcmp(item[x].real_name, "") != 0) {
+      if (strcmp(item[x].real_name, "") != 0)
+      {
         sprintf(name, "%s", item[x].real_name);
         // strcpy(name,item[x].real_name);
-      } else {
+      }
+      else
+      {
         sprintf(name, "%s", itemdb_name(item[x].id));
         // strcpy(name,itemdb_name(item[x].id));
       }
 
-      if (item[x].owner != 0) {
+      if (item[x].owner != 0)
+      {
         sprintf(name + strlen(name), " - BONDED");
       }
 
@@ -12761,11 +14759,16 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
       strcpy(WFIFOP(sd->fd, len + 23), name);
       len += strlen(name) + 1;
 
-      if (strcmp(itemdb_buytext(item[x].id), "") != 0) {
+      if (strcmp(itemdb_buytext(item[x].id), "") != 0)
+      {
         strcpy(buff, itemdb_buytext(item[x].id));
-      } else if (strcmp((char *)item[x].buytext, "") != 0) {
+      }
+      else if (strcmp((char *)item[x].buytext, "") != 0)
+      {
         strcpy(buff, (char *)item[x].buytext);
-      } else {
+      }
+      else
+      {
         char *path =
             classdb_name(itemdb_class(item[x].id), itemdb_rank(item[x].id));
         sprintf(buff, "%s level %u", path, itemdb_level(item[x].id));
@@ -12778,7 +14781,9 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 19);
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-  } else {
+  }
+  else
+  {
     nd = map_id2npc(id);
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
@@ -12793,104 +14798,138 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
     WFIFOB(sd->fd, 23) = nd->skin_color;
 
     // armor
-    if (!nd->equip[EQ_ARMOR].id) {
+    if (!nd->equip[EQ_ARMOR].id)
+    {
       WFIFOW(sd->fd, 24) = 0xFFFF;
       WFIFOB(sd->fd, 26) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-      if (nd->armor_color) {
+      if (nd->armor_color)
+      {
         WFIFOB(sd->fd, 26) = nd->armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, 26) = nd->equip[EQ_ARMOR].customLookColor;
       }
     }
 
     // coat
-    if (nd->equip[EQ_COAT].id) {
+    if (nd->equip[EQ_COAT].id)
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_COAT].id);
       WFIFOB(sd->fd, 26) = nd->equip[EQ_COAT].customLookColor;
     }
 
     // weap
-    if (!nd->equip[EQ_WEAP].id) {
+    if (!nd->equip[EQ_WEAP].id)
+    {
       WFIFOW(sd->fd, 27) = 0xFFFF;
       WFIFOB(sd->fd, 29) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 27) = SWAP16(nd->equip[EQ_WEAP].id);
       WFIFOB(sd->fd, 29) = nd->equip[EQ_WEAP].customLookColor;
     }
 
     // shield
-    if (!nd->equip[EQ_SHIELD].id) {
+    if (!nd->equip[EQ_SHIELD].id)
+    {
       WFIFOW(sd->fd, 30) = 0xFFFF;
       WFIFOB(sd->fd, 32) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 30) = SWAP16(nd->equip[EQ_SHIELD].id);
       WFIFOB(sd->fd, 32) = nd->equip[EQ_SHIELD].customLookColor;
     }
 
     // helm
-    if (!nd->equip[EQ_HELM].id) {
+    if (!nd->equip[EQ_HELM].id)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOW(sd->fd, 34) = nd->equip[EQ_HELM].id;
       WFIFOB(sd->fd, 35) = nd->equip[EQ_HELM].customLookColor;
     }
 
     // faceacc
-    if (!nd->equip[EQ_FACEACC].id) {
+    if (!nd->equip[EQ_FACEACC].id)
+    {
       WFIFOW(sd->fd, 36) = 0xFFFF;
       WFIFOB(sd->fd, 38) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 36) = SWAP16(nd->equip[EQ_FACEACC].id);
       WFIFOB(sd->fd, 38) = nd->equip[EQ_FACEACC].customLookColor;
     }
 
     // crown
-    if (!nd->equip[EQ_CROWN].id) {
+    if (!nd->equip[EQ_CROWN].id)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->equip[EQ_CROWN].id);
       WFIFOB(sd->fd, 41) = nd->equip[EQ_CROWN].customLookColor;
     }
 
-    if (!nd->equip[EQ_FACEACCTWO].id) {
+    if (!nd->equip[EQ_FACEACCTWO].id)
+    {
       WFIFOW(sd->fd, 42) = 0xFFFF;
       WFIFOB(sd->fd, 44) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 42) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
       WFIFOB(sd->fd, 44) = nd->equip[EQ_FACEACCTWO].customLookColor;
     }
 
     // mantle
-    if (!nd->equip[EQ_MANTLE].id) {
+    if (!nd->equip[EQ_MANTLE].id)
+    {
       WFIFOW(sd->fd, 45) = 0xFFFF;
       WFIFOB(sd->fd, 47) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 45) = SWAP16(nd->equip[EQ_MANTLE].id);
       WFIFOB(sd->fd, 47) = nd->equip[EQ_MANTLE].customLookColor;
     }
 
     // necklace
-    if (!nd->equip[EQ_NECKLACE].id) {
+    if (!nd->equip[EQ_NECKLACE].id)
+    {
       WFIFOW(sd->fd, 48) = 0xFFFF;
       WFIFOB(sd->fd, 50) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 48) = SWAP16(nd->equip[EQ_NECKLACE].id);
       WFIFOB(sd->fd, 50) = nd->equip[EQ_NECKLACE].customLookColor;
     }
 
     // boots
-    if (!nd->equip[EQ_BOOTS].id) {
+    if (!nd->equip[EQ_BOOTS].id)
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->sex);
       WFIFOB(sd->fd, 53) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->equip[EQ_BOOTS].id);
       WFIFOB(sd->fd, 53) = nd->equip[EQ_BOOTS].customLookColor;
     }
@@ -12907,13 +14946,17 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
     WFIFOW(sd->fd, len + 62) = SWAP16(count);
     len += 2;
 
-    for (x = 0; x < count; x++) {
+    for (x = 0; x < count; x++)
+    {
       memset(name, 0, 64);
 
-      if (item[x].customIcon > 0) {
+      if (item[x].customIcon > 0)
+      {
         WFIFOW(sd->fd, len + 62) = SWAP16(item[x].customIcon);
         WFIFOB(sd->fd, len + 64) = item[x].customIconColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(sd->fd, len + 62) = SWAP16(itemdb_icon(item[x].id));
         WFIFOB(sd->fd, len + 64) = itemdb_iconcolor(item[x].id);
       }
@@ -12922,13 +14965,17 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
       WFIFOL(sd->fd, len + 62) = SWAP32(price[x]);
       len += 4;
 
-      if (strcmp(item[x].real_name, "") != 0) {
+      if (strcmp(item[x].real_name, "") != 0)
+      {
         strcpy(name, item[x].real_name);
-      } else {
+      }
+      else
+      {
         strcpy(name, itemdb_name(item[x].id));
       }
 
-      if (item[x].owner != 0) {
+      if (item[x].owner != 0)
+      {
         sprintf(name + strlen(name), " - BONDED");
       }
 
@@ -12936,11 +14983,16 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
       strcpy(WFIFOP(sd->fd, len + 63), name);
       len += strlen(name) + 1;
 
-      if (strcmp(itemdb_buytext(item[x].id), "") != 0) {
+      if (strcmp(itemdb_buytext(item[x].id), "") != 0)
+      {
         strcpy(buff, itemdb_buytext(item[x].id));
-      } else if (strcmp((char *)item[x].buytext, "") != 0) {
+      }
+      else if (strcmp((char *)item[x].buytext, "") != 0)
+      {
         strcpy(buff, (char *)item[x].buytext);
-      } else {
+      }
+      else
+      {
         char *path =
             classdb_name(itemdb_class(item[x].id), itemdb_rank(item[x].id));
         sprintf(buff, "%s level %u", path, itemdb_level(item[x].id));
@@ -12958,7 +15010,8 @@ int clif_buydialog(USER *sd, unsigned int id, const char *dialog,
   return 0;
 }
 
-int clif_parsebuy(USER *sd) {
+int clif_parsebuy(USER *sd)
+{
   char itemname[255];
 
   memset(itemname, 0, 255);
@@ -12976,36 +15029,43 @@ int clif_parsebuy(USER *sd) {
           sl_resumebuy(item->id,sd);
   }*/
 
-  if (strcmp(itemname, "") != 0) sl_resumebuy(itemname, sd);
+  if (strcmp(itemname, "") != 0)
+    sl_resumebuy(itemname, sd);
 
   return 0;
 }
 
 int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
-                    int count) {
+                    int count)
+{
   NPC *nd = NULL;
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
   int len;
   int i;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 0x2F;  // THis is a buy packet
+  WFIFOB(sd->fd, 3) = 0x2F; // THis is a buy packet
   WFIFOB(sd->fd, 4) = 3;
-  WFIFOB(sd->fd, 5) = 5;  // This is a buy packet(id)
-  WFIFOB(sd->fd, 6) = 4;  // For parsing purposes
+  WFIFOB(sd->fd, 5) = 5; // This is a buy packet(id)
+  WFIFOB(sd->fd, 6) = 4; // For parsing purposes
   WFIFOL(sd->fd, 7) = SWAP32(id);
 
-  if (graphic > 0) {
-    if (graphic > 49152) {
+  if (graphic > 0)
+  {
+    if (graphic > 49152)
+    {
       WFIFOB(sd->fd, 11) = 2;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 11) = 1;
     }
     WFIFOB(sd->fd, 12) = 1;
@@ -13022,13 +15082,16 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
     len += 2;
     WFIFOB(sd->fd, len + 20) = count;
     len += 1;
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < count; i++)
+    {
       WFIFOB(sd->fd, len + 20) = item[i] + 1;
       len += 1;
     }
     WFIFOW(sd->fd, 1) = SWAP16(len + 17);
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-  } else {
+  }
+  else
+  {
     nd = map_id2npc(id);
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
@@ -13043,104 +15106,138 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
     WFIFOB(sd->fd, 23) = nd->skin_color;
 
     // armor
-    if (!nd->equip[EQ_ARMOR].id) {
+    if (!nd->equip[EQ_ARMOR].id)
+    {
       WFIFOW(sd->fd, 24) = 0xFFFF;
       WFIFOB(sd->fd, 26) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-      if (nd->armor_color) {
+      if (nd->armor_color)
+      {
         WFIFOB(sd->fd, 26) = nd->armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, 26) = nd->equip[EQ_ARMOR].customLookColor;
       }
     }
 
     // coat
-    if (nd->equip[EQ_COAT].id) {
+    if (nd->equip[EQ_COAT].id)
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_COAT].id);
       WFIFOB(sd->fd, 26) = nd->equip[EQ_COAT].customLookColor;
     }
 
     // weap
-    if (!nd->equip[EQ_WEAP].id) {
+    if (!nd->equip[EQ_WEAP].id)
+    {
       WFIFOW(sd->fd, 27) = 0xFFFF;
       WFIFOB(sd->fd, 29) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 27) = SWAP16(nd->equip[EQ_WEAP].id);
       WFIFOB(sd->fd, 29) = nd->equip[EQ_WEAP].customLookColor;
     }
 
     // shield
-    if (!nd->equip[EQ_SHIELD].id) {
+    if (!nd->equip[EQ_SHIELD].id)
+    {
       WFIFOW(sd->fd, 30) = 0xFFFF;
       WFIFOB(sd->fd, 32) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 30) = SWAP16(nd->equip[EQ_SHIELD].id);
       WFIFOB(sd->fd, 32) = nd->equip[EQ_SHIELD].customLookColor;
     }
 
     // helm
-    if (!nd->equip[EQ_HELM].id) {
+    if (!nd->equip[EQ_HELM].id)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOW(sd->fd, 34) = nd->equip[EQ_HELM].id;
       WFIFOB(sd->fd, 35) = nd->equip[EQ_HELM].customLookColor;
     }
 
     // faceacc
-    if (!nd->equip[EQ_FACEACC].id) {
+    if (!nd->equip[EQ_FACEACC].id)
+    {
       WFIFOW(sd->fd, 36) = 0xFFFF;
       WFIFOB(sd->fd, 38) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 36) = SWAP16(nd->equip[EQ_FACEACC].id);
       WFIFOB(sd->fd, 38) = nd->equip[EQ_FACEACC].customLookColor;
     }
 
     // crown
-    if (!nd->equip[EQ_CROWN].id) {
+    if (!nd->equip[EQ_CROWN].id)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->equip[EQ_CROWN].id);
       WFIFOB(sd->fd, 41) = nd->equip[EQ_CROWN].customLookColor;
     }
 
-    if (!nd->equip[EQ_FACEACCTWO].id) {
+    if (!nd->equip[EQ_FACEACCTWO].id)
+    {
       WFIFOW(sd->fd, 42) = 0xFFFF;
       WFIFOB(sd->fd, 44) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 42) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
       WFIFOB(sd->fd, 44) = nd->equip[EQ_FACEACCTWO].customLookColor;
     }
 
     // mantle
-    if (!nd->equip[EQ_MANTLE].id) {
+    if (!nd->equip[EQ_MANTLE].id)
+    {
       WFIFOW(sd->fd, 45) = 0xFFFF;
       WFIFOB(sd->fd, 47) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 45) = SWAP16(nd->equip[EQ_MANTLE].id);
       WFIFOB(sd->fd, 47) = nd->equip[EQ_MANTLE].customLookColor;
     }
 
     // necklace
-    if (!nd->equip[EQ_NECKLACE].id) {
+    if (!nd->equip[EQ_NECKLACE].id)
+    {
       WFIFOW(sd->fd, 48) = 0xFFFF;
       WFIFOB(sd->fd, 50) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 48) = SWAP16(nd->equip[EQ_NECKLACE].id);
       WFIFOB(sd->fd, 50) = nd->equip[EQ_NECKLACE].customLookColor;
     }
 
     // boots
-    if (!nd->equip[EQ_BOOTS].id) {
+    if (!nd->equip[EQ_BOOTS].id)
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->sex);
       WFIFOB(sd->fd, 53) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->equip[EQ_BOOTS].id);
       WFIFOB(sd->fd, 53) = nd->equip[EQ_BOOTS].customLookColor;
     }
@@ -13157,7 +15254,8 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
     WFIFOB(sd->fd, len + 62) = count;
     len += 1;
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < count; i++)
+    {
       WFIFOB(sd->fd, len + 62) = item[i] + 1;
       len += 1;
     }
@@ -13168,17 +15266,20 @@ int clif_selldialog(USER *sd, unsigned int id, const char *dialog, int item[],
   return 0;
 }
 
-int clif_parsesell(USER *sd) {
+int clif_parsesell(USER *sd)
+{
   sl_resumesell(RFIFOB(sd->fd, 12), sd);
   return 0;
 }
 
-int clif_isregistered(unsigned int id) {
+int clif_isregistered(unsigned int id)
+{
   int accountid = 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -13192,13 +15293,15 @@ int clif_isregistered(unsigned int id) {
                        id, id, id, id, id, id) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR ==
-          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &accountid, 0, NULL, NULL)) {
+          SqlStmt_BindColumn(stmt, 0, SQLDT_UINT, &accountid, 0, NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
   }
 
   return accountid;
@@ -13207,7 +15310,8 @@ int clif_isregistered(unsigned int id) {
   // else return 0;
 }
 
-char *clif_getaccountemail(unsigned int id) {
+char *clif_getaccountemail(unsigned int id)
+{
   // char email[255];
 
   char *email;
@@ -13215,11 +15319,13 @@ char *clif_getaccountemail(unsigned int id) {
   memset(email, 0, 255);
 
   int acctid = clif_isregistered(id);
-  if (acctid == 0) return 0;
+  if (acctid == 0)
+    return 0;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     return 0;
   }
@@ -13231,20 +15337,23 @@ char *clif_getaccountemail(unsigned int id) {
               acctid) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &email[0], 255,
-                                      NULL, NULL)) {
+                                      NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
   }
 
-  if (SQL_SUCCESS != SqlStmt_NextRow(stmt)) {
+  if (SQL_SUCCESS != SqlStmt_NextRow(stmt))
+  {
   }
 
   // printf("email is: %s\n",email);
   return &email[0];
 }
 
-int clif_input(USER *sd, int id, const char *dialog, const char *item) {
+int clif_input(USER *sd, int id, const char *dialog, const char *item)
+{
   int graphic = sd->npc_g;
   int color = sd->npc_gc;
 
@@ -13252,29 +15361,35 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
   NPC *nd = map_id2npc((unsigned int)id);
   int type = sd->dialogtype;
 
-  if (nd) {
+  if (nd)
+  {
     nd->lastaction = time(NULL);
   }
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 1000);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 0x2F;  // THis is a buy packet
+  WFIFOB(sd->fd, 3) = 0x2F; // THis is a buy packet
   // WFIFOB(sd->fd,4)=3;
-  WFIFOB(sd->fd, 5) = 3;  // This is a input amount packet(id=3)
-  WFIFOB(sd->fd, 6) = 3;  // For parsing purposes
+  WFIFOB(sd->fd, 5) = 3; // This is a input amount packet(id=3)
+  WFIFOB(sd->fd, 6) = 3; // For parsing purposes
   WFIFOL(sd->fd, 7) = SWAP32(id);
 
-  if (type == 0) {
+  if (type == 0)
+  {
     if (graphic == 0)
       WFIFOB(sd->fd, 11) = 0;
-    else if (graphic >= 49152) {
+    else if (graphic >= 49152)
+    {
       WFIFOB(sd->fd, 11) = 2;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 11) = 1;
     }
     WFIFOB(sd->fd, 12) = 1;
@@ -13296,7 +15411,9 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 19);
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-  } else if (type == 1) {
+  }
+  else if (type == 1)
+  {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -13310,104 +15427,138 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
     WFIFOB(sd->fd, 23) = nd->skin_color;
 
     // armor
-    if (!nd->equip[EQ_ARMOR].id) {
+    if (!nd->equip[EQ_ARMOR].id)
+    {
       WFIFOW(sd->fd, 24) = 0xFFFF;
       WFIFOB(sd->fd, 26) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_ARMOR].id);
 
-      if (nd->armor_color) {
+      if (nd->armor_color)
+      {
         WFIFOB(sd->fd, 26) = nd->armor_color;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, 26) = nd->equip[EQ_ARMOR].customLookColor;
       }
     }
 
     // coat
-    if (nd->equip[EQ_COAT].id) {
+    if (nd->equip[EQ_COAT].id)
+    {
       WFIFOW(sd->fd, 24) = SWAP16(nd->equip[EQ_COAT].id);
       WFIFOB(sd->fd, 26) = nd->equip[EQ_COAT].customLookColor;
     }
 
     // weap
-    if (!nd->equip[EQ_WEAP].id) {
+    if (!nd->equip[EQ_WEAP].id)
+    {
       WFIFOW(sd->fd, 27) = 0xFFFF;
       WFIFOB(sd->fd, 29) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 27) = SWAP16(nd->equip[EQ_WEAP].id);
       WFIFOB(sd->fd, 29) = nd->equip[EQ_WEAP].customLookColor;
     }
 
     // shield
-    if (!nd->equip[EQ_SHIELD].id) {
+    if (!nd->equip[EQ_SHIELD].id)
+    {
       WFIFOW(sd->fd, 30) = 0xFFFF;
       WFIFOB(sd->fd, 32) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 30) = SWAP16(nd->equip[EQ_SHIELD].id);
       WFIFOB(sd->fd, 32) = nd->equip[EQ_SHIELD].customLookColor;
     }
 
     // helm
-    if (!nd->equip[EQ_HELM].id) {
+    if (!nd->equip[EQ_HELM].id)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->equip[EQ_HELM].id;
       WFIFOB(sd->fd, 35) = nd->equip[EQ_HELM].customLookColor;
     }
 
     // faceacc
-    if (!nd->equip[EQ_FACEACC].id) {
+    if (!nd->equip[EQ_FACEACC].id)
+    {
       WFIFOW(sd->fd, 36) = 0xFFFF;
       WFIFOB(sd->fd, 38) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 36) = SWAP16(nd->equip[EQ_FACEACC].id);
       WFIFOB(sd->fd, 38) = nd->equip[EQ_FACEACC].customLookColor;
     }
 
     // crown
-    if (!nd->equip[EQ_CROWN].id) {
+    if (!nd->equip[EQ_CROWN].id)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->equip[EQ_CROWN].id);
       WFIFOB(sd->fd, 41) = nd->equip[EQ_CROWN].customLookColor;
     }
 
-    if (!nd->equip[EQ_FACEACCTWO].id) {
+    if (!nd->equip[EQ_FACEACCTWO].id)
+    {
       WFIFOW(sd->fd, 42) = 0xFFFF;
       WFIFOB(sd->fd, 44) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 42) = SWAP16(nd->equip[EQ_FACEACCTWO].id);
       WFIFOB(sd->fd, 44) = nd->equip[EQ_FACEACCTWO].customLookColor;
     }
 
     // mantle
-    if (!nd->equip[EQ_MANTLE].id) {
+    if (!nd->equip[EQ_MANTLE].id)
+    {
       WFIFOW(sd->fd, 45) = 0xFFFF;
       WFIFOB(sd->fd, 47) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 45) = SWAP16(nd->equip[EQ_MANTLE].id);
       WFIFOB(sd->fd, 47) = nd->equip[EQ_MANTLE].customLookColor;
     }
 
     // necklace
-    if (!nd->equip[EQ_NECKLACE].id) {
+    if (!nd->equip[EQ_NECKLACE].id)
+    {
       WFIFOW(sd->fd, 48) = 0xFFFF;
       WFIFOB(sd->fd, 50) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 48) = SWAP16(nd->equip[EQ_NECKLACE].id);
       WFIFOB(sd->fd, 50) = nd->equip[EQ_NECKLACE].customLookColor;
     }
 
     // boots
-    if (!nd->equip[EQ_BOOTS].id) {
+    if (!nd->equip[EQ_BOOTS].id)
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->sex);
       WFIFOB(sd->fd, 53) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, 51) = SWAP16(nd->equip[EQ_BOOTS].id);
       WFIFOB(sd->fd, 53) = nd->equip[EQ_BOOTS].customLookColor;
     }
@@ -13427,7 +15578,9 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
 
     WFIFOW(sd->fd, 1) = SWAP16(len + 57);
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-  } else if (type == 2) {
+  }
+  else if (type == 2)
+  {
     WFIFOB(sd->fd, 11) = 1;
     WFIFOW(sd->fd, 12) = SWAP16(nd->sex);
     WFIFOB(sd->fd, 14) = nd->state;
@@ -13453,11 +15606,14 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
     WFIFOB(sd->fd, 32) = nd->gfx.cshield;
 
     // helm
-    if (nd->gfx.helm == 65535) {
+    if (nd->gfx.helm == 65535)
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOB(sd->fd, 34) = 0xFF;
       WFIFOB(sd->fd, 35) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 1;
       WFIFOB(sd->fd, 34) = nd->gfx.helm;
       WFIFOB(sd->fd, 35) = nd->gfx.chelm;
@@ -13468,10 +15624,13 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
     WFIFOB(sd->fd, 38) = nd->gfx.cfaceAcc;
 
     // crown
-    if (nd->gfx.crown == 65535) {
+    if (nd->gfx.crown == 65535)
+    {
       WFIFOW(sd->fd, 39) = 0xFFFF;
       WFIFOB(sd->fd, 41) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, 33) = 0;
       WFIFOW(sd->fd, 39) = SWAP16(nd->gfx.crown);
       WFIFOB(sd->fd, 41) = nd->gfx.ccrown;
@@ -13512,7 +15671,8 @@ int clif_input(USER *sd, int id, const char *dialog, const char *item) {
   return 0;
 }
 
-int clif_parseinput(USER *sd) {
+int clif_parseinput(USER *sd)
+{
   char output[256];
   char output2[256];
   int tlen = 0;
@@ -13527,7 +15687,8 @@ int clif_parseinput(USER *sd) {
   return 0;
 }
 
-int clif_clickonplayer(USER *sd, struct block_list *bl) {
+int clif_clickonplayer(USER *sd, struct block_list *bl)
+{
   USER *tsd = NULL;
   int len = 0;
   char equip_status[65535];
@@ -13539,7 +15700,8 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   tsd = map_id2sd(bl->id);
   equip_status[0] = '\0';
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -13551,43 +15713,55 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   // WFIFOB(sd->fd,4)=0x03;
 
   // Title
-  if (strlen(tsd->status.title) > 0) {
+  if (strlen(tsd->status.title) > 0)
+  {
     WFIFOB(sd->fd, 5) = strlen(tsd->status.title);
     strcpy(WFIFOP(sd->fd, 6), tsd->status.title);
     len += strlen(tsd->status.title) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, 5) = 0;
     len += 1;
   }
 
   // Clan
-  if (tsd->status.clan > 0) {
+  if (tsd->status.clan > 0)
+  {
     WFIFOB(sd->fd, len + 5) = strlen(clandb_name(tsd->status.clan));
     strcpy(WFIFOP(sd->fd, len + 6), clandb_name(tsd->status.clan));
     len += strlen(clandb_name(tsd->status.clan)) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 5) = 0;
     len += 1;
   }
 
   // Clan Title
-  if (strlen(tsd->status.clan_title) > 0) {
+  if (strlen(tsd->status.clan_title) > 0)
+  {
     WFIFOB(sd->fd, len + 5) = strlen(tsd->status.clan_title);
     strcpy(WFIFOP(sd->fd, len + 6), tsd->status.clan_title);
     len += strlen(tsd->status.clan_title) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 5) = 0;
     len += 1;
   }
 
   // Class
-  if (classdb_name(tsd->status.class, tsd->status.mark)) {
+  if (classdb_name(tsd->status.class, tsd->status.mark))
+  {
     WFIFOB(sd->fd, len + 5) =
         strlen(classdb_name(tsd->status.class, tsd->status.mark));
     strcpy(WFIFOP(sd->fd, len + 6),
            classdb_name(tsd->status.class, tsd->status.mark));
     len += strlen(classdb_name(tsd->status.class, tsd->status.mark)) + 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 5) = 0;
     len += 1;
   }
@@ -13605,136 +15779,185 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   WFIFOW(sd->fd, len + 9) = SWAP16(0);
   WFIFOB(sd->fd, len + 11) = tsd->speed;
 
-  if (tsd->status.state == 3) {
+  if (tsd->status.state == 3)
+  {
     WFIFOW(sd->fd, len + 9) = SWAP16(tsd->disguise);
-  } else if (tsd->status.state == 4) {
+  }
+  else if (tsd->status.state == 4)
+  {
     WFIFOW(sd->fd, len + 9) = SWAP16(tsd->disguise + 32768);
     WFIFOB(sd->fd, len + 11) = tsd->disguise_color;
   }
 
   WFIFOB(sd->fd, len + 12) = 0;
-  WFIFOB(sd->fd, len + 13) = tsd->status.face;        // face
-  WFIFOB(sd->fd, len + 14) = tsd->status.hair;        // hair
-  WFIFOB(sd->fd, len + 15) = tsd->status.hair_color;  // hair color
+  WFIFOB(sd->fd, len + 13) = tsd->status.face;       // face
+  WFIFOB(sd->fd, len + 14) = tsd->status.hair;       // hair
+  WFIFOB(sd->fd, len + 15) = tsd->status.hair_color; // hair color
   WFIFOB(sd->fd, len + 16) = tsd->status.face_color;
   WFIFOB(sd->fd, len + 17) = tsd->status.skin_color;
 
   len += 14;
 
-  if (!pc_isequip(tsd, EQ_ARMOR)) {
+  if (!pc_isequip(tsd, EQ_ARMOR))
+  {
     WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.sex);
-  } else {
-    if (tsd->status.equip[EQ_ARMOR].customLook != 0) {
+  }
+  else
+  {
+    if (tsd->status.equip[EQ_ARMOR].customLook != 0)
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.equip[EQ_ARMOR].customLook);
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_ARMOR)));
     }
 
-    if (tsd->status.armor_color > 0) {
+    if (tsd->status.armor_color > 0)
+    {
       WFIFOB(sd->fd, len + 6) = tsd->status.armor_color;
-    } else {
-      if (tsd->status.equip[EQ_ARMOR].customLook != 0) {
+    }
+    else
+    {
+      if (tsd->status.equip[EQ_ARMOR].customLook != 0)
+      {
         WFIFOB(sd->fd, len + 6) = tsd->status.equip[EQ_ARMOR].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_ARMOR));
       }
     }
   }
   // coat
-  if (pc_isequip(tsd, EQ_COAT)) {
+  if (pc_isequip(tsd, EQ_COAT))
+  {
     WFIFOW(sd->fd, len + 4) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_COAT)));
 
-    if (tsd->status.armor_color > 0) {
+    if (tsd->status.armor_color > 0)
+    {
       WFIFOB(sd->fd, len + 6) = tsd->status.armor_color;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_COAT));
     }
   }
 
   len += 3;
   // weapon
-  if (!pc_isequip(tsd, EQ_WEAP)) {
+  if (!pc_isequip(tsd, EQ_WEAP))
+  {
     WFIFOW(sd->fd, len + 4) = 0xFFFF;
     WFIFOB(sd->fd, len + 6) = 0;
-  } else {
+  }
+  else
+  {
     if (tsd->status.equip[EQ_WEAP].customLook !=
-        0) {  // edited on 07-16-2017 to support custom WEapon Skins
+        0)
+    { // edited on 07-16-2017 to support custom WEapon Skins
       WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.equip[EQ_WEAP].customLook);
       WFIFOB(sd->fd, len + 6) = tsd->status.equip[EQ_WEAP].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_WEAP)));
       WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_WEAP));
     }
   }
   len += 3;
   // shield
-  if (!pc_isequip(tsd, EQ_SHIELD)) {
+  if (!pc_isequip(tsd, EQ_SHIELD))
+  {
     WFIFOW(sd->fd, len + 4) = 0xFFFF;
     WFIFOB(sd->fd, len + 6) = 0;
-  } else {
-    if (tsd->status.equip[EQ_SHIELD].customLook != 0) {
+  }
+  else
+  {
+    if (tsd->status.equip[EQ_SHIELD].customLook != 0)
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.equip[EQ_SHIELD].customLook);
       WFIFOB(sd->fd, len + 6) = tsd->status.equip[EQ_SHIELD].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_SHIELD)));
       WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_SHIELD));
     }
   }
   len += 3;
   if (!pc_isequip(tsd, EQ_HELM) || !(tsd->status.settingFlags & FLAG_HELM) ||
-      (itemdb_look(pc_isequip(tsd, EQ_HELM)) == -1)) {
+      (itemdb_look(pc_isequip(tsd, EQ_HELM)) == -1))
+  {
     // helm stuff goes here
-    WFIFOB(sd->fd, len + 4) = 0;       // supposed to be 1=Helm, 0=No helm
-    WFIFOW(sd->fd, len + 5) = 0xFFFF;  // supposed to be Helm num
-  } else {
+    WFIFOB(sd->fd, len + 4) = 0;      // supposed to be 1=Helm, 0=No helm
+    WFIFOW(sd->fd, len + 5) = 0xFFFF; // supposed to be Helm num
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 4) = 1;
 
-    if (tsd->status.equip[EQ_HELM].customLook != 0) {
+    if (tsd->status.equip[EQ_HELM].customLook != 0)
+    {
       WFIFOB(sd->fd, len + 5) = tsd->status.equip[EQ_HELM].customLook;
       WFIFOB(sd->fd, len + 6) = tsd->status.equip[EQ_HELM].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, len + 5) = itemdb_look(pc_isequip(tsd, EQ_HELM));
       WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_HELM));
     }
   }
   len += 3;
   // faceacc
-  if (!pc_isequip(tsd, EQ_FACEACC)) {
+  if (!pc_isequip(tsd, EQ_FACEACC))
+  {
     // beard stuff
     WFIFOW(sd->fd, len + 4) = 0xFFFF;
     WFIFOB(sd->fd, len + 6) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, len + 4) =
-        SWAP16(itemdb_look(pc_isequip(tsd, EQ_FACEACC)));  // beard num
+        SWAP16(itemdb_look(pc_isequip(tsd, EQ_FACEACC))); // beard num
     WFIFOB(sd->fd, len + 6) =
-        itemdb_lookcolor(pc_isequip(tsd, EQ_FACEACC));  // beard color
+        itemdb_lookcolor(pc_isequip(tsd, EQ_FACEACC)); // beard color
   }
   len += 3;
   // crown
-  if (!pc_isequip(tsd, EQ_CROWN)) {
+  if (!pc_isequip(tsd, EQ_CROWN))
+  {
     WFIFOW(sd->fd, len + 4) = 0xFFFF;
     WFIFOB(sd->fd, len + 6) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len) = 0;
 
-    if (tsd->status.equip[EQ_CROWN].customLook != 0) {
+    if (tsd->status.equip[EQ_CROWN].customLook != 0)
+    {
       WFIFOW(sd->fd, len + 4) =
-          SWAP16(tsd->status.equip[EQ_CROWN].customLook);  // Crown
+          SWAP16(tsd->status.equip[EQ_CROWN].customLook); // Crown
       WFIFOB(sd->fd, len + 6) =
-          tsd->status.equip[EQ_CROWN].customLookColor;  // Crown color
-    } else {
+          tsd->status.equip[EQ_CROWN].customLookColor; // Crown color
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 4) =
-          SWAP16(itemdb_look(pc_isequip(tsd, EQ_CROWN)));  // Crown
+          SWAP16(itemdb_look(pc_isequip(tsd, EQ_CROWN))); // Crown
       WFIFOB(sd->fd, len + 6) =
-          itemdb_lookcolor(pc_isequip(tsd, EQ_CROWN));  // Crown color
+          itemdb_lookcolor(pc_isequip(tsd, EQ_CROWN)); // Crown color
     }
   }
   len += 3;
 
-  if (!pc_isequip(tsd, EQ_FACEACCTWO)) {
-    WFIFOW(sd->fd, len + 4) = 0xFFFF;  // second face acc
-    WFIFOB(sd->fd, len + 6) = 0;       //" color
-  } else {
+  if (!pc_isequip(tsd, EQ_FACEACCTWO))
+  {
+    WFIFOW(sd->fd, len + 4) = 0xFFFF; // second face acc
+    WFIFOB(sd->fd, len + 6) = 0;      //" color
+  }
+  else
+  {
     WFIFOW(sd->fd, len + 4) =
         SWAP16(itemdb_look(pc_isequip(tsd, EQ_FACEACCTWO)));
     WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_FACEACCTWO));
@@ -13742,10 +15965,13 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
 
   len += 3;
   // mantle
-  if (!pc_isequip(tsd, EQ_MANTLE)) {
+  if (!pc_isequip(tsd, EQ_MANTLE))
+  {
     WFIFOW(sd->fd, len + 4) = 0xFFFF;
     WFIFOB(sd->fd, len + 6) = 0xFF;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, len + 4) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_MANTLE)));
     WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_MANTLE));
   }
@@ -13754,25 +15980,34 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   // necklace
   if (!pc_isequip(tsd, EQ_NECKLACE) ||
       !(tsd->status.settingFlags & FLAG_NECKLACE) ||
-      (itemdb_look(pc_isequip(tsd, EQ_NECKLACE)) == -1)) {
+      (itemdb_look(pc_isequip(tsd, EQ_NECKLACE)) == -1))
+  {
     WFIFOW(sd->fd, len + 4) = 0xFFFF;
     WFIFOB(sd->fd, len + 6) = 0;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, len + 4) =
-        SWAP16(itemdb_look(pc_isequip(tsd, EQ_NECKLACE)));  // necklace
+        SWAP16(itemdb_look(pc_isequip(tsd, EQ_NECKLACE))); // necklace
     WFIFOB(sd->fd, len + 6) =
-        itemdb_lookcolor(pc_isequip(tsd, EQ_NECKLACE));  // neckalce color
+        itemdb_lookcolor(pc_isequip(tsd, EQ_NECKLACE)); // neckalce color
   }
   len += 3;
   // boots
-  if (!pc_isequip(tsd, EQ_BOOTS)) {
-    WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.sex);  // boots
+  if (!pc_isequip(tsd, EQ_BOOTS))
+  {
+    WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.sex); // boots
     WFIFOB(sd->fd, len + 6) = 0;
-  } else {
-    if (tsd->status.equip[EQ_BOOTS].customLook != 0) {
+  }
+  else
+  {
+    if (tsd->status.equip[EQ_BOOTS].customLook != 0)
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(tsd->status.equip[EQ_BOOTS].customLook);
       WFIFOB(sd->fd, len + 6) = tsd->status.equip[EQ_BOOTS].customLookColor;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 4) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_BOOTS)));
       WFIFOB(sd->fd, len + 6) = itemdb_lookcolor(pc_isequip(tsd, EQ_BOOTS));
     }
@@ -13781,22 +16016,30 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   len += 3;
   // WFIFOL(sd->fd,len+6)=0;
   // len+=4;
-  for (x = 0; x < 14; x++) {
-    if (tsd->status.equip[x].id > 0) {
-      if (tsd->status.equip[x].customIcon != 0) {
+  for (x = 0; x < 14; x++)
+  {
+    if (tsd->status.equip[x].id > 0)
+    {
+      if (tsd->status.equip[x].customIcon != 0)
+      {
         WFIFOW(sd->fd, len + 6) =
             SWAP16(tsd->status.equip[x].customIcon + 49152);
         WFIFOB(sd->fd, len + 8) = tsd->status.equip[x].customIconColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(sd->fd, len + 6) = SWAP16(itemdb_icon(tsd->status.equip[x].id));
         WFIFOB(sd->fd, len + 8) = itemdb_iconcolor(tsd->status.equip[x].id);
       }
 
       len += 3;
 
-      if (strlen(tsd->status.equip[x].real_name)) {
+      if (strlen(tsd->status.equip[x].real_name))
+      {
         sprintf(buf, "%s", tsd->status.equip[x].real_name);
-      } else {
+      }
+      else
+      {
         sprintf(buf, "%s", itemdb_name(tsd->status.equip[x].id));
       }
 
@@ -13808,8 +16051,9 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
       len += strlen(itemdb_name(tsd->status.equip[x].id)) + 1;
       WFIFOL(sd->fd, len + 6) = SWAP32(tsd->status.equip[x].dura);
       len += 5;
-
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 6) = SWAP16(0);
       WFIFOB(sd->fd, len + 8) = 0;
       WFIFOB(sd->fd, len + 9) = 0;
@@ -13820,10 +16064,14 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
 
     if (tsd->status.equip[x].id > 0 &&
         (itemdb_type(tsd->status.equip[x].id) >= 3) &&
-        (itemdb_type(tsd->status.equip[x].id) <= 16)) {
-      if (strlen(tsd->status.equip[x].real_name)) {
+        (itemdb_type(tsd->status.equip[x].id) <= 16))
+    {
+      if (strlen(tsd->status.equip[x].real_name))
+      {
         nameof = tsd->status.equip[x].real_name;
-      } else {
+      }
+      else
+      {
         nameof = itemdb_name(tsd->status.equip[x].id);
       }
 
@@ -13833,12 +16081,14 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
     }
   }
 
-  if (strlen(equip_status) == 0) {
+  if (strlen(equip_status) == 0)
+  {
     strcat(equip_status, "No items equipped.");
   }
 
   equip_len = strlen(equip_status);
-  if (equip_len > 255) equip_len = 255;
+  if (equip_len > 255)
+    equip_len = 255;
   WFIFOB(sd->fd, len + 6) = equip_len;
   strcpy(WFIFOP(sd->fd, len + 7), equip_status);
   // printf("Len is %d\n",strlen(equip_status));
@@ -13847,15 +16097,21 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   WFIFOL(sd->fd, len + 6) = SWAP32(bl->id);
   len += 4;
 
-  if (tsd->status.settingFlags & FLAG_GROUP) {
+  if (tsd->status.settingFlags & FLAG_GROUP)
+  {
     WFIFOB(sd->fd, len + 6) = 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 6) = 0;
   }
 
-  if (tsd->status.settingFlags & FLAG_EXCHANGE) {
+  if (tsd->status.settingFlags & FLAG_EXCHANGE)
+  {
     WFIFOB(sd->fd, len + 7) = 1;
-  } else {
+  }
+  else
+  {
     WFIFOB(sd->fd, len + 7) = 0;
   }
 
@@ -13893,9 +16149,11 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   */
   // WFIFOW(sd->fd,len+6)=0;
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strlen(tsd->status.legends[x].text) &&
-        strlen(tsd->status.legends[x].name)) {
+        strlen(tsd->status.legends[x].name))
+    {
       count++;
     }
   }
@@ -13903,20 +16161,25 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   WFIFOW(sd->fd, len + 6) = SWAP16(count);
   len += 2;
 
-  for (x = 0; x < MAX_LEGENDS; x++) {
+  for (x = 0; x < MAX_LEGENDS; x++)
+  {
     if (strlen(tsd->status.legends[x].text) &&
-        strlen(tsd->status.legends[x].name)) {
+        strlen(tsd->status.legends[x].name))
+    {
       WFIFOB(sd->fd, len + 6) = tsd->status.legends[x].icon;
       WFIFOB(sd->fd, len + 7) = tsd->status.legends[x].color;
 
-      if (tsd->status.legends[x].tchaid > 0) {
+      if (tsd->status.legends[x].tchaid > 0)
+      {
         char *name = clif_getName(tsd->status.legends[x].tchaid);
         char *buff = replace_str(tsd->status.legends[x].text, "$player", name);
 
         WFIFOB(sd->fd, len + 8) = strlen(buff);
         memcpy(WFIFOP(sd->fd, len + 9), buff, strlen(buff));
         len += strlen(buff) + 3;
-      } else {
+      }
+      else
+      {
         WFIFOB(sd->fd, len + 8) = strlen(tsd->status.legends[x].text);
         memcpy(WFIFOP(sd->fd, len + 9), tsd->status.legends[x].text,
                strlen(tsd->status.legends[x].text));
@@ -13940,10 +16203,11 @@ int clif_clickonplayer(USER *sd, struct block_list *bl) {
   return 0;
 }
 
-int clif_groupstatus(USER *sd) {
+int clif_groupstatus(USER *sd)
+{
   int x, n, w, r, m, p, g;
   int len = 0;
-  int count;
+  int count = 0;
   char buf[32];
   int rogue[256];
   int warrior[256];
@@ -13963,7 +16227,8 @@ int clif_groupstatus(USER *sd) {
   count = 0;
   // if(sd->group_count==1) sd->group_count==0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -13976,13 +16241,16 @@ int clif_groupstatus(USER *sd) {
   WFIFOB(sd->fd, 6) = sd->group_count;
 
   for (x = 0, n = 0, w = 0, r = 0, m = 0, p = 0, g = 0;
-       (n + w + r + m + p + g) < sd->group_count; x++) {
+       (n + w + r + m + p + g) < sd->group_count; x++)
+  {
     tsd = map_id2sd(groups[sd->groupid][x]);
-    if (!tsd) continue;
+    if (!tsd)
+      continue;
 
     // TNL TEST
 
-    if (tsd->status.level < 99) {
+    if (tsd->status.level < 99)
+    {
       tsd->status.maxtnl = classdb_level(tsd->status.class, tsd->status.level);
 
       tsd->status.maxtnl -=
@@ -13996,10 +16264,10 @@ int clif_groupstatus(USER *sd) {
                                     100 +
                                 0.5) +
                                0.5;
-
     }
 
-    else {
+    else
+    {
       tsd->status.percentage =
           ((float)(tsd->status.exp / 4294967295) * 100) + 0.5;
     }
@@ -14009,56 +16277,70 @@ int clif_groupstatus(USER *sd) {
 
     count++;
 
-    switch (classdb_path(tsd->status.class)) {
-      case 0:
-        peasant[n] = groups[sd->groupid][x];
-        n++;
-        break;
-      case 1:
-        warrior[w] = groups[sd->groupid][x];
-        w++;
-        break;
-      case 2:
-        rogue[r] = groups[sd->groupid][x];
-        r++;
-        break;
-      case 3:
-        mage[m] = groups[sd->groupid][x];
-        m++;
-        break;
-      case 4:
-        poet[p] = groups[sd->groupid][x];
-        p++;
-        break;
-      default:
-        gm[g] = groups[sd->groupid][x];
-        g++;
-        break;
+    switch (classdb_path(tsd->status.class))
+    {
+    case 0:
+      peasant[n] = groups[sd->groupid][x];
+      n++;
+      break;
+    case 1:
+      warrior[w] = groups[sd->groupid][x];
+      w++;
+      break;
+    case 2:
+      rogue[r] = groups[sd->groupid][x];
+      r++;
+      break;
+    case 3:
+      mage[m] = groups[sd->groupid][x];
+      m++;
+      break;
+    case 4:
+      poet[p] = groups[sd->groupid][x];
+      p++;
+      break;
+    default:
+      gm[g] = groups[sd->groupid][x];
+      g++;
+      break;
     }
   }
 
   for (x = 0, n = 0, w = 0, r = 0, m = 0, p = 0, g = 0;
-       (n + w + r + m + p + g) < sd->group_count; x++) {
-    if (rogue[r] != 0) {
+       (n + w + r + m + p + g) < sd->group_count; x++)
+  {
+    if (rogue[r] != 0)
+    {
       tsd = map_id2sd(rogue[r]);
       r++;
-    } else if (warrior[w] != 0) {
+    }
+    else if (warrior[w] != 0)
+    {
       tsd = map_id2sd(warrior[w]);
       w++;
-    } else if (mage[m] != 0) {
+    }
+    else if (mage[m] != 0)
+    {
       tsd = map_id2sd(mage[m]);
       m++;
-    } else if (poet[p] != 0) {
+    }
+    else if (poet[p] != 0)
+    {
       tsd = map_id2sd(poet[p]);
       p++;
-    } else if (peasant[n] != 0) {
+    }
+    else if (peasant[n] != 0)
+    {
       tsd = map_id2sd(peasant[n]);
       n++;
-    } else if (gm[g] != 0) {
+    }
+    else if (gm[g] != 0)
+    {
       tsd = map_id2sd(gm[g]);
       g++;
     }
-    if (!tsd) continue;
+    if (!tsd)
+      continue;
 
     sprintf(buf, "%s", tsd->status.name);
 
@@ -14070,86 +16352,107 @@ int clif_groupstatus(USER *sd) {
     len += 11;
     len += strlen(buf) + 1;
 
-    if (sd->group_leader == tsd->status.id) {
+    if (sd->group_leader == tsd->status.id)
+    {
       WFIFOB(sd->fd, len) = 1;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, len) = 0;
     }
 
-    WFIFOB(sd->fd, len + 1) = tsd->status.state;       // 22
-    WFIFOB(sd->fd, len + 2) = tsd->status.face;        // 23
-    WFIFOB(sd->fd, len + 3) = tsd->status.hair;        // 24
-    WFIFOB(sd->fd, len + 4) = tsd->status.hair_color;  // 25
-    WFIFOB(sd->fd, len + 5) = 0;                       // 26
+    WFIFOB(sd->fd, len + 1) = tsd->status.state;      // 22
+    WFIFOB(sd->fd, len + 2) = tsd->status.face;       // 23
+    WFIFOB(sd->fd, len + 3) = tsd->status.hair;       // 24
+    WFIFOB(sd->fd, len + 4) = tsd->status.hair_color; // 25
+    WFIFOB(sd->fd, len + 5) = 0;                      // 26
 
     if (!pc_isequip(tsd, EQ_HELM) || !(tsd->status.settingFlags & FLAG_HELM) ||
-        (itemdb_look(pc_isequip(tsd, EQ_HELM)) == -1)) {
+        (itemdb_look(pc_isequip(tsd, EQ_HELM)) == -1))
+    {
       // helm stuff goes here
-      WFIFOB(sd->fd, len + 6) = 0;       // supposed to be 1=Helm, 0=No helm
-      WFIFOW(sd->fd, len + 7) = 0xFFFF;  // supposed to be Helm num
+      WFIFOB(sd->fd, len + 6) = 0;      // supposed to be 1=Helm, 0=No helm
+      WFIFOW(sd->fd, len + 7) = 0xFFFF; // supposed to be Helm num
       WFIFOB(sd->fd, len + 9) = 0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, len + 6) = 1;
 
-      if (tsd->status.equip[EQ_HELM].customLook != 0) {
+      if (tsd->status.equip[EQ_HELM].customLook != 0)
+      {
         WFIFOW(sd->fd, len + 7) = SWAP16(tsd->status.equip[EQ_HELM].customLook);
         WFIFOB(sd->fd, len + 9) = tsd->status.equip[EQ_HELM].customLookColor;
-      } else {
+      }
+      else
+      {
         WFIFOW(sd->fd, len + 7) = SWAP16(itemdb_look(pc_isequip(tsd, EQ_HELM)));
         WFIFOB(sd->fd, len + 9) = itemdb_lookcolor(pc_isequip(tsd, EQ_HELM));
       }
     }
 
-    if (!pc_isequip(tsd, EQ_FACEACC)) {
+    if (!pc_isequip(tsd, EQ_FACEACC))
+    {
       // beard stuff
       WFIFOW(sd->fd, len + 10) = 0xFFFF;
       WFIFOB(sd->fd, len + 12) = 0x0;
-    } else {
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 10) =
-          SWAP16(itemdb_look(pc_isequip(tsd, EQ_FACEACC)));  // beard num
+          SWAP16(itemdb_look(pc_isequip(tsd, EQ_FACEACC))); // beard num
       WFIFOB(sd->fd, len + 12) =
-          itemdb_lookcolor(pc_isequip(tsd, EQ_FACEACC));  // beard color
+          itemdb_lookcolor(pc_isequip(tsd, EQ_FACEACC)); // beard color
     }
 
-    if (!pc_isequip(tsd, EQ_CROWN)) {
+    if (!pc_isequip(tsd, EQ_CROWN))
+    {
       WFIFOW(sd->fd, len + 13) = 0xFFFF;
       WFIFOB(sd->fd, len + 15) = 0x0;
-    } else {
+    }
+    else
+    {
       WFIFOB(sd->fd, len + 6) = 0;
 
-      if (tsd->status.equip[EQ_CROWN].customLook != 0) {
+      if (tsd->status.equip[EQ_CROWN].customLook != 0)
+      {
         WFIFOW(sd->fd, len + 13) =
-            SWAP16(tsd->status.equip[EQ_CROWN].customLook);  // Crown
+            SWAP16(tsd->status.equip[EQ_CROWN].customLook); // Crown
         WFIFOB(sd->fd, len + 15) =
-            tsd->status.equip[EQ_CROWN].customLookColor;  // Crown color
-      } else {
+            tsd->status.equip[EQ_CROWN].customLookColor; // Crown color
+      }
+      else
+      {
         WFIFOW(sd->fd, len + 13) =
-            SWAP16(itemdb_look(pc_isequip(tsd, EQ_CROWN)));  // Crown
+            SWAP16(itemdb_look(pc_isequip(tsd, EQ_CROWN))); // Crown
         WFIFOB(sd->fd, len + 15) =
-            itemdb_lookcolor(pc_isequip(tsd, EQ_CROWN));  // Crown color
+            itemdb_lookcolor(pc_isequip(tsd, EQ_CROWN)); // Crown color
       }
     }
 
-    if (!pc_isequip(tsd, EQ_FACEACCTWO)) {
-      WFIFOW(sd->fd, len + 16) = 0xFFFF;  // second face acc
-      WFIFOB(sd->fd, len + 18) = 0x0;     //" color
-    } else {
+    if (!pc_isequip(tsd, EQ_FACEACCTWO))
+    {
+      WFIFOW(sd->fd, len + 16) = 0xFFFF; // second face acc
+      WFIFOB(sd->fd, len + 18) = 0x0;    //" color
+    }
+    else
+    {
       WFIFOW(sd->fd, len + 16) =
           SWAP16(itemdb_look(pc_isequip(tsd, EQ_FACEACCTWO)));
       WFIFOB(sd->fd, len + 18) =
           itemdb_lookcolor(pc_isequip(tsd, EQ_FACEACCTWO));
     }
 
-    len += 12;  // 33
+    len += 12; // 33
 
     WFIFOL(sd->fd, len + 7) = SWAP32(tsd->max_hp);
-    len += 4;  // 37
+    len += 4; // 37
     WFIFOL(sd->fd, len + 7) = SWAP32(tsd->status.hp);
-    len += 4;  // 41
+    len += 4; // 41
     WFIFOL(sd->fd, len + 7) = SWAP32(tsd->max_mp);
-    len += 4;  // 45
+    len += 4; // 45
     WFIFOL(sd->fd, len + 7) = SWAP32(tsd->status.mp);
-    len += 4;  // 49
+    len += 4; // 49
   }
 
   WFIFOB(sd->fd, 6) = sd->group_count;
@@ -14162,7 +16465,8 @@ int clif_groupstatus(USER *sd) {
   return 0;
 }
 
-int clif_grouphealth_update(USER *sd) {
+int clif_grouphealth_update(USER *sd)
+{
   // clif_groupstatus(sd);
 
   /*
@@ -14185,12 +16489,15 @@ int clif_grouphealth_update(USER *sd) {
   char buf[32];
   USER *tsd = NULL;
 
-  for (x = 0; x < sd->group_count; x++) {
+  for (x = 0; x < sd->group_count; x++)
+  {
     len = 0;
     tsd = map_id2sd(groups[sd->groupid][x]);
-    if (!tsd) continue;
+    if (!tsd)
+      continue;
 
-    if (!session[sd->fd]) {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -14235,7 +16542,8 @@ int clif_grouphealth_update(USER *sd) {
   return 0;
 }
 
-int clif_addgroup(USER *sd) {
+int clif_addgroup(USER *sd)
+{
   int x;
   char nameof[256];
   USER *tsd = NULL;
@@ -14245,59 +16553,73 @@ int clif_addgroup(USER *sd) {
 
   nullpo_ret(0, tsd = map_name2sd(nameof));
 
-  if (!sd->status.gm_level && tsd->optFlags & optFlag_stealth) return 0;
+  if (!sd->status.gm_level && tsd->optFlags & optFlag_stealth)
+    return 0;
 
-  if (tsd->status.id == sd->status.id) {
+  if (tsd->status.id == sd->status.id)
+  {
     clif_sendminitext(sd, "You can't group yourself...");
     return 0;
   }
 
-  if (tsd->group_count) {
+  if (tsd->group_count)
+  {
     if (tsd->group_leader == sd->group_leader &&
-        sd->group_leader == sd->bl.id) {
+        sd->group_leader == sd->bl.id)
+    {
       clif_leavegroup(tsd);
       return 0;
     }
   }
-  if (sd->group_count >= MAX_GROUP_MEMBERS) {
+  if (sd->group_count >= MAX_GROUP_MEMBERS)
+  {
     clif_sendminitext(sd, "Your group is already full.");
     return 0;
   }
   if (tsd->status.state ==
-      1) {  // dead check. on NTK, a ghost is able to group others. But if you
-            // are alive, you are unable to add ghosts to your group
+      1)
+  { // dead check. on NTK, a ghost is able to group others. But if you
+    // are alive, you are unable to add ghosts to your group
     clif_sendminitext(sd, "They are unable to join your party.");
     return 0;
   }
 
-  if (!map[sd->bl.m].canGroup) {
+  if (!map[sd->bl.m].canGroup)
+  {
     clif_sendminitext(
         sd, "You are unable to join a party. (Grouping disabled on map)");
     return 0;
   }
-  if (!map[tsd->bl.m].canGroup) {
+  if (!map[tsd->bl.m].canGroup)
+  {
     clif_sendminitext(
         sd, "They are unable to join your party. (Grouping disabled on map)");
     return 0;
   }
 
-  if (!(tsd->status.settingFlags & FLAG_GROUP)) {
+  if (!(tsd->status.settingFlags & FLAG_GROUP))
+  {
     clif_sendminitext(sd, "They have refused to join your party.");
     return 0;
   }
-  if (tsd->group_count != 0) {
+  if (tsd->group_count != 0)
+  {
     clif_sendminitext(sd, "They have refused to join your party.");
     return 0;
   }
 
-  if (sd->group_count == 0) {
-    for (x = 1; x < MAX_GROUPS; x++) {
-      if (groups[x][0] == 0) {
+  if (sd->group_count == 0)
+  {
+    for (x = 1; x < MAX_GROUPS; x++)
+    {
+      if (groups[x][0] == 0)
+      {
         break;
       }
     }
 
-    if (x == MAX_GROUPS) {
+    if (x == MAX_GROUPS)
+    {
       clif_sendminitext(
           sd, "All groups are currently occupied, please try again later.");
       return 0;
@@ -14309,7 +16631,9 @@ int clif_addgroup(USER *sd) {
     sd->group_count = 2;
     sd->groupid = x;
     tsd->groupid = sd->groupid;
-  } else {
+  }
+  else
+  {
     groups[sd->groupid][sd->group_count] = tsd->status.id;
     sd->group_count++;
     tsd->groupid = sd->groupid;
@@ -14324,14 +16648,17 @@ int clif_addgroup(USER *sd) {
   return 0;
 }
 
-int clif_updategroup(USER *sd, char *message) {
+int clif_updategroup(USER *sd, char *message)
+{
   int x;
   USER *tsd;
 
-  for (x = 0; x < sd->group_count; x++) {
+  for (x = 0; x < sd->group_count; x++)
+  {
     tsd = map_id2sd(groups[sd->groupid][x]);
 
-    if (!tsd) continue;
+    if (!tsd)
+      continue;
 
     tsd->group_count = sd->group_count;
     tsd->group_leader = sd->group_leader;
@@ -14340,7 +16667,8 @@ int clif_updategroup(USER *sd, char *message) {
     // for (y = 0; y < sd->group_count; y++) {
     //	groups[tsd->groupid][y] = groups[sd->groupid][y];
     //}
-    if (tsd->group_count == 1) {
+    if (tsd->group_count == 1)
+    {
       groups[sd->groupid][0] = 0;
       tsd->group_count = 0;
       tsd->groupid = 0;
@@ -14353,26 +16681,34 @@ int clif_updategroup(USER *sd, char *message) {
   return 0;
 }
 
-int clif_leavegroup(USER *sd) {
+int clif_leavegroup(USER *sd)
+{
   int x;
   int taken = 0;
   char buff[256];
 
-  for (x = 0; x < sd->group_count; x++) {
-    if (taken == 1) {
+  for (x = 0; x < sd->group_count; x++)
+  {
+    if (taken == 1)
+    {
       groups[sd->groupid][x - 1] = groups[sd->groupid][x];
-    } else {
-      if (groups[sd->groupid][x] == sd->status.id) {
+    }
+    else
+    {
+      if (groups[sd->groupid][x] == sd->status.id)
+      {
         groups[sd->groupid][x] = 0;
         taken = 1;
-        if (sd->group_leader == sd->status.id) {
+        if (sd->group_leader == sd->status.id)
+        {
           sd->group_leader = groups[sd->groupid][0];
         }
       }
     }
   }
 
-  if (sd->group_leader == 0) {
+  if (sd->group_leader == 0)
+  {
     sd->group_leader = groups[sd->groupid][0];
   }
 
@@ -14391,35 +16727,40 @@ int clif_leavegroup(USER *sd) {
   return 0;
 }
 
-int clif_findmount(USER *sd) {
+int clif_findmount(USER *sd)
+{
   struct block_list *bl = NULL;
   MOB *mob = NULL;
   int x = sd->bl.x;
   int y = sd->bl.y;
 
-  switch (sd->status.side) {
-    case 0:  // up
-      y = sd->bl.y - 1;
-      break;
-    case 1:  // right
-      x = sd->bl.x + 1;
-      break;
-    case 2:  // down
-      y = sd->bl.y + 1;
-      break;
-    case 3:  // left
-      x = sd->bl.x - 1;
-      break;
+  switch (sd->status.side)
+  {
+  case 0: // up
+    y = sd->bl.y - 1;
+    break;
+  case 1: // right
+    x = sd->bl.x + 1;
+    break;
+  case 2: // down
+    y = sd->bl.y + 1;
+    break;
+  case 3: // left
+    x = sd->bl.x - 1;
+    break;
   }
 
   bl = map_firstincell(sd->bl.m, x, y, BL_MOB);
 
-  if (!bl) return 0;
+  if (!bl)
+    return 0;
 
   mob = (MOB *)bl;
 
-  if (sd->status.state != 0) return 0;
-  if (!map[sd->bl.m].canMount && !sd->status.gm_level) {
+  if (sd->status.state != 0)
+    return 0;
+  if (!map[sd->bl.m].canMount && !sd->status.gm_level)
+  {
     clif_sendminitext(sd, "You cannot mount here.");
     return 0;
   }
@@ -14428,7 +16769,8 @@ int clif_findmount(USER *sd) {
   // sl_doscript_blargs(mob->data->yname, "on_mount", 2, &sd->bl, &mob->bl);
   return 0;
 }
-int clif_object_canmove(int m, int x, int y, int side) {
+int clif_object_canmove(int m, int x, int y, int side)
+{
   int object = read_obj(m, x, y);
   unsigned char flag = objectFlags[object];
   /*struct block_list *bl=NULL;
@@ -14439,255 +16781,315 @@ int clif_object_canmove(int m, int x, int y, int side) {
           tsd = map_id2sd(object);
   }*/
 
-  switch (side) {
-    case 0:               // heading NORTH
-      if (flag & OBJ_UP)  // || tsd->optFlags&optFlag_stealth)
-        return 1;
-      break;
-    case 1:                  // RIGHT
-      if (flag & OBJ_RIGHT)  // || tsd->optFlags&optFlag_stealth)
-        return 1;
-      break;
-    case 2:                 // DOWN
-      if (flag & OBJ_DOWN)  // || tsd->optFlags&optFlag_stealth)
-        return 1;
-      break;
-    case 3:                 // LEFT
-      if (flag & OBJ_LEFT)  // || tsd->optFlags&optFlag_stealth)
-        return 1;
-      break;
+  switch (side)
+  {
+  case 0:              // heading NORTH
+    if (flag & OBJ_UP) // || tsd->optFlags&optFlag_stealth)
+      return 1;
+    break;
+  case 1:                 // RIGHT
+    if (flag & OBJ_RIGHT) // || tsd->optFlags&optFlag_stealth)
+      return 1;
+    break;
+  case 2:                // DOWN
+    if (flag & OBJ_DOWN) // || tsd->optFlags&optFlag_stealth)
+      return 1;
+    break;
+  case 3:                // LEFT
+    if (flag & OBJ_LEFT) // || tsd->optFlags&optFlag_stealth)
+      return 1;
+    break;
   }
 
   return 0;
 }
-int clif_object_canmove_from(int m, int x, int y, int side) {
+int clif_object_canmove_from(int m, int x, int y, int side)
+{
   int object = read_obj(m, x, y);
   unsigned char flag = objectFlags[object];
 
-  switch (side) {
-    case 0:  // heading NORTH
-      if (flag & OBJ_DOWN) return 1;
-      break;
-    case 1:  // RIGHT
-      if (flag & OBJ_LEFT) return 1;
-      break;
-    case 2:  // DOWN
-      if (flag & OBJ_UP) return 1;
-      break;
-    case 3:  // LEFT
-      if (flag & OBJ_RIGHT) return 1;
-      break;
+  switch (side)
+  {
+  case 0: // heading NORTH
+    if (flag & OBJ_DOWN)
+      return 1;
+    break;
+  case 1: // RIGHT
+    if (flag & OBJ_LEFT)
+      return 1;
+    break;
+  case 2: // DOWN
+    if (flag & OBJ_UP)
+      return 1;
+    break;
+  case 3: // LEFT
+    if (flag & OBJ_RIGHT)
+      return 1;
+    break;
   }
 
   return 0;
 }
-int clif_changestatus(USER *sd, int type) {
+int clif_changestatus(USER *sd, int type)
+{
   int oldm, oldx, oldy;
   char buff[256];
 
-  switch (type) {
-    case 0x00:  // Ride/something else
-      if (RFIFOB(sd->fd, 7) == 1) {
-        if (sd->status.state == 0) {
-          clif_findmount(sd);
+  switch (type)
+  {
+  case 0x00: // Ride/something else
+    if (RFIFOB(sd->fd, 7) == 1)
+    {
+      if (sd->status.state == 0)
+      {
+        clif_findmount(sd);
 
-          if (sd->status.state == 0)
-            clif_sendminitext(
-                sd, "Good try, but there is nothing here that you can ride.");
-
-        } else if (sd->status.state == 1) {
-          clif_sendminitext(sd, "Spirits can't do that.");
-        } else if (sd->status.state == 2) {
+        if (sd->status.state == 0)
           clif_sendminitext(
               sd, "Good try, but there is nothing here that you can ride.");
-        } else if (sd->status.state == 3) {
-          sl_doscript_blargs("onDismount", NULL, 1, &sd->bl);
-        } else if (sd->status.state == 4) {
-          clif_sendminitext(sd, "You cannot do that while transformed.");
-        }
       }
-      break;
-
-    case 0x01:  // Whisper (F5)
-      sd->status.settingFlags ^= FLAG_WHISPER;
-
-      // sd->optFlags ^= optFlag_nowhisp;
-      if (sd->status.settingFlags & FLAG_WHISPER) {
-        clif_sendminitext(sd, "Listen to whisper:ON");
-      } else {
-        clif_sendminitext(sd, "Listen to whisper:OFF");
+      else if (sd->status.state == 1)
+      {
+        clif_sendminitext(sd, "Spirits can't do that.");
       }
-      clif_sendstatus(sd, 0);
-      break;
-    case 0x02:  // group
-      sd->status.settingFlags ^= FLAG_GROUP;
-
-      if (sd->status.settingFlags & FLAG_GROUP) {
-        sprintf(buff, "Join a group     :ON");
-      } else {
-        if (sd->group_count > 0) {
-          clif_leavegroup(sd);
-        }
-
-        sprintf(buff, "Join a group     :OFF");
+      else if (sd->status.state == 2)
+      {
+        clif_sendminitext(
+            sd, "Good try, but there is nothing here that you can ride.");
       }
+      else if (sd->status.state == 3)
+      {
+        sl_doscript_blargs("onDismount", NULL, 1, &sd->bl);
+      }
+      else if (sd->status.state == 4)
+      {
+        clif_sendminitext(sd, "You cannot do that while transformed.");
+      }
+    }
+    break;
 
-      clif_sendstatus(sd, 0);
-      clif_sendminitext(sd, buff);
-      break;
-    case 0x03:  // Shout
-      sd->status.settingFlags ^= FLAG_SHOUT;
-      if (sd->status.settingFlags & FLAG_SHOUT) {
-        clif_sendminitext(sd, "Listen to shout  :ON");
-      } else {
-        clif_sendminitext(sd, "Listen to shout  :OFF");
-      }
-      clif_sendstatus(sd, 0);
-      break;
-    case 0x04:  // Advice
-      sd->status.settingFlags ^= FLAG_ADVICE;
-      if (sd->status.settingFlags & FLAG_ADVICE) {
-        clif_sendminitext(sd, "Listen to advice :ON");
-      } else {
-        clif_sendminitext(sd, "Listen to advice :OFF");
-      }
-      clif_sendstatus(sd, 0);
-      break;
-    case 0x05:  // Magic
-      sd->status.settingFlags ^= FLAG_MAGIC;
-      if (sd->status.settingFlags & FLAG_MAGIC) {
-        clif_sendminitext(sd, "Believe in magic :ON");
-      } else {
-        clif_sendminitext(sd, "Believe in magic :OFF");
-      }
-      clif_sendstatus(sd, 0);
-      break;
-    case 0x06:  // Weather
-      sd->status.settingFlags ^= FLAG_WEATHER;
-      if (sd->status.settingFlags & FLAG_WEATHER) {
-        sprintf(buff, "Weather change   :ON");
-      } else {
-        sprintf(buff, "Weather change   :OFF");
-      }
-      clif_sendminitext(sd, buff);
+  case 0x01: // Whisper (F5)
+    sd->status.settingFlags ^= FLAG_WHISPER;
 
-      clif_sendweather(sd);
-      clif_sendstatus(sd, 0);
-      break;
-    case 0x07:  // Realm center (F4)
-      oldm = sd->bl.m;
-      oldx = sd->bl.x;
-      oldy = sd->bl.y;
-      sd->status.settingFlags ^= FLAG_REALM;
-      clif_quit(sd);
-      clif_sendmapinfo(sd);
-      pc_setpos(sd, oldm, oldx, oldy);
-      clif_sendmapinfo(sd);
-      clif_spawn(sd);
-      clif_mob_look_start(sd);
-      map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y,
-                        SAMEAREA, BL_ALL, LOOK_GET, sd);
-      clif_mob_look_close(sd);
-      clif_destroyold(sd);
-      clif_sendchararea(sd);
-      clif_getchararea(sd);
+    // sd->optFlags ^= optFlag_nowhisp;
+    if (sd->status.settingFlags & FLAG_WHISPER)
+    {
+      clif_sendminitext(sd, "Listen to whisper:ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Listen to whisper:OFF");
+    }
+    clif_sendstatus(sd, 0);
+    break;
+  case 0x02: // group
+    sd->status.settingFlags ^= FLAG_GROUP;
 
-      if (sd->status.settingFlags & FLAG_REALM) {
-        clif_sendminitext(sd, "Realm-centered   :ON");
-      } else {
-        clif_sendminitext(sd, "Realm-centered   :OFF");
-      }
-      clif_sendstatus(sd, 0);
-      break;
-    case 0x08:  // exchange
-      sd->status.settingFlags ^= FLAG_EXCHANGE;
-      // sd->exchange_on^=1;
-
-      if (sd->status.settingFlags & FLAG_EXCHANGE) {
-        sprintf(buff, "Exchange         :ON");
-      } else {
-        sprintf(buff, "Exchange         :OFF");
+    if (sd->status.settingFlags & FLAG_GROUP)
+    {
+      sprintf(buff, "Join a group     :ON");
+    }
+    else
+    {
+      if (sd->group_count > 0)
+      {
+        clif_leavegroup(sd);
       }
 
-      clif_sendstatus(sd, 0);
-      clif_sendminitext(sd, buff);
-      break;
-    case 0x09:  // Fast move
-      sd->status.settingFlags ^= FLAG_FASTMOVE;
+      sprintf(buff, "Join a group     :OFF");
+    }
 
-      if (sd->status.settingFlags & FLAG_FASTMOVE) {
-        clif_sendminitext(sd, "Fast Move        :ON");
-      } else {
-        clif_sendminitext(sd, "Fast Move        :OFF");
-      }
-      clif_sendstatus(sd, 0);
-      break;
-    case 10:  // Clan chat
-      sd->status.clan_chat = (sd->status.clan_chat + 1) % 2;
-      if (sd->status.clan_chat) {
-        clif_sendminitext(sd, "Clan whisper     :ON");
-      } else {
-        clif_sendminitext(sd, "Clan whisper     :OFF");
-      }
-      break;
-    case 13:                                 // Sound
-      if (RFIFOB(sd->fd, 4) == 3) return 0;  // just started so dont do anything
-      sd->status.settingFlags ^= FLAG_SOUND;
-      if (sd->status.settingFlags & FLAG_SOUND) {
-        sprintf(buff, "Hear sounds      :ON");
-      } else {
-        sprintf(buff, "Hear sounds      :OFF");
-      }
-      clif_sendminitext(sd, buff);
-      clif_sendstatus(sd, 0);
-      break;
+    clif_sendstatus(sd, 0);
+    clif_sendminitext(sd, buff);
+    break;
+  case 0x03: // Shout
+    sd->status.settingFlags ^= FLAG_SHOUT;
+    if (sd->status.settingFlags & FLAG_SHOUT)
+    {
+      clif_sendminitext(sd, "Listen to shout  :ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Listen to shout  :OFF");
+    }
+    clif_sendstatus(sd, 0);
+    break;
+  case 0x04: // Advice
+    sd->status.settingFlags ^= FLAG_ADVICE;
+    if (sd->status.settingFlags & FLAG_ADVICE)
+    {
+      clif_sendminitext(sd, "Listen to advice :ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Listen to advice :OFF");
+    }
+    clif_sendstatus(sd, 0);
+    break;
+  case 0x05: // Magic
+    sd->status.settingFlags ^= FLAG_MAGIC;
+    if (sd->status.settingFlags & FLAG_MAGIC)
+    {
+      clif_sendminitext(sd, "Believe in magic :ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Believe in magic :OFF");
+    }
+    clif_sendstatus(sd, 0);
+    break;
+  case 0x06: // Weather
+    sd->status.settingFlags ^= FLAG_WEATHER;
+    if (sd->status.settingFlags & FLAG_WEATHER)
+    {
+      sprintf(buff, "Weather change   :ON");
+    }
+    else
+    {
+      sprintf(buff, "Weather change   :OFF");
+    }
+    clif_sendminitext(sd, buff);
 
-    case 14:  // Helm
-      // sd->status.show_helm=(sd->status.s6=how_helm+1)%2;
-      sd->status.settingFlags ^= FLAG_HELM;
-      if (sd->status.settingFlags & FLAG_HELM) {
-        clif_sendminitext(sd, "Show Helmet      :ON");
-        pc_setglobalreg(sd, "show_helmet",
-                        1);  // Added 4/6/17 to give registry for helmet status
-      } else {
-        clif_sendminitext(sd, "Show Helmet      :OFF");
-        pc_setglobalreg(sd, "show_helmet",
-                        0);  // Added 4/6/17 to give registry for helmet status
-      }
-      clif_sendstatus(sd, 0);
-      clif_sendchararea(sd);
-      clif_getchararea(sd);
-      // map_foreachinarea(clif_updatestate,sd->bl.m,sd->bl.x,sd->bl.y,AREA,BL_PC,sd);
-      // // was commented
-      break;
+    clif_sendweather(sd);
+    clif_sendstatus(sd, 0);
+    break;
+  case 0x07: // Realm center (F4)
+    oldm = sd->bl.m;
+    oldx = sd->bl.x;
+    oldy = sd->bl.y;
+    sd->status.settingFlags ^= FLAG_REALM;
+    clif_quit(sd);
+    clif_sendmapinfo(sd);
+    pc_setpos(sd, oldm, oldx, oldy);
+    clif_sendmapinfo(sd);
+    clif_spawn(sd);
+    clif_mob_look_start(sd);
+    map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y,
+                      SAMEAREA, BL_ALL, LOOK_GET, sd);
+    clif_mob_look_close(sd);
+    clif_destroyold(sd);
+    clif_sendchararea(sd);
+    clif_getchararea(sd);
 
-    case 15:  // Necklace
-      // sd->status.show_necklace=(sd->status.s6=how_neck+1)%2;
-      sd->status.settingFlags ^= FLAG_NECKLACE;
-      if (sd->status.settingFlags & FLAG_NECKLACE) {
-        clif_sendminitext(sd, "Show Necklace      :ON");
-        pc_setglobalreg(sd, "show_necklace",
-                        1);  // Added 4/6/17 to give registry for helmet status
-      } else {
-        clif_sendminitext(sd, "Show Necklace      :OFF");
-        pc_setglobalreg(sd, "show_necklace",
-                        0);  // Added 4/6/17 to give registry for helmet status
-      }
-      clif_sendstatus(sd, 0);
-      clif_sendchararea(sd);
-      clif_getchararea(sd);
-      // map_foreachinarea(clif_updatestate,sd->bl.m,sd->bl.x,sd->bl.y,AREA,BL_PC,sd);
-      // // was commented
-      break;
+    if (sd->status.settingFlags & FLAG_REALM)
+    {
+      clif_sendminitext(sd, "Realm-centered   :ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Realm-centered   :OFF");
+    }
+    clif_sendstatus(sd, 0);
+    break;
+  case 0x08: // exchange
+    sd->status.settingFlags ^= FLAG_EXCHANGE;
+    // sd->exchange_on^=1;
 
-    default:
-      break;
+    if (sd->status.settingFlags & FLAG_EXCHANGE)
+    {
+      sprintf(buff, "Exchange         :ON");
+    }
+    else
+    {
+      sprintf(buff, "Exchange         :OFF");
+    }
+
+    clif_sendstatus(sd, 0);
+    clif_sendminitext(sd, buff);
+    break;
+  case 0x09: // Fast move
+    sd->status.settingFlags ^= FLAG_FASTMOVE;
+
+    if (sd->status.settingFlags & FLAG_FASTMOVE)
+    {
+      clif_sendminitext(sd, "Fast Move        :ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Fast Move        :OFF");
+    }
+    clif_sendstatus(sd, 0);
+    break;
+  case 10: // Clan chat
+    sd->status.clan_chat = (sd->status.clan_chat + 1) % 2;
+    if (sd->status.clan_chat)
+    {
+      clif_sendminitext(sd, "Clan whisper     :ON");
+    }
+    else
+    {
+      clif_sendminitext(sd, "Clan whisper     :OFF");
+    }
+    break;
+  case 13: // Sound
+    if (RFIFOB(sd->fd, 4) == 3)
+      return 0; // just started so dont do anything
+    sd->status.settingFlags ^= FLAG_SOUND;
+    if (sd->status.settingFlags & FLAG_SOUND)
+    {
+      sprintf(buff, "Hear sounds      :ON");
+    }
+    else
+    {
+      sprintf(buff, "Hear sounds      :OFF");
+    }
+    clif_sendminitext(sd, buff);
+    clif_sendstatus(sd, 0);
+    break;
+
+  case 14: // Helm
+    // sd->status.show_helm=(sd->status.s6=how_helm+1)%2;
+    sd->status.settingFlags ^= FLAG_HELM;
+    if (sd->status.settingFlags & FLAG_HELM)
+    {
+      clif_sendminitext(sd, "Show Helmet      :ON");
+      pc_setglobalreg(sd, "show_helmet",
+                      1); // Added 4/6/17 to give registry for helmet status
+    }
+    else
+    {
+      clif_sendminitext(sd, "Show Helmet      :OFF");
+      pc_setglobalreg(sd, "show_helmet",
+                      0); // Added 4/6/17 to give registry for helmet status
+    }
+    clif_sendstatus(sd, 0);
+    clif_sendchararea(sd);
+    clif_getchararea(sd);
+    // map_foreachinarea(clif_updatestate,sd->bl.m,sd->bl.x,sd->bl.y,AREA,BL_PC,sd);
+    // // was commented
+    break;
+
+  case 15: // Necklace
+    // sd->status.show_necklace=(sd->status.s6=how_neck+1)%2;
+    sd->status.settingFlags ^= FLAG_NECKLACE;
+    if (sd->status.settingFlags & FLAG_NECKLACE)
+    {
+      clif_sendminitext(sd, "Show Necklace      :ON");
+      pc_setglobalreg(sd, "show_necklace",
+                      1); // Added 4/6/17 to give registry for helmet status
+    }
+    else
+    {
+      clif_sendminitext(sd, "Show Necklace      :OFF");
+      pc_setglobalreg(sd, "show_necklace",
+                      0); // Added 4/6/17 to give registry for helmet status
+    }
+    clif_sendstatus(sd, 0);
+    clif_sendchararea(sd);
+    clif_getchararea(sd);
+    // map_foreachinarea(clif_updatestate,sd->bl.m,sd->bl.x,sd->bl.y,AREA,BL_PC,sd);
+    // // was commented
+    break;
+
+  default:
+    break;
   }
 
   return 0;
 }
 
-int clif_handgold(USER *sd) {
+int clif_handgold(USER *sd)
+{
   char buff[256];
 
   /*int len = SWAP16(RFIFOW(sd->fd,1));
@@ -14708,24 +17110,31 @@ int clif_handgold(USER *sd) {
 
   unsigned int gold = SWAP32(RFIFOL(sd->fd, 5));
 
-  if (gold < 0) gold = 0;
-  if (gold == 0) return 0;
-  if (gold > sd->status.money) gold = sd->status.money;
+  if (gold < 0)
+    gold = 0;
+  if (gold == 0)
+    return 0;
+  if (gold > sd->status.money)
+    gold = sd->status.money;
 
   int x = 0;
   int y = 0;
 
-  if (sd->status.side == 0) {
+  if (sd->status.side == 0)
+  {
     x = sd->bl.x, y = sd->bl.y - 1;
   }
-  if (sd->status.side == 1) {
+  if (sd->status.side == 1)
+  {
     x = sd->bl.x + 1, y = sd->bl.y;
   }
-  if (sd->status.side == 2) {
+  if (sd->status.side == 2)
+  {
     x = sd->bl.x;
     y = sd->bl.y + 1;
   }
-  if (sd->status.side == 3) {
+  if (sd->status.side == 3)
+  {
     x = sd->bl.x - 1;
     y = sd->bl.y;
   }
@@ -14739,14 +17148,18 @@ int clif_handgold(USER *sd) {
 
   sprintf(buff, "They have refused to exchange with you");
 
-  if (bl != NULL) {
-    if (bl->type == BL_PC) {
+  if (bl != NULL)
+  {
+    if (bl->type == BL_PC)
+    {
       tsd = map_id2sd(bl->id);
 
-      if (tsd->status.settingFlags & FLAG_EXCHANGE) {
+      if (tsd->status.settingFlags & FLAG_EXCHANGE)
+      {
         clif_startexchange(sd, bl->id);
         clif_exchange_money(sd, tsd);
-      } else
+      }
+      else
         clif_sendminitext(sd, buff);
     }
   }
@@ -14754,7 +17167,8 @@ int clif_handgold(USER *sd) {
   return 0;
 }
 
-int clif_postitem(USER *sd) {
+int clif_postitem(USER *sd)
+{
   int slot = RFIFOB(sd->fd, 5) - 1;
 
   // struct item_data *item = NULL;
@@ -14763,26 +17177,32 @@ int clif_postitem(USER *sd) {
   int x = 0;
   int y = 0;
 
-  if (sd->status.side == 0) {
+  if (sd->status.side == 0)
+  {
     x = sd->bl.x, y = sd->bl.y - 1;
   }
-  if (sd->status.side == 1) {
+  if (sd->status.side == 1)
+  {
     x = sd->bl.x + 1, y = sd->bl.y;
   }
-  if (sd->status.side == 2) {
+  if (sd->status.side == 2)
+  {
     x = sd->bl.x;
     y = sd->bl.y + 1;
   }
-  if (sd->status.side == 3) {
+  if (sd->status.side == 3)
+  {
     x = sd->bl.x - 1;
     y = sd->bl.y;
   }
 
-  if (x < 0 || y < 0) return 0;
+  if (x < 0 || y < 0)
+    return 0;
 
   int obj = read_obj(sd->bl.m, x, y);
 
-  if (obj == 1619 || obj == 1620) {  // board object
+  if (obj == 1619 || obj == 1620)
+  { // board object
 
     if (sd->status.inventory[slot].amount > 1)
       clif_input(sd, sd->last_click, "How many would you like to post?", "");
@@ -14803,11 +17223,12 @@ int clif_postitem(USER *sd) {
   return 0;
 }
 
-int clif_handitem(USER *sd) {
+int clif_handitem(USER *sd)
+{
   char buff[256];
 
   int slot = RFIFOB(sd->fd, 5) - 1;
-  int handgive = RFIFOB(sd->fd, 6);  // hand (h) = 0, give (H) = 1
+  int handgive = RFIFOB(sd->fd, 6); // hand (h) = 0, give (H) = 1
   int amount = 0;
 
   if (handgive == 0)
@@ -14818,17 +17239,21 @@ int clif_handitem(USER *sd) {
   int x = 0;
   int y = 0;
 
-  if (sd->status.side == 0) {
+  if (sd->status.side == 0)
+  {
     x = sd->bl.x, y = sd->bl.y - 1;
   }
-  if (sd->status.side == 1) {
+  if (sd->status.side == 1)
+  {
     x = sd->bl.x + 1, y = sd->bl.y;
   }
-  if (sd->status.side == 2) {
+  if (sd->status.side == 2)
+  {
     x = sd->bl.x;
     y = sd->bl.y + 1;
   }
-  if (sd->status.side == 3) {
+  if (sd->status.side == 3)
+  {
     x = sd->bl.x - 1;
     y = sd->bl.y;
   }
@@ -14848,30 +17273,40 @@ int clif_handitem(USER *sd) {
 
   sd->invslot = slot;
 
-  if (bl != NULL) {
-    if (bl->type == BL_PC) {  // printf("block id: %i\n",bl->id);
+  if (bl != NULL)
+  {
+    if (bl->type == BL_PC)
+    { // printf("block id: %i\n",bl->id);
       tsd = map_id2sd(bl->id);
 
-      if (tsd->status.settingFlags & FLAG_EXCHANGE) {
+      if (tsd->status.settingFlags & FLAG_EXCHANGE)
+      {
         clif_startexchange(sd, bl->id);
         clif_exchange_additem(sd, tsd, slot, amount);
-      } else
+      }
+      else
         clif_sendminitext(sd, buff);
     }
-    if (bl->type == BL_MOB) {
+    if (bl->type == BL_MOB)
+    {
       mob = (MOB *)map_id2mob(bl->id);
 
-      if (itemdb_exchangeable(sd->status.inventory[slot].id) == 1) return 0;
+      if (itemdb_exchangeable(sd->status.inventory[slot].id) == 1)
+        return 0;
 
-      for (int i = 0; i < MAX_INVENTORY; i++) {
+      for (int i = 0; i < MAX_INVENTORY; i++)
+      {
         if (mob->inventory[i].id == sd->status.inventory[slot].id &&
             mob->inventory[i].dura == sd->status.inventory[slot].dura &&
             mob->inventory[i].owner == sd->status.inventory[slot].owner &&
             mob->inventory[i].protected ==
-                sd->status.inventory[slot].protected) {
+                sd->status.inventory[slot].protected)
+        {
           mob->inventory[i].amount += amount;
           break;
-        } else if (mob->inventory[i].id == 0) {
+        }
+        else if (mob->inventory[i].id == 0)
+        {
           mob->inventory[i].id = sd->status.inventory[slot].id;
           mob->inventory[i].amount = amount;
           mob->inventory[i].owner = sd->status.inventory[slot].owner;
@@ -14883,7 +17318,8 @@ int clif_handitem(USER *sd) {
 
       pc_delitem(sd, slot, amount, 9);
     }
-    if (bl->type == BL_NPC) {
+    if (bl->type == BL_NPC)
+    {
       // item = itemdb_search(sd->status.inventory[slot].id);
       nd = map_id2npc((unsigned int)bl->id);
 
@@ -14893,7 +17329,8 @@ int clif_handitem(USER *sd) {
 
       if (nd->receiveItem == 1)
         sl_doscript_blargs(nd->name, "handItem", 2, &sd->bl, &nd->bl);
-      else {
+      else
+      {
         sprintf(msg, "What are you trying to do? Keep your junky %s with you!",
                 itemdb_name(sd->status.inventory[slot].id));
         // printf("string: %s\n",msg);
@@ -14913,14 +17350,16 @@ int clif_handitem(USER *sd) {
   return 0;
 }
 
-int clif_exchange_cleanup(USER *sd) {
+int clif_exchange_cleanup(USER *sd)
+{
   sd->exchange.exchange_done = 0;
   sd->exchange.gold = 0;
   sd->exchange.item_count = 0;
   return 0;
 }
 
-int clif_exchange_finalize(USER *sd, USER *tsd) {
+int clif_exchange_finalize(USER *sd, USER *tsd)
+{
   int i;
   struct item *it;
   struct item *it2;
@@ -14929,10 +17368,11 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
   char escape[255];
 
   sl_doscript_blargs("characterLog", "exchangeLogWrite", 2, &sd->bl,
-                     &tsd->bl);  // this is the global write that will be used
-                                 // to record exchanges in one big daily file
+                     &tsd->bl); // this is the global write that will be used
+                                // to record exchanges in one big daily file
 
-  for (i = 0; i < sd->exchange.item_count; i++) {
+  for (i = 0; i < sd->exchange.item_count; i++)
+  {
     memcpy(it, &sd->exchange.item[i], sizeof(sd->exchange.item[i]));
     Sql_EscapeString(sql_handle, escape, it->real_name);
 
@@ -14955,7 +17395,8 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
   sd->status.money -= sd->exchange.gold;
   sd->exchange.gold = 0;
 
-  for (i = 0; i < tsd->exchange.item_count; i++) {
+  for (i = 0; i < tsd->exchange.item_count; i++)
+  {
     memcpy(it2, &tsd->exchange.item[i], sizeof(sd->exchange.item[i]));
     Sql_EscapeString(sql_handle, escape, it2->real_name);
 
@@ -14986,13 +17427,16 @@ int clif_exchange_finalize(USER *sd, USER *tsd) {
   return 0;
 }
 
-int clif_exchange_message(USER *sd, char *message, int type, int extra) {
+int clif_exchange_message(USER *sd, char *message, int type, int extra)
+{
   int len = 0;
-  if (extra > 1) extra = 0;
+  if (extra > 1)
+    extra = 0;
   nullpo_ret(0, sd);
   len = strlen(message) + 5;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15011,8 +17455,10 @@ int clif_exchange_message(USER *sd, char *message, int type, int extra) {
   return 0;
 }
 
-int clif_exchange_sendok(USER *sd, USER *tsd) {
-  if (tsd->exchange.exchange_done == 1) {
+int clif_exchange_sendok(USER *sd, USER *tsd)
+{
+  if (tsd->exchange.exchange_done == 1)
+  {
     clif_exchange_finalize(sd, tsd);
 
     clif_exchange_message(
@@ -15022,8 +17468,9 @@ int clif_exchange_sendok(USER *sd, USER *tsd) {
 
     clif_exchange_cleanup(sd);
     clif_exchange_cleanup(tsd);
-
-  } else {
+  }
+  else
+  {
     sd->exchange.exchange_done = 1;
     clif_exchange_message(
         tsd, "You exchanged, and gave away ownership of the items.", 5, 1);
@@ -15035,7 +17482,8 @@ int clif_exchange_sendok(USER *sd, USER *tsd) {
 }
 
 // adjust for item struct
-int clif_parse_exchange(USER *sd) {
+int clif_parse_exchange(USER *sd)
+{
   int type = RFIFOB(sd->fd, 5);
   int id;
   unsigned int amount;
@@ -15043,112 +17491,136 @@ int clif_parse_exchange(USER *sd) {
 
   char RegStr[] = "goldbardupe";
   int DupeTimes = pc_readglobalreg(sd, RegStr);
-  if (DupeTimes) {
+  if (DupeTimes)
+  {
     // char minibuf[]="Character under quarentine.";
     // clif_sendminitext(sd,minibuf);
     // return 0;
   }
 
-  switch (type) {
-    case 0:  // this is a "initiation", so we do this
-      tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
-      if (!tsd || sd->bl.m != tsd->bl.m || tsd->bl.type != BL_PC) return 0;
-      if (sd->status.gm_level || !(tsd->optFlags & optFlag_stealth))
-        clif_startexchange(sd, SWAP32(RFIFOL(sd->fd, 6)));
-      break;
-    case 1:  // amount?
-      id = RFIFOB(sd->fd, 10) - 1;
-      if (sd->status.inventory[id].amount > 1) {
-        if (!session[sd->fd]) {
-          session[sd->fd]->eof = 8;
-          return 0;
-        }
-
-        WFIFOHEAD(sd->fd, 7);
-        WFIFOB(sd->fd, 0) = 0xAA;
-        WFIFOW(sd->fd, 1) = SWAP16(4);
-        WFIFOB(sd->fd, 3) = 0x42;
-        WFIFOB(sd->fd, 4) = 0x03;
-        WFIFOB(sd->fd, 5) = 0x01;
-        WFIFOB(sd->fd, 6) = id + 1;
-        WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
-      } else if (sd->status.inventory[id].id) {
-        tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
-        clif_exchange_additem(sd, tsd, id, 1);
-      } else  // clif_Hacker(sd->status.name, "Attempted to exchange-hack-add a
-              // blank slot");
-        break;
-    case 2:  // after ask amount
-      id = RFIFOB(sd->fd, 10) - 1;
-      amount = RFIFOB(sd->fd, 11);
-      tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
-      if (amount > 0 && (sd->status.inventory[id].id &&
-                         amount <= sd->status.inventory[id].amount)) {
-        clif_exchange_additem(sd, tsd, id, amount);
-      } else if (!sd->status.inventory[id].id || amount == 0) {
-        // clif_Hacker(sd->status.name, "Attempted to exchange-hack-add a blank
-        // slot");
+  switch (type)
+  {
+  case 0: // this is a "initiation", so we do this
+    tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
+    if (!tsd || sd->bl.m != tsd->bl.m || tsd->bl.type != BL_PC)
+      return 0;
+    if (sd->status.gm_level || !(tsd->optFlags & optFlag_stealth))
+      clif_startexchange(sd, SWAP32(RFIFOL(sd->fd, 6)));
+    break;
+  case 1: // amount?
+    id = RFIFOB(sd->fd, 10) - 1;
+    if (sd->status.inventory[id].amount > 1)
+    {
+      if (!session[sd->fd])
+      {
+        session[sd->fd]->eof = 8;
+        return 0;
       }
-      break;
-    case 3:  // exchanging gold
-      tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
-      amount = SWAP32(RFIFOL(sd->fd, 10));
 
-      if (amount > sd->status.money) {
-        clif_exchange_money(sd, tsd);
-      } else {
-        sd->exchange.gold = amount;
-        clif_exchange_money(sd, tsd);
-      }
-      break;
-
-    case 4:  // Quit exchange
+      WFIFOHEAD(sd->fd, 7);
+      WFIFOB(sd->fd, 0) = 0xAA;
+      WFIFOW(sd->fd, 1) = SWAP16(4);
+      WFIFOB(sd->fd, 3) = 0x42;
+      WFIFOB(sd->fd, 4) = 0x03;
+      WFIFOB(sd->fd, 5) = 0x01;
+      WFIFOB(sd->fd, 6) = id + 1;
+      WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
+    }
+    else if (sd->status.inventory[id].id)
+    {
       tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
+      clif_exchange_additem(sd, tsd, id, 1);
+    }
+    else // clif_Hacker(sd->status.name, "Attempted to exchange-hack-add a
+         // blank slot");
+      break;
+  case 2: // after ask amount
+    id = RFIFOB(sd->fd, 10) - 1;
+    amount = RFIFOB(sd->fd, 11);
+    tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
+    if (amount > 0 && (sd->status.inventory[id].id &&
+                       amount <= sd->status.inventory[id].amount))
+    {
+      clif_exchange_additem(sd, tsd, id, amount);
+    }
+    else if (!sd->status.inventory[id].id || amount == 0)
+    {
+      // clif_Hacker(sd->status.name, "Attempted to exchange-hack-add a blank
+      // slot");
+    }
+    break;
+  case 3: // exchanging gold
+    tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
+    amount = SWAP32(RFIFOL(sd->fd, 10));
+
+    if (amount > sd->status.money)
+    {
+      clif_exchange_money(sd, tsd);
+    }
+    else
+    {
+      sd->exchange.gold = amount;
+      clif_exchange_money(sd, tsd);
+    }
+    break;
+
+  case 4: // Quit exchange
+    tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
+    clif_exchange_message(sd, "Exchange cancelled.", 4, 0);
+    if (tsd)
+      clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
+    clif_exchange_close(sd);
+    clif_exchange_close(tsd);
+    break;
+  case 5: // Finish exchange
+
+    tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
+    if (sd->exchange.target != SWAP32(RFIFOL(sd->fd, 6)))
+    {
+      clif_exchange_close(sd);
       clif_exchange_message(sd, "Exchange cancelled.", 4, 0);
-      if (tsd) clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
+      if (tsd && tsd->exchange.target == sd->bl.id)
+      {
+        clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
+        clif_exchange_close(tsd);
+        session[sd->fd]->eof = 10;
+        break;
+      }
+      // clif_exchange_close(tsd);
+    }
+    if (sd->exchange.gold > sd->status.money)
+    {
+      clif_exchange_message(sd, "You do not have that amount.", 4, 0);
+      clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
       clif_exchange_close(sd);
       clif_exchange_close(tsd);
-      break;
-    case 5:  // Finish exchange
+    }
+    else if (tsd)
+    {
+      clif_exchange_sendok(sd, tsd);
+    }
+    else
+    {
+      clif_exchange_close(sd);
+    }
 
-      tsd = map_id2sd(SWAP32(RFIFOL(sd->fd, 6)));
-      if (sd->exchange.target != SWAP32(RFIFOL(sd->fd, 6))) {
-        clif_exchange_close(sd);
-        clif_exchange_message(sd, "Exchange cancelled.", 4, 0);
-        if (tsd && tsd->exchange.target == sd->bl.id) {
-          clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
-          clif_exchange_close(tsd);
-          session[sd->fd]->eof = 10;
-          break;
-        }
-        // clif_exchange_close(tsd);
-      }
-      if (sd->exchange.gold > sd->status.money) {
-        clif_exchange_message(sd, "You do not have that amount.", 4, 0);
-        clif_exchange_message(tsd, "Exchange cancelled.", 4, 0);
-        clif_exchange_close(sd);
-        clif_exchange_close(tsd);
-      } else if (tsd) {
-        clif_exchange_sendok(sd, tsd);
-      } else {
-        clif_exchange_close(sd);
-      }
+    break;
 
-      break;
-
-    default:
-      break;
+  default:
+    break;
   }
   return 0;
 }
 
-int clif_startexchange(USER *sd, unsigned int target) {
+int clif_startexchange(USER *sd, unsigned int target)
+{
   int len = 0;
   char buff[256];
   USER *tsd = map_id2sd(target);
   nullpo_ret(0, sd);
 
-  if (target == sd->bl.id) {
+  if (target == sd->bl.id)
+  {
     sprintf(
         buff,
         "You move your items from one hand to another, but quickly get bored.");
@@ -15156,20 +17628,26 @@ int clif_startexchange(USER *sd, unsigned int target) {
     return 0;
   }
 
-  if (!tsd) return 0;
+  if (!tsd)
+    return 0;
 
   sd->exchange.target = target;
   tsd->exchange.target = sd->bl.id;
 
-  if (tsd->status.settingFlags & FLAG_EXCHANGE) {
-    if (classdb_name(tsd->status.class, tsd->status.mark)) {
+  if (tsd->status.settingFlags & FLAG_EXCHANGE)
+  {
+    if (classdb_name(tsd->status.class, tsd->status.mark))
+    {
       sprintf(buff, "%s(%s)", tsd->status.name,
               classdb_name(tsd->status.class, tsd->status.mark));
-    } else {
+    }
+    else
+    {
       sprintf(buff, "%s()", tsd->status.name);
     }
 
-    if (!session[sd->fd]) {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
@@ -15190,17 +17668,21 @@ int clif_startexchange(USER *sd, unsigned int target) {
     WFIFOW(sd->fd, 1) = SWAP16(len + 3);
     WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
 
-    if (!session[sd->fd]) {
+    if (!session[sd->fd])
+    {
       session[sd->fd]->eof = 8;
       return 0;
     }
 
     WFIFOHEAD(tsd->fd, 512);
 
-    if (classdb_name(sd->status.class, sd->status.mark)) {
+    if (classdb_name(sd->status.class, sd->status.mark))
+    {
       sprintf(buff, "%s(%s)", sd->status.name,
               classdb_name(sd->status.class, sd->status.mark));
-    } else {
+    }
+    else
+    {
       sprintf(buff, "%s()", sd->status.name);
     }
 
@@ -15225,25 +17707,31 @@ int clif_startexchange(USER *sd, unsigned int target) {
     tsd->exchange.item_count = 0;
     sd->exchange.list_count = 0;
     tsd->exchange.list_count = 1;
-  } else {
+  }
+  else
+  {
     sprintf(buff, "They have refused to exchange with you");
     clif_sendminitext(sd, buff);
   }
 
   return 0;
 }
-int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
+int clif_exchange_additem_else(USER *sd, USER *tsd, int id)
+{
   int len = 0;
   char buff[256];
   char nameof[255];
-  if (!sd) return 0;
-  if (!tsd) return 0;
+  if (!sd)
+    return 0;
+  if (!tsd)
+    return 0;
   sprintf(nameof, "%s",
           sd->exchange.item[sd->exchange.item_count - 1].real_name);
   sd->exchange.list_count++;
   stringTruncate(nameof, 15);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15268,7 +17756,8 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   len = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15293,17 +17782,22 @@ int clif_exchange_additem_else(USER *sd, USER *tsd, int id) {
   return 0;
 }
 
-int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
+int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount)
+{
   int len = 0;
   char buff[300];
   int i;
   float percentage;
   char nameof[255];
-  if (!sd) return 0;
-  if (!tsd) return 0;
+  if (!sd)
+    return 0;
+  if (!tsd)
+    return 0;
 
-  if (sd->status.inventory[id].id) {
-    if (itemdb_exchangeable(sd->status.inventory[id].id)) {
+  if (sd->status.inventory[id].id)
+  {
+    if (itemdb_exchangeable(sd->status.inventory[id].id))
+    {
       clif_sendminitext(sd, "You cannot exchange that.");
       return 0;
     }
@@ -15320,7 +17814,8 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
           sd->status.inventory[id].customLook,
           sd->status.inventory[id].customLookColor,
           sd->status.inventory[id].customIcon,
-          sd->status.inventory[id].customIconColor) >= tsd->status.maxinv) {
+          sd->status.inventory[id].customIconColor) >= tsd->status.maxinv)
+  {
     clif_sendminitext(sd,
                       "Receiving player does not have enough inventory space.");
     return 0;
@@ -15333,7 +17828,8 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   sd->exchange.list_count++;
   stringTruncate(nameof, 15);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15348,33 +17844,48 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   len = 0;
   i = sd->exchange.item_count;
 
-  if (amount > 1) {
+  if (amount > 1)
+  {
     sprintf(buff, "%s(%d)", nameof, amount);
-  } else {
+  }
+  else
+  {
     sprintf(buff, "%s", nameof);
   }
 
   if (itemdb_type(sd->exchange.item[i].id) > 2 &&
-      itemdb_type(sd->exchange.item[i].id) < 17) {
+      itemdb_type(sd->exchange.item[i].id) < 17)
+  {
     percentage = ((float)sd->exchange.item[i].dura /
                   itemdb_dura(sd->exchange.item[i].id)) *
                  100;
     sprintf(buff, "%s (%d%%)", nameof, (int)percentage);
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_SMOKE) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_SMOKE)
+  {
     sprintf(buff, "%s [%d %s]", nameof, sd->exchange.item[i].dura,
             itemdb_text(sd->exchange.item[i].id));
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_BAG) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_BAG)
+  {
     sprintf(buff, "%s [%d]", nameof, sd->exchange.item[i].dura);
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_MAP) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_MAP)
+  {
     sprintf(buff, "[T%d] %s", sd->exchange.item[i].dura, nameof);
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_QUIVER) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_QUIVER)
+  {
     sprintf(buff, "%s [%d]", nameof, sd->exchange.item[i].dura);
   }
 
-  if (sd->exchange.item[i].customIcon != 0) {
+  if (sd->exchange.item[i].customIcon != 0)
+  {
     WFIFOW(sd->fd, len + 8) = SWAP16(sd->exchange.item[i].customIcon + 49152);
     WFIFOB(sd->fd, len + 10) = sd->exchange.item[i].customIconColor;
-  } else {
+  }
+  else
+  {
     WFIFOW(sd->fd, len + 8) = SWAP16(itemdb_icon(sd->exchange.item[i].id));
     WFIFOB(sd->fd, len + 10) = itemdb_iconcolor(sd->exchange.item[i].id);
   }
@@ -15387,7 +17898,8 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   WFIFOSET(sd->fd, yuri_encrypt(sd->fd));
   len = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15400,13 +17912,17 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   WFIFOB(tsd->fd, 6) = 0x01;
   WFIFOB(tsd->fd, 7) = sd->exchange.list_count;
 
-  if (amount > 1) {
+  if (amount > 1)
+  {
     sprintf(buff, "%s (%d)", nameof, amount);
-  } else {
+  }
+  else
+  {
     sprintf(buff, "%s", nameof);
   }
   if (itemdb_type(sd->exchange.item[i].id) > 2 &&
-      itemdb_type(sd->exchange.item[i].id) < 17) {
+      itemdb_type(sd->exchange.item[i].id) < 17)
+  {
     // if(!sd->exchange.item[i].custom) {
     percentage = ((float)sd->exchange.item[i].dura /
                   itemdb_dura(sd->exchange.item[i].id)) *
@@ -15416,21 +17932,32 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
     // itemdb_durac(sd->exchange.item[i].custom))*100;
     //}
     sprintf(buff, "%s (%d%%)", nameof, (int)percentage);
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_SMOKE) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_SMOKE)
+  {
     sprintf(buff, "%s [%d %s]", nameof, sd->exchange.item[i].dura,
             itemdb_text(sd->exchange.item[i].id));
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_BAG) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_BAG)
+  {
     sprintf(buff, "%s [%d]", nameof, sd->exchange.item[i].dura);
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_MAP) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_MAP)
+  {
     sprintf(buff, "[T%d] %s", sd->exchange.item[i].dura, nameof);
-  } else if (itemdb_type(sd->exchange.item[i].id) == ITM_QUIVER) {
+  }
+  else if (itemdb_type(sd->exchange.item[i].id) == ITM_QUIVER)
+  {
     sprintf(buff, "%s [%d]", nameof, sd->exchange.item[i].dura);
   }
 
-  if (sd->exchange.item[i].customIcon != 0) {
+  if (sd->exchange.item[i].customIcon != 0)
+  {
     WFIFOW(tsd->fd, 8) = SWAP16(sd->exchange.item[i].customIcon + 49152);
     WFIFOB(tsd->fd, 10) = sd->exchange.item[i].customIconColor;
-  } else {
+  }
+  else
+  {
     WFIFOW(tsd->fd, 8) = SWAP16(itemdb_icon(sd->exchange.item[i].id));
     WFIFOB(tsd->fd, 10) = itemdb_iconcolor(sd->exchange.item[i].id);
   }
@@ -15442,7 +17969,8 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   WFIFOSET(tsd->fd, yuri_encrypt(tsd->fd));
 
   sd->exchange.item_count++;
-  if (strlen(sd->exchange.item[i].real_name)) {
+  if (strlen(sd->exchange.item[i].real_name))
+  {
     clif_exchange_additem_else(sd, tsd, id);
   }
   pc_delitem(sd, id, amount, 9);
@@ -15450,9 +17978,12 @@ int clif_exchange_additem(USER *sd, USER *tsd, int id, int amount) {
   return 0;
 }
 
-int clif_exchange_money(USER *sd, USER *tsd) {
-  if (!sd) return 0;
-  if (!tsd) return 0;
+int clif_exchange_money(USER *sd, USER *tsd)
+{
+  if (!sd)
+    return 0;
+  if (!tsd)
+    return 0;
 
   /*if(SQL_ERROR == Sql_Query(sql_handle,"INSERT INTO `ExchangeLogs`
   (`ExgChaId`, `ExgMapId`, `ExgX`, `ExgY`, `ExgTarget`, `ExgMapIdTarget`,
@@ -15470,12 +18001,14 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   tsd->exchange.gold)) { Sql_ShowDebug(sql_handle);
   }*/
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
-  if (!session[tsd->fd]) {
+  if (!session[tsd->fd])
+  {
     session[tsd->fd]->eof = 8;
     return 0;
   }
@@ -15503,7 +18036,8 @@ int clif_exchange_money(USER *sd, USER *tsd) {
   return 0;
 }
 
-int clif_exchange_close(USER *sd) {
+int clif_exchange_close(USER *sd)
+{
   int i;
   struct item *it;
 
@@ -15511,7 +18045,8 @@ int clif_exchange_close(USER *sd) {
   CALLOC(it, struct item, 1);
   sd->exchange.target = 0;
 
-  for (i = 0; i < sd->exchange.item_count; i++) {
+  for (i = 0; i < sd->exchange.item_count; i++)
+  {
     memcpy(it, &sd->exchange.item[i], sizeof(sd->exchange.item[i]));
     // it->id=id;
     // it->dura=sd->exchange.dura[i];
@@ -15525,78 +18060,94 @@ int clif_exchange_close(USER *sd) {
   return 0;
 }
 
-int clif_isingroup(USER *sd, USER *tsd) {
+int clif_isingroup(USER *sd, USER *tsd)
+{
   int x;
-  for (x = 0; x < sd->group_count; x++) {
-    if (groups[sd->groupid][x] == tsd->bl.id) {
+  for (x = 0; x < sd->group_count; x++)
+  {
+    if (groups[sd->groupid][x] == tsd->bl.id)
+    {
       return 1;
     }
   }
   return 0;
 }
-int clif_canmove_sub(struct block_list *bl, va_list ap) {
+int clif_canmove_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   USER *tsd = NULL;
   MOB *mob = NULL;
 
   nullpo_ret(0, sd = va_arg(ap, USER *));
 
-  if (sd->canmove == 1) return 0;
+  if (sd->canmove == 1)
+    return 0;
 
-  if (bl->type == BL_PC) {
+  if (bl->type == BL_PC)
+  {
     tsd = (USER *)bl;
 
-    if (tsd) {
+    if (tsd)
+    {
       if ((map[tsd->bl.m].show_ghosts && tsd->status.state == 1 &&
            tsd->bl.id != sd->bl.id && sd->status.state != 1 &&
            !(sd->optFlags & optFlag_ghosts)) ||
           (tsd->status.state == -1 ||
-           (tsd->status.gm_level && (tsd->optFlags & optFlag_stealth)))) {
+           (tsd->status.gm_level && (tsd->optFlags & optFlag_stealth))))
+      {
         return 0;
       }
     }
   }
 
-  if (bl->type == BL_MOB) {
+  if (bl->type == BL_MOB)
+  {
     mob = (MOB *)bl;
 
-    if (mob->state == MOB_DEAD) {
+    if (mob->state == MOB_DEAD)
+    {
       return 0;
     }
   }
 
-  if (bl->type == BL_NPC && bl->subtype == 2) {
+  if (bl->type == BL_NPC && bl->subtype == 2)
+  {
     return 0;
   }
 
-  if (bl && bl->id != sd->bl.id) {
+  if (bl && bl->id != sd->bl.id)
+  {
     sd->canmove = 1;
   }
 
   return 0;
 }
-int clif_canmove(USER *sd, int direct) {
+int clif_canmove(USER *sd, int direct)
+{
   int nx = 0, ny = 0;
-  if (sd->status.gm_level) return 0;
-  switch (direct) {
-    case 0:
-      ny = sd->bl.y - 1;
-      break;
-    case 1:
-      nx = sd->bl.x + 1;
-      break;
-    case 2:
-      ny = sd->bl.y + 1;
-      break;
-    case 3:
-      nx = sd->bl.x - 1;
-      break;
+  if (sd->status.gm_level)
+    return 0;
+  switch (direct)
+  {
+  case 0:
+    ny = sd->bl.y - 1;
+    break;
+  case 1:
+    nx = sd->bl.x + 1;
+    break;
+  case 2:
+    ny = sd->bl.y + 1;
+    break;
+  case 3:
+    nx = sd->bl.x - 1;
+    break;
   }
 
   map_foreachincell(clif_canmove_sub, sd->bl.m, sd->bl.x, sd->bl.y, BL_MOB, sd);
   map_foreachincell(clif_canmove_sub, sd->bl.m, sd->bl.x, sd->bl.y, BL_PC, sd);
   map_foreachincell(clif_canmove_sub, sd->bl.m, nx, ny, BL_PC, sd);
-  if (clif_object_canmove(sd->bl.m, nx, ny, direct)) {
+  if (clif_object_canmove(sd->bl.m, nx, ny, direct))
+  {
     sd->canmove = 1;
   }
   return sd->canmove;
@@ -15694,11 +18245,13 @@ limit at a time?  number is always 100 or 255
 
 int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0,
                    const char **mname, unsigned int *id, int *x1, int *y1,
-                   int i) {
+                   int i)
+{
   int len = 0;
   int x, y;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15711,10 +18264,11 @@ int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0,
   strcpy(WFIFOP(sd->fd, 6), wm);
   len += strlen(wm) + 1;
   WFIFOB(sd->fd, len + 5) = i;
-  WFIFOB(sd->fd, len + 6) = 0;  // Maybe look?
+  WFIFOB(sd->fd, len + 6) = 0; // Maybe look?
   len += 2;
 
-  for (x = 0; x < i; x++) {
+  for (x = 0; x < i; x++)
+  {
     WFIFOW(sd->fd, len + 5) = SWAP16(x0[x]);
     WFIFOW(sd->fd, len + 7) = SWAP16(y0[x]);
     len += 4;
@@ -15727,7 +18281,8 @@ int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0,
     len += 8;
     WFIFOW(sd->fd, len + 5) = SWAP16(i);
     len += 2;
-    for (y = 0; y < i; y++) {
+    for (y = 0; y < i; y++)
+    {
       WFIFOW(sd->fd, len + 5) = SWAP16(y);
       len += 2;
     }
@@ -15738,7 +18293,8 @@ int clif_mapselect(USER *sd, const char *wm, int *x0, int *y0,
 
   return 0;
 }
-int clif_pb_sub(struct block_list *bl, va_list ap) {
+int clif_pb_sub(struct block_list *bl, va_list ap)
+{
   USER *sd = NULL;
   USER *tsd = NULL;
   int *len = NULL;
@@ -15750,11 +18306,13 @@ int clif_pb_sub(struct block_list *bl, va_list ap) {
 
   int path = classdb_path(tsd->status.class);
 
-  if (path == 5) path = 2;
+  if (path == 5)
+    path = 2;
 
   if (path == 50 || path == 0)
     return 0;
-  else {
+  else
+  {
     // clif_sendminitext(sd,"Entered stage 1 - Power rating");
     power_rating = tsd->status.basehp + tsd->status.basemp;
     // clif_sendminitext(sd,"Entered stage 2 - unknown");
@@ -15775,21 +18333,23 @@ int clif_pb_sub(struct block_list *bl, va_list ap) {
   }
   return 0;
 }
-int clif_sendpowerboard(USER *sd) {
+int clif_sendpowerboard(USER *sd)
+{
   int len[2];
   len[0] = 0;
   len[1] = 0;
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
-  WFIFOB(sd->fd, 3) = 0x46;  // Powerboard packet
-  WFIFOB(sd->fd, 4) = 0x03;  //#?
-  WFIFOB(sd->fd, 5) = 1;     // Subtype?
+  WFIFOB(sd->fd, 3) = 0x46; // Powerboard packet
+  WFIFOB(sd->fd, 4) = 0x03; // #?
+  WFIFOB(sd->fd, 5) = 1;    // Subtype?
   map_foreachinarea(clif_pb_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEMAP, BL_PC,
                     sd, len);
   WFIFOW(sd->fd, 6) = SWAP16(len[1]);
@@ -15798,14 +18358,16 @@ int clif_sendpowerboard(USER *sd) {
   return 0;
 }
 
-int clif_parseparcel(USER *sd) {
+int clif_parseparcel(USER *sd)
+{
   nullpo_ret(0, sd);
   clif_sendminitext(
       sd, "You should go see your kingdom's messenger to collect this parcel");
   return 0;
 }
 
-int clif_huntertoggle(USER *sd) {
+int clif_huntertoggle(USER *sd)
+{
   // printf("clicked hunter list\n");
 
   // first character of input starts on (sd->fd,7)
@@ -15816,13 +18378,14 @@ int clif_huntertoggle(USER *sd) {
   sd->hunter = RFIFOB(sd->fd, 5);
 
   char hunter_tag[40] =
-      "";  // set array to hold maximum 40 characters from user input
+      ""; // set array to hold maximum 40 characters from user input
 
   memcpy(hunter_tag, RFIFOP(sd->fd, 7), RFIFOB(sd->fd, 6));
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -15831,7 +18394,8 @@ int clif_huntertoggle(USER *sd) {
   if (SQL_ERROR == Sql_Query(sql_handle,
                              "UPDATE `Character` SET `ChaHunter` = '%i', "
                              "`ChaHunterNote` = '%s' WHERE `ChaId` = '%d'",
-                             sd->hunter, hunter_tag, sd->status.id)) {
+                             sd->hunter, hunter_tag, sd->status.id))
+  {
     Sql_ShowDebug(sql_handle);
     SqlStmt_Free(stmt);
     return 0;
@@ -15839,7 +18403,8 @@ int clif_huntertoggle(USER *sd) {
 
   // if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) SqlStmt_Free(stmt);
 
-  if (!session[sd->fd]) {
+  if (!session[sd->fd])
+  {
     session[sd->fd]->eof = 8;
     return 0;
   }
@@ -15854,7 +18419,8 @@ int clif_huntertoggle(USER *sd) {
   return 0;
 }
 
-int clif_sendhunternote(USER *sd) {
+int clif_sendhunternote(USER *sd)
+{
   int len = 0;
   char huntername[16] = "";
 
@@ -15862,11 +18428,13 @@ int clif_sendhunternote(USER *sd) {
 
   memcpy(huntername, RFIFOP(sd->fd, 6), RFIFOB(sd->fd, 5));
 
-  if (strcasecmp(sd->status.name, huntername) == 0) return 1;
+  if (strcasecmp(sd->status.name, huntername) == 0)
+    return 1;
 
   SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 
-  if (stmt == NULL) {
+  if (stmt == NULL)
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 0;
@@ -15879,15 +18447,18 @@ int clif_sendhunternote(USER *sd) {
               huntername) ||
       SQL_ERROR == SqlStmt_Execute(stmt) ||
       SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &hunternote,
-                                      sizeof(hunternote), NULL, NULL)) {
+                                      sizeof(hunternote), NULL, NULL))
+  {
     SqlStmt_ShowDebug(stmt);
     SqlStmt_Free(stmt);
     return 1;
   }
 
-  if (SQL_SUCCESS == SqlStmt_NextRow(stmt)) SqlStmt_Free(stmt);
+  if (SQL_SUCCESS == SqlStmt_NextRow(stmt))
+    SqlStmt_Free(stmt);
 
-  if (strcmp(hunternote, "") == 0) return 1;
+  if (strcmp(hunternote, "") == 0)
+    return 1;
 
   WFIFOHEAD(sd->fd, 65535);
   WFIFOB(sd->fd, 0) = 0xAA;
@@ -15900,7 +18471,7 @@ int clif_sendhunternote(USER *sd) {
 
   memcpy(WFIFOP(sd->fd, len), huntername, strlen(huntername));
 
-  len += strlen(huntername);  // fd 17
+  len += strlen(huntername); // fd 17
 
   WFIFOB(sd->fd, len) = strlen(hunternote);
 
@@ -15916,26 +18487,29 @@ int clif_sendhunternote(USER *sd) {
   return 0;
 }
 
-int clif_pushback(USER *sd) {
-  switch (sd->status.side) {
-    case 0:
-      pc_warp(sd, sd->bl.m, sd->bl.x, sd->bl.y + 2);
-      break;
-    case 1:
-      pc_warp(sd, sd->bl.m, sd->bl.x - 2, sd->bl.y);
-      break;
-    case 2:
-      pc_warp(sd, sd->bl.m, sd->bl.x, sd->bl.y - 2);
-      break;
-    case 3:
-      pc_warp(sd, sd->bl.m, sd->bl.x + 2, sd->bl.y);
-      break;
+int clif_pushback(USER *sd)
+{
+  switch (sd->status.side)
+  {
+  case 0:
+    pc_warp(sd, sd->bl.m, sd->bl.x, sd->bl.y + 2);
+    break;
+  case 1:
+    pc_warp(sd, sd->bl.m, sd->bl.x - 2, sd->bl.y);
+    break;
+  case 2:
+    pc_warp(sd, sd->bl.m, sd->bl.x, sd->bl.y - 2);
+    break;
+  case 3:
+    pc_warp(sd, sd->bl.m, sd->bl.x + 2, sd->bl.y);
+    break;
   }
 
   return 0;
 }
 
-int clif_cancelafk(USER *sd) {
+int clif_cancelafk(USER *sd)
+{
   nullpo_ret(0, sd);
 
   // if (sd->afk) reset = 1;
