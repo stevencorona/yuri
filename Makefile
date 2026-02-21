@@ -1,31 +1,34 @@
 #!make
 
-CC ?= clang
+# Rust-based build system
+all:
+	@echo "Building all servers..."
+	@cargo build --workspace
 
-all: clean libyuri cmake metan_cli decrypt_cli char_server login_server map_server
-libyuri:
-	@echo "libyuri:"
-	@cargo build --lib
-yuri.h:
-	@cbindgen --config cbindgen.toml --crate yuri --output ./c_deps/yuri.h --lang c
-cmake:
-	@cmake -H. -Bbuild
-common: deps
-	@cmake --build build --target common --parallel --
-deps: cmake libyuri
-	@cmake --build build --target deps --parallel --
-metan_cli: common
-	@cmake --build build --target metan_cli --parallel --
-decrypt_cli: common 
-	@cmake --build build --target decrypt_cli --parallel --
-char_server: common
-	@cmake --build build --target char_server --parallel --
-login_server: common
-	@cmake --build build --target login_server --parallel --
-map_server: common
-	@cmake --build build --target map_server --parallel --
+char_server:
+	@echo "Building char_server..."
+	@cargo build --bin char_server
+
+login_server:
+	@echo "Building login_server..."
+	@cargo build --bin login_server
+
+map_server:
+	@echo "Building map_server..."
+	@cargo build --bin map_server
+
+cli:
+	@echo "Building CLI tools..."
+	@cargo build -p cli
+
+test: all
+	@echo "All servers built successfully!"
+
 clean:
-	@rm -rf ./bin/*
-	@rm -rf ./build
-clean-crate:
 	@cargo clean
+
+release:
+	@echo "Building release versions..."
+	@cargo build --release --workspace
+
+.PHONY: all char_server login_server map_server cli test clean release

@@ -34,7 +34,7 @@ xor_key: Urk#nI7ni
 // Connection information for char server, which is used for cross-talk between the char/map servers.
 // This is also what the char server uses to determine its listen port. Currently, the char server will always
 // bind to 0.0.0.0, so this is just for external clients to know where it is.
-char_ip: 192.168.1.68
+char_ip: 192.168.1.108
 char_port: 2005
 
 
@@ -49,13 +49,13 @@ start_point: 0, 1, 1
 // Connection information for login server, which is used for cross-talk between the char/login servers.
 // This is also what the login server uses to determine its listen port. Currently, the login server will always
 // bind to 0.0.0.0, so this is just for external clients to know where it is.
-login_ip: 192.168.1.68
+login_ip: 192.168.1.108
 login_port: 2000
 
 // Required client version
 // Upon connecting, the client tells us the version that it is running. If the client version does not match
 // this value, the server will initiate the patching process which currently fails.
-version: 750
+version: 752
 
 // Required client patch (currently unenforced)
 // Not exactly sure what this is, but it comes with the version and I think it is the client patch version. In
@@ -68,9 +68,9 @@ deep: 0
 // after creating their character. If this is set as 1 (true), you must create a mechanism to attach
 // the character to a row in the Accounts table before they will be able to login. Setting it to 0 (false)
 // allows characters to login immediately after being created.
-require_reg: 1
+require_reg: 0
 
-// Metadata files to send to the client upon login. 
+// Metadata files to send to the client upon login.
 // These files cache various bits of game information on the client, such as the item stats that
 // are visible when right clicking on an item, and are only sent during login.
 //
@@ -90,7 +90,7 @@ meta: ItemInfo1
 // want non-local clients to connect. The client initial connects to the login server and after auth, the login server
 // forwards this IP/Port to the client to directly connect. Note- The map server binds to 0.0.0.0, so this is just an
 // address that the client can access - it does not control which interface to bind to.
-map_ip: 192.168.1.68
+map_ip: 192.168.1.108
 map_port: 2001
 
 // Map Server ID

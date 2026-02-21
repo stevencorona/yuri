@@ -1,0 +1,345 @@
+#include "login_server.h"
+
+#include <ctype.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <sys/time.h>
+#include <time.h>
+#include <zlib.h>
+
+#include "config.h"
+#include "core.h"
+#include "db.h"
+#include "db_mysql.h"
+#include "login_parse.h"
+#include "net_crypt.h"
+#include "session.h"
+#include "timer.h"
+
+// Forward declarations
+void set_termfunc(term_func_t new_term_func);
+
+//
+// Global variables
+//
+int login_fd = 0;
+int char_fd = 0;
+char login_msg[MSG_MAX][256];
+Sql *sql_handle = NULL;
+DBMap *bf_lockout = NULL;
+
+//
+// Masks for username and password validation
+//
+const char mask1[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
+const char mask2[] =
+    "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890";
+
+/**
+ * Validates a string against a mask.
+ * @param buf The string to validate.
+ * @param mask The mask to validate against.
+ * @return 0 if the string is valid, 1 otherwise.
+ */
+int Valid(const char *buf, const char *mask) {
+  int x = 0;
+  int n = 0;
+  int found = 0;
+
+  for (x = 0; x < strlen(buf); x++) {
+    for (n = 0; n < strlen(mask); n++) {
+      if (buf[x] == mask[n]) {
+        found = 1;
+      }
+    }
+    if (!found) {
+      return 1;
+    }
+    found = 0;
+  }
+
+  return 0;
+}
+
+/**
+ * Checks if a string contains only alphabetic characters.
+ * @param p The string to check.
+ * @param len The length of the string.
+ * @return 0 if the string is valid, 1 otherwise.
+ */
+int string_check_allchars(const char *p, int len) {
+  char buf[255];
+  memset(buf, 0, 255);
+  memcpy(buf, p, len);
+  return Valid(buf, mask1);
+}
+
+/**
+ * Checks if a string contains only alphanumeric characters.
+ * @param p The string to check.
+ * @param len The length of the string.
+ * @return 0 if the string is valid, 1 otherwise.
+ */
+int string_check(const char *p, int len) {
+  char buf[255];
+  memset(buf, 0, 255);
+  memcpy(buf, p, len);
+  return Valid(buf, mask2);
+}
+
+/**
+ * Reads the language file and loads the messages into memory.
+ * @param cfg_file The path to the language file.
+ * @return 0 on success, 1 on failure.
+ */
+int login_lang_read(const char *cfg_file) {
+  char line[1024];
+  char r1[1024];
+  char r2[1024];
+  int line_num = 0;
+  FILE *fp = NULL;
+
+  fp = fopen(cfg_file, "re");
+  if (fp == NULL) {
+    printf("[login] [lang_read_failure]: Language file (%s) not found.\n",
+           cfg_file);
+    return 1;
+  }
+
+  while (fgets(line, sizeof(line), fp)) {
+    line_num++;
+    if (line[0] == '/' && line[1] == '/') {
+      continue;
+    }
+
+    if (sscanf(line, "%[^\]: %[^
+]", r1, r2) == 2) {
+      if (strcasecmp(r1, "LGN_ERRSERVER") == 0) {
+        strncpy(login_msg[LGN_ERRSERVER], r2, 256);
+        login_msg[LGN_ERRSERVER][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_WRONGPASS") == 0) {
+        strncpy(login_msg[LGN_WRONGPASS], r2, 256);
+        login_msg[LGN_WRONGPASS][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_WRONGUSER") == 0) {
+        strncpy(login_msg[LGN_WRONGUSER], r2, 256);
+        login_msg[LGN_WRONGUSER][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_ERRDB") == 0) {
+        strncpy(login_msg[LGN_ERRDB], r2, 256);
+        login_msg[LGN_ERRDB][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_USEREXIST") == 0) {
+        strncpy(login_msg[LGN_USEREXIST], r2, 256);
+        login_msg[LGN_USEREXIST][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_ERRPASS") == 0) {
+        strncpy(login_msg[LGN_ERRPASS], r2, 256);
+        login_msg[LGN_ERRPASS][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_ERRUSER") == 0) {
+        strncpy(login_msg[LGN_ERRUSER], r2, 256);
+        login_msg[LGN_ERRUSER][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_NEWCHAR") == 0) {
+        strncpy(login_msg[LGN_NEWCHAR], r2, 256);
+        login_msg[LGN_NEWCHAR][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_CHGPASS") == 0) {
+        strncpy(login_msg[LGN_CHGPASS], r2, 256);
+        login_msg[LGN_CHGPASS][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_DBLLOGIN") == 0) {
+        strncpy(login_msg[LGN_DBLLOGIN], r2, 256);
+        login_msg[LGN_DBLLOGIN][255] = '\0';
+      } else if (strcasecmp(r1, "LGN_BANNED") == 0) {
+        strncpy(login_msg[LGN_BANNED], r2, 256);
+        login_msg[LGN_BANNED][255] = '\0';
+      }
+    }
+  }
+  fclose(fp);
+  printf("[login] [lang_read_sucess] file=%s\n", cfg_file);
+  return 0;
+}
+
+/**
+ * Called when the server is shutting down.
+ */
+void login_do_term(void) { printf("[login] [shutdown]\n"); }
+
+/**
+ * Displays the help screen and exits.
+ */
+void login_help_screen() {
+  printf("HELP LIST\n");
+  printf("----------\n");
+  printf(" --conf [FILENAME]  : set config file\n");
+  printf(" --lang [FILENAME]  : set lang file\n");
+  exit(0);
+}
+
+/**
+ * Initializes the login server.
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line arguments.
+ * @return 0 on success, 1 on failure.
+ */
+int login_do_init(int argc, char **argv) {
+  int i = 0;
+  char *CONF_FILE = "conf/server.yaml";
+  char *LANG_FILE = "conf/lang.yaml";
+
+  srand(gettick());
+
+  for (i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 ||
+        strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0) {
+      login_help_screen();
+    } else if (strcmp(argv[i], "--conf") == 0) {
+      CONF_FILE = argv[i + 1];
+    } else if (strcmp(argv[i], "--lang") == 0) {
+      LANG_FILE = argv[i + 1];
+    }
+  }
+
+  config_read(CONF_FILE);
+  sql_handle = Sql_Malloc();
+  if (sql_handle == NULL) {
+    Sql_ShowDebug(sql_handle);
+    exit(EXIT_FAILURE);
+  }
+  if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip,
+                               (uint16_t)sql_port, sql_db)) {
+    printf("[login] [sql_connect_error] id=%s port=%d\n", sql_id, sql_port);
+    Sql_ShowDebug(sql_handle);
+    Sql_Free(sql_handle);
+    exit(EXIT_FAILURE);
+  }
+
+  // sql_init();
+  login_lang_read(LANG_FILE);
+  set_termfunc(login_do_term);
+  printf("[login] [started] Login Server Started\n");
+
+  set_defaultaccept(clif_accept);
+  set_defaultparse(login_clif_parse);
+  login_fd = make_listen_port(login_port);
+  timer_insert(10 * 60 * 1000, 10 * 60 * 1000, Remove_Throttle, 0, 0);
+  // Lockout DB
+  bf_lockout = uidb_alloc(DB_OPT_BASE);
+
+  printf("[login] [ready] port=%d\n", login_port);
+  return 0;
+}
+
+/**
+ * Gets the number of invalid login attempts for an IP address.
+ * @param ip The IP address to check.
+ * @return The number of invalid login attempts.
+ */
+int getInvalidCount(unsigned int ip) {
+  unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
+  return c;
+}
+
+/**
+ * Clears the lockout for an IP address.
+ * @param i The IP address to clear.
+ * @param d Unused.
+ * @return 1 on success.
+ */
+int login_clear_lockout(int i, int d) {
+  uidb_remove(bf_lockout, (uintptr_t)i);
+  return 1;
+}
+
+/**
+ * Increments the invalid login attempt count for an IP address.
+ * @param ip The IP address to increment.
+ * @return The new invalid login attempt count.
+ */
+int setInvalidCount(unsigned int ip) {
+  unsigned int c = (uintptr_t)uidb_get(bf_lockout, ip);
+
+  if (!c) {
+    timer_insert(10 * 60 * 1000, 10 * 60 * 1000, login_clear_lockout, ip, 0);
+  }
+
+  uidb_put(bf_lockout, ip, (void *)(uintptr_t)(c + 1));
+
+  return c + 1;
+}
+
+static term_func_t term_func;
+
+/**
+ * Handles signals.
+ * @param signal The signal to handle.
+ */
+void handle_signal(int signal) {
+  switch (signal) {
+    case SIGINT:
+    case SIGTERM:
+      printf("[login] [signal] signal=SIGTERM\n");
+      if (term_func != NULL) {
+        term_func();
+      }
+      timer_clear();
+      for (int i = 0; i < fd_max; i++) {
+        if (!session[i]) {
+          continue;
+        }
+        session_eof(i);
+      }
+      exit(0);
+      break;
+    case SIGPIPE:
+    default:
+      break;
+  }
+}
+
+/**
+ * Sets the termination function.
+ * @param new_term_func The new termination function.
+ */
+void set_termfunc(term_func_t new_term_func) { term_func = new_term_func; }
+
+/**
+ * The main entry point of the login server.
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line arguments.
+ * @return 0 on success, 1 on failure.
+ */
+int start_login_server(int argc, char **argv) {
+  struct timeval start;
+  int tick = 0;
+  bool run = true;
+
+  gettimeofday(&start, NULL);
+
+  server_shutdown = 0;
+
+  do_socket();
+
+  signal(SIGPIPE, handle_signal);
+  signal(SIGTERM, handle_signal);
+  signal(SIGINT, handle_signal);
+  db_init();
+  timer_init();
+
+  login_do_init(argc, argv);
+
+  while (run) {
+    tick = gettick_nocache();
+
+    timer_do(tick);
+    do_sendrecv();
+    do_parsepacket();
+
+    if (server_shutdown == 1) {
+      run = false;
+    }
+
+    nanosleep((struct timespec[]){{0, SERVER_TICK_RATE_NS}}, NULL);
+  }
+
+  return 0;
+}
